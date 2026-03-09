@@ -2611,7 +2611,7 @@ def migrate_db_view(request):
             # 2. Create Default Admin if it doesn't exist
             if not User.objects.filter(username='admin').exists():
                 admin_user = User.objects.create_superuser('admin', 'admin@fitsync.com', 'admin123')
-                UserProfile.objects.get_or_create(user=admin_user, role='admin', phone='0000000000')
+                UserProfile.objects.get_or_create(user=admin_user, role='admin', phone_number='0000000000')
                 msg = "✅ Migrations completed and Admin (admin/admin123) created!"
             else:
                 msg = "✅ Migrations completed successfully!"
