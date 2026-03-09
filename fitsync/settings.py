@@ -79,22 +79,25 @@ WSGI_APPLICATION = 'fitsync.wsgi.application'
 import os
 import dj_database_url
 
-if 'POSTGRES_URL' in os.environ:
-    # Production: Use PostgreSQL (Neon, Supabase, etc.)
+# Neon PostgreSQL connection (used on Vercel/production)
+_NEON_URL = 'postgresql://neondb_owner:npg_6ZoNBSMh1Jen@ep-restless-queen-adfcnr1g-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require'
+
+if os.environ.get('POSTGRES_URL'):
+    # Env var takes priority (set this in Vercel dashboard for security)
+    _pg_url = os.environ['POSTGRES_URL']
+elif os.environ.get('VERCEL'):
+    # Fallback: use hardcoded Neon URL on Vercel
+    _pg_url = _NEON_URL
+else:
+    _pg_url = None
+
+if _pg_url:
     DATABASES = {
         'default': dj_database_url.config(
-            default=os.environ.get('POSTGRES_URL'),
+            default=_pg_url,
             conn_max_age=600,
             ssl_require=True
         )
-    }
-elif os.environ.get('VERCEL'):
-    # Vercel without PostgreSQL: use /tmp SQLite (persists within container)
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': '/tmp/fitsync.db',
-        }
     }
 else:
     # Local development: MySQL
