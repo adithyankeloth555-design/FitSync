@@ -1,0 +1,341 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Messages | FitSync Elite{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --sidebar-bg: var(--bg-tertiary);
+        --accent-orange: var(--gold);
+        --content-bg: var(--bg-primary);
+        --text-main: var(--text-primary);
+        --text-muted: var(--text-muted);
+        --white: var(--bg-secondary);
+        --card-shadow: var(--shadow-main);
+    }
+
+    body {
+        background-color: var(--content-bg);
+        color: var(--text-main);
+        font-family: 'Outfit', sans-serif;
+        margin: 0;
+        min-height: 100vh;
+    }
+
+    /* Sidebar removed */
+
+    .main-wrapper {
+        margin: 0 auto;
+        max-width: 1400px;
+        flex-grow: 1;
+        padding: 0;
+        display: flex;
+        height: 100vh;
+        background: var(--bg-secondary);
+        box-shadow: var(--shadow-main);
+    }
+
+    .back-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.8rem;
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--border-color);
+        transition: 0.3s;
+    }
+
+    .back-btn:hover {
+        color: var(--accent-orange);
+        background: var(--bg-tertiary);
+    }
+
+    .conversations-panel {
+        width: 350px;
+        background: var(--white);
+        border-right: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .panel-header {
+        padding: 2rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .page-title {
+        font-family: 'Cinzel', serif;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--accent-orange);
+        margin: 0;
+    }
+
+    .search-box {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border: 1px solid var(--border-color);
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        border-radius: 10px;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .conversation-list {
+        flex-grow: 1;
+        overflow-y: auto;
+    }
+
+    .conversation-item {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        cursor: pointer;
+        transition: 0.2s;
+        display: flex;
+        gap: 1rem;
+    }
+
+    .conversation-item:hover {
+        background: var(--bg-tertiary);
+    }
+
+    .conversation-item.active {
+        background: var(--bg-tertiary);
+        border-left: 3px solid var(--accent-orange);
+    }
+
+    .conversation-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .conversation-info {
+        flex-grow: 1;
+    }
+
+    .conversation-name {
+        font-weight: 800;
+        margin-bottom: 0.3rem;
+    }
+
+    .conversation-preview {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .conversation-time {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .chat-panel {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        background: var(--white);
+    }
+
+    .chat-header {
+        padding: 2rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .chat-messages {
+        flex-grow: 1;
+        padding: 2rem;
+        overflow-y: auto;
+        background: var(--bg-primary);
+    }
+
+    .message {
+        margin-bottom: 1.5rem;
+        display: flex;
+        gap: 1rem;
+    }
+
+    .message.sent {
+        flex-direction: row-reverse;
+    }
+
+    .message-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+    }
+
+    .message-content {
+        max-width: 60%;
+    }
+
+    .message-bubble {
+        padding: 1rem 1.5rem;
+        border-radius: 16px;
+        margin-bottom: 0.3rem;
+    }
+
+    .message.received .message-bubble {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+        border-bottom-left-radius: 4px;
+    }
+
+    .message.sent .message-bubble {
+        background: var(--accent-orange);
+        color: #000;
+        border-bottom-right-radius: 4px;
+    }
+
+    .message-time {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        padding: 0 0.5rem;
+    }
+
+    .chat-input-container {
+        padding: 1.5rem 2rem;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        gap: 1rem;
+    }
+
+    .chat-input {
+        flex-grow: 1;
+        padding: 1rem 1.5rem;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        border-radius: 25px;
+        font-size: 0.95rem;
+    }
+
+    .send-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--accent-orange);
+        color: #000;
+        border: none;
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: 0.2s;
+    }
+
+    .send-btn:hover {
+        transform: scale(1.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="main-wrapper">
+    <div class="conversations-panel">
+        <a href="{% url 'user_dashboard' %}" class="back-btn">
+            <i class="fa-solid fa-arrow-left"></i> RETURN TO PORTAL
+        </a>
+        <div class="panel-header">
+            <h1 class="page-title">Direct Messages</h1>
+            <p class="text-muted" style="font-size: 0.9rem;">Your Conversations</p>
+        </div>
+        <div class="conversation-list">
+            {% for contact in contacts %}
+            <a href="?user_id={{ contact.id }}"
+                class="conversation-item {% if active_user.id == contact.id %}active{% endif %}"
+                style="text-decoration: none; color: inherit;">
+                {% if contact.userprofile.profile_photo %}
+                <img src="{{ contact.userprofile.profile_photo.url }}" class="conversation-avatar" alt="User">
+                {% else %}
+                <img src="https://i.pravatar.cc/150?u={{ contact.username }}" class="conversation-avatar" alt="User">
+                {% endif %}
+                <div class="conversation-info">
+                    <div class="conversation-name">{{ contact.first_name }} {{ contact.last_name }}</div>
+                    <div class="conversation-preview">@{{ contact.username }}</div>
+                </div>
+                <div class="conversation-time">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </div>
+            </a>
+            {% empty %}
+            <div style="padding: 2rem; text-align: center; color: #999;">
+                No active contacts.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="chat-panel">
+        {% if active_user %}
+        <div class="chat-header">
+            {% if active_user.userprofile.profile_photo %}
+            <img src="{{ active_user.userprofile.profile_photo.url }}" class="conversation-avatar" alt="User">
+            {% else %}
+            <img src="https://i.pravatar.cc/150?u={{ active_user.username }}" class="conversation-avatar" alt="User">
+            {% endif %}
+            <div>
+                <div style="font-weight: 800; font-size: 1.1rem;">
+                    {{ active_user.first_name }} {{ active_user.last_name }}
+                </div>
+                <div style="color: var(--text-muted); font-size: 0.85rem;">@{{ active_user.username }}</div>
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chat-box">
+            {% for msg in messages_list %}
+            <div class="message {% if msg.sender == user %}sent{% else %}received{% endif %}">
+                {% if msg.sender.userprofile.profile_photo %}
+                <img src="{{ msg.sender.userprofile.profile_photo.url }}" class="message-avatar" alt="User">
+                {% else %}
+                <img src="https://i.pravatar.cc/150?u={{ msg.sender.username }}" class="message-avatar" alt="User">
+                {% endif %}
+                <div class="message-content">
+                    <div class="message-bubble">{{ msg.body }}</div>
+                    <div class="message-time">{{ msg.sent_at|date:"M d, H:i" }}</div>
+                </div>
+            </div>
+            {% empty %}
+            <div style="text-align: center; margin-top: 3rem; color: #ccc;">
+                <i class="fa-regular fa-comments" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                <p>Start your conversation with {{ active_user.first_name }}!</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <form method="post" class="chat-input-container">
+            {% csrf_token %}
+            <input type="hidden" name="receiver_id" value="{{ active_user.id }}">
+            <input type="text" name="content" class="chat-input" placeholder="Type your message..." required
+                autocomplete="off">
+            <button type="submit" class="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
+        </form>
+        {% else %}
+        <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #ccc;">
+            Select a conversation to start chatting.
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Scroll to bottom of chat
+        var chatBox = document.getElementById('chat-box');
+        if (chatBox) {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</main>
+{% endblock %}

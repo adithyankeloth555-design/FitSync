@@ -1,0 +1,517 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Attendance | FitSync Elite{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --card-bg: var(--bg-secondary);
+        --card-border: var(--border-color);
+        --item-bg: var(--bg-tertiary);
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .main-wrapper {
+        margin: 0 auto;
+        max-width: 1400px;
+        flex-grow: 1;
+        padding: 3rem 4rem;
+        animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        transition: var(--transition);
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .back-btn:hover {
+        color: var(--gold);
+        transform: translateX(-5px);
+        border-color: var(--gold);
+        box-shadow: var(--shadow-glow);
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    .page-title {
+        font-family: var(--font-heading);
+        font-size: 3rem;
+        font-weight: 900;
+        color: var(--gold);
+        text-transform: uppercase;
+        margin: 0;
+        letter-spacing: 4px;
+        text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+    }
+
+    .page-subtitle {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        margin-top: 1rem;
+        letter-spacing: 1px;
+    }
+
+    .checkin-card {
+        background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+        padding: 4rem;
+        border-radius: 24px;
+        color: #000;
+        text-align: center;
+        margin-bottom: 4rem;
+        box-shadow: 0 15px 50px rgba(212, 175, 55, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .checkin-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        animation: rotation 15s linear infinite;
+    }
+
+    @keyframes rotation {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .checkin-btn {
+        background: #000;
+        color: var(--gold);
+        border: 1px solid var(--gold);
+        padding: 1.2rem 3.5rem;
+        border-radius: 15px;
+        font-size: 1.2rem;
+        font-weight: 900;
+        cursor: pointer;
+        transition: var(--transition);
+        margin-top: 1.5rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-family: var(--font-heading);
+        position: relative;
+        z-index: 2;
+    }
+
+    .checkin-btn:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        background: var(--bg-tertiary);
+    }
+
+    .checkin-btn:active {
+        transform: translateY(-2px);
+    }
+
+    .checkin-btn:disabled {
+        background: #333;
+        color: #666;
+        border-color: #444;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2.5rem;
+        margin-bottom: 4rem;
+    }
+
+    .stat-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(12px);
+        padding: 2.5rem;
+        border-radius: 24px;
+        border: 1px solid var(--card-border);
+        text-align: center;
+        transition: var(--transition);
+    }
+
+    .stat-card:hover {
+        border-color: var(--gold);
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-glow);
+    }
+
+    .stat-icon {
+        width: 70px;
+        height: 70px;
+        background: rgba(212, 175, 55, 0.1);
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        color: var(--gold);
+        font-size: 2.2rem;
+        transition: var(--transition);
+    }
+
+    .stat-card:hover .stat-icon {
+        background: var(--gold);
+        color: #000;
+        transform: rotateY(180deg);
+    }
+
+    .stat-value {
+        font-size: 3rem;
+        font-weight: 900;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        font-family: var(--font-heading);
+    }
+
+    .stat-label {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: 700;
+    }
+
+    .calendar-container {
+        background: var(--card-bg);
+        backdrop-filter: blur(12px);
+        padding: 3rem;
+        border-radius: 30px;
+        border: 1px solid var(--card-border);
+        margin-bottom: 3rem;
+    }
+
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 3rem;
+    }
+
+    .calendar-title {
+        font-family: var(--font-heading);
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--gold);
+    }
+
+    .nav-btn {
+        padding: 0.8rem 1.2rem;
+        border: 1px solid var(--border-color);
+        background: var(--bg-tertiary);
+        color: var(--gold);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .nav-btn:hover {
+        background: var(--gold);
+        color: #000;
+    }
+
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 1.2rem;
+    }
+
+    .calendar-day {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: var(--transition);
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        color: var(--text-muted);
+    }
+
+    .calendar-day.header {
+        background: transparent;
+        border: none;
+        color: var(--gold);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .calendar-day.present {
+        background: var(--success);
+        color: #fff;
+        border-color: var(--success);
+        box-shadow: 0 4px 10px rgba(0, 204, 102, 0.3);
+    }
+
+    .calendar-day.present:hover {
+        background: #00b359;
+        transform: scale(1.1);
+    }
+
+    .calendar-day.absent {
+        background: var(--danger);
+        color: #fff;
+        border-color: var(--danger);
+        box-shadow: 0 4px 10px rgba(255, 77, 77, 0.3);
+    }
+
+    .calendar-day.absent:hover {
+        background: #ff3333;
+        transform: scale(1.1);
+    }
+
+    .calendar-day.today {
+        border: 2px solid var(--gold);
+        box-shadow: var(--shadow-glow);
+        color: var(--text-primary);
+    }
+
+
+
+    .history-list {
+        background: var(--card-bg);
+        backdrop-filter: blur(12px);
+        padding: 3rem;
+        border-radius: 30px;
+        border: 1px solid var(--card-border);
+    }
+
+    .history-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 0;
+        border-bottom: 1px solid var(--border-color);
+        transition: var(--transition);
+    }
+
+    .history-item:hover {
+        transform: translateX(10px);
+    }
+
+    .history-item:last-child {
+        border-bottom: none;
+    }
+
+    .history-date {
+        font-weight: 800;
+        color: var(--text-primary);
+        font-size: 1.1rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .history-status {
+        padding: 0.6rem 1.5rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .history-status.present {
+        background: rgba(0, 204, 102, 0.1);
+        color: var(--success);
+        border: 1px solid rgba(0, 204, 102, 0.2);
+    }
+
+    .history-status.absent {
+        background: rgba(255, 77, 77, 0.1);
+        color: var(--danger);
+        border: 1px solid rgba(255, 77, 77, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="main-wrapper">
+    {% if user.is_authenticated and user.userprofile.role == 'admin' %}
+    <a href="{% url 'admin_dashboard' %}" class="back-btn">
+        {% elif user.is_authenticated and user.userprofile.role == 'trainer' %}
+        <a href="{% url 'trainer_dashboard' %}" class="back-btn">
+            {% else %}
+            <a href="{% url 'user_dashboard' %}" class="back-btn">
+                {% endif %}
+                <i class="fa-solid fa-arrow-left"></i> RETURN TO PORTAL
+            </a>
+            <header class="page-header">
+                <h1 class="page-title">Attendance Elite</h1>
+                <p class="page-subtitle">Track your gym visits and maintain your superior physical streak.</p>
+            </header>
+
+            <div class="checkin-card">
+                <h2 style="font-family: var(--font-heading); font-size: 2.5rem; margin: 0 0 1rem 0; font-weight: 900;">
+                    Daily Check-In</h2>
+                <p style="font-size: 1.2rem; opacity: 0.9; margin-bottom: 2rem; font-weight: 600;">
+                    {% if already_checked_in %}
+                    Session logged successfully! See you tomorrow.
+                    {% else %}
+                    Log your presence for today's elite performance session
+                    {% endif %}
+                </p>
+                <button id="checkInBtn" class="checkin-btn" {% if already_checked_in %}disabled{% endif %}>
+                    {% if already_checked_in %}
+                    <i class="fa-solid fa-circle-check"></i> Already Checked In
+                    {% else %}
+                    <i class="fa-solid fa-check-circle"></i> Check In Now
+                    {% endif %}
+                </button>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa-solid fa-fire"></i></div>
+                    <div class="stat-value">{{ check_ins_today }}</div>
+                    <div class="stat-label">Today's Sessions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa-solid fa-calendar-days"></i></div>
+                    <div class="stat-value">{{ logs.count }}</div>
+                    <div class="stat-label">Total Logs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fa-solid fa-trophy"></i></div>
+                    <div class="stat-value">{{ attendance_rate }}%</div>
+                    <div class="stat-label">Attendance Rate</div>
+                </div>
+            </div>
+
+
+
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <h2 class="calendar-title">{{ current_month }}</h2>
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="nav-btn"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button class="nav-btn"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+                <div class="calendar-grid">
+                    <div class="calendar-day header">Sun</div>
+                    <div class="calendar-day header">Mon</div>
+                    <div class="calendar-day header">Tue</div>
+                    <div class="calendar-day header">Wed</div>
+                    <div class="calendar-day header">Thu</div>
+                    <div class="calendar-day header">Fri</div>
+                    <div class="calendar-day header">Sat</div>
+
+                    {% for day_info in calendar_days %}
+                    {% if day_info.day == 0 %}
+                    <div class="calendar-day" style="background: transparent; border: none; cursor: default;"></div>
+                    {% else %}
+                    <div class="calendar-day 
+                        {% if day_info.is_present %}present{% elif day_info.is_past %}absent{% endif %} 
+                        {% if day_info.is_today %}today{% endif %}">
+                        {{ day_info.day }}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="history-list">
+                <h2 class="calendar-title" style="margin-bottom: 2.5rem;"><i class="fa-solid fa-clock-rotate-left"></i>
+                    Recent
+                    History</h2>
+                {% for log in logs %}
+                <div class="history-item">
+                    <div>
+                        <div class="history-date">{{ log.logged_at|date:"l, M j, Y" }}</div>
+                        <div style="color: var(--text-muted); font-size: 0.9rem;">
+                            {{ log.logged_at|date:"g:i A" }} - {{ log.workout_type }}
+                        </div>
+                    </div>
+                    <span class="history-status present"><i class="fa-solid fa-check"></i> Present</span>
+                </div>
+                {% empty %}
+                <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                    No attendance records found.
+                </div>
+                {% endfor %}
+            </div>
+</main>
+
+<script>
+    document.getElementById('checkInBtn').addEventListener('click', function () {
+        const btn = this;
+        const originalHtml = btn.innerHTML;
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> SYNCING...';
+
+        fetch("{% url 'mark_attendance_api' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({})
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i> SYNCED';
+                    btn.style.background = 'var(--success)';
+                    btn.style.color = '#fff';
+                    btn.style.borderColor = 'var(--success)';
+
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    alert("Error: " + data.message);
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Verification failed. Please check your neural link.");
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            });
+    });
+</script>
+{% endblock %}

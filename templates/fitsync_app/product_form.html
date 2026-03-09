@@ -1,0 +1,288 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} | FitSync Store{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --admin-bg: #f8fafc;
+        --card-bg: #ffffff;
+        --sidebar-bg: #1e293b;
+        --accent: #f59e0b;
+        --text-primary: #1e293b;
+        --text-secondary: #64748b;
+    }
+
+    body {
+        background-color: var(--admin-bg);
+        color: var(--text-primary);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .admin-container {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    .sidebar {
+        width: 260px;
+        background: var(--sidebar-bg);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        height: 100vh;
+        z-index: 1001;
+    }
+
+    .main-content {
+        margin-left: 260px;
+        flex-grow: 1;
+        padding: 2rem;
+        display: flex;
+        justify-content: center;
+    }
+
+    .form-container {
+        width: 100%;
+        max-width: 800px;
+        background: var(--card-bg);
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        overflow: hidden;
+    }
+
+    .form-header {
+        background: #f1f5f9;
+        padding: 2rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .form-header h1 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin: 0;
+        color: #0f172a;
+    }
+
+    .form-body {
+        padding: 2.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: 0.2s;
+        background: #fff;
+    }
+
+    .form-control:focus {
+        border-color: var(--accent);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+    }
+
+    .hint {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        margin-top: 4px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .btn-submit {
+        background: var(--accent);
+        color: #000;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: 0.2s;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 2rem;
+    }
+
+    .btn-submit:hover {
+        background: #d97706;
+        transform: translateY(-2px);
+    }
+
+    .btn-cancel {
+        display: block;
+        text-align: center;
+        color: #64748b;
+        text-decoration: none;
+        font-size: 0.9rem;
+        margin-top: 1.5rem;
+        font-weight: 600;
+    }
+
+    .image-preview {
+        width: 100%;
+        height: 200px;
+        border: 2px dashed #e2e8f0;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8fafc;
+        overflow: hidden;
+    }
+
+    .image-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    @media (max-width: 768px) {
+        .form-grid { grid-template-columns: 1fr; }
+        .main-content { margin-left: 0; padding: 1rem; }
+        .sidebar { display: none; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <aside class="sidebar">
+        <div style="padding: 1.5rem; font-weight: 800; font-size: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--accent);">
+            <i class="fa-solid fa-store"></i> FitSync Store
+        </div>
+        <div style="padding: 1rem;">
+            <a href="{% url 'store_management' %}" style="display: flex; align-items: center; gap: 12px; padding: 0.8rem 1rem; color: #94a3b8; text-decoration: none; border-radius: 8px; font-size: 0.9rem;">
+                <i class="fa-solid fa-arrow-left"></i> Back to Catalog
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="form-container">
+            <div class="form-header">
+                <h1>{{ title }}</h1>
+                {% if product %}
+                <p style="color: #64748b; margin: 4px 0 0 0;">Editing: {{ product.name }}</p>
+                {% endif %}
+            </div>
+
+            <div class="form-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label>Product Name</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}<div class="hint" style="color: var(--danger);">{{ form.name.errors }}</div>{% endif %}
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Category</label>
+                            {{ form.category }}
+                        </div>
+                        <div class="form-group">
+                            <label>Stock Quantity</label>
+                            {{ form.stock }}
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Selling Price (₹)</label>
+                            {{ form.price }}
+                        </div>
+                        <div class="form-group">
+                            <label>Original Price (₹)</label>
+                            {{ form.original_price }}
+                            <p class="hint">Keep empty if no discount.</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Display Badge</label>
+                        {{ form.badge }}
+                    </div>
+
+                    <div class="form-group">
+                        <label>Product Description</label>
+                        {{ form.description }}
+                    </div>
+
+                    <div class="form-group">
+                        <label>Product Image</label>
+                        <div class="image-preview" id="imagePreview">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="Preview">
+                            {% else %}
+                                <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2rem; color: #cbd5e1;"></i>
+                            {% endif %}
+                        </div>
+                        {{ form.image }}
+                    </div>
+
+                    <div class="form-group" style="display: flex; align-items: center; gap: 12px; background: #f8fafc; padding: 1rem; border-radius: 8px;">
+                        {{ form.is_active }}
+                        <label style="margin: 0;">Visible to customers in store</label>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        <i class="fa-solid fa-floppy-disk"></i> SAVE PRODUCT
+                    </button>
+                    
+                    <a href="{% url 'store_management' %}" class="btn-cancel">Cancel and Exit</a>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Add styling to form controls
+    document.querySelectorAll('input:not([type="checkbox"]), select, textarea').forEach(el => {
+        el.className = 'form-control';
+    });
+
+    // Image preview helper
+    const imageInput = document.querySelector('input[type="file"]');
+    if (imageInput) {
+        imageInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('imagePreview');
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+</script>
+{% endblock %}

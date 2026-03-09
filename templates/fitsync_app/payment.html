@@ -1,0 +1,500 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Quantum Checkout | FitSync Elite{% endblock %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Cinzel:wght@700;900&display=swap');
+
+    :root {
+        --elite-gold: #D4AF37;
+        --gold-glow: rgba(212, 175, 55, 0.4);
+        --carbon-bg: #050505;
+        --glass-surface: rgba(20, 20, 22, 0.85);
+        --border-glass: rgba(255, 255, 255, 0.08);
+        --text-gold-bright: #FFD700;
+    }
+
+    body {
+        background: radial-gradient(circle at 100% 0%, #1a1a1d 0%, #050505 100%);
+        color: #fff;
+        font-family: 'Outfit', sans-serif;
+        min-height: 100vh;
+    }
+
+    .quantum-container {
+        max-width: 1200px;
+        margin: 5rem auto;
+        padding: 0 2rem;
+        animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Stepper Modernization */
+    .premium-stepper {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-bottom: 6rem;
+    }
+
+    .step-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        position: relative;
+    }
+
+    .step-dot {
+        width: 14px;
+        height: 14px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        transition: 0.4s;
+    }
+
+    .step-item.active .step-dot {
+        background: var(--elite-gold);
+        box-shadow: 0 0 20px var(--gold-glow);
+        transform: scale(1.3);
+    }
+
+    .step-label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        color: rgba(255, 255, 255, 0.3);
+        font-weight: 800;
+    }
+
+    .step-item.active .step-label {
+        color: var(--elite-gold);
+    }
+
+    .main-surface {
+        display: grid;
+        grid-template-columns: 420px 1fr;
+        gap: 4rem;
+        align-items: start;
+    }
+
+    /* Sidebar Breakdown */
+    .order-vault {
+        background: linear-gradient(165deg, #111113, #050505);
+        border-radius: 40px;
+        padding: 3.5rem;
+        border: 1px solid var(--border-glass);
+        box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.8);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .order-vault::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 150px;
+        height: 150px;
+        background: radial-gradient(circle, rgba(212, 175, 55, 0.05), transparent 70%);
+        pointer-events: none;
+    }
+
+    .vault-tag {
+        font-size: 0.6rem;
+        font-weight: 900;
+        color: var(--elite-gold);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        border: 1px solid var(--elite-gold);
+        padding: 4px 10px;
+        border-radius: 4px;
+        margin-bottom: 2rem;
+        display: inline-block;
+    }
+
+    .vault-title {
+        font-family: 'Cinzel', serif;
+        font-size: 2.2rem;
+        margin-bottom: 2.5rem;
+        background: linear-gradient(to bottom, #fff, #888);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .breakdown-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+    .total-investment {
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .investment-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--elite-gold);
+        margin-bottom: 0.5rem;
+    }
+
+    .investment-price {
+        font-size: 3.5rem;
+        font-weight: 900;
+        font-family: 'Cinzel', serif;
+        color: #fff;
+    }
+
+    /* Central Gateway */
+    .gateway-panel {
+        background: var(--glass-surface);
+        backdrop-filter: blur(50px);
+        -webkit-backdrop-filter: blur(50px);
+        border: 1px solid var(--border-glass);
+        border-radius: 48px;
+        padding: 4.5rem;
+        position: relative;
+    }
+
+    .method-strip {
+        display: flex;
+        gap: 1.5rem;
+        margin: 3rem 0;
+    }
+
+    .payment-tile {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border-glass);
+        border-radius: 24px;
+        height: 140px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        cursor: pointer;
+        transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .payment-tile:hover {
+        background: rgba(212, 175, 55, 0.08);
+        border-color: var(--elite-gold);
+        transform: translateY(-10px) scale(1.02);
+    }
+
+    .payment-tile.active {
+        background: rgba(212, 175, 55, 0.12);
+        border-color: var(--elite-gold);
+        box-shadow: 0 20px 40px var(--gold-glow);
+    }
+
+    .payment-tile img {
+        height: 42px;
+        width: auto;
+        object-fit: contain;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 5px;
+        border-radius: 12px;
+        filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.05));
+    }
+
+    .tile-label {
+        font-size: 0.65rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .input-portal {
+        background: transparent;
+        position: relative;
+        margin-bottom: 3.5rem;
+    }
+
+    .quantum-input {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        border: none;
+        border-bottom: 2px solid var(--border-glass);
+        padding: 1.5rem 0.5rem;
+        font-size: 1.3rem;
+        color: #fff;
+        outline: none;
+        transition: 0.4s;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    .quantum-input:focus {
+        border-color: var(--elite-gold);
+    }
+
+    .input-placeholder {
+        position: absolute;
+        top: 1.5rem;
+        left: 0.5rem;
+        font-size: 1.3rem;
+        color: rgba(255, 255, 255, 0.1);
+        pointer-events: none;
+        transition: 0.3s;
+    }
+
+    .quantum-input:focus~.input-placeholder,
+    .quantum-input:not(:placeholder-shown)~.input-placeholder {
+        transform: translateY(-30px);
+        font-size: 0.65rem;
+        color: var(--elite-gold);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        font-weight: 900;
+    }
+
+    .btn-quantum-pay {
+        width: 100%;
+        height: 85px;
+        background: #fff;
+        color: #000;
+        border: none;
+        border-radius: 20px;
+        font-size: 1.4rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        cursor: pointer;
+        transition: 0.5s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .btn-quantum-pay:hover {
+        background: var(--elite-gold);
+        box-shadow: 0 30px 60px var(--gold-glow);
+        transform: translateY(-3px);
+    }
+
+    /* Modal Styling */
+    .qr-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        backdrop-filter: blur(20px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        opacity: 0;
+        transition: 0.4s;
+    }
+
+    .qr-modal.active {
+        display: flex;
+        opacity: 1;
+    }
+
+    .modal-content {
+        background: #111113;
+        padding: 4rem;
+        border-radius: 40px;
+        border: 1px solid var(--border-glass);
+        text-align: center;
+        position: relative;
+        max-width: 500px;
+        width: 90%;
+    }
+
+    .qr-code-box {
+        background: #fff;
+        padding: 2rem;
+        border-radius: 20px;
+        display: inline-block;
+        margin: 2rem 0;
+        position: relative;
+    }
+
+    .qr-scanner-line {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--elite-gold);
+        box-shadow: 0 0 15px var(--elite-gold);
+        animation: scan 2s linear infinite;
+    }
+
+    @keyframes scan {
+        0% {
+            top: 0;
+        }
+
+        100% {
+            top: 100%;
+        }
+    }
+
+    .close-modal {
+        position: absolute;
+        top: 2rem;
+        right: 2rem;
+        color: rgba(255, 255, 255, 0.3);
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .close-modal:hover {
+        color: #fff;
+    }
+
+    @media (max-width: 1000px) {
+        .main-surface {
+            grid-template-columns: 1fr;
+        }
+
+        .order-vault {
+            position: static;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="quantum-container">
+    <div class="premium-stepper">
+        <div class="step-item active">
+            <div class="step-dot"></div>
+            <span class="step-label">Quantum Auth</span>
+        </div>
+        <div class="step-item active">
+            <div class="step-dot"></div>
+            <span class="step-label">Secure Node</span>
+        </div>
+        <div class="step-item">
+            <div class="step-dot"></div>
+            <span class="step-label">Protocol Link</span>
+        </div>
+    </div>
+
+    <div class="main-surface">
+        <!-- Order Summary -->
+        <aside class="order-vault">
+            <span class="vault-tag">Active Order</span>
+            <h2 class="vault-title">Protocol Summary</h2>
+
+            <div class="breakdown-details">
+                <div class="breakdown-row">
+                    <span>Target Interface</span>
+                    <span style="color: #fff;">{{ plan.get_name_display }} Elite</span>
+                </div>
+                <div class="breakdown-row">
+                    <span>Lifecycle Term</span>
+                    <span style="color: #fff;">{{ billing_cycle|title }} Pulse</span>
+                </div>
+                <div class="breakdown-row">
+                    <span>Secure Link</span>
+                    <span style="color: #fff;">Enrypted - AES-256</span>
+                </div>
+                <div class="breakdown-row">
+                    <span>Platform Fee</span>
+                    <span style="color: var(--elite-gold);">WAIVED</span>
+                </div>
+            </div>
+
+            <div class="total-investment">
+                <div class="investment-label">Net Commitment</div>
+                <div class="investment-price">₹{{ display_price|floatformat:0 }}</div>
+            </div>
+
+            <div style="margin-top: 4rem; text-align: center;">
+                <img src="https://razorpay.com/assets/razorpay-glyph.svg"
+                    style="height: 30px; opacity: 0.1; filter: invert(1);">
+            </div>
+        </aside>
+
+        <!-- Payment Interface -->
+        <main class="gateway-panel">
+            <div style="margin-bottom: 4rem;">
+                <h3 style="font-family: 'Cinzel', serif; font-size: 1.8rem; letter-spacing: 2px;">SECURE GATEWAY</h3>
+                <p style="color: rgba(255,255,255,0.3); font-size: 0.75rem; letter-spacing: 1px;">SUBSCRIPTION PROTOCOL
+                    ACTIVE</p>
+            </div>
+
+            <div class="razorpay-portal"
+                style="padding: 2rem; background: rgba(255,255,255,0.03); border-radius: 30px; border: 1px dashed rgba(212,175,55,0.3); text-align: center;">
+                <form action="{% url 'payment' %}?plan={{ plan.name }}&billing={{ billing_cycle }}" method="POST">
+                    {% csrf_token %}
+                    <script src="https://checkout.razorpay.com/v1/checkout.js" data-key="rzp_test_SROSnyInFv81S4"
+                        data-amount="{{ amount_paise }}" data-currency="INR" data-name="FitSync Elite"
+                        data-description="{{ plan.get_name_display }} Protocol - {{ billing_cycle|title }}"
+                        data-image="https://razorpay.com/assets/razorpay-glyph.svg"
+                        data-prefill.name="{{ request.user.get_full_name }}"
+                        data-prefill.email="{{ request.user.email }}" data-theme.color="#D4AF37"
+                        data-buttontext="AUTHORIZE DEPLOYMENT"></script>
+                    <input type="hidden" custom="Hidden Element" name="razorpay_payment_id" value="PRE_AUTH">
+                </form>
+
+                <!-- Custom CSS to style the auto-generated Razorpay button -->
+                <style>
+                    .razorpay-payment-button {
+                        width: 100%;
+                        height: 85px;
+                        background: #fff !important;
+                        color: #000 !important;
+                        border: none !important;
+                        border-radius: 20px !important;
+                        font-size: 1.4rem !important;
+                        font-weight: 900 !important;
+                        text-transform: uppercase !important;
+                        letter-spacing: 4px !important;
+                        cursor: pointer !important;
+                        transition: 0.5s !important;
+                        margin-top: 2rem !important;
+                        font-family: 'Outfit', sans-serif !important;
+                        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+                    }
+
+                    .razorpay-payment-button:hover {
+                        background: var(--elite-gold) !important;
+                        box-shadow: 0 30px 60px var(--gold-glow) !important;
+                        transform: translateY(-3px);
+                    }
+                </style>
+            </div>
+
+            <div style="margin-top: 4rem; display: flex; justify-content: center; gap: 3rem; opacity: 0.2;">
+                <i class="fa-brands fa-cc-visa fa-2x"></i>
+                <i class="fa-brands fa-cc-mastercard fa-2x"></i>
+                <i class="fa-solid fa-shield-halved fa-2x"></i>
+            </div>
+        </main>
+    </div>
+</div>
+
+
+{% endblock %}

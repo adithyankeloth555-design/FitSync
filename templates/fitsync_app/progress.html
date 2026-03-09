@@ -1,0 +1,492 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Progress & Analytics | FitSync Elite{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Outfit:wght@300;400;600;800&display=swap');
+
+    :root {
+        --deep-black: #020202;
+        --card-bg: rgba(12, 12, 12, 0.85);
+        --gold-primary: #d4af37;
+        --gold-bright: #f9e295;
+        --gold-glow: rgba(212, 175, 55, 0.4);
+        --text-muted: #777;
+        --border-gold: rgba(212, 175, 55, 0.3);
+        --transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    body {
+        background-color: var(--deep-black);
+        background-image:
+            radial-gradient(circle at 50% 10%, rgba(212, 175, 55, 0.08) 0%, transparent 60%),
+            radial-gradient(circle at 80% 80%, rgba(212, 175, 55, 0.04) 0%, transparent 40%),
+            url('https://www.transparenttextures.com/patterns/stardust.png');
+        background-attachment: fixed;
+        color: #fff;
+        font-family: 'Outfit', sans-serif;
+        margin: 0;
+        min-height: 100vh;
+    }
+
+    .main-wrapper {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 2rem 2.5rem 5rem 2.5rem;
+        animation: pageFadeIn 1.5s ease;
+    }
+
+    @keyframes pageFadeIn {
+        from {
+            opacity: 0;
+            filter: blur(10px);
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            filter: blur(0);
+            transform: translateY(0);
+        }
+    }
+
+    .top-nav {
+        display: flex;
+        justify-content: flex-start;
+        margin-bottom: 2rem;
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        color: #bbb;
+        text-decoration: none;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        padding: 0.7rem 1.4rem;
+        background: rgba(40, 40, 40, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 50px;
+        transition: var(--transition);
+        backdrop-filter: blur(5px);
+    }
+
+    .back-btn:hover {
+        border-color: var(--gold-primary);
+        color: #fff;
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+    }
+
+    .header-section {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    .page-title {
+        font-family: 'Cinzel', serif;
+        font-size: 4.8rem;
+        font-weight: 900;
+        color: var(--gold-primary);
+        text-transform: uppercase;
+        margin: 0;
+        letter-spacing: 10px;
+        background: linear-gradient(to bottom, #fff 0%, var(--gold-primary) 50%, #8c6d1f 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 0 25px rgba(212, 175, 55, 0.4));
+    }
+
+    .sync-badge-container {
+        margin-top: 1.5rem;
+        display: flex;
+        justify-content: center;
+    }
+
+    .sync-badge {
+        background: rgba(0, 15, 8, 0.9);
+        border: 1px solid rgba(0, 255, 128, 0.2);
+        border-radius: 30px;
+        padding: 0.5rem 1.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        color: #00ff9d;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        box-shadow: 0 0 20px rgba(0, 255, 157, 0.1);
+    }
+
+    .sync-dot {
+        width: 8px;
+        height: 8px;
+        background: #00ff9d;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #00ff9d;
+        animation: pulseGreen 2s infinite;
+    }
+
+    @keyframes pulseGreen {
+
+        0%,
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        50% {
+            opacity: 0.3;
+            transform: scale(1.3);
+        }
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 3.5rem;
+    }
+
+    .stat-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-gold);
+        border-radius: 20px;
+        padding: 2.2rem 1.8rem;
+        position: relative;
+        transition: var(--transition);
+        overflow: hidden;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-8px);
+        background: rgba(18, 18, 18, 1);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(212, 175, 55, 0.1);
+    }
+
+    .icon-box {
+        width: 42px;
+        height: 42px;
+        background: rgba(20, 20, 20, 0.9);
+        border: 1px solid rgba(212, 175, 55, 0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gold-primary);
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+        float: left;
+        margin-right: 1.2rem;
+    }
+
+    .label-stack {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 42px;
+    }
+
+    .stat-label {
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: #7a7a7a;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        line-height: 1.4;
+    }
+
+    .main-val {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin: 0.8rem 0 0.5rem 0;
+        color: #fff;
+        clear: both;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    .stat-badge {
+        font-size: 0.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .overview-section {
+        background: var(--card-bg);
+        border: 1px solid var(--border-gold);
+        border-radius: 30px;
+        padding: 3rem;
+        display: grid;
+        grid-template-columns: 1.1fr 1fr;
+        gap: 4rem;
+        position: relative;
+    }
+
+    .section-header {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .header-icon {
+        width: 35px;
+        height: 35px;
+        background: #111;
+        border: 1px solid var(--border-gold);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gold-primary);
+    }
+
+    .section-title {
+        font-family: 'Cinzel', serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--gold-primary);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .log-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+    }
+
+    .log-item {
+        background: rgba(20, 20, 20, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.03);
+        border-radius: 18px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        transition: var(--transition);
+    }
+
+    .log-item:hover {
+        background: rgba(30, 30, 30, 0.6);
+        border-color: var(--border-gold);
+        transform: scale(1.02);
+    }
+
+    .chip-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(30, 30, 30, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gold-primary);
+    }
+
+    .log-details {
+        flex-grow: 1;
+    }
+
+    .log-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #fff;
+        margin-bottom: 4px;
+    }
+
+    .log-meta {
+        font-size: 0.72rem;
+        color: #666;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .log-value {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 900;
+        font-size: 1.5rem;
+        color: #fff;
+        display: flex;
+        align-items: baseline;
+        gap: 0.4rem;
+    }
+
+    .chart-zone {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 2rem 0;
+    }
+
+    .chart-box {
+        height: 250px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-around;
+        padding: 1rem 0 3rem 0;
+        position: relative;
+    }
+
+    .chart-box::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        background-size: 100% 40px;
+        pointer-events: none;
+    }
+
+    .axis-y {
+        position: absolute;
+        left: -45px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: #444;
+        padding-bottom: 3rem;
+    }
+
+    .bar-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+        gap: 1.2rem;
+        position: relative;
+    }
+
+    .bar-pill {
+        width: 44px;
+        border-radius: 10px;
+        background: linear-gradient(180deg, var(--gold-bright) 0%, var(--gold-primary) 50%, rgba(212, 175, 55, 0.1) 100%);
+        box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+        transition: height 1.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        height: 0;
+    }
+
+    .label-x {
+        font-size: 0.72rem;
+        font-weight: 800;
+        color: #555;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="main-wrapper">
+    <div class="top-nav">
+        <a href="{% url 'user_dashboard' %}" class="back-btn">
+            <i class="fa-solid fa-arrow-left"></i> Return to Portal
+        </a>
+    </div>
+
+    <header class="header-section">
+        <h1 class="page-title">Progress & Analytics</h1>
+        <div class="sync-badge-container">
+            <div class="sync-badge">
+                <div class="sync-dot"></div>
+                Neural Link Active | Last Synced: {{last_sync}}
+            </div>
+        </div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="icon-box"><i class="fa-solid fa-dumbbell"></i></div>
+            <div class="label-stack">
+                <span class="stat-label">Active</span>
+                <span class="stat-label">Protocols</span>
+            </div>
+            <div class="main-val">{{acw}}</div>
+            <div class="stat-badge" style="color:#a0ff00;"><i class="fa-solid fa-layer-group"></i> {{acw}} Sessions
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="icon-box"><i class="fa-solid fa-clock"></i></div>
+            <div class="label-stack">
+                <span class="stat-label">Training</span>
+                <span class="stat-label">Duration</span>
+            </div>
+            <div class="main-val">{{total_duration}}</div>
+            <div class="stat-badge" style="color:#ffca28;"><i class="fa-solid fa-hourglass-start"></i> Minutes Logged
+            </div>
+        </div>
+    </div>
+
+    <div class="overview-section">
+        <div class="section-header">
+            <div class="header-icon"><i class="fa-solid fa-chart-column"></i></div>
+            <h2 class="section-title">Weekly Performance Overview</h2>
+        </div>
+
+        <div class="log-stack">
+            {% for log in activity_logs %}
+            <div class="log-item">
+                <div class="chip-icon"><i class="fa-solid fa-microchip"></i></div>
+                <div class="log-details">
+                    <div class="log-title">{{log.workout_type}}</div>
+                    <div class="log-meta">Sync: {{log.logged_at|date:"H:i"}}</div>
+                </div>
+                <div class="log-value"><span style="font-size:0.6rem;color:#555;margin-left:2px;">COMPLETED</span></div>
+            </div>
+            {% empty %}
+            <div style="text-align:center;padding:5rem;color:#333;letter-spacing:5px;">NO DATA DETECTED</div>
+            {% endfor %}
+        </div>
+
+        <div class="chart-zone">
+            <div class="chart-box">
+                <div class="axis-y">
+                    <span>THU</span>
+                    <span>FRI</span>
+                    <span>SAT</span>
+                    <span>SUN</span>
+                </div>
+                {% for stat in weekly_stats %}
+                <div class="bar-group">
+                    <div class="bar-pill" data-h="{{stat.height}}"></div>
+                    <span class="label-x">{{stat.label}}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const pills = document.querySelectorAll('.bar-pill');
+        setTimeout(() => {
+            pills.forEach(p => {
+                p.style.height = p.dataset.h;
+            });
+        }, 300);
+    });
+</script>
+{% endblock %}

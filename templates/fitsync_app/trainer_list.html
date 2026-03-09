@@ -1,0 +1,354 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Elite Coaches | FitSync Elite{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --sidebar-bg: var(--bg-tertiary);
+        --sidebar-hover: var(--hover-color);
+        --accent-orange: var(--gold);
+        --content-bg: var(--bg-primary);
+        --text-main: var(--text-primary);
+        --text-muted: var(--text-muted);
+        --white: var(--bg-secondary);
+        --card-shadow: var(--shadow-main);
+        --border-color: rgba(212, 175, 55, 0.2);
+    }
+
+    body {
+        background-color: var(--content-bg);
+        color: var(--text-main);
+        font-family: 'Outfit', sans-serif;
+        margin: 0;
+        min-height: 100vh;
+    }
+
+    .main-wrapper {
+        margin: 0 auto;
+        max-width: 1400px;
+        padding: 3rem 4rem;
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        transition: 0.3s;
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+    }
+
+    .back-btn:hover {
+        color: var(--accent-orange);
+        transform: translateX(-5px);
+    }
+
+    .page-header {
+        margin-bottom: 4rem;
+        text-align: center;
+    }
+
+    .page-title {
+        font-family: 'Cinzel', serif;
+        font-size: 2.8rem;
+        font-weight: 900;
+        color: var(--accent-orange);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin: 0;
+    }
+
+    .page-subtitle {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+        font-weight: 300;
+    }
+
+    .trainer-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 3rem;
+    }
+
+    .trainer-card {
+        background: var(--white);
+        border-radius: 30px;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+        transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+
+    .trainer-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+        border-color: var(--accent-orange);
+    }
+
+    .trainer-image-container {
+        height: 350px;
+        position: relative;
+    }
+
+    .trainer-image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .trainer-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+        padding: 2rem;
+        color: #fff;
+    }
+
+    .badge-status {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        padding: 6px 16px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        z-index: 2;
+    }
+
+    .badge-elite {
+        background: var(--accent-orange);
+        color: #000;
+    }
+
+    .badge-hired {
+        background: #10b981;
+        color: #fff;
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+    }
+
+    .trainer-name {
+        font-family: 'Cinzel', serif;
+        font-size: 1.8rem;
+        margin: 0;
+    }
+
+    .trainer-specialty {
+        font-size: 0.9rem;
+        color: var(--accent-orange);
+        font-weight: 600;
+    }
+
+    .card-content {
+        padding: 2rem;
+        flex-grow: 1;
+    }
+
+    .trainer-bio {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+
+    .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .detail-item i {
+        width: 20px;
+        color: var(--accent-orange);
+    }
+
+    .price-tag {
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: var(--text-main);
+        margin: 1.5rem 0;
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+    }
+
+    .price-tag span {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        font-weight: 400;
+    }
+
+    .card-footer {
+        padding: 0 2rem 2rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .btn-hire {
+        grid-column: 1 / -1;
+        background: var(--accent-orange);
+        color: #000;
+        text-align: center;
+        padding: 1rem;
+        border-radius: 15px;
+        font-weight: 800;
+        text-decoration: none;
+        transition: 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .btn-hire:hover {
+        transform: scale(1.02);
+        box-shadow: 0 5px 20px rgba(212, 175, 55, 0.4);
+    }
+
+    .btn-secondary {
+        background: var(--bg-tertiary);
+        color: var(--text-main);
+        text-align: center;
+        padding: 0.8rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        border: 1px solid var(--border-color);
+    }
+
+    .btn-hired {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        border: 1px solid #10b981;
+        pointer-events: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="main-wrapper">
+    <a href="javascript:history.back()" class="back-btn">
+        <i class="fa-solid fa-arrow-left"></i> RETURN TO PORTAL
+    </a>
+
+    <header class="page-header">
+        <h1 class="page-title">Elite Performance Coaches</h1>
+        <p class="page-subtitle">Select your master mentor and architect your transformation.</p>
+
+        {% if is_admin %}
+        <div style="margin-top: 2rem;">
+            <a href="{% url 'add_trainer' %}" class="btn-hire"
+                style="padding: 1rem 3rem; display: inline-block; width: auto;">
+                <i class="fa-solid fa-plus"></i> ONBOARD NEW COACH
+            </a>
+        </div>
+        {% endif %}
+    </header>
+
+    <div class="trainer-grid">
+        {% for profile in trainers %}
+        <article class="trainer-card">
+            {% if current_trainer == profile.user %}
+            <span class="badge-status badge-hired">Your Coach</span>
+            {% else %}
+            <span class="badge-status badge-elite">Elite Coach</span>
+            {% endif %}
+
+            <div class="trainer-image-container">
+                {% if profile.profile_photo %}
+                <img src="{{ profile.profile_photo.url }}" alt="{{ profile.user.username }}">
+                {% else %}
+                <img src="https://i.pravatar.cc/600?u={{ profile.user.username }}" alt="{{ profile.user.username }}">
+                {% endif %}
+                <div class="trainer-overlay">
+                    <h3 class="trainer-name">{{ profile.user.get_full_name|default:profile.user.username|title }}</h3>
+                    <span class="trainer-specialty">{% if profile.specialty %}{{ profile.specialty }}{% else %}Master
+                        Strength & Conditioning{% endif %}</span>
+                </div>
+            </div>
+
+            <div class="card-content">
+                <p class="trainer-bio">{% if profile.bio %}{{ profile.bio }}{% else %}Specialized in high-performance
+                    metabolic conditioning and biomechanical optimization for elite athletes.{% endif %}</p>
+
+                <div class="detail-item">
+                    <i class="fa-solid fa-phone"></i>
+                    <span>{{ profile.phone_number|default:"+1 (555) 000-0000" }}</span>
+                </div>
+
+                <div class="detail-item">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span>{{ profile.address|default:"FitSync Elite HQ, Iron District" }}</span>
+                </div>
+
+                <div class="price-tag">
+                    {% if is_admin %}
+                    <form method="POST" action="{% url 'trainer_list' %}"
+                        style="display: flex; align-items: center; gap: 0.5rem;">
+                        {% csrf_token %}
+                        <input type="hidden" name="trainer_id" value="{{ profile.id }}">
+                        <span style="font-size: 1.5rem; font-weight: 900; color: var(--text-main);">₹</span>
+                        <input type="number" name="new_price" value="{{ profile.price|floatformat:0 }}"
+                            style="width: 100px; padding: 0.2rem; border-radius: 5px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-main); font-weight: bold;">
+                        <button type="submit" class="btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+                    </form>
+                    {% else %}
+                    ₹{% if profile.price %}{{ profile.price }}{% else %}4,999{% endif %} <span>/ month</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card-footer">
+                {% if current_trainer == profile.user %}
+                <a href="#" class="btn-hire btn-hired">Active Subscription</a>
+                <a href="{% url 'messages' %}?user_id={{ profile.user.id }}" class="btn-secondary"
+                    style="grid-column: 1 / -1;">Message Coach</a>
+                {% else %}
+                {% if not is_admin %}
+                <a href="{% url 'trainer_payment' profile.user.id %}" class="btn-hire">Hire This Coach</a>
+                {% endif %}
+                <a href="{% url 'workout_list' %}" class="btn-secondary">View Workouts</a>
+                {% if not is_admin %}
+                <a href="{% url 'chatbot' %}" class="btn-secondary">Inquire</a>
+                {% else %}
+                <a href="{% url 'delete_trainer' profile.id %}" class="btn-secondary"
+                    style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05);"
+                    onclick="return confirm('WARNING: Are you sure you want to terminate this trainer protocol? All associated data will be purged.')">
+                    <i class="fa-solid fa-trash-can"></i> Terminate
+                </a>
+                {% endif %}
+                {% endif %}
+
+            </div>
+        </article>
+        {% empty %}
+        <div style="grid-column: 1/-1; text-align: center; padding: 5rem;">
+            <i class="fa-solid fa-user-ninja"
+                style="font-size: 4rem; color: var(--gold); opacity: 0.3; margin-bottom: 2rem;"></i>
+            <h2 style="font-family: 'Cinzel', serif;">Coaching Academy Empty</h2>
+            <p>New elite coaches are currently being vetted.</p>
+        </div>
+        {% endfor %}
+    </div>
+</main>
+{% endblock %}

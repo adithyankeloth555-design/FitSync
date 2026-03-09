@@ -1,0 +1,191 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Login | FitSync Elite{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --login-orange: var(--gold);
+        --card-bg: var(--bg-secondary);
+        --text-color: var(--text-primary);
+        --input-bg: var(--bg-tertiary);
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        overflow: hidden;
+        background-color: var(--bg-primary);
+    }
+
+    .auth-page {
+        background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.7)),
+            url('https://images.unsplash.com/photo-1571902251103-d71b4ecca28e?auto=format&fit=crop&w=1600&q=80');
+        background-size: cover;
+        background-position: center;
+        height: 100vh;
+        width: 100vw;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .login-card {
+        background: var(--card-bg);
+        width: 100%;
+        max-width: 420px;
+        border-radius: 12px;
+        padding: 3rem 2.5rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .card-header {
+        margin-bottom: 2.5rem;
+    }
+
+    .card-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: var(--text-color);
+        margin: 0;
+        letter-spacing: -0.5px;
+    }
+
+    .form-group {
+        position: relative;
+        margin-bottom: 1.25rem;
+    }
+
+    .form-group i {
+        position: absolute;
+        left: 1.2rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        font-size: 1.1rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 1rem 1rem 1rem 3.2rem;
+        background: var(--input-bg);
+        border: 1px solid transparent;
+        border-radius: 8px;
+        font-size: 1rem;
+        color: var(--text-color);
+        transition: all 0.2s;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        background: var(--bg-secondary);
+        border-color: var(--login-orange);
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1);
+    }
+
+    .btn-login {
+        width: 100%;
+        padding: 1.1rem;
+        background: var(--login-orange);
+        color: #000;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-top: 1rem;
+    }
+
+    .btn-login:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-glow);
+    }
+
+    .card-footer {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+        font-size: 0.9rem;
+    }
+
+    .footer-link {
+        color: #6b7280;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .footer-link:hover {
+        color: var(--login-orange);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="login-card">
+        <div class="card-header">
+            {% if request.GET.mode == 'trainer' %}
+            <h1 class="card-title">Trainer Login</h1>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">Use your trainer credentials to
+                access the trainer dashboard</p>
+            {% else %}
+            <h1 class="card-title">Welcome Back!</h1>
+            {% endif %}
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <i class="fa-solid fa-envelope"></i>
+                <input type="text" name="username" class="form-control" placeholder="Username" required
+                    autocomplete="username">
+            </div>
+
+            <div class="form-group">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" name="password" id="password" class="form-control" placeholder="Password"
+                    required autocomplete="current-password" minlength="8" maxlength="12">
+                <i class="fa-solid fa-eye-slash toggle-password" onclick="togglePassword('password', this)"
+                    style="left: auto; right: 1.2rem; cursor: pointer; position: absolute; right: 1.2rem; top: 50%; transform: translateY(-50%); color: #9ca3af;"></i>
+            </div>
+
+            <button type="submit" class="btn-login">Login</button>
+        </form>
+
+        <script>
+            function togglePassword(inputId, icon) {
+                const input = document.getElementById(inputId);
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                } else {
+                    input.type = 'password';
+                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                }
+            }
+        </script>
+
+        <div class="card-footer">
+            <a href="{% url 'forgot_password' %}" class="footer-link">Forgot password?</a>
+            <a href="{% url 'signup' %}" class="footer-link" style="font-weight: 700; color: var(--login-orange);">Sign
+                Up</a>
+        </div>
+        <div style="text-align: center; margin-top: 1.5rem;">
+            <a href="{% url 'admin_login' %}" class="footer-link" style="font-size: 0.85rem; opacity: 0.7;">Switch to
+                Admin Mode</a>
+            <span style="color: #6b7280; margin: 0 0.5rem;">|</span>
+            <a href="/login/?mode=trainer" class="footer-link" style="font-size: 0.85rem; opacity: 0.7;">Switch to
+                Trainer Mode</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,424 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}AI Protocol Generator | FitSync Elite{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --sidebar-bg: var(--bg-tertiary);
+        --sidebar-hover: var(--hover-color);
+        --accent-orange: var(--gold);
+        --content-bg: var(--bg-primary);
+        --text-main: var(--text-primary);
+        --text-muted: var(--text-muted);
+        --white: var(--bg-secondary);
+        --card-shadow: var(--shadow-main);
+    }
+
+    body {
+        background-color: var(--content-bg);
+        color: var(--text-main);
+        font-family: 'Outfit', sans-serif;
+        margin: 0;
+        min-height: 100vh;
+    }
+
+    /* Sidebar removed */
+
+    .main-wrapper {
+        margin: 0 auto;
+        max-width: 1400px;
+        flex-grow: 1;
+        padding: 3rem 4rem;
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        transition: 0.3s;
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .back-btn:hover {
+        color: var(--accent-orange);
+        transform: translateX(-5px);
+        box-shadow: 0 6px 15px rgba(249, 115, 22, 0.15);
+    }
+
+    .page-header {
+        margin-bottom: 3.5rem;
+        text-align: center;
+    }
+
+    .page-title {
+        font-family: 'Cinzel', serif;
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--accent-orange);
+        text-transform: uppercase;
+        margin: 0;
+    }
+
+    .page-subtitle {
+        color: var(--text-muted);
+        font-size: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    /* AI UI Component */
+    .ai-grid {
+        display: grid;
+        grid-template-columns: 400px 1fr;
+        gap: 3rem;
+        align-items: start;
+    }
+
+    .params-card {
+        background: var(--white);
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(0, 0, 0, 0.01);
+    }
+
+    .params-card h3 {
+        font-size: 1.3rem;
+        font-weight: 800;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .params-card h3 i {
+        color: var(--accent-orange);
+    }
+
+    .form-group {
+        margin-bottom: 2rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 800;
+        color: var(--text-muted);
+        margin-bottom: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .form-select {
+        width: 100%;
+        padding: 1rem 1.2rem;
+        background: var(--bg-tertiary);
+        border: 2px solid transparent;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        color: var(--text-main);
+        outline: none;
+        transition: 0.2s;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .form-select:focus {
+        border-color: var(--accent-orange);
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
+    }
+
+    .btn-execute {
+        width: 100%;
+        background: var(--accent-orange);
+        color: #000;
+        border: none;
+        padding: 1.2rem;
+        border-radius: 15px;
+        font-size: 1rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        box-shadow: 0 8px 25px rgba(212, 175, 55, 0.25);
+    }
+
+    .btn-execute:hover {
+        background: #ea580c;
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(234, 88, 12, 0.35);
+    }
+
+    /* Result Area */
+    .result-display {
+        background: var(--white);
+        border-radius: 24px;
+        box-shadow: var(--card-shadow);
+        min-height: 550px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        border: 1px solid rgba(0, 0, 0, 0.01);
+    }
+
+    .placeholder-view {
+        margin: auto;
+        text-align: center;
+        padding: 4rem;
+        color: var(--text-muted);
+    }
+
+    .placeholder-view i {
+        font-size: 5rem;
+        margin-bottom: 2rem;
+        opacity: 0.1;
+        background: var(--accent-orange);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .loading-view {
+        margin: auto;
+        text-align: center;
+        padding: 4rem;
+    }
+
+    .proto-spinner {
+        width: 80px;
+        height: 80px;
+        border: 5px solid var(--border-color);
+        border-top-color: var(--accent-orange);
+        border-radius: 50%;
+        animation: rotate 1s linear infinite;
+        margin: 0 auto 2rem;
+    }
+
+    @keyframes rotate {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .protocol-content {
+        padding: 3rem;
+    }
+
+    .proto-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 2.5rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .gen-badge {
+        background: var(--bg-tertiary);
+        color: var(--gold);
+        font-size: 0.7rem;
+        font-weight: 900;
+        padding: 6px 14px;
+        border-radius: 50px;
+        border: 1px solid var(--border-color);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .proto-details {
+        background: var(--bg-tertiary);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .proto-details p {
+        margin: 0 0 1rem 0;
+        font-weight: 700;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .proto-details p span {
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    .exercise-stack {
+        list-style: none;
+        padding: 0;
+    }
+
+    .exercise-row {
+        background: var(--bg-secondary);
+        padding: 1.2rem 1.8rem;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border-color);
+    }
+
+    .row-meta {
+        color: var(--accent-orange);
+        font-weight: 800;
+        font-size: 0.85rem;
+    }
+
+    .btn-deploy {
+        width: 100%;
+        background: var(--gold);
+        color: #000;
+        border: none;
+        padding: 1.1rem;
+        border-radius: 12px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.8rem;
+        text-decoration: none;
+    }
+
+    .btn-deploy:hover {
+        background: #000;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="main-wrapper">
+    <a href="{% url 'user_dashboard' %}" class="back-btn">
+        <i class="fa-solid fa-arrow-left"></i> RETURN TO PORTAL
+    </a>
+    <header class="page-header">
+        <h1 class="page-title">Neural Protocol Architect</h1>
+        <p class="page-subtitle">Generating multi-phasic training systems based on physiological vectors.</p>
+    </header>
+
+    <div class="ai-grid">
+        <section class="params-card">
+            <h3><i class="fa-solid fa-fingerprint"></i> Biological Input</h3>
+            <form id="aiForm">
+                <div class="form-group">
+                    <label>Structural Maturity</label>
+                    <select id="level" class="form-select">
+                        <option>Beginner (Foundation)</option>
+                        <option>Intermediate (Development)</option>
+                        <option>Advanced (Specialization)</option>
+                        <option>Professional (Elite)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Metabolic Objective</label>
+                    <select id="goal" class="form-select">
+                        <option>Hypertrophy (Mass Architect)</option>
+                        <option>Fat Loss (Metabolic Burn)</option>
+                        <option>Power (Neural Recruitment)</option>
+                        <option>Athleticism (Systemic Flow)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tooling Inventory</label>
+                    <select id="equip" class="form-select">
+                        <option>Full Laboratory (Gym)</option>
+                        <option>Tactical Gear (Dumbbells)</option>
+                        <option>Kinetic Only (Bodyweight)</option>
+                    </select>
+                </div>
+                <button type="button" onclick="generateProtocol();" class="btn-execute">
+                    <i class="fa-solid fa-bolt"></i> Execute Synthesis
+                </button>
+            </form>
+        </section>
+
+        <section class="result-display">
+            <div id="placeholder" class="placeholder-view">
+                <i class="fa-solid fa-dna"></i>
+                <h2 style="font-family: 'Cinzel', serif;">Awaiting Parameters</h2>
+                <p>Configure your biological vectors on the left to initiate neural protocol generation.</p>
+            </div>
+
+            <div id="loading" class="loading-view" style="display: none;">
+                <div class="proto-spinner"></div>
+                <h3 style="font-family: 'Cinzel', serif;">Synthesizing Protocol...</h3>
+                <p class="text-muted">Calculating volume curves and intensity coefficients.</p>
+            </div>
+
+            <div id="protocolOutput" class="protocol-content" style="display: none;">
+                <header class="proto-header">
+                    <div>
+                        <h2 style="font-family: 'Cinzel', serif; color: var(--accent-orange); margin: 0;">Protocol
+                            Alpha-7</h2>
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">High-Fidelity Neural
+                            Generation</span>
+                    </div>
+                    <span class="gen-badge">Verified by AI Coach</span>
+                </header>
+
+                <div class="proto-details">
+                    <p>Primary Vector: <span>Hypertrophy Optimization</span></p>
+                    <p>Kinetic Split: <span>Phasics A (Push Focus)</span></p>
+                    <p>Estimated Load: <span>High Volume / Peak Intensity</span></p>
+                </div>
+
+                <div class="exercise-stack">
+                    <div class="exercise-row">
+                        <span style="font-weight: 800;">Barbell Compound Press</span>
+                        <span class="row-meta">5 Sets x 5 Reps</span>
+                    </div>
+                    <div class="exercise-row">
+                        <span style="font-weight: 800;">Dumbbell Orbital Flyes</span>
+                        <span class="row-meta">4 Sets x 12 Reps</span>
+                    </div>
+                    <div class="exercise-row">
+                        <span style="font-weight: 800;">Transverse Extensions</span>
+                        <span class="row-meta">4 Sets x 15 Reps</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 3rem;">
+                    <a href="{% url 'workout_list' %}" class="btn-deploy">
+                        <i class="fa-solid fa-shield-halved"></i> Deploy to Core Database
+                    </a>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<script>
+    function generateProtocol() {
+        document.getElementById('placeholder').style.display = 'none';
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('protocolOutput').style.display = 'none';
+
+        setTimeout(() => {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('protocolOutput').style.display = 'block';
+        }, 2200);
+    }
+</script>
+{% endblock %}

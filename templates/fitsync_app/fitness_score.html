@@ -1,0 +1,518 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Smart Fitness Score | FitSync Elite{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --fs-bg: #0a0a0f;
+        --fs-card: #13131a;
+        --fs-accent: #00e5ff;
+        --fs-green: #00ff88;
+        --fs-yellow: #ffd600;
+        --fs-red: #ff4466;
+        --fs-purple: #8b5cf6;
+    }
+
+    body {
+        background: var(--fs-bg);
+        color: #e0e0e0;
+        font-family: 'Space Grotesk', sans-serif;
+        margin: 0;
+    }
+
+    .fs-wrapper {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .fs-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 3rem;
+    }
+
+    .fs-brand {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .fs-brand-icon {
+        width: 44px;
+        height: 44px;
+        background: linear-gradient(135deg, #00ff88, #00e5ff);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        color: white;
+        box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+    }
+
+    .fs-brand-text {
+        font-weight: 700;
+        font-size: 1.4rem;
+        background: linear-gradient(135deg, #00ff88, #00e5ff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .back-link {
+        color: #888;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        transition: 0.3s;
+    }
+
+    .back-link:hover { color: var(--fs-accent); }
+
+    /* Main Score Display */
+    .score-hero {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--fs-card);
+        border-radius: 30px;
+        border: 1px solid rgba(255,255,255,0.06);
+        margin-bottom: 2.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .score-hero::before {
+        content: '';
+        position: absolute;
+        top: -100px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(0, 229, 255, 0.08) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .score-label {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        color: #666;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Circular Score */
+    .score-circle-container {
+        position: relative;
+        width: 220px;
+        height: 220px;
+        margin: 0 auto 2rem;
+    }
+
+    .score-circle-bg {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: conic-gradient(
+            var(--score-color, var(--fs-accent)) calc(var(--score-percent, 0) * 3.6deg),
+            rgba(255,255,255,0.05) 0deg
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: scoreReveal 1.5s ease-out;
+    }
+
+    @keyframes scoreReveal {
+        from { transform: scale(0.8); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    .score-circle-inner {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: var(--fs-card);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .score-number {
+        font-size: 4rem;
+        font-weight: 800;
+        line-height: 1;
+        animation: countUp 2s ease-out;
+    }
+
+    @keyframes countUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .score-max {
+        font-size: 1rem;
+        color: #666;
+        margin-top: 0.25rem;
+    }
+
+    .score-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1.5rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .score-recommendation {
+        color: #888;
+        font-size: 1rem;
+        max-width: 500px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    /* Score Tier Classes */
+    .tier-excellent { --tier-color: #00ff88; --tier-bg: rgba(0,255,136,0.1); }
+    .tier-good      { --tier-color: #00e5ff; --tier-bg: rgba(0,229,255,0.1); }
+    .tier-fair      { --tier-color: #ffd600; --tier-bg: rgba(255,214,0,0.1); }
+    .tier-needs-improvement { --tier-color: #ff4466; --tier-bg: rgba(255,68,102,0.1); }
+
+    .score-circle-bg { --score-color: var(--tier-color); }
+    .score-number { color: var(--tier-color); }
+    .score-status { background: var(--tier-bg); color: var(--tier-color); }
+
+    .bmi-normal { color: #00ff88; }
+    .bmi-underweight { color: #ffd600; }
+    .bmi-obese { color: #ff4466; }
+
+    /* Factor Cards */
+    .factors-title {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #666;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+
+    .factors-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .factor-card {
+        background: var(--fs-card);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 20px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: 0.3s;
+    }
+
+    .factor-card:hover {
+        border-color: rgba(0, 229, 255, 0.3);
+        transform: translateY(-5px);
+    }
+
+    .factor-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        margin: 0 auto 1rem;
+    }
+
+    .factor-label {
+        font-size: 0.8rem;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.5rem;
+    }
+
+    .factor-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 0.5rem;
+    }
+
+    .factor-bar {
+        height: 6px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 0.75rem;
+    }
+
+    .factor-bar-fill {
+        height: 100%;
+        border-radius: 3px;
+        width: var(--fill-width, 0%);
+        transition: width 1.5s ease-out;
+    }
+
+    /* Icon Variations */
+    .icon-bmi      { background: rgba(0,229,255,0.1); color: var(--fs-accent); }
+    .icon-workout  { background: rgba(139,92,246,0.1); color: var(--fs-purple); }
+    .icon-calories { background: rgba(255,214,0,0.1); color: var(--fs-yellow); }
+    .icon-water    { background: rgba(0,255,136,0.1); color: var(--fs-green); }
+    .icon-goals    { background: rgba(255,68,102,0.1); color: var(--fs-red); }
+    .icon-tip      { background: rgba(0,229,255,0.1); color: var(--fs-accent); }
+
+    .factor-sub-score {
+        font-size: 0.75rem;
+        color: #888;
+        margin-top: 0.5rem;
+    }
+
+    /* Breakdown Table */
+    .breakdown-card {
+        background: var(--fs-card);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .breakdown-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .breakdown-row:last-child { border-bottom: none; }
+
+    .breakdown-label {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: #bbb;
+    }
+
+    .breakdown-label i {
+        width: 20px;
+        text-align: center;
+        color: var(--fs-accent);
+    }
+
+    .breakdown-score {
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    /* Tips Section */
+    .tips-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+
+    .tip-card {
+        background: var(--fs-card);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 16px;
+        padding: 1.5rem;
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        transition: 0.3s;
+    }
+
+    .tip-card:hover {
+        border-color: rgba(0, 229, 255, 0.2);
+    }
+
+    .tip-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 1.1rem;
+    }
+
+    .tip-title {
+        font-weight: 600;
+        margin-bottom: 0.3rem;
+        color: #ddd;
+        font-size: 0.95rem;
+    }
+
+    .tip-text {
+        font-size: 0.85rem;
+        color: #777;
+        line-height: 1.5;
+    }
+
+    @media (max-width: 768px) {
+        .factors-grid { grid-template-columns: repeat(2, 1fr); }
+        .score-circle-container { width: 180px; height: 180px; }
+        .score-circle-inner { width: 148px; height: 148px; }
+        .score-number { font-size: 3rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fs-wrapper">
+    <nav class="fs-nav">
+        <div class="fs-brand">
+            <div class="fs-brand-icon"><i class="fa-solid fa-brain"></i></div>
+            <span class="fs-brand-text">Smart Fitness Score</span>
+        </div>
+        <a href="{% url 'ai_hub' %}" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> Back to Neural Hub
+        </a>
+    </nav>
+
+    <!-- Hero Score -->
+    <div class="score-hero tier-{{ score_status|slugify }}">
+        <div class="score-label">Your AI Health Rating</div>
+        <div class="score-circle-container">
+            <div class="score-circle-bg" style="--score-percent: {{ fitness_score }};">
+                <div class="score-circle-inner">
+                    <div class="score-number">
+                        {{ fitness_score }}
+                    </div>
+                    <div class="score-max">/ 100</div>
+                </div>
+            </div>
+        </div>
+        <div class="score-status">
+            <i class="fa-solid {% if fitness_score >= 80 %}fa-trophy{% elif fitness_score >= 60 %}fa-thumbs-up{% elif fitness_score >= 40 %}fa-exclamation{% else %}fa-triangle-exclamation{% endif %}"></i>
+            {{ score_status }}
+        </div>
+        <p class="score-recommendation">{{ recommendation }}</p>
+    </div>
+
+    <!-- Factor Cards -->
+    <div class="factors-title">Score Breakdown by Factor</div>
+    <div class="factors-grid">
+        <div class="factor-card">
+            <div class="factor-icon icon-bmi">
+                <i class="fa-solid fa-scale-balanced"></i>
+            </div>
+            <div class="factor-label">BMI Score</div>
+            <div class="factor-value">{{ bmi_score_display }}</div>
+            <div class="factor-bar">
+                <div class="factor-bar-fill" style="--fill-width: {{ bmi_factor|floatformat:0 }}%;"></div>
+            </div>
+            <div class="factor-sub-score">{{ bmi_factor }}/25 points</div>
+        </div>
+
+        <div class="factor-card">
+            <div class="factor-icon icon-workout">
+                <i class="fa-solid fa-dumbbell"></i>
+            </div>
+            <div class="factor-label">Workout Frequency</div>
+            <div class="factor-value">{{ workouts_per_week }}/wk</div>
+            <div class="factor-bar">
+                <div class="factor-bar-fill" style="--fill-width: {{ workout_factor_pct }}%;"></div>
+            </div>
+            <div class="factor-sub-score">{{ workout_factor }}/25 points</div>
+        </div>
+
+        <div class="factor-card">
+            <div class="factor-icon icon-calories">
+                <i class="fa-solid fa-fire-flame-curved"></i>
+            </div>
+            <div class="factor-label">Calorie Balance</div>
+            <div class="factor-value">{{ avg_calories }} kcal</div>
+            <div class="factor-bar">
+                <div class="factor-bar-fill" style="--fill-width: {{ calorie_factor_pct }}%;"></div>
+            </div>
+            <div class="factor-sub-score">{{ calorie_factor }}/20 points</div>
+        </div>
+
+        <div class="factor-card">
+            <div class="factor-icon icon-water">
+                <i class="fa-solid fa-droplet"></i>
+            </div>
+            <div class="factor-label">Hydration</div>
+            <div class="factor-value">{{ avg_water_ml }}ml</div>
+            <div class="factor-bar">
+                <div class="factor-bar-fill" style="--fill-width: {{ water_factor_pct }}%;"></div>
+            </div>
+            <div class="factor-sub-score">{{ water_factor }}/15 points</div>
+        </div>
+
+        <div class="factor-card">
+            <div class="factor-icon icon-goals">
+                <i class="fa-solid fa-bullseye"></i>
+            </div>
+            <div class="factor-label">Goal Progress</div>
+            <div class="factor-value">{{ goal_completion }}%</div>
+            <div class="factor-bar">
+                <div class="factor-bar-fill" style="--fill-width: {{ goal_factor_pct }}%;"></div>
+            </div>
+            <div class="factor-sub-score">{{ goal_factor }}/15 points</div>
+        </div>
+    </div>
+
+    <!-- Detailed Breakdown -->
+    <div class="breakdown-card">
+        <div class="factors-title" style="margin-bottom: 0.5rem;">Detailed Analysis</div>
+        <div class="breakdown-row">
+            <div class="breakdown-label"><i class="fa-solid fa-scale-balanced"></i> BMI Category</div>
+            <div class="breakdown-score bmi-{{ bmi_category|lower }}">{{ bmi_category }}</div>
+        </div>
+        <div class="breakdown-row">
+            <div class="breakdown-label"><i class="fa-solid fa-calendar-check"></i> Sessions This Week</div>
+            <div class="breakdown-score" style="color: var(--fs-accent);">{{ workouts_this_week }}</div>
+        </div>
+        <div class="breakdown-row">
+            <div class="breakdown-label"><i class="fa-solid fa-utensils"></i> Avg Daily Calories (7d)</div>
+            <div class="breakdown-score" style="color: var(--fs-yellow);">{{ avg_calories }} kcal</div>
+        </div>
+        <div class="breakdown-row">
+            <div class="breakdown-label"><i class="fa-solid fa-glass-water"></i> Avg Daily Water (7d)</div>
+            <div class="breakdown-score" style="color: var(--fs-green);">{{ avg_water_ml }} ml</div>
+        </div>
+        <div class="breakdown-row">
+            <div class="breakdown-label"><i class="fa-solid fa-trophy"></i> Goals Completed</div>
+            <div class="breakdown-score" style="color: var(--fs-purple);">{{ goals_completed }} / {{ goals_total }}</div>
+        </div>
+    </div>
+
+    <!-- AI Tips -->
+    <div class="factors-title">AI Recommendations</div>
+    <div class="tips-grid">
+        {% for tip in tips %}
+        <div class="tip-card">
+            <div class="tip-icon icon-tip">
+                <i class="fa-solid fa-lightbulb"></i>
+            </div>
+            <div>
+                <div class="tip-title">{{ tip.title }}</div>
+                <div class="tip-text">{{ tip.text }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

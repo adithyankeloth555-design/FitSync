@@ -1,0 +1,843 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Trainer Dashboard | FitSync Elite{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --sidebar-bg: var(--bg-tertiary);
+        --accent-orange: var(--gold);
+        --content-bg: var(--bg-primary);
+        --text-main: var(--text-primary);
+        --text-muted: var(--text-muted);
+        --white: var(--bg-secondary);
+        --card-shadow: var(--shadow-main);
+    }
+
+    body {
+        background-color: var(--content-bg);
+        color: var(--text-main);
+        font-family: 'Outfit', sans-serif;
+        margin: 0;
+    }
+
+    .trainer-wrapper {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        width: 280px;
+        background: var(--sidebar-bg);
+        color: var(--text-primary);
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        height: 100vh;
+        z-index: 1001;
+        border-right: 1px solid var(--border-color);
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar-header {
+        padding: 2rem 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .trainer-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .trainer-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: 2px solid var(--gold);
+    }
+
+    .trainer-name {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--gold);
+    }
+
+    .trainer-role {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
+    .sidebar-menu {
+        padding: 1rem 0.8rem;
+        list-style: none;
+        flex-grow: 1;
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.9rem 1.2rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.95rem;
+        border-radius: 12px;
+        margin-bottom: 0.5rem;
+        transition: all 0.3s;
+        font-weight: 600;
+    }
+
+    .menu-item:hover {
+        color: var(--gold);
+        background: rgba(212, 175, 55, 0.1);
+        transform: translateX(5px);
+    }
+
+    .menu-item.active {
+        background: var(--gold);
+        color: #000;
+    }
+
+    .menu-item i {
+        width: 20px;
+        text-align: center;
+    }
+
+    .logout-box {
+        padding: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    /* Main Content */
+    .main-content {
+        margin-left: 280px;
+        flex-grow: 1;
+        padding: 2.5rem;
+    }
+
+    .page-header {
+        margin-bottom: 3rem;
+    }
+
+    .page-title {
+        font-family: var(--font-heading);
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: var(--gold);
+        margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: var(--white);
+        padding: 2rem;
+        border-radius: 20px;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-md);
+        transition: all 0.3s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--gold);
+    }
+
+    .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-header h3 {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 0;
+        font-weight: 700;
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        background: rgba(212, 175, 55, 0.1);
+        color: var(--gold);
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        font-family: var(--font-heading);
+    }
+
+    /* Members Section */
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin-bottom: 2rem;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .members-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .member-card {
+        background: var(--white);
+        padding: 2rem;
+        border-radius: 20px;
+        border: 1px solid var(--border-color);
+        transition: all 0.3s;
+    }
+
+    .member-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-glow);
+    }
+
+    .member-header {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .member-avatar {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        border: 3px solid var(--gold);
+    }
+
+    .member-name {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 0.3rem;
+    }
+
+    .member-email {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
+    .goal-badge {
+        display: inline-block;
+        padding: 0.2rem 0.5rem;
+        background: rgba(212, 175, 55, 0.1);
+        color: var(--gold);
+        border-radius: 4px;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        margin-top: 0.5rem;
+        border: 1px solid rgba(212, 175, 55, 0.3);
+    }
+
+    .activity-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .activity-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        margin-bottom: 0.8rem;
+        letter-spacing: 1px;
+    }
+
+    .activity-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.8rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .activity-label {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .activity-value {
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .member-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn {
+        padding: 0.8rem;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        border: none;
+        cursor: pointer;
+        text-align: center;
+    }
+
+    .btn-message {
+        background: var(--gold);
+        color: #000;
+        grid-column: 1 / -1;
+    }
+
+    .btn-message:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+    }
+
+    .btn-secondary {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+        background: var(--gold);
+        color: #000;
+        border-color: var(--gold);
+    }
+
+    /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(10px);
+    }
+
+    .modal-content {
+        background: var(--white);
+        margin: 5% auto;
+        padding: 3rem;
+        border-radius: 24px;
+        width: 90%;
+        max-width: 600px;
+        position: relative;
+        border: 1px solid var(--gold);
+    }
+
+    .modal-close {
+        position: absolute;
+        right: 2rem;
+        top: 2rem;
+        background: none;
+        border: none;
+        font-size: 2rem;
+        cursor: pointer;
+        color: var(--text-muted);
+        transition: 0.3s;
+    }
+
+    .modal-close:hover {
+        color: var(--gold);
+    }
+
+    .modal-title {
+        font-size: 2rem;
+        font-weight: 900;
+        color: var(--gold);
+        margin-bottom: 2rem;
+        font-family: var(--font-heading);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--gold);
+        background: rgba(212, 175, 55, 0.05);
+    }
+
+    textarea.form-control {
+        min-height: 150px;
+        resize: vertical;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 1.2rem;
+        background: var(--gold);
+        color: #000;
+        border: none;
+        border-radius: 12px;
+        font-weight: 900;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
+    }
+
+    .rating-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .rating-star {
+        font-size: 2rem;
+        cursor: pointer;
+        color: var(--text-muted);
+        transition: all 0.2s;
+    }
+
+    .rating-star:hover,
+    .rating-star.active {
+        color: var(--gold);
+        transform: scale(1.2);
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-muted);
+        font-size: 1.1rem;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 1024px) {
+        .sidebar {
+            transform: translateX(-100%);
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .main-content {
+            margin-left: 0 !important;
+            padding: 1.5rem !important;
+            padding-top: 4.5rem !important;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1rem;
+        }
+
+        .members-grid {
+            grid-template-columns: 1fr !important;
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .main-content {
+            padding: 1rem !important;
+            padding-top: 4.5rem !important;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+        }
+
+        .member-card {
+            padding: 1.5rem;
+        }
+
+        .member-avatar {
+            width: 50px;
+            height: 50px;
+        }
+
+        .member-actions {
+            grid-template-columns: 1fr;
+        }
+
+        .modal-content {
+            padding: 2rem 1.5rem;
+            margin: 10% auto;
+            width: 95%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="trainer-wrapper">
+    <!-- Mobile Hamburger Button -->
+    <button class="hamburger-btn" id="hamburger-btn" aria-label="Toggle Menu">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="trainer-info">
+                <form id="trainer-photo-form" method="post" enctype="multipart/form-data" style="display: none;">
+                    {% csrf_token %}
+                    <input type="file" name="profile_photo" id="trainer-photo-input"
+                        onchange="document.getElementById('trainer-photo-form').submit();" accept="image/*">
+                </form>
+
+                <div style="position: relative; cursor: pointer;"
+                    onclick="document.getElementById('trainer-photo-input').click();" title="Change Profile Photo">
+                    {% if user.userprofile.profile_photo %}
+                    <img src="{{ user.userprofile.profile_photo.url }}" class="trainer-avatar" alt="Trainer">
+                    {% else %}
+                    <img src="https://i.pravatar.cc/150?u={{ user.username }}" class="trainer-avatar" alt="Trainer">
+                    {% endif %}
+                    <div
+                        style="position: absolute; bottom: 0; right: 0; background: var(--gold); border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--sidebar-bg);">
+                        <i class="fa-solid fa-camera" style="font-size: 0.6rem; color: #000;"></i>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="trainer-name">{{ user.get_full_name|default:user.username }}</div>
+                    <div class="trainer-role">Elite Trainer</div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="{% url 'trainer_dashboard' %}" class="menu-item active">
+                <i class="fa-solid fa-gauge"></i> Dashboard
+            </a>
+            <a href="{% url 'report_members' %}" class="menu-item">
+                <i class="fa-solid fa-users"></i> All Members
+            </a>
+            <a href="{% url 'workout_list' %}" class="menu-item">
+                <i class="fa-solid fa-dumbbell"></i> Workout Plans
+            </a>
+            <a href="{% url 'diet_list' %}" class="menu-item">
+                <i class="fa-solid fa-utensils"></i> Diet Plans
+            </a>
+            <a href="{% url 'video_gallery' %}" class="menu-item">
+                <i class="fa-solid fa-film"></i> Upload Videos
+            </a>
+            <a href="{% url 'messages' %}" class="menu-item">
+                <i class="fa-solid fa-message"></i> Messages
+            </a>
+            <a href="{% url 'store' %}" class="menu-item" style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem; border-radius: 0;">
+                <i class="fa-solid fa-store" style="color: var(--gold);"></i> FitSync Store
+            </a>
+        </nav>
+
+        <div class="logout-box">
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="menu-item"
+                    style="background: none; border: none; width: 100%; cursor: pointer; text-align: left;">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="page-header">
+            <h1 class="page-title">Trainer Command Center</h1>
+            <p class="page-subtitle">Monitor and optimize your athletes' performance.</p>
+        </header>
+        <!-- Operational Controls -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+            <a href="{% url 'live_session' %}" class="btn" style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; border: none; padding: 1.2rem; font-size: 1.1rem; box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);">
+                <i class="fa-solid fa-video pulse" style="animation: pulse 2s infinite;"></i> Start Live Session
+            </a>
+            <a href="{% url 'workout_list' %}" class="btn btn-secondary" style="padding: 1.2rem; font-size: 1.1rem;">
+                <i class="fa-solid fa-plus-circle"></i> Create Workout Plan
+            </a>
+            <a href="{% url 'diet_list' %}" class="btn btn-secondary" style="padding: 1.2rem; font-size: 1.1rem;">
+                <i class="fa-solid fa-apple-whole"></i> Create Diet Plan
+            </a>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <h3>Active Athletes</h3>
+                    <div class="stat-icon">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                </div>
+                <div class="stat-value">{{ total_members }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <h3>Daily Check-ins</h3>
+                    <div class="stat-icon">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                </div>
+                <div class="stat-value">{{ today_attendance }}</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <h3>Pending Messages</h3>
+                    <div class="stat-icon">
+                        <i class="fa-solid fa-envelope"></i>
+                    </div>
+                </div>
+                <div class="stat-value">{{ unread_messages }}</div>
+            </div>
+        </div>
+
+        <!-- Members Section -->
+        <h2 class="section-title">
+            <i class="fa-solid fa-users-gear"></i> Member Managment
+        </h2>
+
+        {% if members %}
+        <div class="members-grid">
+            {% for member in members %}
+            <div class="member-card">
+                <div class="member-header">
+                    {% if member.userprofile.profile_photo %}
+                    <img src="{{ member.userprofile.profile_photo.url }}" class="member-avatar"
+                        alt="{{ member.username }}">
+                    {% else %}
+                    <img src="https://i.pravatar.cc/150?u={{ member.username }}" class="member-avatar"
+                        alt="{{ member.username }}">
+                    {% endif %}
+                    <div>
+                        <div class="member-name">
+                            {{ member.get_full_name|default:member.username }}
+                        </div>
+                        <div class="member-email">{{ member.email }}</div>
+                        {% if member.userprofile.fitness_goal %}
+                        <span class="goal-badge">{{ member.userprofile.fitness_goal }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="activity-section">
+                    <div class="activity-title">Performance Metrics</div>
+                    <div class="activity-item">
+                        <span class="activity-label">Last Workout:</span>
+                        <span class="activity-value">
+                            {% if member.last_attendance_date %}
+                            {{ member.last_attendance_date|date:"M d" }}
+                            {% else %}--{% endif %}
+                        </span>
+                    </div>
+                    <div class="activity-item">
+                        <span class="activity-label">Attendance:</span>
+                        <span class="activity-value">{{ member.attendance_rate|default:"0" }}%</span>
+                    </div>
+                    <div class="activity-item">
+                        <span class="activity-label">Weight:</span>
+                        <span class="activity-value">{{ member.userprofile.weight_kg|default:"--" }} kg</span>
+                    </div>
+                </div>
+
+                <div class="member-actions">
+                    <a href="{% url 'messages' %}?user_id={{ member.id }}" class="btn btn-message">
+                        <i class="fa-solid fa-comments"></i> Chat
+                    </a>
+                    <button class="btn btn-secondary btn-feedback" data-user-id="{{ member.id }}"
+                        data-user-name="{{ member.get_full_name|default:member.username|escapejs }}">
+                        <i class="fa-solid fa-star"></i> Feedback
+                    </button>
+                    <a href="{% url 'trainer_member_progress' member.id %}" class="btn btn-secondary">
+                        <i class="fa-solid fa-chart-line"></i> Analytics
+                    </a>
+                    <a href="#" class="btn btn-secondary">
+                        <i class="fa-solid fa-clipboard-list"></i> Plan
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-data">
+            <i class="fa-solid fa-users" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+            <p>No members assigned yet.</p>
+        </div>
+        {% endif %}
+    </main>
+</div>
+
+<!-- Feedback Modal -->
+<div id="feedbackModal" class="modal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeFeedbackModal()">&times;</button>
+        <h2 class="modal-title">Provide Feedback</h2>
+        <form method="post" action="{% url 'trainer_dashboard' %}">
+            {% csrf_token %}
+            <input type="hidden" name="user_id" id="feedback_user_id">
+            <input type="hidden" name="rating" id="feedback_rating" value="5">
+
+            <div class="form-group">
+                <label>Athlete: <span id="member_name" style="color: var(--gold);"></span></label>
+            </div>
+
+            <div class="form-group">
+                <label>Performance Rating</label>
+                <div class="rating-group">
+                    <i class="fa-solid fa-star rating-star active" data-rating="1" onclick="setRating(1)"></i>
+                    <i class="fa-solid fa-star rating-star active" data-rating="2" onclick="setRating(2)"></i>
+                    <i class="fa-solid fa-star rating-star active" data-rating="3" onclick="setRating(3)"></i>
+                    <i class="fa-solid fa-star rating-star active" data-rating="4" onclick="setRating(4)"></i>
+                    <i class="fa-solid fa-star rating-star active" data-rating="5" onclick="setRating(5)"></i>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="feedback_text">Detailed Analysis</label>
+                <textarea name="feedback_text" id="feedback_text" class="form-control" required
+                    placeholder="Provide detailed feedback on form, intensity, nutrition adherence, and next steps..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <i class="fa-solid fa-paper-plane"></i> Send Evaluation
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Event delegation for feedback buttons
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.btn-feedback').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const userId = this.getAttribute('data-user-id');
+                const userName = this.getAttribute('data-user-name');
+                openFeedbackModal(userId, userName);
+            });
+        });
+    });
+
+    function openFeedbackModal(userId, memberName) {
+        document.getElementById('feedback_user_id').value = userId;
+        document.getElementById('member_name').textContent = memberName;
+        document.getElementById('feedbackModal').style.display = 'block';
+    }
+
+    function closeFeedbackModal() {
+        document.getElementById('feedbackModal').style.display = 'none';
+        document.getElementById('feedback_text').value = '';
+        setRating(5);
+    }
+
+    function setRating(rating) {
+        document.getElementById('feedback_rating').value = rating;
+        const stars = document.querySelectorAll('.rating-star');
+        stars.forEach((star, index) => {
+            if (index < rating) {
+                star.classList.add('active');
+            } else {
+                star.classList.remove('active');
+            }
+        });
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function (event) {
+        const modal = document.getElementById('feedbackModal');
+        if (event.target == modal) {
+            closeFeedbackModal();
+        }
+    }
+
+    // Sidebar toggle for mobile
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const hamburgerIcon = hamburgerBtn.querySelector('i');
+
+    function toggleSidebar() {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
+        if (sidebar.classList.contains('open')) {
+            hamburgerIcon.classList.replace('fa-bars', 'fa-xmark');
+        } else {
+            hamburgerIcon.classList.replace('fa-xmark', 'fa-bars');
+        }
+    }
+
+    hamburgerBtn.addEventListener('click', toggleSidebar);
+    overlay.addEventListener('click', toggleSidebar);
+</script>
+{% endblock %}

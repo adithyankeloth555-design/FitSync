@@ -1,0 +1,190 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Checkout | FitSync Store x GNC{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --gnc-red: #e61c24;
+        --gnc-red-hover: #c9171f;
+        --gnc-dark: #121212;
+        --gnc-card: #1e1e1e;
+        --gnc-border: #333333;
+        --gnc-text: #ffffff;
+        --gnc-text-muted: #aaaaaa;
+        --gnc-white-bg: #f8f9fa;
+    }
+
+    body { background: var(--gnc-dark); font-family: 'Inter', sans-serif; color: var(--gnc-text); }
+    .checkout-container { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
+
+    .page-header { margin-bottom: 2rem; border-bottom: 2px solid var(--gnc-border); padding-bottom: 1rem; }
+    .page-header h1 { font-family: 'Teko', sans-serif; font-size: 3.5rem; font-weight: 700; margin: 0; text-transform: uppercase; color: white; line-height: 1; }
+    .page-header a { color: var(--gnc-text-muted); font-size: 0.85rem; text-decoration: underline; font-weight: 600; text-transform: uppercase; }
+    .page-header a:hover { color: var(--gnc-text); }
+
+    .checkout-grid { display: grid; grid-template-columns: 1fr 360px; gap: 2.5rem; }
+
+    /* Form Area */
+    .form-section { background: var(--gnc-card); border: 2px solid var(--gnc-border); border-radius: 6px; padding: 2.5rem; margin-bottom: 1.5rem; }
+    .form-title { font-family: 'Teko', sans-serif; font-size: 2.2rem; margin-top: 0; margin-bottom: 1.5rem; border-bottom: 1px solid var(--gnc-border); padding-bottom: 0.5rem; text-transform: uppercase; color: white; }
+
+    .form-row { display: flex; gap: 1.5rem; }
+    .form-row > * { flex: 1; }
+
+    .input-wrapper { margin-bottom: 1.5rem; }
+    .input-wrapper label { display: block; font-size: 0.85rem; text-transform: uppercase; font-weight: 800; color: var(--gnc-text-muted); margin-bottom: 0.5rem; letter-spacing: 0.5px; }
+    .input-wrapper input,
+    .input-wrapper textarea,
+    .input-wrapper select {
+        width: 100%;
+        background: var(--gnc-dark);
+        border: 2px solid var(--gnc-border);
+        color: white;
+        padding: 0.85rem 1rem;
+        font-family: inherit; font-size: 1rem; font-weight: 500;
+        border-radius: 4px; transition: 0.2s; box-sizing: border-box;
+        outline: none;
+    }
+    .input-wrapper input:focus, .input-wrapper textarea:focus, .input-wrapper select:focus { border-color: var(--gnc-red); }
+    .input-wrapper textarea { min-height: 80px; resize: vertical; }
+
+    /* Summary Area */
+    .summary-card {
+        background: var(--gnc-card); border: 2px solid var(--gnc-border); border-radius: 6px;
+        padding: 2rem; position: sticky; top: 2rem;
+    }
+    
+    .mini-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--gnc-border); }
+    .mini-name { font-size: 0.9rem; font-weight: 600; color: #ccc; }
+    .mini-qty { font-size: 0.8rem; color: var(--gnc-text-muted); margin-top: 0.2rem; }
+    .mini-price { font-weight: 700; color: white; }
+
+    .summary-row { display: flex; justify-content: space-between; color: var(--gnc-text-muted); font-size: 0.95rem; margin-bottom: 1rem; font-weight: 600; }
+    .summary-row.total { color: white; font-size: 1.4rem; padding-top: 1.5rem; border-top: 2px solid var(--gnc-border); margin-bottom: 2rem; }
+    .summary-row span:last-child { color: white; font-weight: 700; }
+    .summary-row.total span:last-child { font-family: 'Teko', sans-serif; color: var(--gnc-red); font-size: 2.5rem; font-weight: 600; line-height: 1; }
+
+    .btn-submit {
+        background: var(--gnc-red); color: white; border: none; padding: 1.2rem; font-size: 1.1rem; font-weight: 800; text-transform: uppercase; cursor: pointer; width: 100%; border-radius: 4px; letter-spacing: 1px; transition: 0.3s;
+    }
+    .btn-submit:hover { background: var(--gnc-red-hover); box-shadow: 0 5px 15px rgba(230,28,36,0.3); }
+
+    .cod-notice { text-align: center; font-size: 0.85rem; color: var(--gnc-text-muted); margin-top: 1rem; font-weight: 600; }
+
+    @media (max-width: 900px) {
+        .checkout-grid { grid-template-columns: 1fr; }
+        .form-row { flex-direction: column; gap: 0; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="checkout-container">
+
+    <div class="page-header">
+        <h1>Secure Checkout</h1>
+        <p><a href="{% url 'cart' %}">← Return to Cart</a></p>
+    </div>
+
+    <form method="post" action="{% url 'checkout' %}">
+        {% csrf_token %}
+        <div class="checkout-grid">
+
+            <!-- Form -->
+            <div>
+                <div class="form-section">
+                    <h2 class="form-title">Shipping Address</h2>
+
+                    <div class="form-row">
+                        <div class="input-wrapper">
+                            <label>Full Name *</label>
+                            <input type="text" name="full_name" placeholder="John Doe" value="{{ user.get_full_name|default:user.username }}" required>
+                        </div>
+                        <div class="input-wrapper">
+                            <label>Phone Number *</label>
+                            <input type="tel" name="phone" placeholder="+91 98765 43210" required>
+                        </div>
+                    </div>
+
+                    <div class="input-wrapper">
+                        <label>House / Street Address *</label>
+                        <input type="text" name="house_address" placeholder="e.g. 123 Muscle Ave, Apt 4B" required value="{% if user.userprofile.address %}{{ user.userprofile.address }}{% endif %}">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="input-wrapper">
+                            <label>City *</label>
+                            <input type="text" name="city" placeholder="City Name" required>
+                        </div>
+                        <div class="input-wrapper">
+                            <label>State *</label>
+                            <input type="text" name="state" placeholder="State Name" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="input-wrapper">
+                            <label>Pincode / ZIP *</label>
+                            <input type="text" name="pincode" placeholder="Postal Code" required>
+                        </div>
+                        <div class="input-wrapper">
+                            <label>Country *</label>
+                            <select name="country" required>
+                                <option value="India">India</option>
+                                <option value="USA">United States</option>
+                                <option value="UK">United Kingdom</option>
+                                <option value="Canada">Canada</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2 class="form-title">Order Notes</h2>
+                    <div class="input-wrapper" style="margin-bottom:0;">
+                        <label>Delivery Instructions (optional)</label>
+                        <textarea name="note" placeholder="Leave at door, avoid knocking, etc."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="summary-card">
+                <h2 class="form-title" style="font-size:1.8rem;">In Your Cart</h2>
+                
+                <div style="margin-bottom: 2rem;">
+                    {% for item in items %}
+                    <div class="mini-item">
+                        <div>
+                            <div class="mini-name">{{ item.product.name }}</div>
+                            <div class="mini-qty">Qty: {{ item.quantity }}</div>
+                        </div>
+                        <div class="mini-price">₹{{ item.total_price }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span>₹{{ cart.total }}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping</span>
+                    <span>FREE</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Order Total</span>
+                    <span>₹{{ cart.total }}</span>
+                </div>
+
+                <button type="submit" class="btn-submit">Place Order</button>
+                <div class="cod-notice">Cash on Delivery - Pay securely at your door.</div>
+            </div>
+
+        </div>
+    </form>
+</div>
+{% endblock %}

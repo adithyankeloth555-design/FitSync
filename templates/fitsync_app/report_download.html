@@ -1,0 +1,341 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Export Data | FitSync Admin{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --admin-bg: #f3f4f6;
+        --sidebar-bg: #1e293b;
+        --accent-orange: #f97316;
+        --text-dark: #1f2937;
+        --text-muted: #6b7280;
+        --white: #ffffff;
+        --border-color: #e5e7eb;
+    }
+
+    body {
+        background-color: var(--admin-bg);
+        color: var(--text-dark);
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+    }
+
+    .admin-wrapper {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+        width: 260px;
+        background: var(--sidebar-bg);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        height: 100vh;
+        z-index: 1001; transition: transform 0.3s ease;
+        padding: 0;
+    }
+
+    .sidebar-header {
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        margin-bottom: 1rem;
+    }
+
+    .admin-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 4px;
+        object-fit: cover;
+    }
+
+    .admin-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #f3f4f6;
+    }
+
+    .sidebar-menu {
+        padding: 0 0.8rem;
+        list-style: none;
+        flex-grow: 1;
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.65rem 1rem;
+        color: #94a3b8;
+        text-decoration: none;
+        font-size: 0.85rem;
+        border-radius: 6px;
+        margin-bottom: 0.25rem;
+        transition: all 0.2s;
+        font-weight: 500;
+    }
+
+    .menu-item:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .menu-item.active {
+        background: var(--accent-orange);
+        color: #fff;
+    }
+
+    .menu-item i {
+        width: 20px;
+        text-align: center;
+    }
+
+    .logout-box {
+        padding: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Main Content Area */
+    .main-content {
+        margin-left: 260px;
+        flex-grow: 1;
+        padding: 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .export-container {
+        max-width: 800px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .export-hero {
+        margin-bottom: 3rem;
+    }
+
+    .export-hero i {
+        font-size: 4rem;
+        color: var(--accent-orange);
+        margin-bottom: 1.5rem;
+    }
+
+    .export-hero h1 {
+        font-family: 'Cinzel', serif;
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .export-hero p {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+    }
+
+    .export-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .export-card {
+        background: var(--white);
+        padding: 2rem;
+        border-radius: 16px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        transition: transform 0.2s, box-shadow 0.2s;
+        text-align: left;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .export-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .export-card h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .export-card p {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-generate {
+        background: #f9fafb;
+        border: 1px solid var(--border-color);
+        color: var(--text-dark);
+        padding: 0.6rem 1rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        width: 100%;
+        cursor: pointer;
+        transition: 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-generate:hover {
+        background: var(--accent-orange);
+        border-color: var(--accent-orange);
+        color: var(--white);
+    }
+
+    /* Mobile Responsive dynamically injected */
+    @media (max-width: 1024px) {
+        .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
+        .main-content, .main-area, .content-area { margin-left: 0 !important; padding: 1.5rem !important; padding-top: 4.5rem !important; }
+        .page-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+        .actions-bar { flex-direction: column; width: 100%; gap: 1rem; }
+        .search-wrapper { max-width: 100%; width: 100%; }
+        .premium-table { display: block; overflow-x: auto; white-space: nowrap; }
+    }
+    @media (max-width: 768px) {
+        .main-content, .main-area, .content-area { padding: 1rem !important; padding-top: 4.5rem !important; }
+        .page-title { font-size: 1.8rem; }
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-wrapper">
+    <!-- Sidebar -->
+    
+    <!-- Mobile Hamburger Button -->
+    <button class="hamburger-btn" id="hamburger-btn" aria-label="Toggle Menu">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <aside class="sidebar" id="sidebar" >
+        <div class="sidebar-header">
+            <img src="https://i.pravatar.cc/150?u=admin" class="admin-avatar" alt="Admin">
+            <div class="admin-info">
+                <span class="admin-name">Admin Dashboard</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="{% url 'admin_dashboard' %}" class="menu-item">
+                <i class="fa-solid fa-house"></i> Dashboard
+            </a>
+            <a href="{% url 'report_members' %}" class="menu-item">
+                <i class="fa-solid fa-users"></i> Users
+            </a>
+            <a href="{% url 'trainer_list' %}" class="menu-item">
+                <i class="fa-solid fa-user-tie"></i> Trainers
+            </a>
+            <a href="{% url 'subscription_plans' %}" class="menu-item">
+                <i class="fa-solid fa-box"></i> Subscriptions
+            </a>
+            <a href="{% url 'report_payments' %}" class="menu-item">
+                <i class="fa-solid fa-credit-card"></i> Payments
+            </a>
+            <a href="{% url 'report_attendance' %}" class="menu-item active">
+                <i class="fa-solid fa-chart-line"></i> Reports
+            </a>
+        </nav>
+
+        <div class="logout-box">
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="menu-item"
+                    style="background: none; border: none; width: 100%; cursor: pointer; text-align: left;">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <div class="export-container">
+            <div class="export-hero">
+                <i class="fa-solid fa-cloud-arrow-down"></i>
+                <h1>System Data Export</h1>
+                <p>Generate and download comprehensive system reports in multiple formats.</p>
+            </div>
+
+            <div class="export-grid">
+                <div class="export-card">
+                    <h3>Full Database</h3>
+                    <p>Complete system snapshot including users, logs, and configurations (JSON / SQL).</p>
+                    <button class="btn-generate">
+                        <i class="fa-solid fa-cog"></i> Generate snapshot
+                    </button>
+                </div>
+                <div class="export-card">
+                    <h3>Financial Data</h3>
+                    <p>Detailed transaction history, revenue charts, and payment logs (CSV / Excel).</p>
+                    <button class="btn-generate">
+                        <i class="fa-solid fa-receipt"></i> Export ledger
+                    </button>
+                </div>
+                <div class="export-card">
+                    <h3>User Activity</h3>
+                    <p>Engagement metrics, attendance summaries, and portal access logs (PDF Report).</p>
+                    <button class="btn-generate">
+                        <i class="fa-solid fa-file-pdf"></i> Create PDF
+                    </button>
+                </div>
+                <div class="export-card">
+                    <h3>Workout Trends</h3>
+                    <p>Popular programs, progression stats, and community goals (PowerPoint / PDF).</p>
+                    <button class="btn-generate">
+                        <i class="fa-solid fa-chart-area"></i> Export analysis
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Sidebar toggle for mobile
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
+    if (hamburgerBtn && sidebar && overlay) {
+        const hamburgerIcon = hamburgerBtn.querySelector('i');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            if (sidebar.classList.contains('open')) {
+                hamburgerIcon.classList.replace('fa-bars', 'fa-xmark');
+            } else {
+                hamburgerIcon.classList.replace('fa-xmark', 'fa-bars');
+            }
+        }
+
+        hamburgerBtn.addEventListener('click', toggleSidebar);
+        overlay.addEventListener('click', toggleSidebar);
+    }
+</script>
+
+{% endblock %}

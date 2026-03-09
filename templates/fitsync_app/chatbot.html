@@ -1,0 +1,427 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}AI Coach | FitSync Elite{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<!-- Add Google Fonts and Markdown Library -->
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<style>
+    :root {
+        --gemini-bg: #131314;
+        --gemini-card: #1e1f20;
+        --gemini-input: #28292a;
+        --gemini-blue: #4285f4;
+        --gemini-purple: #9b72cb;
+        --gemini-gradient: linear-gradient(90deg, #4285f4, #9b72cb, #d96570);
+        --text-main: #e3e3e3;
+        --text-muted: #b4b4b4;
+    }
+
+    body {
+        background-color: var(--gemini-bg);
+        color: var(--text-main);
+        font-family: 'Space Grotesk', sans-serif;
+        margin: 0;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .main-wrapper {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+        max-width: 100%;
+    }
+
+    /* Top Nav */
+    .chat-nav {
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(19, 19, 20, 0.8);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        z-index: 100;
+    }
+
+    .back-link {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .back-link:hover {
+        color: #fff;
+    }
+
+    .nova-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .nova-logo {
+        width: 32px;
+        height: 32px;
+        background: var(--gemini-gradient);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        color: white;
+        box-shadow: 0 0 20px rgba(66, 133, 244, 0.3);
+    }
+
+    .nova-name {
+        font-weight: 600;
+        font-size: 1.2rem;
+        letter-spacing: -0.5px;
+    }
+
+    /* Chat Area */
+    .chat-scroll-area {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 2rem 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .chat-content-container {
+        width: 100%;
+        max-width: 800px;
+        padding: 0 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 2.5rem;
+    }
+
+    .message {
+        display: flex;
+        gap: 1.5rem;
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #333;
+    }
+
+    .message-body {
+        flex-grow: 1;
+        line-height: 1.6;
+        font-size: 1.05rem;
+    }
+
+    .message-ai .avatar {
+        background: var(--gemini-gradient);
+    }
+
+    .message-user .avatar {
+        background: #f97316;
+        /* User Color */
+    }
+
+    /* Markdown Styling */
+    .message-body p {
+        margin: 0 0 1rem 0;
+    }
+
+    .message-body p:last-child {
+        margin-bottom: 0;
+    }
+
+    .message-body ul,
+    .message-body ol {
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+    }
+
+    .message-body code {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+    }
+
+    .message-body strong {
+        color: #fff;
+        font-weight: 700;
+    }
+
+    /* Input Area */
+    .input-wrapper {
+        padding: 1.5rem 0 3rem 0;
+        display: flex;
+        justify-content: center;
+        background: linear-gradient(transparent, var(--gemini-bg) 20%);
+    }
+
+    .input-container {
+        width: 100%;
+        max-width: 800px;
+        margin: 0 1rem;
+        position: relative;
+    }
+
+    .chat-input {
+        width: 100%;
+        background: var(--gemini-input);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 30px;
+        padding: 1.2rem 4rem 1.2rem 1.8rem;
+        color: #fff;
+        font-size: 1.05rem;
+        font-family: inherit;
+        outline: none;
+        transition: 0.3s;
+        box-sizing: border-box;
+    }
+
+    .chat-input:focus {
+        background: #2f3031;
+        border-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .send-btn {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        border: none;
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        transition: 0.3s;
+    }
+
+    .send-btn:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: #fff;
+    }
+
+    .send-btn.active {
+        color: var(--gemini-blue);
+    }
+
+    /* Typing Animation */
+    .typing-indicator {
+        display: flex;
+        gap: 4px;
+        padding-top: 10px;
+    }
+
+    .dot {
+        width: 6px;
+        height: 6px;
+        background: var(--text-muted);
+        border-radius: 50%;
+        animation: bounce 1.4s infinite ease-in-out;
+    }
+
+    .dot:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .dot:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes bounce {
+
+        0%,
+        80%,
+        100% {
+            transform: scale(0);
+        }
+
+        40% {
+            transform: scale(1);
+        }
+    }
+
+    /* Custom Scrollbar */
+    .chat-scroll-area::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .chat-scroll-area::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .chat-scroll-area::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+
+    .chat-scroll-area::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-wrapper">
+    <nav class="chat-nav">
+        <div class="nova-brand">
+            <div class="nova-logo"><i class="fa-solid fa-sparkles"></i></div>
+            <span class="nova-name">AI Coach</span>
+        </div>
+        <a href="{% url 'user_dashboard' %}" class="back-link">
+            <i class="fa-solid fa-grid-2"></i> Return to Portal
+        </a>
+    </nav>
+
+    <div class="chat-scroll-area" id="chatScroll">
+        <div class="chat-content-container" id="chatContainer">
+            <!-- Initial Message -->
+            <div class="message message-ai">
+                <div class="avatar"><i class="fa-solid fa-sparkles"></i></div>
+                <div class="message-body">
+                    <p>Hello! I'm **AI Coach**, your upgraded AI intelligence. I'm now powered by **Gemini** logic. I
+                        can
+                        answer anything from fitness protocols to philosophical inquiries. How can I assist your
+                        evolution today?</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="input-wrapper">
+        <div class="input-container">
+            <input type="text" id="userInput" class="chat-input" placeholder="Type anything..." autocomplete="off">
+            <button id="sendBtn" class="send-btn">
+                <i class="fa-solid fa-paper-plane-top"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const chatContainer = document.getElementById('chatContainer');
+    const chatScroll = document.getElementById('chatScroll');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    // Handle Input Style
+    userInput.addEventListener('input', () => {
+        sendBtn.classList.toggle('active', userInput.value.trim().length > 0);
+    });
+
+    userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+    });
+
+    sendBtn.addEventListener('click', sendMessage);
+
+    function addMessage(text, isAI = false) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${isAI ? 'message-ai' : 'message-user'}`;
+
+        const avatarHtml = isAI ? '<i class="fa-solid fa-sparkles"></i>' : '<i class="fa-solid fa-user"></i>';
+        const formattedText = isAI ? marked.parse(text) : `<p>${text}</p>`;
+
+        msgDiv.innerHTML = `
+            <div class="avatar">${avatarHtml}</div>
+            <div class="message-body">${formattedText}</div>
+        `;
+
+        chatContainer.appendChild(msgDiv);
+        scrollTobottom();
+    }
+
+    function scrollTobottom() {
+        chatScroll.scrollTo({ top: chatScroll.scrollHeight, behavior: 'smooth' });
+    }
+
+    async function sendMessage() {
+        const text = userInput.value.trim();
+        if (!text) return;
+
+        userInput.value = '';
+        sendBtn.classList.remove('active');
+        addMessage(text, false);
+
+        // Add Loading State
+        const loadingId = 'loading-' + Date.now();
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'message message-ai';
+        loadingDiv.id = loadingId;
+        loadingDiv.innerHTML = `
+            <div class="avatar"><i class="fa-solid fa-sparkles"></i></div>
+            <div class="message-body">
+                <div class="typing-indicator">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+        `;
+        chatContainer.appendChild(loadingDiv);
+        scrollTobottom();
+
+        try {
+            const response = await fetch('/api/chatbot/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ message: text })
+            });
+
+            const data = await response.json();
+            document.getElementById(loadingId).remove();
+
+            if (data.reply) {
+                addMessage(data.reply, true);
+            } else {
+                addMessage("Protocol Error: Neural link failure. Please check your network connection.", true);
+            }
+        } catch (error) {
+            document.getElementById(loadingId).remove();
+            addMessage("Critical Error: Uplink lost. Re-synchronization required.", true);
+        }
+    }
+</script>
+{% endblock %}

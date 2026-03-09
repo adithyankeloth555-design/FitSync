@@ -1,0 +1,567 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Membership | FitSync Elite{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --sidebar-bg: var(--bg-tertiary);
+        --accent-orange: var(--gold);
+        --content-bg: var(--bg-primary);
+        --text-main: var(--text-primary);
+        --text-muted: var(--text-muted);
+        --white: var(--bg-secondary);
+        --card-shadow: var(--shadow-main);
+    }
+
+    body {
+        background-color: var(--content-bg);
+        color: var(--text-main);
+        font-family: 'Outfit', sans-serif;
+        margin: 0;
+        min-height: 100vh;
+    }
+
+    .main-wrapper {
+        margin: 0 auto;
+        max-width: 1400px;
+        flex-grow: 1;
+        padding: 3rem 4rem;
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        transition: 0.3s;
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .back-btn:hover {
+        color: var(--accent-orange);
+        transform: translateX(-5px);
+        box-shadow: 0 6px 15px rgba(249, 115, 22, 0.15);
+    }
+
+    .page-title {
+        font-family: 'Cinzel', serif;
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--accent-orange);
+        text-transform: uppercase;
+        margin: 0 0 0.5rem 0;
+        text-align: center;
+    }
+
+    .page-subtitle {
+        color: var(--text-muted);
+        font-size: 1rem;
+        margin-top: 0.5rem;
+        text-align: center;
+        margin-bottom: 3.5rem;
+    }
+
+    .current-plan {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        padding: 3rem;
+        border-radius: 20px;
+        color: white;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .current-plan::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(249, 115, 22, 0.2) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .plan-badge {
+        display: inline-block;
+        background: var(--accent-orange);
+        color: #000;
+        padding: 0.5rem 1.5rem;
+        border-radius: 20px;
+        font-weight: 800;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .plan-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .plan-detail {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .plan-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .pricing-card {
+        background: var(--bg-secondary);
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: var(--card-shadow);
+        text-align: center;
+        transition: 0.3s;
+        border: 1px solid var(--border-color);
+    }
+
+    .pricing-card:hover {
+        transform: translateY(-10px);
+        border-color: var(--accent-orange);
+    }
+
+    .pricing-card.featured {
+        background: var(--gold);
+        color: #000;
+        border: none;
+        transform: scale(1.05);
+    }
+
+    .pricing-card.featured:hover {
+        transform: scale(1.08) translateY(-10px);
+    }
+
+    .pricing-card.elite {
+        border-color: var(--gold);
+        box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+    }
+
+    .pricing-card.premium {
+        border-color: #f97316;
+    }
+
+    .plan-name {
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+    }
+
+    .plan-price {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+
+    .plan-period {
+        color: var(--text-muted);
+        margin-bottom: 2rem;
+    }
+
+    .pricing-card.featured .plan-period {
+        color: rgba(0, 0, 0, 0.7);
+    }
+
+    .plan-features {
+        list-style: none;
+        padding: 0;
+        margin: 2rem 0;
+        text-align: left;
+    }
+
+    .plan-features li {
+        padding: 0.8rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .pricing-card.featured .plan-features li {
+        border-bottom-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .upgrade-btn {
+        width: 100%;
+        padding: 1rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: 0.3s;
+        display: block;
+        text-align: center;
+        text-decoration: none;
+    }
+
+    .upgrade-btn.primary {
+        background: var(--accent-orange);
+        color: #000;
+    }
+
+    .upgrade-btn.secondary {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+    }
+
+    .pricing-card.featured .upgrade-btn {
+        background: #000;
+        color: var(--gold);
+    }
+
+    .payment-history {
+        background: var(--white);
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: var(--card-shadow);
+    }
+
+    .payment-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .payment-item:last-child {
+        border-bottom: none;
+    }
+
+    .payment-status {
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .billing-toggle {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 3rem;
+        gap: 1rem;
+    }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 32px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--bg-tertiary);
+        transition: .4s;
+        border-radius: 34px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 24px;
+        width: 24px;
+        left: 4px;
+        bottom: 3px;
+        background-color: var(--text-muted);
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked+.slider {
+        background-color: var(--accent-orange);
+        border-color: var(--accent-orange);
+    }
+
+    input:checked+.slider:before {
+        transform: translateX(26px);
+        background-color: #000;
+    }
+
+    .toggle-label {
+        font-weight: 700;
+        color: var(--text-muted);
+        transition: 0.3s;
+        font-size: 1.1rem;
+        cursor: pointer;
+    }
+
+    .toggle-label.active {
+        color: var(--text-main);
+    }
+
+    .save-badge {
+        background: var(--gold);
+        color: #000;
+        font-size: 0.75rem;
+        padding: 2px 8px;
+        border-radius: 10px;
+        margin-left: 5px;
+        font-weight: 800;
+        vertical-align: text-top;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="main-wrapper">
+    {% if user.is_authenticated and user.userprofile.role == 'admin' %}
+    <a href="{% url 'admin_dashboard' %}" class="back-btn">
+        {% elif user.is_authenticated and user.userprofile.role == 'trainer' %}
+        <a href="{% url 'trainer_dashboard' %}" class="back-btn">
+            {% else %}
+            <a href="{% url 'user_dashboard' %}" class="back-btn">
+                {% endif %}
+                <i class="fa-solid fa-arrow-left"></i> RETURN TO PORTAL
+            </a>
+
+            <header class="page-header" style="text-align: center;">
+                <h1 class="page-title">Membership Management</h1>
+                <p class="page-subtitle">Manage your subscription and upgrade your fitness journey.</p>
+            </header>
+
+            <div class="current-plan">
+                <span class="plan-badge"><i class="fa-solid fa-crown"></i> {{ display.plan_name }}</span>
+                <h2 style="font-size: 2rem; margin: 0 0 0.5rem 0;">{{ display.plan_name }}</h2>
+                <p style="opacity: 0.9; margin-bottom: 2rem;">{{ display.plan_description }}</p>
+
+                <div class="plan-grid">
+                    <div class="plan-detail">
+                        <div class="plan-icon"><i class="fa-solid fa-calendar"></i></div>
+                        <div>
+                            <div style="opacity: 0.8; font-size: 0.85rem;">Valid Until</div>
+                            <div style="font-weight: 800; font-size: 1.1rem;">{{ display.valid_until_str }}</div>
+                        </div>
+                    </div>
+                    <div class="plan-detail">
+                        <div class="plan-icon"><i class="fa-solid fa-clock"></i></div>
+                        <div>
+                            <div style="opacity: 0.8; font-size: 0.85rem;">Days Remaining</div>
+                            <div style="font-weight: 800; font-size: 1.1rem;">{{ display.days_remaining }}</div>
+                        </div>
+                    </div>
+                    <div class="plan-detail">
+                        <div class="plan-icon"><i class="fa-solid fa-credit-card"></i></div>
+                        <div>
+                            <div style="opacity: 0.8; font-size: 0.85rem;">Next Billing</div>
+                            <div style="font-weight: 800; font-size: 1.1rem;">?{{ display.next_billing }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h2
+                style="font-family: 'Cinzel', serif; font-size: 1.8rem; margin-bottom: 1.5rem; color: var(--text-main); text-align: center;">
+                Upgrade Your Plan
+            </h2>
+
+            <div class="billing-toggle">
+                <span class="toggle-label active" id="label-monthly" onclick="setBilling('monthly')">Monthly</span>
+                <label class="switch">
+                    <input type="checkbox" id="billing-switch" onchange="toggleBilling()">
+                    <span class="slider round"></span>
+                </label>
+                <span class="toggle-label" id="label-annual" onclick="setBilling('annual')">Annually <span
+                        class="save-badge">SAVE 45%</span></span>
+            </div>
+
+            <div class="pricing-grid">
+                {% for plan in plans %}
+                <div class="pricing-card {{ plan.name }} {% if plan.name == 'lifetime' %}featured{% endif %}">
+                    {% if plan.name == 'gold' or plan.name == 'premium' %}
+                    <div class="plan-badge" style="background:#f97316; color:white;">MOST POPULAR</div>
+                    {% elif plan.name == 'lifetime' %}
+                    <div class="plan-badge"
+                        style="background:#000; color:var(--gold); display:inline-block; padding: 2px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 900; margin-bottom: 1rem;">
+                        <i class="fa-solid fa-infinity"></i> ULTIMATE
+                    </div>
+                    {% endif %}
+
+                    <div class="plan-name">{{ plan.get_name_display }}</div>
+
+                    <div class="plan-price" {% if plan.annual_price %}data-monthly="{{ plan.price|floatformat:0 }}"
+                        data-annual="{{ plan.annual_price|floatformat:0 }}" {% endif %}>
+                        ?{{ plan.price|floatformat:0 }}
+                    </div>
+
+                    <div class="plan-period" {% if plan.name == 'lifetime' %}style="color:#000" {% endif %}>
+                        {{ plan.duration_text }}
+                    </div>
+
+                    <ul class="plan-features">
+                        {% for feature in plan.get_features_list %}
+                        <li {% if plan.name == 'lifetime' %}style="border-color: rgba(0,0,0,0.1)" {% endif %}>
+                            <i class="fa-solid fa-check" {% if plan.name == 'lifetime' %}style="color:#000" {%  endif  %}></i>
+                            {{ feature }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+
+                    {% if subscription and subscription.plan.id == plan.id %}
+                    <button class="upgrade-btn active-status" disabled {% if plan.name == 'lifetime' %}style="background:rgba(0,0,0,0.1); color:#000;" {% endif %}>
+                        {% if plan.name == 'lifetime' %}<i class="fa-solid fa-star"></i> Active Lifetime{%  else  %}Current Plan{% endif %}
+                    </button>
+                    {% elif subscription and subscription.plan and subscription.plan.price > plan.price %}
+                    <button class="upgrade-btn included" disabled>Included</button>
+                    {% else %}
+                    <a href="{% url 'payment' %}?plan={{ plan.name }}{% if plan.name == 'lifetime' %}&mode=lifetime{% endif %}"
+                        class="upgrade-btn {% if plan.name == 'lifetime' or plan.name == 'gold' or plan.name == 'premium' %}primary{% else %}secondary{% endif %}"
+                        style="display:block; text-align:center; text-decoration:none;">
+                        {% if plan.name == 'lifetime' %}Unlock Forever{% else %}Upgrade{% endif %}
+                    </a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="payment-history">
+                <h2 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 1.5rem;">Payment History</h2>
+
+                {% if payments %}
+                {% for payment in payments %}
+                <div class="payment-item">
+                    <div>
+                        <div style="font-weight: 700; margin-bottom: 0.3rem;">
+                            {% if payment.trainer %}
+                            Trainer Assignment ({{  payment.trainer.get_full_name|default:payment.trainer.username|title  }})
+                            {% elif payment.amount >= 24000 %}Elite Annual Plan
+                            {% elif payment.amount >= 14000 %}Elite Lifetime Plan
+                            {% elif payment.amount >= 12000 %}Premium Annual Plan
+                            {% elif payment.amount >= 6000 %}Basic Annual Plan
+                            {% elif payment.amount >= 3900 %}Elite Monthly Plan
+                            {% elif payment.amount >= 1900 %}Premium Monthly Plan
+                            {% elif payment.amount >= 900 %}Basic Monthly Plan
+                            {% else %}Service Charge / Fee{% endif %}
+                        </div>
+                        <div style="color: var(--text-muted); font-size: 0.85rem;">
+                            {{ payment.payment_date|date:"M d, Y" }} • Razorpay
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="font-weight: 800; font-size: 1.1rem;">?{{ payment.amount|floatformat:0 }}</div>
+                        {% if payment.status == 'success' %}
+                        <span class="payment-status"><i class="fa-solid fa-check"></i> Paid</span>
+                        {% elif payment.status == 'pending' %}
+                        <span class="payment-status" style="background: #fef9c3; color: #854d0e;"><i
+                                class="fa-solid fa-clock"></i> Pending</span>
+                        {% else %}
+                        <span class="payment-status" style="background: #fee2e2; color: #991b1b;"><i
+                                class="fa-solid fa-xmark"></i> Failed</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                    <i class="fa-solid fa-receipt" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                    <p>No payment history found.</p>
+                </div>
+                {% endif %}
+            </div>
+</main>
+
+<script>
+    function toggleBilling() {
+        const isAnnual = document.getElementById('billing-switch').checked;
+        updatePrices(isAnnual);
+    }
+
+    function setBilling(mode) {
+        const switchEl = document.getElementById('billing-switch');
+        if (mode === 'annual' && !switchEl.checked) {
+            switchEl.checked = true;
+            updatePrices(true);
+        } else if (mode === 'monthly' && switchEl.checked) {
+            switchEl.checked = false;
+            updatePrices(false);
+        }
+    }
+
+    function updatePrices(isAnnual) {
+        const prices = document.querySelectorAll('.plan-price');
+        const periods = document.querySelectorAll('.plan-period');
+
+        document.getElementById('label-monthly').classList.toggle('active', !isAnnual);
+        document.getElementById('label-annual').classList.toggle('active', isAnnual);
+
+        prices.forEach(price => {
+            if (price.dataset.monthly) {
+                const amount = isAnnual ? price.dataset.annual : price.dataset.monthly;
+                price.style.opacity = 0;
+                setTimeout(() => {
+                    price.innerHTML = '?' + parseInt(amount).toLocaleString();
+                    price.style.opacity = 1;
+                }, 200);
+            }
+        });
+
+        periods.forEach(period => {
+            if (period.innerHTML.includes('/') || period.innerHTML.includes('cycle')) {
+                period.style.opacity = 0;
+                setTimeout(() => {
+                    period.innerHTML = isAnnual ? '/year' : '/month';
+                    period.style.opacity = 1;
+                }, 200);
+            }
+        });
+
+        const upgradeLinks = document.querySelectorAll('a.upgrade-btn');
+        upgradeLinks.forEach(link => {
+            const url = new URL(link.href, window.location.origin);
+            if (isAnnual) {
+                url.searchParams.set('billing', 'annual');
+            } else {
+                url.searchParams.delete('billing');
+            }
+            link.href = url.pathname + url.search;
+        });
+    }
+</script>
+{% endblock %}
+
+
+

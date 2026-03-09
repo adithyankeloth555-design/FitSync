@@ -1,0 +1,54 @@
+{% extends 'fitsync_app/base.html' %}
+
+{% block title %}Success | FitSync Elite{% endblock %}
+
+{% block content %}
+<div style="min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 2rem;">
+    <div
+        style="background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 4rem; border-radius: 30px; box-shadow: var(--shadow-main); text-align: center; max-width: 600px; width: 100%;">
+
+        {% if payment_type == 'trainer' %}
+        <i class="fa-solid fa-user-check" style="color: var(--gold); font-size: 5rem; margin-bottom: 2rem;"></i>
+        <h1 style="font-family: var(--font-heading); color: var(--gold); font-size: 2.5rem; margin-bottom: 1rem;">
+            Coach Hired!</h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6; margin-bottom: 2.5rem;">
+            Your professional partnership with <strong>{{ trainer_name }}</strong> has been established.
+            Your training protocols, personalized feedback, and direct messaging channel are now active.
+        </p>
+        {% else %}
+        <i class="fa-solid fa-gem" style="color: var(--gold); font-size: 5rem; margin-bottom: 2rem;"></i>
+        <h1 style="font-family: var(--font-heading); color: var(--gold); font-size: 2.5rem; margin-bottom: 1rem;">
+            Protocol Activated!</h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6; margin-bottom: 2.5rem;">
+            Welcome to the Elite tier. Your high-performance protocols are now active.
+            AI coaching, advanced analytics, and premium fitness modules have been initialized.
+        </p>
+        {% endif %}
+
+        <div
+            style="background: var(--bg-tertiary); padding: 2rem; border-radius: 20px; text-align: left; margin-bottom: 3rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                <span style="color: var(--text-muted); font-weight: 600;">Transaction ID</span>
+                <span style="color: var(--text-primary); font-family: monospace; font-weight: 800;">#{{
+                    transaction_id|truncatechars:12 }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                {% if payment_type == 'trainer' %}
+                <span style="color: var(--text-muted); font-weight: 600;">Assigned Coach</span>
+                <span style="color: var(--gold); font-weight: 800;">{{ trainer_name }}</span>
+                {% else %}
+                <span style="color: var(--text-muted); font-weight: 600;">Activated Plan</span>
+                <span style="color: var(--gold); font-weight: 800;">{{ plan_name }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <a href="{% url 'user_dashboard' %}"
+            style="display: block; width: 100%; padding: 1.2rem; background: var(--gold); color: #000; text-decoration: none; border-radius: 15px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; transition: 0.3s;"
+            onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 10px 30px rgba(212, 175, 55, 0.4)'"
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            Initialize Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

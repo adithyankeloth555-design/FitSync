@@ -1,0 +1,33 @@
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# Python caching
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Project-specific
+*.png
+*.jpg
+!static/img/*.png
+!static/img/*.jpg
+!templates/img/*.png
+!templates/img/*.jpg
+
+# OS files
+.DS_Store
+Thumbs.db

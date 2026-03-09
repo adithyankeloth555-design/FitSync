@@ -1,0 +1,1075 @@
+/* ============================================
+   FITSYNC MOBILE RESPONSIVE STYLES
+   Complete mobile support for all pages
+   ============================================ */
+
+/* ---- Hamburger Menu Button ---- */
+.hamburger-btn {
+    display: none;
+    background: var(--bg-secondary, #1A1A1A);
+    border: 1px solid var(--border-color, #2C2C2C);
+    color: var(--gold, #D4AF37);
+    font-size: 1.4rem;
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 1100;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.hamburger-btn:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--gold);
+}
+
+/* ---- Mobile Overlay ---- */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+/* ============================================
+   TABLET BREAKPOINT (1024px and below)
+   ============================================ */
+@media (max-width: 1024px) {
+
+    /* Navbar */
+    .navbar {
+        padding: 1rem 3%;
+    }
+
+    /* Container */
+    .container {
+        padding: 0 15px;
+    }
+
+    /* Hero */
+    .hero {
+        height: 70vh;
+    }
+
+    .hero h1 {
+        font-size: 3.5rem !important;
+    }
+
+    .hero p {
+        font-size: 1.1rem !important;
+    }
+
+    /* Feature grid */
+    .features-grid {
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
+        gap: 2rem !important;
+    }
+
+    /* Dashboard sidebar - hamburger visible */
+    .hamburger-btn {
+        display: flex;
+    }
+
+    .sidebar {
+        transform: translateX(-100%);
+        box-shadow: none;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+    }
+
+    /* User dashboard layout (.main-wrapper) */
+    .main-wrapper {
+        margin-left: 0 !important;
+        padding: 2rem 1.5rem !important;
+        padding-top: 4.5rem !important;
+    }
+
+    /* Admin dashboard layout (.main-area) */
+    .main-area {
+        margin-left: 0 !important;
+    }
+
+    .main-content,
+    .content-area {
+        margin-left: 0 !important;
+        padding: 1.5rem !important;
+        padding-top: 4.5rem !important;
+    }
+
+    /* Top bar adjustments */
+    .top-bar {
+        padding: 0.6rem 1rem !important;
+        margin-top: 0;
+    }
+
+    .dashboard-content {
+        padding: 1.5rem 1rem !important;
+    }
+
+    /* Stats grid */
+    .stats-row {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 1rem !important;
+    }
+
+    /* Actions grid */
+    .actions-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
+        gap: 1rem !important;
+    }
+
+    /* Trainer card */
+    .trainer-card-professional {
+        flex-direction: column !important;
+        text-align: center;
+        gap: 1.5rem !important;
+    }
+
+    .trainer-card-professional div[style*="text-align: right"] {
+        text-align: center !important;
+    }
+
+    /* Dashboard grid */
+    .dashboard-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Form grid */
+    .form-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .full-width {
+        grid-column: span 1 !important;
+    }
+
+    /* Edit form - two column to single column */
+    .edit-container {
+        max-width: 100% !important;
+    }
+
+    /* Page headers */
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .actions-bar {
+        flex-direction: column;
+        width: 100%;
+        gap: 1rem;
+    }
+
+    .search-wrapper {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    /* Premium table */
+    .premium-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    /* Membership cards */
+    .membership-plans {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Report pages */
+    .report-filters {
+        flex-direction: column !important;
+        gap: 1rem !important;
+    }
+
+    /* AI Hub cards */
+    .ai-cards-grid {
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    /* Community layout */
+    .community-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Chat layout */
+    .chat-container {
+        flex-direction: column !important;
+        height: auto !important;
+    }
+
+    .chat-sidebar {
+        width: 100% !important;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    /* Progress page */
+    .progress-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Nutrition/Diet layout */
+    .nutrition-grid,
+    .diet-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Video gallery */
+    .video-grid {
+        grid-template-columns: 1fr 1fr !important;
+    }
+}
+
+/* ============================================
+   MOBILE BREAKPOINT (768px and below)
+   ============================================ */
+@media (max-width: 768px) {
+
+    /* Navbar */
+    .navbar {
+        padding: 0.8rem 4%;
+    }
+
+    .logo {
+        font-size: 1.4rem !important;
+    }
+
+    .logo-subtitle {
+        font-size: 0.6rem !important;
+    }
+
+    .nav-links {
+        gap: 0.75rem !important;
+    }
+
+    .btn-outline {
+        padding: 0.4rem 0.8rem !important;
+        font-size: 0.8rem !important;
+    }
+
+    /* Hero Section */
+    .hero {
+        height: auto !important;
+        min-height: 60vh;
+        padding: 3rem 1rem;
+    }
+
+    .hero-content {
+        padding: 0 1rem !important;
+    }
+
+    .hero h1 {
+        font-size: 2.2rem !important;
+        letter-spacing: 1px !important;
+    }
+
+    .hero p {
+        font-size: 1rem !important;
+        margin-bottom: 2rem !important;
+    }
+
+    .btn-cta {
+        padding: 0.8rem 2rem !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* Features */
+    .features-section {
+        padding: 4rem 1rem !important;
+    }
+
+    .section-header h2 {
+        font-size: 1.8rem !important;
+        letter-spacing: 2px !important;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+    }
+
+    .feature-card {
+        padding: 2rem 1.5rem !important;
+    }
+
+    /* ---- User Dashboard Layout ---- */
+    .main-wrapper {
+        padding: 1.5rem 1rem !important;
+        padding-top: 4.5rem !important;
+    }
+
+    .page-title {
+        font-size: 1.6rem !important;
+    }
+
+    .page-subtitle {
+        font-size: 0.9rem !important;
+    }
+
+    /* ---- Admin Dashboard Layout ---- */
+    .main-area {
+        margin-left: 0 !important;
+    }
+
+    .top-bar {
+        padding: 0.5rem 1rem !important;
+    }
+
+    .admin-pill {
+        font-size: 0.7rem !important;
+        padding: 0.25rem 0.7rem !important;
+    }
+
+    .dashboard-content {
+        padding: 1rem !important;
+    }
+
+    /* Dashboard page headers with inline styles */
+    .dashboard-content > header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 1rem;
+    }
+
+    .dashboard-content > header h1 {
+        font-size: 1.4rem !important;
+    }
+
+    .dashboard-content > header p {
+        font-size: 0.85rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    /* ---- Edit Forms (edit_subscription_plan, diet_edit, etc.) ---- */
+    .edit-container {
+        max-width: 100% !important;
+    }
+
+    .edit-card {
+        padding: 1.5rem !important;
+        border-radius: 10px !important;
+    }
+
+    /* Force inline 2-col grids to single column */
+    .edit-card div[style*="grid-template-columns: 1fr 1fr"],
+    div[style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+
+    .form-group label {
+        font-size: 0.8rem !important;
+    }
+
+    .form-control {
+        padding: 0.75rem 0.85rem !important;
+        font-size: 0.9rem !important;
+    }
+
+    /* Submit button row */
+    .edit-card div[style*="display: flex"][style*="margin-top: 3rem"],
+    div[style*="display: flex"][style*="border-top"][style*="padding-top"] {
+        flex-direction: column !important;
+        gap: 1rem !important;
+        align-items: stretch !important;
+        text-align: center;
+    }
+
+    .btn-save {
+        width: 100% !important;
+        justify-content: center !important;
+        padding: 0.9rem 1.5rem !important;
+        font-size: 0.9rem !important;
+    }
+
+    .cancel-link {
+        font-size: 0.85rem !important;
+    }
+
+    /* Checkbox group */
+    .checkbox-group {
+        padding: 0.8rem !important;
+    }
+
+    .checkbox-group label {
+        font-size: 0.85rem !important;
+    }
+
+    /* ---- Stats ---- */
+    .stats-row {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+
+    .stat-card {
+        padding: 1.5rem !important;
+        border-radius: 16px !important;
+    }
+
+    .stat-value {
+        font-size: 2rem !important;
+    }
+
+    /* ---- Action cards ---- */
+    .actions-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+
+    .action-card {
+        padding: 1.8rem 1.2rem !important;
+        border-radius: 16px !important;
+    }
+
+    .action-card i {
+        font-size: 2rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .action-card h3 {
+        font-size: 1.1rem !important;
+    }
+
+    .action-card p {
+        font-size: 0.85rem !important;
+    }
+
+    /* Section headers */
+    .section-header {
+        font-size: 1.2rem !important;
+        margin: 2.5rem 0 1.5rem 0 !important;
+    }
+
+    /* ---- Subscription Plans Page ---- */
+    .plan-cards-grid,
+    .plans-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+    }
+
+    .plan-card {
+        padding: 1.5rem !important;
+    }
+
+    /* ---- Report Pages ---- */
+    .report-card,
+    .report-container {
+        padding: 1rem !important;
+    }
+
+    .report-filters {
+        flex-direction: column !important;
+        gap: 0.8rem !important;
+    }
+
+    .report-filters select,
+    .report-filters input {
+        width: 100% !important;
+    }
+
+    /* ---- Trainer Card ---- */
+    .trainer-card-professional {
+        flex-direction: column !important;
+        text-align: center;
+        padding: 1.5rem !important;
+        gap: 1rem !important;
+    }
+
+    .trainer-card-professional img {
+        width: 80px !important;
+        height: 80px !important;
+    }
+
+    .trainer-card-professional div[style*="display: flex; gap: 1rem"] {
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+
+    /* ---- Membership Page ---- */
+    .membership-plans {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+    }
+
+    .membership-card {
+        padding: 1.5rem !important;
+    }
+
+    .payment-history {
+        overflow-x: auto;
+    }
+
+    /* ---- AI Hub Page ---- */
+    .ai-cards-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+
+    .ai-card {
+        padding: 1.5rem !important;
+    }
+
+    /* ---- AI Workout / AI Diet Pages ---- */
+    .ai-form-container {
+        padding: 1.5rem !important;
+    }
+
+    .ai-result-card {
+        padding: 1rem !important;
+    }
+
+    /* ---- Goals Page ---- */
+    .goals-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .goal-card {
+        padding: 1.5rem !important;
+    }
+
+    /* ---- Attendance Page ---- */
+    .attendance-calendar {
+        overflow-x: auto;
+    }
+
+    .attendance-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* ---- Progress / BMI Page ---- */
+    .progress-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .chart-container {
+        width: 100% !important;
+        overflow-x: auto;
+    }
+
+    .bmi-card {
+        padding: 1.5rem !important;
+    }
+
+    /* ---- Chat / Messages ---- */
+    .chat-container {
+        flex-direction: column !important;
+        height: auto !important;
+        min-height: 70vh;
+    }
+
+    .chat-sidebar {
+        width: 100% !important;
+        max-height: 180px;
+        overflow-y: auto;
+        border-right: none !important;
+        border-bottom: 1px solid var(--border-color) !important;
+    }
+
+    .chat-main {
+        flex: 1;
+        min-height: 400px;
+    }
+
+    .chat-input-area {
+        padding: 0.8rem !important;
+    }
+
+    /* ---- Community Page ---- */
+    .community-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .post-card {
+        padding: 1.5rem !important;
+    }
+
+    /* ---- Nutrition / Diet Pages ---- */
+    .nutrition-grid,
+    .diet-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .meal-card,
+    .diet-card {
+        padding: 1.2rem !important;
+    }
+
+    /* ---- Video Gallery ---- */
+    .video-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+
+    /* ---- Settings Page ---- */
+    .settings-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .settings-card {
+        padding: 1.5rem !important;
+    }
+
+    /* ---- Help / Tickets ---- */
+    .tickets-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .ticket-card {
+        padding: 1.2rem !important;
+    }
+
+    .help-form {
+        padding: 1.5rem !important;
+    }
+
+    /* ---- Login / Auth ---- */
+    .auth-page {
+        padding: 1rem !important;
+        align-items: flex-start !important;
+        padding-top: 5vh !important;
+    }
+
+    .login-card {
+        padding: 2rem 1.5rem !important;
+        border-radius: 16px !important;
+        max-width: 100% !important;
+    }
+
+    .card-title {
+        font-size: 1.8rem !important;
+    }
+
+    .card-footer {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    /* Forms */
+    .auth-form-container {
+        margin: 2rem auto !important;
+        padding: 0 1rem;
+    }
+
+    /* Cards general */
+    .card {
+        padding: 1.5rem !important;
+        border-radius: 12px !important;
+    }
+
+    /* ---- Tables - make them scrollable ---- */
+    table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+    }
+
+    .premium-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* ---- Profile Page ---- */
+    .profile-header {
+        flex-direction: column !important;
+        text-align: center;
+        gap: 1rem !important;
+    }
+
+    .profile-avatar {
+        width: 100px !important;
+        height: 100px !important;
+    }
+
+    .profile-info {
+        text-align: center;
+    }
+
+    .profile-stats {
+        flex-direction: column !important;
+        gap: 1rem !important;
+    }
+
+    /* ---- Payment Page ---- */
+    .payment-container {
+        padding: 1.5rem !important;
+    }
+
+    .payment-summary {
+        flex-direction: column !important;
+        gap: 1rem !important;
+    }
+
+    /* Footer */
+    footer {
+        padding: 1.5rem 0 !important;
+        margin-top: 2rem !important;
+    }
+
+    /* General text sizing for readability */
+    body {
+        font-size: 14px;
+    }
+
+    /* Ensure images don't overflow */
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    /* Prevent horizontal scroll */
+    html,
+    body {
+        overflow-x: hidden;
+        max-width: 100vw;
+    }
+
+    /* Fix flex items wrapping */
+    [style*="display: flex"][style*="gap"] {
+        flex-wrap: wrap;
+    }
+
+    /* Lock card upgrade box */
+    div[style*="display: flex"][style*="align-items: center"][style*="gap: 2.5rem"] {
+        flex-direction: column !important;
+        text-align: center;
+        gap: 1rem !important;
+        padding: 1.5rem !important;
+    }
+
+    /* ---- Admin Help Tickets ---- */
+    .admin-help-tickets .ticket-row {
+        flex-direction: column !important;
+        gap: 0.8rem !important;
+    }
+
+    /* ---- Trainer Dashboard ---- */
+    .trainer-stats-grid {
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    .trainer-members-list {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* ---- Workout List ---- */
+    .workout-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .workout-card {
+        padding: 1.2rem !important;
+    }
+
+    /* ---- Diet Add/Edit/Detail ---- */
+    .diet-form-card {
+        padding: 1.5rem !important;
+    }
+
+    .diet-detail-card {
+        padding: 1.5rem !important;
+    }
+
+    .meal-items-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ============================================
+   SMALL MOBILE (480px and below)
+   ============================================ */
+@media (max-width: 480px) {
+
+    .navbar {
+        padding: 0.6rem 3%;
+    }
+
+    .logo {
+        font-size: 1.2rem !important;
+    }
+
+    .logo-subtitle {
+        display: none;
+    }
+
+    .hero h1 {
+        font-size: 1.8rem !important;
+    }
+
+    .hero p {
+        font-size: 0.9rem !important;
+    }
+
+    .btn-cta {
+        padding: 0.7rem 1.5rem !important;
+        font-size: 0.8rem !important;
+        clip-path: none !important;
+        border-radius: 8px !important;
+    }
+
+    .page-title {
+        font-size: 1.3rem !important;
+    }
+
+    .stat-value {
+        font-size: 1.6rem !important;
+    }
+
+    .stat-label {
+        font-size: 0.7rem !important;
+    }
+
+    .action-card {
+        padding: 1.5rem 1rem !important;
+    }
+
+    .sidebar-profile {
+        padding: 1.5rem 1rem !important;
+    }
+
+    .sidebar {
+        width: 260px !important;
+    }
+
+    /* Fix long inline styles */
+    .btn-update-v2 {
+        font-size: 0.85rem !important;
+        padding: 0.6rem 1rem !important;
+    }
+
+    /* Two-column action grid for very small screens */
+    .actions-grid {
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    .action-card h3 {
+        font-size: 0.95rem !important;
+    }
+
+    .action-card p {
+        font-size: 0.75rem !important;
+        display: none;
+    }
+
+    .action-card i {
+        font-size: 1.6rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+
+    /* Admin dashboard - smaller elements */
+    .dashboard-content > header h1 {
+        font-size: 1.2rem !important;
+    }
+
+    .admin-pill {
+        font-size: 0.65rem !important;
+        padding: 0.2rem 0.5rem !important;
+    }
+
+    .top-bar-right {
+        gap: 0.6rem !important;
+    }
+
+    .top-bar-right i {
+        font-size: 0.85rem !important;
+    }
+
+    /* Edit form extra compact */
+    .edit-card {
+        padding: 1rem !important;
+    }
+
+    .btn-save {
+        font-size: 0.8rem !important;
+        padding: 0.8rem 1rem !important;
+        letter-spacing: 0.5px !important;
+    }
+
+    .help-text {
+        font-size: 0.7rem !important;
+    }
+
+    /* Subscription plan cards */
+    .plan-card {
+        padding: 1.2rem !important;
+    }
+
+    /* Trainer stats */
+    .trainer-stats-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* AI cards */
+    .ai-card {
+        padding: 1.2rem !important;
+    }
+
+    .ai-card h3 {
+        font-size: 1rem !important;
+    }
+
+    /* BMI */
+    .bmi-card {
+        padding: 1rem !important;
+    }
+
+    /* Chatbot */
+    .chat-message {
+        max-width: 90% !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* Profile */
+    .profile-avatar {
+        width: 80px !important;
+        height: 80px !important;
+    }
+
+    /* Payment */
+    .payment-container {
+        padding: 1rem !important;
+    }
+}
+
+/* ============================================
+   TOUCH-FRIENDLY ENHANCEMENTS
+   ============================================ */
+@media (hover: none) and (pointer: coarse) {
+
+    /* Larger tap targets on touch devices */
+    .nav-link {
+        padding: 1rem 1rem !important;
+        min-height: 48px;
+    }
+
+    .menu-item {
+        padding: 0.8rem 1rem !important;
+        min-height: 44px;
+    }
+
+    .btn,
+    .btn-gold,
+    .btn-outline,
+    .btn-cta,
+    .btn-login,
+    .btn-save,
+    .btn-update-v2 {
+        min-height: 48px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Larger form inputs for easier tapping */
+    .form-control,
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+        min-height: 44px;
+        font-size: 16px !important; /* Prevents iOS zoom on focus */
+    }
+
+    /* Checkbox larger */
+    .checkbox-group input {
+        width: 24px !important;
+        height: 24px !important;
+    }
+
+    /* Remove hover transforms on touch */
+    .card:hover,
+    .action-card:hover,
+    .stat-card:hover,
+    .feature-card:hover,
+    .plan-card:hover,
+    .ai-card:hover,
+    .trainer-card-professional:hover,
+    .edit-card:hover,
+    .btn-save:hover {
+        transform: none !important;
+    }
+
+    /* Ensure sidebar menu items are tappable */
+    .sidebar-menu .menu-item {
+        padding: 0.85rem 1rem !important;
+    }
+}
+
+/* ============================================
+   LANDSCAPE PHONE FIXES
+   ============================================ */
+@media (max-height: 500px) and (orientation: landscape) {
+
+    .sidebar {
+        overflow-y: auto;
+    }
+
+    .hero {
+        min-height: 100vh;
+        padding: 2rem 1rem;
+    }
+
+    .main-wrapper,
+    .main-area {
+        padding-top: 4rem !important;
+    }
+
+    .hamburger-btn {
+        top: 0.5rem;
+        left: 0.5rem;
+        width: 38px;
+        height: 38px;
+        font-size: 1.1rem;
+    }
+}
+
+/* ============================================
+   SAFE AREA (NOTCHED PHONES)
+   ============================================ */
+@supports (padding: env(safe-area-inset-top)) {
+    .navbar {
+        padding-top: calc(0.8rem + env(safe-area-inset-top));
+    }
+
+    .hamburger-btn {
+        top: calc(1rem + env(safe-area-inset-top));
+        left: calc(1rem + env(safe-area-inset-left));
+    }
+
+    .sidebar {
+        padding-top: env(safe-area-inset-top);
+    }
+
+    footer {
+        padding-bottom: calc(1.5rem + env(safe-area-inset-bottom)) !important;
+    }
+}

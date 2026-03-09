@@ -1,0 +1,571 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Your Fitness Plan | FitSync Elite{% endblock %}
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root { --ar-bg: #08080f; --ar-card: #11111a; --ar-border: rgba(255,255,255,0.06); }
+    body { background: var(--ar-bg); color: #e0e0e0; font-family: 'Space Grotesk', sans-serif; margin: 0; }
+
+    .ar-wrapper { max-width: 1280px; margin: 0 auto; padding: 2.5rem 2rem 5rem; }
+
+    /* Top nav */
+    .top-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .back-link {
+        color: #555;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-size: 0.9rem;
+        transition: 0.3s;
+    }
+    .back-link:hover { color: #6366f1; }
+
+    .retake-btn {
+        padding: 0.5rem 1.2rem;
+        border-radius: 10px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        background: rgba(99,102,241,0.08);
+        border: 1px solid rgba(99,102,241,0.2);
+        color: #818cf8;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+    .retake-btn:hover { background: rgba(99,102,241,0.15); }
+
+    /* Hero Banner */
+    .hero-banner {
+        background: linear-gradient(135deg, #13131f, #1a1a2e);
+        border: 1px solid rgba(99,102,241,0.15);
+        border-radius: 28px;
+        padding: 2.5rem 3rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-banner::before {
+        content: '';
+        position: absolute;
+        right: -100px; top: -100px;
+        width: 400px; height: 400px;
+        background: radial-gradient(circle, rgba(99,102,241,0.06) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .hero-emoji { font-size: 4rem; flex-shrink: 0; animation: float 3s ease-in-out infinite; }
+
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+    .hero-text h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0 0 0.5rem;
+        letter-spacing: -0.02em;
+    }
+
+    .hero-text h1 span {
+        background: linear-gradient(135deg, #6366f1, #f59e0b);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .hero-text p { color: #666; margin: 0; font-size: 0.95rem; }
+
+    .hero-tags {
+        display: flex;
+        gap: 0.6rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .hero-tag {
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .tag-blue { background: rgba(99,102,241,0.1); color: #818cf8; border: 1px solid rgba(99,102,241,0.2); }
+    .tag-green { background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2); }
+    .tag-gold { background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); }
+
+    /* Grid Layout */
+    .results-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .results-grid.wide { grid-template-columns: 1fr; }
+
+    .panel {
+        background: var(--ar-card);
+        border: 1px solid var(--ar-border);
+        border-radius: 24px;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .panel-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.75rem;
+    }
+
+    .panel-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .pi-blue { background: rgba(99,102,241,0.12); color: #6366f1; }
+    .pi-orange { background: rgba(245,158,11,0.12); color: #f59e0b; }
+    .pi-green { background: rgba(16,185,129,0.12); color: #10b981; }
+    .pi-red { background: rgba(239,68,68,0.12); color: #ef4444; }
+
+    .panel-header-text h3 { font-size: 1rem; font-weight: 700; margin: 0 0 0.2rem; }
+    .panel-header-text p { font-size: 0.75rem; color: #555; margin: 0; }
+
+    /* ── BMI Panel ────────────────────────────────────────────────────────── */
+    .bmi-display {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .bmi-circle {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 4px solid;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        box-shadow: 0 0 30px rgba(0,0,0,0.3);
+        animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    .bmi-circle .bmi-number { font-size: 2rem; font-weight: 800; line-height: 1; }
+    .bmi-circle .bmi-unit { font-size: 0.65rem; opacity: 0.6; }
+
+    .bmi-details { flex-grow: 1; }
+    .bmi-category { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .bmi-rec { color: #666; font-size: 0.85rem; line-height: 1.6; }
+
+    .bmi-scale {
+        display: grid;
+        grid-template-columns: repeat(4,1fr);
+        gap: 0.4rem;
+        margin-top: 1rem;
+    }
+
+    .bmi-scale-item {
+        text-align: center;
+        padding: 0.4rem;
+        border-radius: 8px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        opacity: 0.5;
+    }
+
+    .bmi-scale-item.active { opacity: 1; transform: scale(1.05); }
+    .scale-under { background: rgba(96,165,250,0.1); color: #60a5fa; border: 1px solid rgba(96,165,250,0.2); }
+    .scale-normal { background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2); }
+    .scale-over { background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); }
+    .scale-obese { background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); }
+
+    .calorie-badge {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: rgba(245,158,11,0.06);
+        border: 1px solid rgba(245,158,11,0.15);
+        border-radius: 14px;
+        padding: 1rem 1.25rem;
+        margin-top: 1rem;
+    }
+
+    .calorie-badge .num { font-size: 1.8rem; font-weight: 800; color: #f59e0b; }
+    .calorie-badge .label { font-size: 0.8rem; color: #888; }
+
+    /* ── Workout Panel ─────────────────────────────────────────────────────── */
+    .workout-table {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .workout-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.7rem 1rem;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.04);
+        transition: 0.3s;
+    }
+
+    .workout-row:hover {
+        background: rgba(245,158,11,0.04);
+        border-color: rgba(245,158,11,0.15);
+        transform: translateX(4px);
+    }
+
+    .workout-day {
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #f59e0b;
+        min-width: 44px;
+        background: rgba(245,158,11,0.08);
+        padding: 0.25rem 0.4rem;
+        border-radius: 6px;
+        text-align: center;
+    }
+
+    .workout-desc { font-size: 0.88rem; color: #ccc; flex-grow: 1; }
+
+    /* ── Diet Panel ────────────────────────────────────────────────────────── */
+    .diet-meals {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .meal-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 0.9rem 1rem;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.04);
+        transition: 0.3s;
+    }
+
+    .meal-item:hover { background: rgba(16,185,129,0.04); border-color: rgba(16,185,129,0.15); }
+
+    .meal-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .mi-breakfast { background: rgba(245,158,11,0.1); color: #f59e0b; }
+    .mi-lunch { background: rgba(16,185,129,0.1); color: #10b981; }
+    .mi-dinner { background: rgba(99,102,241,0.1); color: #6366f1; }
+    .mi-snacks { background: rgba(239,68,68,0.1); color: #ef4444; }
+
+    .meal-name { font-size: 0.7rem; color: #555; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.25rem; }
+    .meal-val { font-size: 0.9rem; color: #ccc; font-weight: 500; }
+
+    /* ── Goal Progress Panel ───────────────────────────────────────────────── */
+    .goal-stats {
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: 1rem;
+        margin-bottom: 1.75rem;
+    }
+
+    .g-stat {
+        text-align: center;
+        padding: 1rem;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .g-stat .gv { font-size: 1.6rem; font-weight: 800; display: block; margin-bottom: 0.25rem; }
+    .g-stat .gl { font-size: 0.7rem; color: #555; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+
+    .progress-section { margin-bottom: 1.25rem; }
+    .progress-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+    .progress-label span { font-size: 0.85rem; color: #888; }
+    .progress-label strong { color: white; }
+    .progress-track { background: rgba(255,255,255,0.05); border-radius: 50px; height: 12px; overflow: hidden; position: relative; }
+    .progress-fill {
+        height: 100%;
+        border-radius: 50px;
+        background: linear-gradient(90deg, #6366f1, #10b981);
+        transition: width 1.5s cubic-bezier(0.4,0,0.2,1);
+        box-shadow: 0 0 15px rgba(99,102,241,0.4);
+        width: 0%;
+    }
+
+    .no-goal-msg {
+        text-align: center;
+        color: #444;
+        padding: 2rem;
+    }
+
+    .no-goal-msg a {
+        color: #6366f1;
+        text-decoration: none;
+        font-weight: 700;
+    }
+
+    @media (max-width: 900px) {
+        .results-grid { grid-template-columns: 1fr; }
+        .hero-banner { flex-direction: column; text-align: center; }
+        .hero-tags { justify-content: center; }
+        .bmi-display { flex-direction: column; align-items: flex-start; }
+        .goal-stats { grid-template-columns: 1fr 1fr; }
+        .bmi-scale { grid-template-columns: repeat(2,1fr); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ar-wrapper">
+
+    <div class="top-nav">
+        <a href="{% url 'user_dashboard' %}" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+        </a>
+        <a href="{% url 'fitness_assessment' %}" class="retake-btn">
+            <i class="fa-solid fa-refresh"></i> Retake Assessment
+        </a>
+    </div>
+
+    <!-- Hero Banner -->
+    <div class="hero-banner">
+        <div class="hero-emoji">🧠</div>
+        <div class="hero-text">
+            <h1>Your <span>Personalized Fitness Plan</span></h1>
+            <p>Generated from your biometric data and fitness goals. Update anytime as you progress.</p>
+            <div class="hero-tags">
+                <div class="hero-tag tag-blue"><i class="fa-solid fa-bullseye"></i> {{ goal_label }}</div>
+                <div class="hero-tag tag-green"><i class="fa-solid fa-bolt"></i> {{ level_label }}</div>
+                <div class="hero-tag tag-gold"><i class="fa-solid fa-fire"></i> {{ daily_cals }} kcal/day</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Row: BMI + Workout -->
+    <div class="results-grid">
+
+        <!-- Panel 1: BMI Analysis -->
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-icon pi-blue"><i class="fa-solid fa-heart-pulse"></i></div>
+                <div class="panel-header-text">
+                    <h3>BMI Analysis</h3>
+                    <p>Body Mass Index · Biometric Profile</p>
+                </div>
+            </div>
+
+            <div class="bmi-display">
+                <div class="bmi-circle" style="border-color: {{ bmi_color }}; color: {{ bmi_color }}; box-shadow: 0 0 30px {{ bmi_color }}33;">
+                    <span class="bmi-number">{{ bmi }}</span>
+                    <span class="bmi-unit">BMI</span>
+                </div>
+                <div class="bmi-details">
+                    <div class="bmi-category" style="color: {{ bmi_color }};">{{ assessment.bmi_category }}</div>
+                    <div class="bmi-rec">{{ bmi_rec }}</div>
+                </div>
+            </div>
+
+            <div class="bmi-scale">
+                <div class="bmi-scale-item scale-under {% if bmi < 18.5 %}active{% endif %}">Under<br>&lt; 18.5</div>
+                <div class="bmi-scale-item scale-normal {% if bmi >= 18.5 and bmi < 25 %}active{% endif %}">Normal<br>18.5–24.9</div>
+                <div class="bmi-scale-item scale-over {% if bmi >= 25 and bmi < 30 %}active{% endif %}">Overweight<br>25–29.9</div>
+                <div class="bmi-scale-item scale-obese {% if bmi >= 30 %}active{% endif %}">Obese<br>≥ 30</div>
+            </div>
+
+            <div class="calorie-badge">
+                <div>
+                    <div class="num">{{ daily_cals }}</div>
+                    <div class="label">Recommended Daily Calories</div>
+                </div>
+                <div style="font-size: 0.8rem; color: #555; border-left: 1px solid rgba(255,255,255,0.06); padding-left: 1rem;">
+                    Calculated using Mifflin-St Jeor formula adjusted for your activity level & goal.
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 2: Workout Plan -->
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-icon pi-orange"><i class="fa-solid fa-dumbbell"></i></div>
+                <div class="panel-header-text">
+                    <h3>Weekly Workout Plan</h3>
+                    <p>Tailored to your goal & fitness level</p>
+                </div>
+            </div>
+
+            <div class="workout-table">
+                {% for day, desc in workout_plan %}
+                <div class="workout-row">
+                    <div class="workout-day">{{ day }}</div>
+                    <div class="workout-desc">{{ desc }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Row: Diet + Goal Tracker -->
+    <div class="results-grid">
+
+        <!-- Panel 3: Diet Plan -->
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-icon pi-green"><i class="fa-solid fa-utensils"></i></div>
+                <div class="panel-header-text">
+                    <h3>Daily Diet Recommendation</h3>
+                    <p>Nutritional plan based on your goal</p>
+                </div>
+            </div>
+
+            <div class="diet-meals">
+                <div class="meal-item">
+                    <div class="meal-icon mi-breakfast"><i class="fa-solid fa-sun"></i></div>
+                    <div>
+                        <div class="meal-name">Breakfast</div>
+                        <div class="meal-val">{{ daily_diet.breakfast }}</div>
+                    </div>
+                </div>
+                <div class="meal-item">
+                    <div class="meal-icon mi-lunch"><i class="fa-solid fa-leaf"></i></div>
+                    <div>
+                        <div class="meal-name">Lunch</div>
+                        <div class="meal-val">{{ daily_diet.lunch }}</div>
+                    </div>
+                </div>
+                <div class="meal-item">
+                    <div class="meal-icon mi-dinner"><i class="fa-solid fa-moon"></i></div>
+                    <div>
+                        <div class="meal-name">Dinner</div>
+                        <div class="meal-val">{{ daily_diet.dinner }}</div>
+                    </div>
+                </div>
+                <div class="meal-item">
+                    <div class="meal-icon mi-snacks"><i class="fa-solid fa-apple-whole"></i></div>
+                    <div>
+                        <div class="meal-name">Snacks</div>
+                        <div class="meal-val">{{ daily_diet.snacks }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 4: Goal Progress -->
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-icon pi-red"><i class="fa-solid fa-bullseye"></i></div>
+                <div class="panel-header-text">
+                    <h3>Fitness Goal Tracker</h3>
+                    <p>Your weight & progress toward target</p>
+                </div>
+            </div>
+
+            {% if weight_goal_progress is not None %}
+            <div class="goal-stats">
+                <div class="g-stat">
+                    <span class="gv" style="color:#6366f1;">{{ assessment.weight_kg }}<small style="font-size:1rem"> kg</small></span>
+                    <span class="gl">Current Weight</span>
+                </div>
+                <div class="g-stat">
+                    <span class="gv" style="color:#10b981;">{{ assessment.target_weight_kg }}<small style="font-size:1rem"> kg</small></span>
+                    <span class="gl">Target Weight</span>
+                </div>
+                <div class="g-stat">
+                    <span class="gv" style="color:#f59e0b;">{{ kg_to_lose_gain }}<small style="font-size:1rem"> kg</small></span>
+                    <span class="gl">Remaining</span>
+                </div>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-label">
+                    <span>Goal: <strong>{{ goal_label }}</strong></span>
+                    <strong style="color: #6366f1;">{{ weight_goal_progress }}%</strong>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" data-width="{{ weight_goal_progress }}"></div>
+                </div>
+            </div>
+
+            <div style="background: rgba(99,102,241,0.04); border: 1px solid rgba(99,102,241,0.1); border-radius: 12px; padding: 1rem; font-size: 0.85rem; color: #666; line-height: 1.6;">
+                <strong style="color: #818cf8;">💡 Coach Tip:</strong> Update the assessment regularly to track your actual progress. Log your check-ins daily to maintain your streak and improve your Fitness Score.
+            </div>
+
+            {% else %}
+            <div class="no-goal-msg">
+                <div style="font-size: 2.5rem; margin-bottom: 1rem;">🎯</div>
+                <p><strong style="color: #ddd;">No target weight set.</strong></p>
+                <p style="font-size: 0.85rem;">
+                    <a href="{% url 'fitness_assessment' %}">Set a target weight in your assessment</a> to activate goal tracking and see your progress bar.
+                </p>
+            </div>
+
+            <!-- Fallback: show activity-based progress -->
+            <div class="goal-stats" style="margin-top: 1rem;">
+                <div class="g-stat">
+                    <span class="gv" style="color:#6366f1;">{{ assessment.weight_kg }}<small style="font-size:1rem"> kg</small></span>
+                    <span class="gl">Current Weight</span>
+                </div>
+                <div class="g-stat">
+                    <span class="gv" style="color:#f59e0b;">{{ assessment.age }}<small style="font-size:1rem"> yrs</small></span>
+                    <span class="gl">Age</span>
+                </div>
+                <div class="g-stat">
+                    <span class="gv" style="color:#10b981;">{{ assessment.height_cm }}<small style="font-size:1rem"> cm</small></span>
+                    <span class="gl">Height</span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+<script>
+// Animate progress fill on load
+document.querySelectorAll('.progress-fill').forEach(el => {
+    const target = el.dataset.width || 0;
+    setTimeout(() => { el.style.width = target + '%'; }, 400);
+});
+</script>
+{% endblock %}

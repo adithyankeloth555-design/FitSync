@@ -1,0 +1,1067 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Computer Vision Exercise Detection | FitSync Elite{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --cv-bg: #0a0a0f;
+        --cv-card: #13131a;
+        --cv-accent: #00e5ff;
+        --cv-green: #00ff88;
+        --cv-red: #ff4466;
+        --cv-purple: #8b5cf6;
+        --cv-gradient: linear-gradient(135deg, #00e5ff, #8b5cf6);
+    }
+
+    body {
+        background: var(--cv-bg);
+        color: #e0e0e0;
+        font-family: 'Space Grotesk', sans-serif;
+        margin: 0;
+        overflow-x: hidden;
+    }
+
+    .cv-wrapper {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .cv-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding: 1rem 0;
+    }
+
+    .cv-brand {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .cv-brand-icon {
+        width: 44px;
+        height: 44px;
+        background: var(--cv-gradient);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        color: white;
+        box-shadow: 0 0 30px rgba(0, 229, 255, 0.3);
+    }
+
+    .cv-brand-text {
+        font-weight: 700;
+        font-size: 1.4rem;
+        background: var(--cv-gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .back-link {
+        color: #888;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        transition: 0.3s;
+    }
+
+    .back-link:hover { color: var(--cv-accent); }
+
+    /* Main Layout */
+    .cv-main {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 2rem;
+        align-items: start;
+    }
+
+    /* Camera Section */
+    .camera-section {
+        background: var(--cv-card);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 24px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .camera-header {
+        padding: 1.5rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .camera-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        color: #888;
+    }
+
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #555;
+        transition: 0.3s;
+    }
+
+    .status-dot.active {
+        background: var(--cv-green);
+        box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    .camera-viewport {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16/10;
+        background: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #videoElement {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform: scaleX(-1);
+    }
+
+    #canvasElement {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        transform: scaleX(-1);
+    }
+
+    .camera-placeholder {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .camera-placeholder i {
+        font-size: 4rem;
+        color: #333;
+        margin-bottom: 1.5rem;
+        display: block;
+    }
+
+    .camera-placeholder h3 {
+        color: #666;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .camera-placeholder p {
+        color: #444;
+        font-size: 0.9rem;
+    }
+
+    /* Live Overlay Stats */
+    .live-overlay {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        z-index: 10;
+    }
+
+    .overlay-stat {
+        background: rgba(0,0,0,0.7);
+        backdrop-filter: blur(10px);
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .overlay-stat .stat-num {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--cv-accent);
+    }
+
+    /* Exercise Counter Overlay */
+    .rep-counter-overlay {
+        position: absolute;
+        bottom: 1.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.8);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(0, 229, 255, 0.3);
+        border-radius: 20px;
+        padding: 1rem 2.5rem;
+        text-align: center;
+        z-index: 10;
+        min-width: 200px;
+    }
+
+    .rep-count-display {
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--cv-accent);
+        line-height: 1;
+        text-shadow: 0 0 30px rgba(0, 229, 255, 0.4);
+    }
+
+    .rep-label {
+        font-size: 0.75rem;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-top: 0.25rem;
+    }
+
+    /* Controls */
+    .camera-controls {
+        padding: 1.5rem 2rem;
+        display: flex;
+        gap: 1rem;
+        border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .ctrl-btn {
+        flex: 1;
+        padding: 1rem;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.03);
+        color: #ccc;
+        font-size: 0.95rem;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .ctrl-btn:hover {
+        border-color: var(--cv-accent);
+        color: var(--cv-accent);
+        background: rgba(0, 229, 255, 0.05);
+    }
+
+    .ctrl-btn.active {
+        background: var(--cv-gradient);
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 5px 25px rgba(0, 229, 255, 0.3);
+    }
+
+    .ctrl-btn.stop-btn {
+        background: rgba(255, 68, 102, 0.1);
+        border-color: var(--cv-red);
+        color: var(--cv-red);
+    }
+
+    .ctrl-btn.stop-btn:hover {
+        background: var(--cv-red);
+        color: white;
+    }
+
+    /* Right Panel */
+    .right-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .panel-card {
+        background: var(--cv-card);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 20px;
+        padding: 1.5rem;
+    }
+
+    .panel-title {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #666;
+        font-weight: 700;
+        margin-bottom: 1.25rem;
+    }
+
+    /* Exercise Selector */
+    .exercise-options {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .exercise-opt {
+        padding: 0.9rem 1rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.06);
+        background: rgba(255,255,255,0.02);
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .exercise-opt:hover {
+        border-color: var(--cv-accent);
+        background: rgba(0, 229, 255, 0.05);
+    }
+
+    .exercise-opt.selected {
+        border-color: var(--cv-accent);
+        background: rgba(0, 229, 255, 0.1);
+        box-shadow: 0 0 15px rgba(0, 229, 255, 0.1);
+    }
+
+    .exercise-opt i {
+        font-size: 1.2rem;
+        width: 24px;
+        text-align: center;
+        color: var(--cv-accent);
+    }
+
+    .exercise-opt-info h4 {
+        font-size: 0.95rem;
+        color: #ddd;
+        margin: 0;
+        font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .exercise-opt-info small {
+        color: #666;
+        font-size: 0.75rem;
+    }
+
+    /* Session Stats */
+    .session-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+
+    .session-stat {
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 14px;
+        padding: 1.25rem;
+        text-align: center;
+    }
+
+    .session-stat-value {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: var(--cv-accent);
+        display: block;
+    }
+
+    .session-stat-label {
+        font-size: 0.7rem;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    /* Form Feedback */
+    .form-feedback {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .feedback-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.9rem 1rem;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.06);
+        font-size: 0.9rem;
+        animation: fadeSlideIn 0.5s ease;
+    }
+
+    @keyframes fadeSlideIn {
+        from { opacity: 0; transform: translateX(-10px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    .feedback-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+    }
+
+    .feedback-good .feedback-icon {
+        background: rgba(0, 255, 136, 0.1);
+        color: var(--cv-green);
+    }
+
+    .feedback-warn .feedback-icon {
+        background: rgba(255, 214, 0, 0.1);
+        color: #ffd600;
+    }
+
+    .feedback-bad .feedback-icon {
+        background: rgba(255, 68, 102, 0.1);
+        color: var(--cv-red);
+    }
+
+    /* History Log */
+    .history-log {
+        max-height: 200px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .history-entry {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.7rem 1rem;
+        background: rgba(255,255,255,0.02);
+        border-radius: 10px;
+        font-size: 0.85rem;
+    }
+
+    .history-entry span:first-child {
+        color: #bbb;
+    }
+
+    .history-reps {
+        font-weight: 700;
+        color: var(--cv-accent);
+    }
+
+    @media (max-width: 900px) {
+        .cv-main {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cv-wrapper">
+    <nav class="cv-nav">
+        <div class="cv-brand">
+            <div class="cv-brand-icon"><i class="fa-solid fa-eye"></i></div>
+            <span class="cv-brand-text">Computer Vision Exercise Detection</span>
+        </div>
+        <a href="{% url 'ai_hub' %}" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> Back to Neural Hub
+        </a>
+    </nav>
+
+    <div class="cv-main">
+        <!-- Camera Section -->
+        <div class="camera-section">
+            <div class="camera-header">
+                <div class="camera-status">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="statusText">Camera Off</span>
+                </div>
+                <span style="color: #444; font-size: 0.8rem;" id="fpsDisplay">-- FPS</span>
+            </div>
+
+            <div class="camera-viewport" id="cameraViewport">
+                <div class="camera-placeholder" id="cameraPlaceholder">
+                    <i class="fa-solid fa-video"></i>
+                    <h3>Ready to Detect</h3>
+                    <p>Select an exercise and click "Start Camera" to begin AI pose estimation.</p>
+                </div>
+                <video id="videoElement" autoplay playsinline style="display: none;"></video>
+                <canvas id="canvasElement" style="display: none;"></canvas>
+
+                <!-- Live Overlay -->
+                <div class="live-overlay" id="liveOverlay" style="display: none;">
+                    <div class="overlay-stat">
+                        <i class="fa-solid fa-person-running" style="color: var(--cv-green);"></i>
+                        <span id="overlayExercise">Push-ups</span>
+                    </div>
+                    <div class="overlay-stat">
+                        <i class="fa-solid fa-gauge-high" style="color: var(--cv-purple);"></i>
+                        Form: <span id="overlayForm" style="color: var(--cv-green); font-weight: 700;">--</span>
+                    </div>
+                </div>
+
+                <!-- Rep Counter -->
+                <div class="rep-counter-overlay" id="repCounterOverlay" style="display: none;">
+                    <div class="rep-count-display" id="repCountDisplay">0</div>
+                    <div class="rep-label">Repetitions</div>
+                </div>
+            </div>
+
+            <div class="camera-controls">
+                <button class="ctrl-btn" id="startBtn" onclick="startCamera()">
+                    <i class="fa-solid fa-play"></i> Start Camera
+                </button>
+                <button class="ctrl-btn stop-btn" id="stopBtn" onclick="stopCamera()" style="display: none;">
+                    <i class="fa-solid fa-stop"></i> Stop
+                </button>
+                <button class="ctrl-btn" id="resetBtn" onclick="resetCounters()">
+                    <i class="fa-solid fa-rotate-right"></i> Reset
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="right-panel">
+            <!-- Exercise Selection -->
+            <div class="panel-card">
+                <div class="panel-title">Select Exercise</div>
+                <div class="exercise-options">
+                    <div class="exercise-opt selected" data-exercise="pushups" onclick="selectExercise(this)">
+                        <i class="fa-solid fa-arrow-down"></i>
+                        <div class="exercise-opt-info">
+                            <h4>Push-ups</h4>
+                            <small>Chest & Triceps</small>
+                        </div>
+                    </div>
+                    <div class="exercise-opt" data-exercise="squats" onclick="selectExercise(this)">
+                        <i class="fa-solid fa-person"></i>
+                        <div class="exercise-opt-info">
+                            <h4>Squats</h4>
+                            <small>Legs & Glutes</small>
+                        </div>
+                    </div>
+                    <div class="exercise-opt" data-exercise="jumping_jacks" onclick="selectExercise(this)">
+                        <i class="fa-solid fa-child-reaching"></i>
+                        <div class="exercise-opt-info">
+                            <h4>Jumping Jacks</h4>
+                            <small>Full Body Cardio</small>
+                        </div>
+                    </div>
+                    <div class="exercise-opt" data-exercise="bicep_curls" onclick="selectExercise(this)">
+                        <i class="fa-solid fa-hand-fist"></i>
+                        <div class="exercise-opt-info">
+                            <h4>Bicep Curls</h4>
+                            <small>Arms & Biceps</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Session Stats -->
+            <div class="panel-card">
+                <div class="panel-title">Session Statistics</div>
+                <div class="session-stats">
+                    <div class="session-stat">
+                        <span class="session-stat-value" id="totalReps">0</span>
+                        <span class="session-stat-label">Total Reps</span>
+                    </div>
+                    <div class="session-stat">
+                        <span class="session-stat-value" id="caloriesBurned">0</span>
+                        <span class="session-stat-label">Calories</span>
+                    </div>
+                    <div class="session-stat">
+                        <span class="session-stat-value" id="sessionDuration">0:00</span>
+                        <span class="session-stat-label">Duration</span>
+                    </div>
+                    <div class="session-stat">
+                        <span class="session-stat-value" id="formScore">--</span>
+                        <span class="session-stat-label">Form Score</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Form Feedback -->
+            <div class="panel-card">
+                <div class="panel-title">AI Form Analysis</div>
+                <div class="form-feedback" id="feedbackContainer">
+                    <div class="feedback-item feedback-good">
+                        <div class="feedback-icon"><i class="fa-solid fa-circle-info"></i></div>
+                        <span>Start your exercise to receive real-time feedback</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History -->
+            <div class="panel-card">
+                <div class="panel-title">Session History</div>
+                <div class="history-log" id="historyLog">
+                    <div class="history-entry" style="color: #444; text-align: center; justify-content: center;">
+                        No sessions recorded yet
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MediaPipe Pose -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+
+<script>
+    // State
+    let currentExercise = 'pushups';
+    let repCount = 0;
+    let totalReps = 0;
+    let isUp = false;
+    let cameraRunning = false;
+    let sessionStartTime = null;
+    let sessionTimer = null;
+    let formScores = [];
+    let lastFeedbackTime = 0;
+    let frameCount = 0;
+    let lastFPSTime = Date.now();
+    let currentFPS = 0;
+
+    const videoElement = document.getElementById('videoElement');
+    const canvasElement = document.getElementById('canvasElement');
+    const canvasCtx = canvasElement.getContext('2d');
+
+    // Setup MediaPipe Pose
+    const pose = new Pose({
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+    });
+
+    pose.setOptions({
+        modelComplexity: 1,
+        smoothLandmarks: true,
+        enableSegmentation: false,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5
+    });
+
+    pose.onResults(onResults);
+
+    function selectExercise(el) {
+        document.querySelectorAll('.exercise-opt').forEach(e => e.classList.remove('selected'));
+        el.classList.add('selected');
+        currentExercise = el.dataset.exercise;
+        document.getElementById('overlayExercise').textContent = el.querySelector('h4').textContent;
+        resetCounters();
+    }
+
+    let camera = null;
+
+    async function startCamera() {
+        try {
+            await navigator.mediaDevices.getUserMedia({ video: true }); // Request permission first
+            
+            document.getElementById('cameraPlaceholder').style.display = 'none';
+            document.getElementById('liveOverlay').style.display = 'flex';
+            document.getElementById('repCounterOverlay').style.display = 'block';
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('stopBtn').style.display = 'flex';
+            document.getElementById('statusDot').classList.add('active');
+            document.getElementById('statusText').textContent = 'Analyzing...';
+            
+            videoElement.style.display = 'block';
+            canvasElement.style.display = 'block';
+
+            cameraRunning = true;
+            sessionStartTime = Date.now();
+            sessionTimer = setInterval(updateDuration, 1000);
+
+            camera = new Camera(videoElement, {
+                onFrame: async () => {
+                    if (!cameraRunning) return;
+                    
+                    // FPS calculation
+                    frameCount++;
+                    const now = Date.now();
+                    if (now - lastFPSTime >= 1000) {
+                        currentFPS = frameCount;
+                        frameCount = 0;
+                        lastFPSTime = now;
+                        document.getElementById('fpsDisplay').textContent = currentFPS + ' FPS';
+                    }
+                    
+                    await pose.send({ image: videoElement });
+                },
+                width: 1280,
+                height: 720,
+                facingMode: 'user'
+            });
+            camera.start();
+
+        } catch (err) {
+            console.error(err);
+            addFeedback('warn', 'Camera access denied or device not found.');
+        }
+    }
+
+    function stopCamera() {
+        cameraRunning = false;
+        if (camera) {
+            camera.stop();
+        }
+        if (videoElement.srcObject) {
+            videoElement.srcObject.getTracks().forEach(t => t.stop());
+        }
+        
+        videoElement.style.display = 'none';
+        canvasElement.style.display = 'none';
+        document.getElementById('cameraPlaceholder').style.display = 'block';
+        document.getElementById('liveOverlay').style.display = 'none';
+        document.getElementById('repCounterOverlay').style.display = 'none';
+        document.getElementById('startBtn').style.display = 'flex';
+        document.getElementById('stopBtn').style.display = 'none';
+        document.getElementById('statusDot').classList.remove('active');
+        document.getElementById('statusText').textContent = 'Camera Off';
+        document.getElementById('fpsDisplay').textContent = '-- FPS';
+        clearInterval(sessionTimer);
+
+        // Save to history
+        if (totalReps > 0) {
+            saveToHistory();
+        }
+    }
+
+    function resetCounters() {
+        repCount = 0;
+        totalReps = 0;
+        isUp = false;
+        formScores = [];
+        document.getElementById('repCountDisplay').textContent = '0';
+        document.getElementById('totalReps').textContent = '0';
+        document.getElementById('caloriesBurned').textContent = '0';
+        document.getElementById('formScore').textContent = '--';
+        document.getElementById('feedbackContainer').innerHTML = `
+            <div class="feedback-item feedback-good">
+                <div class="feedback-icon"><i class="fa-solid fa-circle-info"></i></div>
+                <span>Counters reset. Ready for new set.</span>
+            </div>
+        `;
+    }
+
+    function calculateAngle(a, b, c) {
+        const radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
+        let angle = Math.abs(radians * 180 / Math.PI);
+        if (angle > 180) angle = 360 - angle;
+        return angle;
+    }
+
+    function onResults(results) {
+        // Draw
+        canvasElement.width = videoElement.videoWidth;
+        canvasElement.height = videoElement.videoHeight;
+        canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+        if (results.poseLandmarks) {
+            // Draw skeleton with custom style
+            drawCustomSkeleton(results.poseLandmarks);
+
+            // Detect exercise
+            const lm = results.poseLandmarks;
+            switch (currentExercise) {
+                case 'pushups': detectPushups(lm); break;
+                case 'squats': detectSquats(lm); break;
+                case 'jumping_jacks': detectJumpingJacks(lm); break;
+                case 'bicep_curls': detectBicepCurls(lm); break;
+            }
+        }
+    }
+
+    function drawCustomSkeleton(landmarks) {
+        // Draw connections with neon glow
+        const connections = [
+            [11, 13], [13, 15], [12, 14], [14, 16],  // arms
+            [11, 12], [11, 23], [12, 24], [23, 24],    // torso
+            [23, 25], [25, 27], [24, 26], [26, 28]     // legs
+        ];
+
+        canvasCtx.shadowBlur = 8;
+        canvasCtx.shadowColor = '#00e5ff';
+        canvasCtx.strokeStyle = 'rgba(0, 229, 255, 0.6)';
+        canvasCtx.lineWidth = 3;
+
+        connections.forEach(([i, j]) => {
+            const a = landmarks[i];
+            const b = landmarks[j];
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(a.x * canvasElement.width, a.y * canvasElement.height);
+            canvasCtx.lineTo(b.x * canvasElement.width, b.y * canvasElement.height);
+            canvasCtx.stroke();
+        });
+
+        // Draw key joints
+        canvasCtx.shadowBlur = 12;
+        canvasCtx.shadowColor = '#8b5cf6';
+        const keyJoints = [11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28];
+        keyJoints.forEach(i => {
+            const lm = landmarks[i];
+            canvasCtx.beginPath();
+            canvasCtx.arc(lm.x * canvasElement.width, lm.y * canvasElement.height, 5, 0, 2 * Math.PI);
+            canvasCtx.fillStyle = '#8b5cf6';
+            canvasCtx.fill();
+        });
+        canvasCtx.shadowBlur = 0;
+    }
+
+    // ------ Exercise Detection Algorithms ------
+
+    function detectPushups(lm) {
+        const lShoulder = lm[11], lElbow = lm[13], lWrist = lm[15];
+        const rShoulder = lm[12], rElbow = lm[14], rWrist = lm[16];
+
+        const leftAngle = calculateAngle(lShoulder, lElbow, lWrist);
+        const rightAngle = calculateAngle(rShoulder, rElbow, rWrist);
+        const avgAngle = (leftAngle + rightAngle) / 2;
+
+        // Form Check
+        const lHip = lm[23], lSh = lm[11], lAnkle = lm[27];
+        const bodyAngle = calculateAngle(lSh, lHip, lAnkle);
+        let formRating = 'Good';
+        let formClass = 'good';
+
+        if (bodyAngle < 150) {
+            formRating = 'Fix: Hips too high';
+            formClass = 'warn';
+        } else if (bodyAngle > 190) {
+            formRating = 'Fix: Hips sagging';
+            formClass = 'bad';
+        }
+
+        // Rep counting
+        if (avgAngle < 90 && !isUp) {
+            isUp = true;
+            giveFeedback(formRating, formClass);
+        } else if (avgAngle > 150 && isUp) {
+            isUp = false;
+            repCount++;
+            totalReps++;
+            updateUI(formRating);
+            
+            // Form score
+            const score = bodyAngle >= 150 && bodyAngle <= 190 ? 100 : Math.max(0, 100 - Math.abs(170 - bodyAngle) * 2);
+            formScores.push(score);
+        }
+
+        document.getElementById('overlayForm').textContent = formRating;
+        document.getElementById('overlayForm').style.color = formClass === 'good' ? 'var(--cv-green)' : formClass === 'warn' ? '#ffd600' : 'var(--cv-red)';
+    }
+
+    function detectSquats(lm) {
+        const lHip = lm[23], lKnee = lm[25], lAnkle = lm[27];
+        const rHip = lm[24], rKnee = lm[26], rAnkle = lm[28];
+
+        const leftAngle = calculateAngle(lHip, lKnee, lAnkle);
+        const rightAngle = calculateAngle(rHip, rKnee, rAnkle);
+        const avgAngle = (leftAngle + rightAngle) / 2;
+
+        // Form check — knees over toes
+        let formRating = 'Good';
+        let formClass = 'good';
+
+        if (avgAngle < 80) {
+            formRating = 'Great depth!';
+        } else if (lKnee.x < lAnkle.x - 0.05) {
+            formRating = 'Knees caving in';
+            formClass = 'warn';
+        }
+
+        if (avgAngle < 100 && !isUp) {
+            isUp = true;
+            giveFeedback(formRating, formClass);
+        } else if (avgAngle > 160 && isUp) {
+            isUp = false;
+            repCount++;
+            totalReps++;
+            updateUI(formRating);
+
+            const score = avgAngle >= 70 && avgAngle <= 100 ? 100 : 75;
+            formScores.push(score);
+        }
+
+        document.getElementById('overlayForm').textContent = formRating;
+        document.getElementById('overlayForm').style.color = formClass === 'good' ? 'var(--cv-green)' : '#ffd600';
+    }
+
+    function detectJumpingJacks(lm) {
+        const lShoulder = lm[11], rShoulder = lm[12];
+        const lWrist = lm[15], rWrist = lm[16];
+        const lAnkle = lm[27], rAnkle = lm[28];
+
+        const armsUp = lWrist.y < lShoulder.y && rWrist.y < rShoulder.y;
+        const feetApart = Math.abs(lAnkle.x - rAnkle.x) > 0.25;
+
+        let formRating = 'Good';
+        let formClass = 'good';
+
+        if (armsUp && feetApart && !isUp) {
+            isUp = true;
+            giveFeedback('Full extension!', 'good');
+        } else if (!armsUp && !feetApart && isUp) {
+            isUp = false;
+            repCount++;
+            totalReps++;
+            updateUI('Good form');
+            formScores.push(90);
+        }
+
+        document.getElementById('overlayForm').textContent = isUp ? 'Extended' : 'Resting';
+        document.getElementById('overlayForm').style.color = 'var(--cv-green)';
+    }
+
+    function detectBicepCurls(lm) {
+        const rShoulder = lm[12], rElbow = lm[14], rWrist = lm[16];
+        const angle = calculateAngle(rShoulder, rElbow, rWrist);
+
+        let formRating = 'Good';
+        let formClass = 'good';
+
+        // Check if elbow is steady (close to body)
+        if (Math.abs(rElbow.x - rShoulder.x) > 0.1) {
+            formRating = 'Keep elbow steady';
+            formClass = 'warn';
+        }
+
+        if (angle < 50 && !isUp) {
+            isUp = true;
+            giveFeedback('Good contraction!', 'good');
+        } else if (angle > 140 && isUp) {
+            isUp = false;
+            repCount++;
+            totalReps++;
+            updateUI(formRating);
+
+            const score = Math.abs(rElbow.x - rShoulder.x) < 0.1 ? 95 : 70;
+            formScores.push(score);
+        }
+
+        document.getElementById('overlayForm').textContent = formRating;
+        document.getElementById('overlayForm').style.color = formClass === 'good' ? 'var(--cv-green)' : '#ffd600';
+    }
+
+    // ------ UI Updates ------
+
+    function updateUI(formRating) {
+        document.getElementById('repCountDisplay').textContent = repCount;
+        document.getElementById('totalReps').textContent = totalReps;
+
+        // Estimate calories (rough: ~0.5 per rep for pushups, ~0.8 for squats)
+        const calPerRep = { pushups: 0.5, squats: 0.8, jumping_jacks: 0.3, bicep_curls: 0.2 };
+        const cal = Math.round(totalReps * (calPerRep[currentExercise] || 0.5));
+        document.getElementById('caloriesBurned').textContent = cal;
+
+        // Average form score
+        if (formScores.length > 0) {
+            const avg = Math.round(formScores.reduce((a, b) => a + b, 0) / formScores.length);
+            document.getElementById('formScore').textContent = avg + '%';
+        }
+    }
+
+    function updateDuration() {
+        const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+        const mins = Math.floor(elapsed / 60);
+        const secs = elapsed % 60;
+        document.getElementById('sessionDuration').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function giveFeedback(text, type) {
+        const now = Date.now();
+        if (now - lastFeedbackTime < 2000) return; // Throttle
+        lastFeedbackTime = now;
+
+        const container = document.getElementById('feedbackContainer');
+        const icon = type === 'good' ? 'fa-circle-check' : type === 'warn' ? 'fa-triangle-exclamation' : 'fa-circle-xmark';
+
+        const html = `
+            <div class="feedback-item feedback-${type}">
+                <div class="feedback-icon"><i class="fa-solid ${icon}"></i></div>
+                <span>${text}</span>
+            </div>
+        `;
+
+        container.insertAdjacentHTML('afterbegin', html);
+
+        // Keep only 5 latest
+        while (container.children.length > 5) {
+            container.removeChild(container.lastChild);
+        }
+    }
+
+    function addFeedback(type, text) {
+        giveFeedback(text, type);
+    }
+
+    function saveToHistory() {
+        const log = document.getElementById('historyLog');
+        const exerciseNames = { pushups: 'Push-ups', squats: 'Squats', jumping_jacks: 'Jumping Jacks', bicep_curls: 'Bicep Curls' };
+        const name = exerciseNames[currentExercise] || currentExercise;
+        const now = new Date();
+        const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        // Clear placeholder
+        if (log.querySelector('.history-entry[style]')) {
+            log.innerHTML = '';
+        }
+
+        const entry = document.createElement('div');
+        entry.className = 'history-entry';
+        entry.innerHTML = `
+            <span>${name} — ${time}</span>
+            <span class="history-reps">${totalReps} reps</span>
+        `;
+        log.insertBefore(entry, log.firstChild);
+        
+        // Save to Database via API
+        const calPerRep = { pushups: 0.5, squats: 0.8, jumping_jacks: 0.3, bicep_curls: 0.2 };
+        const cal = Math.round(totalReps * (calPerRep[currentExercise] || 0.5));
+        
+        fetch("{% url 'mark_attendance_api' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                workout_type: `AI CV: ${name}`,
+                notes: `Completed ${totalReps} AI detected reps. Estimated calories burned: ${cal}. Avg Form: ` + document.getElementById('formScore').textContent
+            })
+        }).then(res => res.json())
+          .then(data => {
+              if(data.status === 'success') {
+                  addFeedback('good', 'Session successfully saved to your progress dashboard!');
+              }
+          }).catch(err => {
+              addFeedback('warn', 'Failed to sync session with server.');
+          });
+    }
+</script>
+{% endblock %}

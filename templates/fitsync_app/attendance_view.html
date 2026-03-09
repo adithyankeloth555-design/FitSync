@@ -1,0 +1,133 @@
+{% extends 'fitsync_app/base.html' %}
+
+{% block title %}Attendance Log | FitSync{% endblock %}
+
+{% block content %}
+<div class="container mt-2">
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-family: var(--font-heading);
+            color: var(--gold);
+            margin: 0;
+            font-size: 2.2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .btn-gold {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            background: var(--gold);
+            color: #000;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-weight: 800;
+            text-decoration: none;
+            transition: 0.3s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--shadow-main);
+            overflow-x: auto;
+        }
+
+        .modern-table {
+            width: 100%;
+            border-collapse: collapse;
+            color: var(--text-primary);
+        }
+
+        .modern-table th {
+            text-align: left;
+            padding: 1.2rem;
+            color: var(--gold);
+            border-bottom: 2px solid var(--border-color);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            font-weight: 800;
+        }
+
+        .modern-table td {
+            padding: 1.2rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.95rem;
+        }
+
+        .modern-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .text-success {
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        .text-muted {
+            color: var(--text-muted);
+        }
+    </style>
+
+    <div class="page-header">
+        <h1>Your Attendance</h1>
+        <a href="{% url 'attendance_mark' %}" class="btn-gold">
+            <i class="fa-solid fa-calendar-check"></i> Mark Today
+        </a>
+    </div>
+
+    <div class="card">
+        <table class="modern-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Time In</th>
+                    <th>Status</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.logged_at|date:"M d, Y" }}</td>
+                    <td>{{ log.logged_at|date:"h:i A" }}</td>
+                    <td><span class="text-success">Present</span></td>
+                    <td>{{ log.workout_type }} - {{ log.notes|default:"" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" style="padding: 4rem; text-align: center;" class="text-muted">
+                        <i class="fa-solid fa-calendar-days fa-3x"
+                            style="opacity: 0.1; margin-bottom: 1.5rem; display: block;"></i>
+                        No attendance logs found. Start your journey today!
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

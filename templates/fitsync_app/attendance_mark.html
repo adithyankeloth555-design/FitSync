@@ -1,0 +1,79 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Mark Attendance | FitSync{% endblock %}
+
+<style>
+    body {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+    }
+
+    .container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 3rem;
+        box-shadow: var(--shadow-main);
+        width: 100%;
+        max-width: 500px;
+    }
+
+    .text-muted {
+        color: var(--text-muted) !important;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 0.8rem 1.2rem;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        color: var(--text-primary);
+        margin-bottom: 1.5rem;
+    }
+</style>
+
+{% block content %}
+<div class="container">
+    <div class="card auth-form-container">
+        <h2 class="text-center mb-2">Punch In</h2>
+        <p class="text-center text-muted mb-2">Confirm your session for today: {% now "F j, Y" %}</p>
+
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                <label>{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                <small style="color: var(--danger);">{{ field.errors.0 }}</small>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="btn-gold"
+                style="width: 100%; margin-top: 1.5rem; padding: 1rem; border-radius: 10px; font-weight: 800; border: none; cursor: pointer; background: var(--gold); color: #000;">Confirm
+                Attendance</button>
+            <a href="{% url 'attendance_view' %}" class="btn-outline"
+                style="display: block; text-align: center; width: 100%; margin-top: 1rem; padding: 1rem; border-radius: 10px; border: 1px solid var(--border-color); color: var(--text-primary); text-decoration: none; font-weight: 600;">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

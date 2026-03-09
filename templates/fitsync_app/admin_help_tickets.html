@@ -1,0 +1,325 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Support Tickets | Admin{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --sidebar-bg: var(--bg-tertiary);
+        --accent-orange: var(--gold);
+        --content-bg: var(--bg-primary);
+        --text-main: var(--text-primary);
+        --text-muted: var(--text-muted);
+        --white: var(--bg-secondary);
+        --card-shadow: var(--shadow-main);
+    }
+
+    body {
+        background-color: var(--content-bg);
+        color: var(--text-main);
+        font-family: 'Outfit', sans-serif;
+        margin: 0;
+        min-height: 100vh;
+    }
+
+    .main-wrapper {
+        margin: 0 auto;
+        max-width: 1400px;
+        padding: 3rem 4rem;
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        transition: 0.3s;
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+    }
+
+    .back-btn:hover {
+        color: var(--accent-orange);
+        transform: translateX(-5px);
+    }
+
+    .page-title {
+        font-family: 'Cinzel', serif;
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--accent-orange);
+        text-transform: uppercase;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .page-subtitle {
+        color: var(--text-muted);
+        margin-bottom: 3rem;
+    }
+
+    .stats-bar {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: var(--white);
+        padding: 1.5rem;
+        border-radius: 16px;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--card-shadow);
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 900;
+        color: var(--accent-orange);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .tickets-grid {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .ticket-card {
+        background: var(--white);
+        padding: 2rem;
+        border-radius: 16px;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--card-shadow);
+        transition: 0.3s;
+    }
+
+    .ticket-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-glow);
+    }
+
+    .ticket-card.resolved {
+        opacity: 0.7;
+        border-color: #10b981;
+    }
+
+    .ticket-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1.5rem;
+    }
+
+    .ticket-user {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .user-info h4 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .user-info p {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+    }
+
+    .ticket-status {
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .status-pending {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+    }
+
+    .status-resolved {
+        background: rgba(16, 185, 129, 0.2);
+        color: #10b981;
+    }
+
+    .ticket-subject {
+        font-size: 1.3rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        color: var(--text-main);
+    }
+
+    .ticket-message {
+        color: var(--text-muted);
+        line-height: 1.7;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: var(--bg-tertiary);
+        border-radius: 12px;
+        border-left: 3px solid var(--accent-orange);
+    }
+
+    .admin-response-section {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .admin-response {
+        background: rgba(16, 185, 129, 0.1);
+        padding: 1rem;
+        border-radius: 12px;
+        border-left: 3px solid #10b981;
+        margin-top: 1rem;
+    }
+
+    .response-form textarea {
+        width: 100%;
+        padding: 1rem;
+        border-radius: 12px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        font-size: 1rem;
+        font-family: 'Outfit', sans-serif;
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .response-form textarea:focus {
+        outline: none;
+        border-color: var(--accent-orange);
+    }
+
+    .btn-respond {
+        margin-top: 1rem;
+        padding: 0.8rem 1.5rem;
+        background: var(--accent-orange);
+        color: #000;
+        border: none;
+        border-radius: 12px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .btn-respond:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="main-wrapper">
+    <a href="{% url 'admin_dashboard' %}" class="back-btn">
+        <i class="fa-solid fa-arrow-left"></i> RETURN TO COMMAND CENTER
+    </a>
+
+    <h1 class="page-title">Support Ticket Management</h1>
+    <p class="page-subtitle">View and respond to user support requests</p>
+
+    <div class="stats-bar">
+        <div class="stat-card">
+            <div class="stat-number">{{ all_tickets.count }}</div>
+            <div class="stat-label">Total Tickets</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ pending_tickets.count }}</div>
+            <div class="stat-label">Pending Response</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ resolved_tickets.count }}</div>
+            <div class="stat-label">Resolved</div>
+        </div>
+    </div>
+
+    <div class="tickets-grid">
+        {% for ticket in all_tickets %}
+        <div class="ticket-card {% if ticket.is_resolved %}resolved{% endif %}">
+            <div class="ticket-header">
+                <div class="ticket-user">
+                    {% if ticket.user.userprofile.profile_photo %}
+                    <img src="{{ ticket.user.userprofile.profile_photo.url }}" class="user-avatar"
+                        alt="{{ ticket.user.username }}">
+                    {% else %}
+                    <img src="https://i.pravatar.cc/150?u={{ ticket.user.username }}" class="user-avatar"
+                        alt="{{ ticket.user.username }}">
+                    {% endif %}
+                    <div class="user-info">
+                        <h4>{{ ticket.user.get_full_name|default:ticket.user.username }}</h4>
+                        <p>{{ ticket.created_at|date:"M d, Y - h:i A" }}</p>
+                    </div>
+                </div>
+                <span
+                    class="ticket-status {% if ticket.is_resolved %}status-resolved{% else %}status-pending{% endif %}">
+                    {% if ticket.is_resolved %}Resolved{% else %}Pending{% endif %}
+                </span>
+            </div>
+
+            <div class="ticket-subject">{{ ticket.subject }}</div>
+            <div class="ticket-message">{{ ticket.message }}</div>
+
+            {% if ticket.is_resolved and ticket.admin_response %}
+            <div class="admin-response-section">
+                <strong style="color: #10b981; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <i class="fa-solid fa-check-circle"></i> Admin Response
+                </strong>
+                <div class="admin-response">{{ ticket.admin_response }}</div>
+            </div>
+            {% else %}
+            <div class="admin-response-section">
+                <form method="post" class="response-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="ticket_id" value="{{ ticket.id }}">
+                    <textarea name="admin_response" placeholder="Type your response to {{ ticket.user.username }}..."
+                        required></textarea>
+                    <button type="submit" class="btn-respond">
+                        <i class="fa-solid fa-paper-plane"></i> Send Response & Mark Resolved
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div
+            style="text-align: center; padding: 5rem; background: var(--white); border-radius: 20px; border: 1px solid var(--border-color);">
+            <i class="fa-solid fa-inbox"
+                style="font-size: 4rem; color: var(--gold); opacity: 0.3; margin-bottom: 2rem;"></i>
+            <h2 style="font-family: 'Cinzel', serif; color: var(--text-muted); margin-bottom: 1rem;">No Support Tickets
+            </h2>
+            <p style="color: var(--text-muted);">All clear! No users have submitted support requests yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+</main>
+{% endblock %}

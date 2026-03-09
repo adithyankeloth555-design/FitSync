@@ -1,0 +1,208 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Why FitSync | The Future of Fitness{% endblock %}
+
+{% block content %}
+<style>
+    .brand-hero {
+        padding: 10rem 2rem 6rem;
+        background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.1), transparent), var(--bg-primary);
+        text-align: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .brand-hero h1 {
+        font-family: 'Cinzel', serif;
+        font-size: 4rem;
+        color: var(--gold);
+        margin-bottom: 1.5rem;
+        letter-spacing: 8px;
+    }
+
+    .brand-hero p {
+        font-size: 1.2rem;
+        color: var(--text-muted);
+        max-width: 800px;
+        margin: 0 auto;
+        line-height: 1.8;
+    }
+
+    .benefits-container {
+        padding: 6rem 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .benefit-row {
+        display: flex;
+        align-items: center;
+        gap: 4rem;
+        margin-bottom: 8rem;
+    }
+
+    .benefit-row:nth-child(even) {
+        flex-direction: row-reverse;
+    }
+
+    .benefit-image {
+        flex: 1;
+        position: relative;
+        border-radius: 4px;
+        overflow: hidden;
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+
+    .benefit-image img {
+        width: 100%;
+        display: block;
+        transition: transform 0.5s ease;
+    }
+
+    .benefit-image:hover img {
+        transform: scale(1.05);
+    }
+
+    .benefit-content {
+        flex: 1;
+    }
+
+    .benefit-icon {
+        font-size: 3rem;
+        color: var(--gold);
+        margin-bottom: 1.5rem;
+    }
+
+    .benefit-content h2 {
+        font-family: 'Cinzel', serif;
+        font-size: 2.5rem;
+        color: #fff;
+        margin-bottom: 1.5rem;
+    }
+
+    .benefit-content p {
+        font-size: 1.1rem;
+        color: var(--text-muted);
+        line-height: 1.8;
+        margin-bottom: 2rem;
+    }
+
+    .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2rem;
+        background: rgba(255, 255, 255, 0.02);
+        padding: 4rem;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        margin: 4rem 0;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-number {
+        font-family: 'Outfit', sans-serif;
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--gold);
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .cta-footer {
+        padding: 8rem 2rem;
+        text-align: center;
+        background: linear-gradient(to bottom, transparent, rgba(212, 175, 55, 0.05));
+    }
+
+    @media (max-width: 992px) {
+        .benefit-row, .benefit-row:nth-child(even) {
+            flex-direction: column;
+            gap: 2rem;
+        }
+        .stat-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .brand-hero h1 {
+            font-size: 2.5rem;
+        }
+    }
+</style>
+
+<div class="brand-hero">
+    <div class="container">
+        <span>THE FITSVNC PHILOSOPHY</span>
+        <h1>ELEVATE YOUR STANDARDS</h1>
+        <p>FitSync isn't just an app; it's a high-performance ecosystem designed for those who refuse to settle. We combine elite human expertise with state-of-the-art artificial intelligence to deliver a transformation experience that is unparalleled in the industry.</p>
+    </div>
+</div>
+
+<div class="benefits-container">
+    {% for benefit in benefits %}
+    <div class="benefit-row">
+        <div class="benefit-image">
+            {% if forloop.counter == 1 %}
+            <img src="https://images.unsplash.com/photo-1593079831268-3381b0db4a77?q=80&w=2069&auto=format&fit=crop" alt="AI Research">
+            {% elif forloop.counter == 2 %}
+            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=2070&auto=format&fit=crop" alt="Trainer Coaching">
+            {% elif forloop.counter == 3 %}
+            <img src="https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=2070&auto=format&fit=crop" alt="Gym Equipment">
+            {% else %}
+            <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=2070&auto=format&fit=crop" alt="Community">
+            {% endif %}
+        </div>
+        <div class="benefit-content">
+            <i class="{{ benefit.icon }} benefit-icon"></i>
+            <h2>{{ benefit.title }}</h2>
+            <p>{{ benefit.description }}</p>
+            <ul style="list-style: none; padding: 0;">
+                <li style="margin-bottom: 1rem; color: #fff; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-check" style="color: var(--gold);"></i> 24/7 Access to Analytics
+                </li>
+                <li style="margin-bottom: 1rem; color: #fff; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-check" style="color: var(--gold);"></i> Science-backed Protocols
+                </li>
+                <li style="margin-bottom: 1rem; color: #fff; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-check" style="color: var(--gold);"></i> Guaranteed Performance Growth
+                </li>
+            </ul>
+        </div>
+    </div>
+    {% endfor %}
+
+    <div class="stat-grid">
+        <div class="stat-item">
+            <span class="stat-number">50K+</span>
+            <span class="stat-label">Active Members</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">98%</span>
+            <span class="stat-label">Success Rate</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">200+</span>
+            <span class="stat-label">Expert Trainers</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">AI 2.0</span>
+            <span class="stat-label">Engine Version</span>
+        </div>
+    </div>
+</div>
+
+<div class="cta-footer">
+    <h2 style="font-family: 'Cinzel', serif; color: #fff; margin-bottom: 2rem; font-size: 2rem;">READY TO JOIN THE ELITE?</h2>
+    <a href="{% url 'signup' %}" class="btn-cta">BECOME A MEMBER</a>
+</div>
+
+{% endblock %}

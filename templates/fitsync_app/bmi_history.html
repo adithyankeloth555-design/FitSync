@@ -1,0 +1,402 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Vitality History | FitSync Elite{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --admin-bg: var(--bg-primary);
+        --sidebar-bg: var(--bg-tertiary);
+        --accent-orange: var(--gold);
+        --text-dark: var(--text-primary);
+        --text-muted: var(--text-muted);
+        --white: var(--bg-secondary);
+        --border-color: var(--border-color);
+    }
+
+    body {
+        background-color: var(--admin-bg);
+        color: var(--text-dark);
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+    }
+
+    .admin-wrapper {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    /* Sidebar removed */
+
+    /* Main Content Area */
+    .main-content {
+        margin: 0 auto;
+        max-width: 1400px;
+        flex-grow: 1;
+        padding: 2.5rem;
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        transition: 0.3s;
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .back-btn:hover {
+        color: var(--accent-orange);
+        transform: translateX(-5px);
+        box-shadow: var(--shadow-glow);
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .header-info h1 {
+        font-family: 'Cinzel', serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--accent-orange);
+        margin: 0;
+    }
+
+    .header-info p {
+        color: var(--text-muted);
+        margin: 0.3rem 0 0 0;
+    }
+
+    /* Table & Charts */
+    .history-card {
+        background: var(--white);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .card-title {
+        padding: 1.5rem 2rem;
+        background: var(--bg-tertiary);
+        border-bottom: 1px solid var(--border-color);
+        font-size: 1rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .modern-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .modern-table th {
+        text-align: left;
+        padding: 1rem 2rem;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        border-bottom: 1px solid var(--border-color);
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    .modern-table td {
+        padding: 1.2rem 2rem;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 800;
+    }
+
+    .status-healthy {
+        background: var(--bg-tertiary);
+        color: #15803d;
+        border: 1px solid rgba(21, 128, 61, 0.3);
+    }
+
+    .status-warning {
+        background: var(--bg-tertiary);
+        color: #854d0e;
+        border: 1px solid rgba(133, 77, 14, 0.3);
+    }
+
+    .status-danger {
+        background: var(--bg-tertiary);
+        color: #991b1b;
+        border: 1px solid rgba(153, 27, 27, 0.3);
+    }
+
+    .chart-container {
+        height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg-tertiary);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+    }
+
+    .btn-primary {
+        background: var(--accent-orange);
+        color: #000;
+        padding: 0.7rem 1.5rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: 0.2s;
+    }
+
+    .btn-primary:hover {
+        opacity: 0.9;
+        box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="main-content">
+    <a href="{% url 'user_dashboard' %}" class="back-btn">
+        <i class="fa-solid fa-arrow-left"></i> RETURN TO PORTAL
+    </a>
+    <header class="page-header">
+        <div class="header-info">
+            <h1>Vitality Progression</h1>
+            <p>Tracking your biometric indices over time for peak optimization.</p>
+        </div>
+
+        <a href="{% url 'bmi_calculator' %}" class="btn-primary">
+            <i class="fa-solid fa-weight-scale"></i> New Calculation
+        </a>
+    </header>
+
+    <div class="history-card">
+        <div class="card-title">Biometric History Logs</div>
+        <table class="modern-table">
+            <thead>
+                <tr>
+                    <th>Recorded Date</th>
+                    <th>BMI Index</th>
+                    <th>Measured Weight</th>
+                    <th>Status Classification</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in history %}
+                <tr>
+                    <td>{{ record.recorded_at|date:"F d, Y" }}</td>
+                    <td style="color: var(--accent-orange); font-family: 'Cinzel', serif;">{{ record.bmi_score }}</td>
+                    <td>{{ record.weight_kg }} kg</td>
+                    <td>
+                        {% if record.bmi_score < 18.5 %} <span class="status-badge status-warning">Underweight</span>
+                            {% elif record.bmi_score < 25 %} <span class="status-badge status-healthy">Healthy</span>
+                                {% elif record.bmi_score < 30 %} <span class="status-badge status-warning">
+                                    Overweight</span>
+                                    {% else %}
+                                    <span class="status-badge status-danger">Obese</span>
+                                    {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" style="padding: 4rem; text-align: center; color: var(--text-muted);">
+                        <i class="fa-solid fa-magnifying-glass"
+                            style="font-size: 2rem; display: block; margin-bottom: 1rem;"></i>
+                        No biometric data points found in your profile history.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="history-card">
+        <div class="card-title">Progression Curve Visualization</div>
+        <div class="chart-container" style="position: relative; height: 400px; width: 100%;">
+            <canvas id="bmiChart"></canvas>
+        </div>
+    </div>
+    <div id="chart-data" style="display: none;"
+        data-history='[{% for record in history reversed %}{"date": "{{ record.recorded_at|date:"M d" }}", "bmi": {{ record.bmi_score }}, "weight": {{ record.weight_kg }}}{% if not forloop.last %},{% endif %}{% endfor %}]'>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('bmiChart').getContext('2d');
+        const dataContainer = document.getElementById('chart-data');
+        const rawData = JSON.parse(dataContainer.dataset.history);
+
+        const dates = rawData.map(item => item.date);
+        const bmiData = rawData.map(item => item.bmi);
+        const weightData = rawData.map(item => item.weight);
+
+        // Gradient for BMI
+        const gradientBMI = ctx.createLinearGradient(0, 0, 0, 400);
+        gradientBMI.addColorStop(0, 'rgba(212, 175, 55, 0.4)');
+        gradientBMI.addColorStop(1, 'rgba(212, 175, 55, 0.0)');
+
+        // Gradient for Weight
+        const gradientWeight = ctx.createLinearGradient(0, 0, 0, 400);
+        gradientWeight.addColorStop(0, 'rgba(52, 211, 153, 0.4)');
+        gradientWeight.addColorStop(1, 'rgba(52, 211, 153, 0.0)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [
+                    {
+                        label: 'BMI Index',
+                        data: bmiData,
+                        borderColor: '#D4AF37', // Gold
+                        backgroundColor: gradientBMI,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#D4AF37',
+                        pointHoverBackgroundColor: '#D4AF37',
+                        pointHoverBorderColor: '#fff',
+                        fill: true,
+                        tension: 0.4,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Weight (kg)',
+                        data: weightData,
+                        borderColor: '#34d399', // Emerald Green
+                        backgroundColor: gradientWeight,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#34d399',
+                        pointHoverBackgroundColor: '#34d399',
+                        pointHoverBorderColor: '#fff',
+                        fill: true,
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            color: '#9ca3af',
+                            font: {
+                                family: "'Outfit', sans-serif",
+                                size: 12
+                            },
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                        titleColor: '#D4AF37',
+                        bodyColor: '#fff',
+                        borderColor: 'rgba(212, 175, 55, 0.3)',
+                        borderWidth: 1,
+                        padding: 12,
+                        titleFont: {
+                            family: "'Cinzel', serif",
+                            size: 14
+                        },
+                        bodyFont: {
+                            family: "'Outfit', sans-serif"
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#6b7280',
+                            font: {
+                                family: "'Outfit', sans-serif"
+                            }
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#D4AF37', // Gold for BMI
+                            font: {
+                                family: "'Outfit', sans-serif"
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'BMI',
+                            color: '#D4AF37'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                        ticks: {
+                            color: '#34d399', // Green for Weight
+                            font: {
+                                family: "'Outfit', sans-serif"
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Weight (kg)',
+                            color: '#34d399'
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

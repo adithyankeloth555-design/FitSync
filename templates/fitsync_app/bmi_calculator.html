@@ -1,0 +1,375 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}BMI Calculator | FitSync Elite{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --admin-bg: var(--bg-primary);
+        --sidebar-bg: var(--bg-tertiary);
+        --accent-orange: var(--gold);
+        --text-dark: var(--text-primary);
+        --text-muted: var(--text-muted);
+        --white: var(--bg-secondary);
+        --border-color: var(--border-color);
+    }
+
+    body {
+        background-color: var(--admin-bg);
+        color: var(--text-dark);
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+    }
+
+    .admin-wrapper {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    /* Sidebar removed */
+
+    /* Main Content Area */
+    .main-content {
+        margin: 0 auto;
+        max-width: 1400px;
+        flex-grow: 1;
+        padding: 2.5rem;
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        transition: 0.3s;
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .back-btn:hover {
+        color: var(--accent-orange);
+        transform: translateX(-5px);
+        box-shadow: var(--shadow-glow);
+    }
+
+    .page-header {
+        margin-bottom: 2.5rem;
+        text-align: center;
+    }
+
+    .header-info h1 {
+        font-family: 'Cinzel', serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--accent-orange);
+        margin: 0;
+    }
+
+    .calc-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        align-items: start;
+    }
+
+    .calc-card {
+        background: var(--white);
+        padding: 2.5rem;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        margin-bottom: 0.6rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 1rem 1.2rem;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 1rem;
+        color: var(--text-primary);
+        outline: none;
+        transition: 0.2s;
+    }
+
+    .form-control:focus {
+        border-color: var(--accent-orange);
+        background: var(--bg-tertiary);
+        box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15);
+    }
+
+    .btn-calc {
+        width: 100%;
+        background: var(--accent-orange);
+        color: #000;
+        border: none;
+        padding: 1.1rem;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-top: 1rem;
+    }
+
+    .btn-calc:hover {
+        background: #ea580c;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(234, 88, 12, 0.4);
+    }
+
+    /* Result UI */
+    .result-display {
+        text-align: center;
+    }
+
+    #bmiValue {
+        font-family: 'Cinzel', serif;
+        font-size: 4rem;
+        font-weight: 900;
+        color: var(--accent-orange);
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    #bmiStatus {
+        font-size: 1.5rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 2rem;
+    }
+
+    /* Progress Meter */
+    .meter-container {
+        position: relative;
+        height: 12px;
+        background: var(--bg-tertiary);
+        border-radius: 50px;
+        margin: 3rem 0;
+        overflow: visible;
+    }
+
+    .meter-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+    }
+
+    .meter-pointer {
+        position: absolute;
+        top: -10px;
+        width: 4px;
+        height: 32px;
+        background: var(--text-primary);
+        border-radius: 2px;
+        transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .bmi-advice {
+        background: var(--bg-tertiary);
+        padding: 1.5rem;
+        border-radius: 12px;
+        border-left: 4px solid var(--accent-orange);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: var(--text-muted);
+        margin-bottom: 2rem;
+    }
+
+    .btn-save {
+        background: var(--text-primary);
+        color: var(--bg-primary);
+        border: none;
+        padding: 0.9rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.2s;
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+
+    .btn-save:hover {
+        opacity: 0.9;
+    }
+
+    .btn-outline {
+        display: block;
+        padding: 0.9rem;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.9rem;
+        transition: 0.2s;
+    }
+
+    .btn-outline:hover {
+        border-color: var(--text-primary);
+        background: var(--bg-tertiary);
+    }
+
+    .placeholder-text {
+        color: var(--text-muted);
+        font-style: italic;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="main-content">
+    <a href="{% url 'user_dashboard' %}" class="back-btn">
+        <i class="fa-solid fa-arrow-left"></i> RETURN TO PORTAL
+    </a>
+    <header class="page-header">
+        <div class="header-info">
+            <h1>BMI Index Calculator</h1>
+            <p>Establishing your biometric baseline for precision training protocols.</p>
+        </div>
+    </header>
+
+    <div class="calc-container">
+        <div class="calc-card">
+            <form id="bmiForm">
+                <div class="form-group">
+                    <label>Body Weight (kg)</label>
+                    <input type="number" id="weight" class="form-control" step="0.1" placeholder="e.g. 75.0" required>
+                </div>
+                <div class="form-group">
+                    <label>Stature Height (cm)</label>
+                    <input type="number" id="height" class="form-control" step="0.1" placeholder="e.g. 180.0" required>
+                </div>
+                <button type="button" onclick="calculateBMI()" class="btn-calc">
+                    <i class="fa-solid fa-calculator"></i> Execute Analysis
+                </button>
+            </form>
+        </div>
+
+        <div class="calc-card result-display" id="resultCard" style="display: none;">
+            <div id="bmiValue">--.-</div>
+            <div id="bmiStatus">--</div>
+
+            <div class="meter-container">
+                <div class="meter-pointer" id="bmiPointer"></div>
+                <div class="meter-labels">
+                    <span>Low</span>
+                    <span>Ideal</span>
+                    <span>High</span>
+                    <span>Risk</span>
+                </div>
+            </div>
+
+            <div class="bmi-advice" id="bmiAdvice">
+                Analytical results pending parameter input.
+            </div>
+
+            {% if user.is_authenticated %}
+            <form method="post" id="saveBmiForm">
+                {% csrf_token %}
+                <input type="hidden" name="weight" id="saveWeight">
+                <input type="hidden" name="height" id="saveHeight">
+                <input type="hidden" name="bmi" id="saveBmi">
+                <button type="submit" class="btn-save">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Save Biometrics
+                </button>
+            </form>
+            {% endif %}
+
+            <a href="{% url 'bmi_history' %}" class="btn-outline">
+                <i class="fa-solid fa-clock-rotate-left"></i> View Vitality History
+            </a>
+        </div>
+
+        <div class="calc-card result-display" id="placeholderCard">
+            <div style="padding: 2rem; color: var(--text-muted);">
+                <i class="fa-solid fa-magnifying-glass-chart fa-4x" style="opacity: 0.1; margin-bottom: 2rem;"></i>
+                <h3>Baseline Analysis Pending</h3>
+                <p>Enter your physiological parameters on the left to begin the architectural analysis.</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    function calculateBMI() {
+        const w = document.getElementById('weight').value;
+        const h = document.getElementById('height').value / 100;
+
+        if (w && h) {
+            const bmi = (w / (h * h)).toFixed(1);
+            document.getElementById('bmiValue').innerText = bmi;
+            document.getElementById('placeholderCard').style.display = 'none';
+            document.getElementById('resultCard').style.display = 'block';
+
+            let status = '';
+            let advice = '';
+            let percent = 0;
+            let statusColor = 'var(--text-dark)';
+
+            if (bmi < 18.5) {
+                status = 'Underweight';
+                advice = 'Your biometric index indicates a requirement for caloric surplus and hypertrophy training focus.';
+                percent = Math.max((bmi / 40) * 100, 5);
+                statusColor = '#854d0e';
+            } else if (bmi < 25) {
+                status = 'Healthy Baseline';
+                advice = 'Optimal physiological state detected. Maintain current training volume and macro-nutrient distribution.';
+                percent = (bmi / 40) * 100;
+                statusColor = '#15803d';
+            } else if (bmi < 30) {
+                status = 'Overweight';
+                advice = 'Biometric indices suggest a requirement for increased cardiovascular activation and metabolic optimization.';
+                percent = (bmi / 40) * 100;
+                statusColor = '#b45309';
+            } else {
+                status = 'High Risk (Obese)';
+                advice = 'Critical biometric threshold reached. Immediate implementation of sustained caloric deficit and metabolic conditioning recommended.';
+                percent = Math.min((bmi / 40) * 100, 95);
+                statusColor = '#991b1b';
+            }
+
+            document.getElementById('bmiStatus').innerText = status;
+            document.getElementById('bmiStatus').style.color = statusColor;
+            document.getElementById('bmiAdvice').innerText = advice;
+            document.getElementById('bmiPointer').style.left = percent + '%';
+
+            if (document.getElementById('saveWeight')) {
+                document.getElementById('saveWeight').value = w;
+                document.getElementById('saveHeight').value = h * 100;
+                document.getElementById('saveBmi').value = bmi;
+            }
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,320 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Training Programs | FitSync Elite{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --sidebar-bg: var(--bg-tertiary);
+        --sidebar-hover: var(--hover-color);
+        --accent-orange: var(--gold);
+        --content-bg: var(--bg-primary);
+        --text-main: var(--text-primary);
+        --text-muted: var(--text-muted);
+        --white: var(--bg-secondary);
+        --card-shadow: var(--shadow-main);
+    }
+
+    body {
+        background-color: var(--content-bg);
+        color: var(--text-main);
+        font-family: 'Outfit', sans-serif;
+        margin: 0;
+        min-height: 100vh;
+    }
+
+    /* Main Content */
+    .main-wrapper {
+        margin: 0 auto;
+        max-width: 1400px;
+        flex-grow: 1;
+        padding: 3rem 4rem;
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        transition: 0.3s;
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .back-btn:hover {
+        color: var(--accent-orange);
+        transform: translateX(-5px);
+        box-shadow: 0 6px 15px rgba(249, 115, 22, 0.15);
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 3rem;
+    }
+
+    .page-title {
+        font-family: 'Cinzel', serif;
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--accent-orange);
+        text-transform: uppercase;
+        margin: 0;
+    }
+
+    .page-subtitle {
+        color: var(--text-muted);
+        font-size: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    /* Programs Grid */
+    .programs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 2.5rem;
+    }
+
+    .program-card {
+        background: var(--white);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(0, 0, 0, 0.02);
+        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .program-card:hover {
+        transform: translateY(-8px);
+        border-color: var(--accent-orange);
+        box-shadow: 0 15px 35px rgba(249, 115, 22, 0.08);
+    }
+
+    .card-banner {
+        height: 200px;
+        position: relative;
+    }
+
+    .card-banner img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .difficulty-tag {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        background: var(--accent-orange);
+        color: #000;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.65rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .card-body {
+        padding: 1.8rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card-body h3 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin: 0 0 0.6rem 0;
+    }
+
+    .card-body p {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 1.8rem;
+    }
+
+    .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1.2rem;
+        border-top: 1px solid var(--border-color);
+        margin-top: auto;
+    }
+
+    .meta-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 700;
+    }
+
+    .meta-info i {
+        color: var(--accent-orange);
+    }
+
+    .btn-action {
+        background: var(--accent-orange);
+        color: #000 !important;
+        text-decoration: none;
+        padding: 0.65rem 1.2rem;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        transition: 0.2s;
+        border: none;
+        cursor: pointer;
+        display: inline-block;
+    }
+
+    .btn-action:hover {
+        background: #ea580c;
+        box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+    }
+
+    .btn-action:disabled {
+        background: #333;
+        color: #666 !important;
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
+    }
+
+    /* Header Actions */
+    .header-btns {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn-secondary {
+        background: var(--bg-tertiary);
+        color: var(--text-main);
+        border: 1px solid var(--border-color);
+        padding: 0.8rem 1.5rem;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-size: 0.9rem;
+    }
+
+    .btn-primary {
+        background: var(--accent-orange);
+        color: #000;
+        padding: 0.8rem 1.5rem;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-size: 0.9rem;
+    }
+
+    .empty-card {
+        grid-column: 1 / -1;
+        background: var(--bg-secondary);
+        padding: 5rem;
+        text-align: center;
+        border-radius: 20px;
+        box-shadow: var(--card-shadow);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="main-wrapper">
+    {% if user.is_authenticated and user.userprofile.role == 'admin' %}
+    <a href="{% url 'admin_dashboard' %}" class="back-btn">
+        {% elif user.is_authenticated and user.userprofile.role == 'trainer' %}
+        <a href="{% url 'trainer_dashboard' %}" class="back-btn">
+            {% else %}
+            <a href="{% url 'user_dashboard' %}" class="back-btn">
+                {% endif %}
+                <i class="fa-solid fa-arrow-left"></i> RETURN TO PORTAL
+            </a>
+
+            <header class="page-header">
+                <div>
+                    <h1 class="page-title">Training Programs</h1>
+                    <p class="page-subtitle">Curated workout protocols to help you reach your peak potential.</p>
+                </div>
+
+                <div class="header-btns">
+                    {% if user.userprofile.role != 'trainer' %}
+                    <a href="{% url 'ai_workout' %}" class="btn-secondary">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> AI Generator
+                    </a>
+                    {% endif %}
+                    {% if user.is_staff or user.userprofile.role == 'trainer' %}
+                    <a href="{% url 'workout_add' %}" class="btn-primary">
+                        <i class="fa-solid fa-plus"></i> New Program
+                    </a>
+                    {% endif %}
+                </div>
+            </header>
+
+            <div class="programs-grid">
+                {% for workout in workouts %}
+                <article class="program-card">
+                    <div class="card-banner">
+                        <img src="{% if workout.asset_file %}{{ workout.asset_file.url }}{% else %}https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=800&q=80{% endif %}"
+                            alt="{{ workout.title }}">
+                        <span class="difficulty-tag">{{ workout.difficulty|title }}</span>
+                    </div>
+
+                    <div class="card-body">
+                        <h3>{{ workout.title }}</h3>
+                        <p>{{ workout.description|truncatewords:18 }}</p>
+
+                        <div class="card-footer">
+                            <div class="meta-info">
+                                <i class="fa-solid fa-calendar-week"></i>
+                                {{ workout.frequency_per_week }}x / Week
+                            </div>
+                            {% if user.userprofile.role != 'trainer' %}
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end;">
+                                {% if already_checked_in %}
+                                <span
+                                    style="font-size: 0.7rem; color: var(--success); font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">
+                                    <i class="fa-solid fa-circle-check"></i> Day Logged
+                                </span>
+                                {% endif %}
+                                <a href="{% url 'workout_session' workout.pk %}" class="btn-action">
+                                    Start Session
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
+                {% empty %}
+                <div class="empty-card">
+                    <i class="fa-solid fa-dumbbell"
+                        style="font-size: 3.5rem; color: #eee; margin-bottom: 1.5rem; display: block;"></i>
+                    <h2 style="font-family: 'Cinzel', serif; color: #999;">No Workouts Found</h2>
+                    <p style="color: #ccc;">Your primary training protocols are currently being architected.</p>
+                </div>
+                {% endfor %}
+            </div>
+</main>
+{% endblock %}

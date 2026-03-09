@@ -1,0 +1,345 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Live Sessions | FitSync Elite{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --ls-bg: #050508;
+        --ls-card: #111118;
+        --ls-accent: #6366f1;
+        --ls-red: #ef4444;
+        --ls-green: #10b981;
+    }
+    
+    .ls-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 4rem 2rem;
+        font-family: 'Space Grotesk', sans-serif;
+    }
+    
+    .ls-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .ls-header h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, white, #999);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .ls-header p {
+        color: #888;
+        font-size: 1.1rem;
+    }
+    
+    /* Trainer Form */
+    .trainer-form-card {
+        background: var(--ls-card);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 4rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    
+    .trainer-form-card h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .trainer-form-card h2 i {
+        color: var(--ls-accent);
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+    
+    .input-grp {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .input-grp label {
+        color: #aaa;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    
+    .input-grp input, .input-grp select {
+        padding: 1rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(0,0,0,0.3);
+        color: white;
+        font-family: inherit;
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.3s;
+    }
+    
+    .input-grp input:focus, .input-grp select:focus {
+        border-color: var(--ls-accent);
+    }
+    
+    .btn-submit {
+        background: var(--ls-accent);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-top: 1.5rem;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-submit:hover {
+        background: #4f46e5;
+        transform: translateY(-2px);
+    }
+    
+    @media (max-width: 768px) {
+        .form-grid { grid-template-columns: 1fr; }
+    }
+    
+    /* Session Grid */
+    .sessions-title {
+        font-size: 1.8rem;
+        margin-bottom: 2rem;
+        color: white;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding-bottom: 1rem;
+    }
+    
+    .sessions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+    
+    .session-card {
+        background: var(--ls-card);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 20px;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+        transition: 0.3s;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .session-card:hover {
+        border-color: rgba(255,255,255,0.1);
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+    }
+    
+    .sc-type {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(99,102,241,0.1);
+        color: var(--ls-accent);
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+    
+    .sc-title {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: white;
+        margin-bottom: 0.5rem;
+        margin-top: 1rem;
+    }
+    
+    .sc-trainer {
+        color: #888;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .sc-details {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .sc-detail {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: white;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+    
+    .sc-detail i {
+        color: var(--ls-red);
+    }
+    
+    .btn-join {
+        background: linear-gradient(135deg, #ef4444, #b91c1c);
+        color: white;
+        text-decoration: none;
+        padding: 1rem;
+        border-radius: 12px;
+        text-align: center;
+        font-weight: 700;
+        font-size: 1rem;
+        transition: 0.3s;
+        margin-top: auto;
+        display: block;
+    }
+    
+    .btn-join:hover {
+        box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
+        color: white;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--ls-card);
+        border-radius: 20px;
+        border: 1px dashed rgba(255,255,255,0.1);
+        color: #888;
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: #444;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ls-container">
+
+    <div class="ls-header">
+        <h1>Live Training Sessions</h1>
+        <p>Join real-time, interactive workouts from anywhere.</p>
+    </div>
+
+    {% if user.userprofile.role == 'trainer' %}
+    <div class="trainer-form-card">
+        <h2><i class="fa-solid fa-calendar-plus"></i> Schedule New Session</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-grid">
+                <div class="input-grp">
+                    <label>Session Title</label>
+                    <input type="text" name="title" placeholder="e.g. Morning Fat Burn" required>
+                </div>
+                
+                <div class="input-grp">
+                    <label>Workout Type</label>
+                    <select name="workout_type">
+                        <option value="Cardio">Cardio / HIIT</option>
+                        <option value="Strength">Strength & Weights</option>
+                        <option value="Yoga">Yoga / Flexibility</option>
+                        <option value="Core">Core / Abs</option>
+                    </select>
+                </div>
+
+                <div class="input-grp">
+                    <label>Date</label>
+                    <input type="date" name="date" required>
+                </div>
+
+                <div class="input-grp">
+                    <label>Time</label>
+                    <input type="time" name="time" required>
+                </div>
+                <div class="input-grp" style="grid-column: 1 / -1;">
+                    <label>Google Meet / Zoom Link</label>
+                    <input type="url" name="meeting_link" placeholder="https://meet.google.com/abc-defg-hij" required>
+                    <small style="color:#666;font-size:0.8rem;">Create a Google Meet → copy the link → paste it here. Members will be redirected directly when they click <strong>Join Session</strong>.</small>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-submit">
+                <i class="fa-solid fa-video"></i> Create Live Session
+            </button>
+        </form>
+    </div>
+    {% endif %}
+
+    <h2 class="sessions-title">Upcoming Sessions</h2>
+    
+    {% if sessions %}
+    <div class="sessions-grid">
+        {% for session in sessions %}
+        <div class="session-card">
+            <div class="sc-type">{{ session.workout_type }}</div>
+            <div class="sc-title">{{ session.session_title }}</div>
+            <div class="sc-trainer"><i class="fa-solid fa-dumbbell"></i> Instructor: {{ session.trainer_name }}</div>
+            
+            <div class="sc-details">
+                <div class="sc-detail">
+                    <i class="fa-regular fa-calendar"></i> {{ session.date|date:"D, d M" }}
+                </div>
+                <div class="sc-detail">
+                    <i class="fa-regular fa-clock"></i> {{ session.time|time:"h:i A" }}
+                </div>
+            </div>
+            
+            <a href="{{ session.meeting_link }}" target="_blank" rel="noopener noreferrer" class="btn-join">
+                <i class="fa-brands fa-google"></i> Join on Google Meet
+            </a>
+            
+            {% if user.userprofile.role == 'trainer' or user.is_staff or user.userprofile.role == 'admin' %}
+            <form method="post" action="{% url 'delete_live_session' session.id %}" style="margin-top: 0.75rem;" onsubmit="return confirm('Are you sure you want to cancel this live session?');">
+                {% csrf_token %}
+                <button type="submit" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(239, 68, 68, 0.4); color: #ef4444; padding: 0.6rem; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.1)'; this.style.borderColor='#ef4444';" onmouseout="this.style.background='rgba(0,0,0,0.3)'; this.style.borderColor='rgba(239, 68, 68, 0.4)';">
+                    <i class="fa-solid fa-trash-can"></i> Cancel Session
+                </button>
+            </form>
+            {% endif %}
+
+            <div style="margin-top: 0.75rem; font-size: 0.75rem; color: #555; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ session.meeting_link }}">
+                <i class="fa-solid fa-link" style="color: #444;"></i> {{ session.meeting_link }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fa-solid fa-calendar-xmark"></i>
+        <h3>No Upcoming Sessions</h3>
+        <p>There are no live sessions scheduled right now. Check back later!</p>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

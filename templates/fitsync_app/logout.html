@@ -1,0 +1,92 @@
+{% extends 'fitsync_app/base.html' %}
+
+{% block title %}Logged Out | FitSync{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+    }
+
+    .logout-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .logout-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        padding: 4rem 3rem;
+        border-radius: 24px;
+        box-shadow: var(--shadow-main);
+        max-width: 500px;
+        width: 100%;
+    }
+
+    .text-gold {
+        color: var(--gold);
+        font-family: var(--font-heading);
+        font-size: 2rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 1.5rem;
+    }
+
+    .text-muted {
+        color: var(--text-muted);
+        margin-bottom: 2.5rem;
+        line-height: 1.6;
+    }
+
+    .btn-gold {
+        background: var(--gold);
+        color: #000;
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 800;
+        transition: 0.3s;
+        display: inline-block;
+    }
+
+    .btn-gold:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-glow);
+    }
+
+    .btn-outline {
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 700;
+        transition: 0.3s;
+        display: inline-block;
+        margin-right: 1rem;
+    }
+
+    .btn-outline:hover {
+        background: var(--bg-tertiary);
+        border-color: var(--text-primary);
+    }
+</style>
+
+<div class="logout-container">
+    <div class="logout-card">
+        <i class="fa-solid fa-person-running fa-4x"
+            style="color: var(--gold); opacity: 0.2; margin-bottom: 2rem; display: block;"></i>
+        <h2 class="text-gold">You Have Been Logged Out</h2>
+        <p class="text-muted">Thank you for training with FitSync. Your progress has been saved. See you next session!
+        </p>
+
+        <a href="{% url 'login' %}" class="btn-outline">Login Again</a>
+        <a href="{% url 'home' %}" class="btn-gold">Return Home</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,537 @@
+﻿{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Member Database | FitSync{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --admin-bg: var(--bg-primary);
+        --sidebar-bg: var(--bg-tertiary);
+        --accent-orange: var(--gold);
+        --text-dark: var(--text-primary);
+        --text-muted: var(--text-muted);
+        --white: var(--bg-secondary);
+        --border-color: var(--border-color);
+    }
+
+    body {
+        background-color: var(--admin-bg);
+        color: var(--text-dark);
+        font-family: 'Outfit', sans-serif;
+        margin: 0;
+    }
+
+    .admin-wrapper {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    /* Sidebar Styles (Shared for both Admin and Trainer) */
+    .sidebar {
+        width: 280px;
+        background: var(--sidebar-bg);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        height: 100vh;
+        z-index: 1001; transition: transform 0.3s ease;
+        border-right: 1px solid var(--border-color);
+        padding: 0;
+    }
+
+    .sidebar-header {
+        padding: 2rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 1rem;
+    }
+
+    .admin-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--gold);
+    }
+
+    .admin-name {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--gold);
+        display: block;
+    }
+
+    .admin-role {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
+    .sidebar-menu {
+        padding: 1rem 0.8rem;
+        list-style: none;
+        flex-grow: 1;
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.9rem 1.2rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.95rem;
+        border-radius: 12px;
+        margin-bottom: 0.5rem;
+        transition: all 0.3s;
+        font-weight: 600;
+    }
+
+    .menu-item:hover {
+        color: var(--gold);
+        background: rgba(212, 175, 55, 0.1);
+        transform: translateX(5px);
+    }
+
+    .menu-item.active {
+        background: var(--gold);
+        color: #000;
+    }
+
+    .menu-item i {
+        width: 20px;
+        text-align: center;
+    }
+
+    .logout-box {
+        padding: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    /* Main Content Area */
+    .main-content {
+        margin-left: 280px;
+        flex-grow: 1;
+        padding: 3rem;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 3rem;
+    }
+
+    .page-title {
+        font-family: var(--font-heading);
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: var(--gold);
+        margin: 0;
+    }
+
+    /* Actions Bar */
+    .actions-bar {
+        background: var(--white);
+        padding: 1.5rem;
+        border-radius: 20px;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .search-wrapper {
+        position: relative;
+        flex-grow: 1;
+        max-width: 400px;
+    }
+
+    .search-wrapper i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.8rem 1rem 0.8rem 3rem;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        font-size: 1rem;
+        outline: none;
+        transition: 0.3s;
+    }
+
+    .search-input:focus {
+        border-color: var(--gold);
+    }
+
+    .btn-export {
+        background: rgba(212, 175, 55, 0.1);
+        border: 1px solid var(--gold);
+        padding: 0.8rem 1.5rem;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: 0.2s;
+        text-decoration: none;
+        color: var(--gold);
+    }
+
+    .btn-export:hover {
+        background: var(--gold);
+        color: #000;
+    }
+
+    /* Table Design */
+    .data-card {
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+    }
+
+    .premium-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .premium-table th {
+        background: var(--bg-tertiary);
+        padding: 1.2rem 1.5rem;
+        text-align: left;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        letter-spacing: 1px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .premium-table td {
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        vertical-align: middle;
+        font-size: 0.95rem;
+    }
+
+    .premium-table tr:hover td {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .user-pill {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .u-img {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--gold);
+    }
+
+    .user-info .name {
+        font-weight: 700;
+        font-size: 1rem;
+        display: block;
+        color: var(--text-primary);
+    }
+
+    .user-info .email {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
+    .status-badge {
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .status-active {
+        background: rgba(52, 211, 153, 0.1);
+        color: #34d399;
+        border: 1px solid rgba(52, 211, 153, 0.2);
+    }
+
+    .status-inactive {
+        background: rgba(248, 113, 113, 0.1);
+        color: #f87171;
+        border: 1px solid rgba(248, 113, 113, 0.2);
+    }
+
+    .action-icons {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .action-btn {
+        color: var(--text-muted);
+        font-size: 1.2rem;
+        transition: 0.2s;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: var(--bg-tertiary);
+    }
+
+    .action-btn:hover {
+        color: var(--gold);
+        background: rgba(212, 175, 55, 0.1);
+        transform: translateY(-2px);
+    }
+
+    /* Mobile Responsive dynamically injected */
+    @media (max-width: 1024px) {
+        .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
+        .main-content, .main-area, .content-area { margin-left: 0 !important; padding: 1.5rem !important; padding-top: 4.5rem !important; }
+        .page-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+        .actions-bar { flex-direction: column; width: 100%; gap: 1rem; }
+        .search-wrapper { max-width: 100%; width: 100%; }
+        .premium-table { display: block; overflow-x: auto; white-space: nowrap; }
+    }
+    @media (max-width: 768px) {
+        .main-content, .main-area, .content-area { padding: 1rem !important; padding-top: 4.5rem !important; }
+        .page-title { font-size: 1.8rem; }
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-wrapper">
+    <!-- Dynamic Sidebar -->
+    
+    <!-- Mobile Hamburger Button -->
+    <button class="hamburger-btn" id="hamburger-btn" aria-label="Toggle Menu">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <aside class="sidebar" id="sidebar" >
+        <div class="sidebar-header">
+            {% if user.userprofile.profile_photo %}
+            <img src="{{ user.userprofile.profile_photo.url }}" class="admin-avatar" alt="User">
+            {% else %}
+            <img src="https://i.pravatar.cc/150?u={{ user.username }}" class="admin-avatar" alt="User">
+            {% endif %}
+            <div class="admin-info">
+                <span class="admin-name">{{ user.get_full_name|default:user.username }}</span>
+                {% if user.userprofile.role == 'trainer' %}
+                <span class="admin-role">Elite Trainer</span>
+                {% else %}
+                <span class="admin-role">System Admin</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <nav class="sidebar-menu">
+            {% if user.userprofile.role == 'trainer' %}
+            <!-- Trainer Menu -->
+            <a href="{% url 'trainer_dashboard' %}" class="menu-item">
+                <i class="fa-solid fa-gauge"></i> Dashboard
+            </a>
+            <a href="{% url 'report_members' %}" class="menu-item active">
+                <i class="fa-solid fa-users"></i> All Members
+            </a>
+            <a href="{% url 'workout_list' %}" class="menu-item">
+                <i class="fa-solid fa-dumbbell"></i> Workout Plans
+            </a>
+            <a href="{% url 'diet_list' %}" class="menu-item">
+                <i class="fa-solid fa-utensils"></i> Diet Plans
+            </a>
+            <a href="{% url 'video_gallery' %}" class="menu-item">
+                <i class="fa-solid fa-film"></i> Upload Videos
+            </a>
+            <a href="{% url 'messages' %}" class="menu-item">
+                <i class="fa-solid fa-message"></i> Messages
+            </a>
+            {% else %}
+            <!-- Admin Menu -->
+            <a href="{% url 'admin_dashboard' %}" class="menu-item">
+                <i class="fa-solid fa-house"></i> Dashboard
+            </a>
+            <a href="{% url 'report_members' %}" class="menu-item active">
+                <i class="fa-solid fa-users"></i> Users
+            </a>
+            <a href="{% url 'trainer_list' %}" class="menu-item">
+                <i class="fa-solid fa-user-tie"></i> Trainers
+            </a>
+            <a href="{% url 'subscription_plans' %}" class="menu-item">
+                <i class="fa-solid fa-box"></i> Subscriptions
+            </a>
+            <a href="{% url 'report_payments' %}" class="menu-item">
+                <i class="fa-solid fa-credit-card"></i> Payments
+            </a>
+            <a href="{% url 'report_attendance' %}" class="menu-item">
+                <i class="fa-solid fa-chart-line"></i> Reports
+            </a>
+            {% endif %}
+        </nav>
+
+        <div class="logout-box">
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="menu-item"
+                    style="background: none; border: none; width: 100%; cursor: pointer; text-align: left;">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Member Database</h1>
+            <div class="header-actions">
+                <span
+                    style="font-size: 0.9rem; color: var(--gold); border: 1px solid var(--gold); padding: 0.5rem 1rem; border-radius: 50px;">
+                    <i class="fa-solid fa-signal"></i> Active Records: {{ members|length }}
+                </span>
+            </div>
+        </div>
+
+        <div class="actions-bar">
+            <div class="search-wrapper">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" class="search-input" placeholder="Search by name, email, or goal...">
+            </div>
+            <a href="{% url 'report_download' %}" class="btn-export">
+                <i class="fa-solid fa-file-csv"></i> Export Data
+            </a>
+        </div>
+
+        <div class="data-card">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>Member Profile</th>
+                        <th>Status</th>
+                        <th>Role / Plan</th>
+                        <th>Joined Date</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for profile in members %}
+                    <tr>
+                        <td>
+                            <div class="user-pill">
+                                {% if profile.profile_photo %}
+                                <img src="{{ profile.profile_photo.url }}" class="u-img" alt="">
+                                {% else %}
+                                <img src="https://i.pravatar.cc/150?u={{ profile.user.username }}" class="u-img" alt="">
+                                {% endif %}
+                                <div class="user-info">
+                                    <span class="name">
+                                        {{ profile.user.get_full_name|default:profile.user.username|title }}
+                                    </span>
+                                    <span class="email">{{ profile.user.email }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span
+                                class="status-badge {% if profile.user.is_active %}status-active{% else %}status-inactive{% endif %}">
+                                {% if profile.user.is_active %}Active{% else %}Inactive{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <span style="color: var(--text-primary); font-weight: 600;">{{ profile.role|title }}</span>
+                            {% if profile.role == 'member' %}
+                            <span style="color: var(--text-muted); font-size: 0.8rem; display: block;">Elite Plan</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span style="color: var(--text-muted); font-size: 0.9rem;">
+                                {{ profile.user.date_joined|date:"M d, Y" }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-icons" style="justify-content: flex-end;">
+                                <a href="{% url 'messages' %}?user_id={{ profile.user.id }}" class="action-btn"
+                                    title="Message">
+                                    <i class="fa-solid fa-comment-dots"></i>
+                                </a>
+                                <a href="#" class="action-btn" title="View Profile">
+                                    <i class="fa-solid fa-address-card"></i>
+                                </a>
+                                {% if user.userprofile.role == 'admin' %}
+                                <a href="#" class="action-btn" title="Edit Settings">
+                                    <i class="fa-solid fa-gear"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 4rem; color: var(--text-muted);">
+                            <i class="fa-solid fa-user-slash"
+                                style="font-size: 3rem; display: block; margin-bottom: 1.5rem; opacity: 0.3; color: var(--gold);"></i>
+                            No members found in the database.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Sidebar toggle for mobile
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
+    if (hamburgerBtn && sidebar && overlay) {
+        const hamburgerIcon = hamburgerBtn.querySelector('i');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            if (sidebar.classList.contains('open')) {
+                hamburgerIcon.classList.replace('fa-bars', 'fa-xmark');
+            } else {
+                hamburgerIcon.classList.replace('fa-xmark', 'fa-bars');
+            }
+        }
+
+        hamburgerBtn.addEventListener('click', toggleSidebar);
+        overlay.addEventListener('click', toggleSidebar);
+    }
+</script>
+
+{% endblock %}

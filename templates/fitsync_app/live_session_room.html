@@ -1,0 +1,575 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Live Trainer Session | FitSync Elite{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --ls-bg: #050508;
+        --ls-card: #111118;
+        --ls-accent: #6366f1;
+        --ls-red: #ef4444;
+        --ls-green: #10b981;
+    }
+    body { background: var(--ls-bg); color: #e0e0e0; font-family: 'Space Grotesk', sans-serif; margin: 0; min-height: 100vh; overflow: hidden; }
+
+    .live-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        height: 100vh;
+    }
+
+    /* ── LEFT: VIDEO MAT ─────────────────────────────────────────────── */
+    .video-section {
+        position: relative;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 10;
+        background: rgba(17,17,24,0.6);
+        backdrop-filter: blur(10px);
+        padding: 0.75rem 1.5rem;
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .brand { font-size: 1.2rem; font-weight: 800; color: white; display:flex; align-items:center; gap: 0.5rem; }
+    .brand i { color: var(--ls-red); animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+
+    .back-btn { color: #888; text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.3s; }
+    .back-btn:hover { color: white; }
+
+    .main-video-container {
+        flex-grow: 1;
+        position: relative;
+        border-radius: 20px;
+        overflow: hidden;
+        background: #000;
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+    
+    .video-placeholder {
+        width: 100%; height: 100%;
+        object-fit: cover;
+        opacity: 0.8;
+    }
+
+    .trainer-badge {
+        position: absolute;
+        top: 1.5rem;
+        left: 1.5rem;
+        background: rgba(0,0,0,0.6);
+        backdrop-filter: blur(8px);
+        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.1);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .trainer-badge .indicator { width: 8px; height: 8px; background: var(--ls-green); border-radius: 50%; box-shadow: 0 0 10px var(--ls-green); }
+    .trainer-badge span { font-weight: 700; color: white; font-size: 0.9rem; }
+
+    .my-video {
+        position: absolute;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        width: 240px;
+        height: 160px;
+        border-radius: 16px;
+        background: #1a1a24;
+        border: 2px solid rgba(255,255,255,0.1);
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+    .my-video img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.8); }
+    .my-name { position: absolute; bottom: 0.5rem; left: 0.5rem; font-size: 0.75rem; background: rgba(0,0,0,0.7); padding: 0.2rem 0.6rem; border-radius: 6px; }
+
+    /* Controls */
+    .controls-bar {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1rem;
+        background: rgba(17,17,24,0.6);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .ctrl-btn {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: white;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .ctrl-btn:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+    .ctrl-btn.off { background: rgba(239,68,68,0.15); color: #ef4444; border-color: rgba(239,68,68,0.3); }
+    
+    .leave-btn {
+        padding: 0 2rem;
+        height: 52px;
+        border-radius: 26px;
+        background: var(--ls-red);
+        color: white;
+        border: none;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .leave-btn:hover { background: #dc2626; box-shadow: 0 0 20px rgba(239,68,68,0.4); }
+
+    /* ── RIGHT: SIDEBAR ──────────────────────────────────────────────── */
+    .sidebar {
+        background: var(--ls-card);
+        border-left: 1px solid rgba(255,255,255,0.05);
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+    }
+
+    .tab-header {
+        display: flex;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .tab-btn {
+        flex: 1;
+        background: none;
+        border: none;
+        color: #888;
+        padding: 1.25rem 0;
+        font-size: 0.9rem;
+        font-weight: 700;
+        font-family: inherit;
+        cursor: pointer;
+        transition: 0.3s;
+        border-bottom: 2px solid transparent;
+    }
+
+    .tab-btn.active { color: var(--ls-accent); border-bottom-color: var(--ls-accent); background: rgba(99,102,241,0.05); }
+
+    .tab-content { padding: 1.5rem; flex-grow: 1; overflow-y: auto; display: none; }
+    .tab-content.active { display: block; animation: fade 0.3s ease; }
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+    /* Participants */
+    .part-list { list-style: none; padding: 0; margin: 0; }
+    .part-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .part-av { width: 36px; height: 36px; border-radius: 50%; background: #2a2a35; display:flex; align-items:center; justify-content:center; font-weight:700; color:#aaa; font-size:0.8rem; }
+    .part-name { flex-grow: 1; font-size: 0.9rem; font-weight: 600; color: #ccc; }
+    .part-icons { color: #555; font-size: 0.8rem; display:flex; gap:0.5rem; }
+
+    /* Workout Info */
+    .workout-panel {
+        background: rgba(99,102,241,0.05);
+        border: 1px solid rgba(99,102,241,0.2);
+        border-radius: 16px;
+        padding: 1.5rem;
+    }
+    .wp-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: #818cf8; font-weight: 800; margin-bottom: 1.5rem; }
+    .wp-trainer { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .wp-trainer img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
+    .wp-trainer-info h4 { margin:0 0 0.2rem; font-size:1.1rem; }
+    .wp-trainer-info p { margin:0; font-size:0.8rem; color:#888; }
+    
+    .wp-list { list-style:none; padding:0; margin:0; }
+    .wp-list li {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 0;
+        color: #ddd;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+    .wp-list li::before { content: '•'; color: var(--ls-accent); font-size: 1.5rem; line-height: 0;}
+    .wp-list li.done { color: #555; text-decoration: line-through; }
+    .wp-list li.done::before { color: #555; }
+    .wp-list li.active-ex { color: var(--ls-green); }
+    .wp-list li.active-ex::before { color: var(--ls-green); }
+
+    /* Chat */
+    .chat-container { display: flex; flex-direction: column; height: 100%; }
+    .chat-messages { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1rem; padding-right: 0.5rem; }
+    
+    .msg { display: flex; flex-direction: column; gap: 0.2rem; }
+    .msg-header { display: flex; align-items:center; gap: 0.5rem; font-size: 0.75rem; }
+    .msg-name { font-weight: 700; color: #aaa; }
+    .msg-time { color: #555; }
+    .msg-bubble { background: rgba(255,255,255,0.05); padding: 0.75rem 1rem; border-radius: 0 12px 12px 12px; font-size: 0.9rem; color: #eee; width: fit-content;}
+    
+    .msg.me .msg-header { flex-direction: row-reverse; }
+    .msg.me .msg-bubble { background: rgba(99,102,241,0.2); color: #c7d2fe; border-radius: 12px 0 12px 12px; align-self: flex-end; border: 1px solid rgba(99,102,241,0.3); }
+    .msg.system .msg-bubble { background: none; color: #888; font-style: italic; font-size: 0.8rem; text-align: center; width: 100%; border: none; padding: 0.2rem;}
+
+    .chat-input {
+        display: flex;
+        gap: 0.5rem;
+        background: rgba(0,0,0,0.2);
+        border: 1px solid rgba(255,255,255,0.1);
+        padding: 0.5rem;
+        border-radius: 12px;
+    }
+    .chat-input input {
+        flex-grow: 1;
+        background: none;
+        border: none;
+        color: white;
+        font-family: inherit;
+        font-size: 0.9rem;
+        padding: 0 0.5rem;
+        outline: none;
+    }
+    .chat-input button {
+        background: var(--ls-accent);
+        border: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @media (max-width: 900px) {
+        .live-wrapper { grid-template-columns: 1fr; grid-template-rows: 60vh 40vh; }
+        .sidebar { border-left: none; border-top: 1px solid rgba(255,255,255,0.05); }
+        body { overflow: auto; }
+        .my-video { width: 120px; height: 80px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="live-wrapper">
+    
+    <!-- Video Match Area -->
+    <div class="video-section">
+        
+        <div class="top-bar">
+            <div class="brand"><i class="fa-solid fa-circle"></i> {{ session.session_title }}</div>
+            <a href="{% if user.userprofile.role == 'trainer' %}{% url 'trainer_dashboard' %}{% else %}{% url 'user_dashboard' %}{% endif %}" class="back-btn">Go Dashboard</a>
+        </div>
+
+        <div class="main-video-container">
+            <!-- Simulated Trainer Screen -->
+            {% if user.userprofile.role == 'trainer' %}
+            <div style="width:100%; height:100%; background:#111; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#555; position:absolute; z-index:1;" id="mainCamOffOverlay">
+                <i class="fa-solid fa-video-slash" style="font-size: 5rem; margin-bottom: 1rem;"></i>
+                <p>Camera is off</p>
+            </div>
+            <video autoplay playsinline muted class="video-placeholder" id="mainTrainerCam" style="opacity: 0; transform: scaleX(-1); object-fit: cover;"></video>
+            
+            <div class="trainer-badge">
+                <div class="indicator" style="background: var(--ls-red); box-shadow: 0 0 10px var(--ls-red);"></div>
+                <span>YOU ARE LIVE ({{ session.trainer_name }})</span>
+            </div>
+            {% else %}
+            <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80" class="video-placeholder" alt="Trainer">
+            
+            <div class="trainer-badge">
+                <div class="indicator"></div>
+                <span>{{ session.trainer_name }}</span>
+            </div>
+
+            <!-- Simulated User Camera -->
+            <div class="my-video" id="myVideoContainer">
+                <div style="width:100%; height:100%; background:#222; display:flex; align-items:center; justify-content:center; color:#555; position:absolute; z-index:1;" id="camOffOverlay">
+                    <i class="fa-solid fa-video-slash" style="font-size: 2rem;"></i>
+                </div>
+                <!-- Video element for local camera -->
+                <video autoplay playsinline muted id="camStream" style="opacity: 0; transform: scaleX(-1); width: 100%; height: 100%; object-fit: cover;"></video>
+                <div class="my-name">You ({{ user.username }})</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="controls-bar">
+            <button class="ctrl-btn off" id="micBtn" onclick="toggleMic()">
+                <i class="fa-solid fa-microphone-slash"></i>
+            </button>
+            <button class="ctrl-btn off" id="camBtn" onclick="toggleCam()">
+                <i class="fa-solid fa-video-slash"></i>
+            </button>
+            <div style="width: 1px; height: 30px; background: rgba(255,255,255,0.1); margin: 0 0.5rem;"></div>
+            <a href="{% if user.userprofile.role == 'trainer' %}{% url 'trainer_dashboard' %}{% else %}{% url 'user_dashboard' %}{% endif %}" class="leave-btn">
+                <i class="fa-solid fa-phone-slash"></i> {% if user.userprofile.role == 'trainer' %}End Session{% else %}Leave{% endif %}
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Right Sidebar -->
+    <div class="sidebar">
+        
+        <div class="tab-header">
+            <button class="tab-btn active" onclick="switchTab('workout')"><i class="fa-solid fa-clipboard-list"></i> Workout</button>
+            <button class="tab-btn" onclick="switchTab('chat')"><i class="fa-solid fa-message"></i> Chat</button>
+            <button class="tab-btn" onclick="switchTab('people')"><i class="fa-solid fa-users"></i> People (12)</button>
+        </div>
+
+        <!-- Workout Tab -->
+        <div class="tab-content active" id="tab-workout">
+            <div class="workout-panel">
+                <div class="wp-title">Current Routine</div>
+                
+                <div class="wp-trainer">
+                    <img src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Trainer">
+                    <div class="wp-trainer-info">
+                        <h4>{{ session.trainer_name }}</h4>
+                        <p>{{ session.workout_type|default:"General Fitness" }} Instructor</p>
+                    </div>
+                </div>
+
+                <ul class="wp-list">
+                    <li class="done">Warmup (5 mins)</li>
+                    <li class="done">Jumping Jacks (30 reps)</li>
+                    <li class="active-ex">20 Squats <span style="font-size:0.75rem; background:var(--ls-green); color:#000; padding:2px 6px; border-radius:4px; margin-left:auto;">Now</span></li>
+                    <li>15 Pushups</li>
+                    <li>30 sec Plank</li>
+                    <li>Burpees (10 reps)</li>
+                    <li>Cool Down Stretch (5 mins)</li>
+                </ul>
+            </div>
+            
+            <div style="margin-top: 1.5rem; text-align: center;">
+                <div style="font-size: 2.5rem; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums;" id="timer">04:32</div>
+                <div style="font-size: 0.8rem; color: #888; text-transform: uppercase;">Session Time</div>
+            </div>
+        </div>
+
+        <!-- Chat Tab -->
+        <div class="tab-content" id="tab-chat">
+            <div class="chat-container">
+                <div class="chat-messages" id="chatWindow">
+                    <div class="msg system"><div class="msg-bubble">Session recording started</div></div>
+                    
+                    <div class="msg">
+                        <div class="msg-header">
+                            <span class="msg-name">Anita Desai</span> <span class="msg-time">10:02 AM</span>
+                        </div>
+                        <div class="msg-bubble">Good morning everyone!</div>
+                    </div>
+                    
+                    <div class="msg">
+                        <div class="msg-header">
+                            <span class="msg-name">{{ session.trainer_name }} (Host)</span> <span class="msg-time">10:04 AM</span>
+                        </div>
+                        <div class="msg-bubble">Welcome guys. Let's start with a quick warmup. Keep your water bottles ready.</div>
+                    </div>
+
+                    <div class="msg">
+                        <div class="msg-header">
+                            <span class="msg-name">Vikram S.</span> <span class="msg-time">10:15 AM</span>
+                        </div>
+                        <div class="msg-bubble">My legs are burning already 🔥</div>
+                    </div>
+                </div>
+                
+                <div class="chat-input border-t border-gray-700">
+                    <input type="text" placeholder="Message everyone..." id="chatInput" onkeypress="if(event.key === 'Enter') sendMsg()">
+                    <button onclick="sendMsg()"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- People Tab -->
+        <div class="tab-content" id="tab-people">
+            <ul class="part-list">
+                <li class="part-item">
+                    <div class="part-av" style="background:#10b981; color:#000;">{{ session.trainer_name|make_list|first|upper }}</div>
+                    <div class="part-name">{{ session.trainer_name }} (Host)</div>
+                    <div class="part-icons"><i class="fa-solid fa-microphone"></i> <i class="fa-solid fa-video"></i></div>
+                </li>
+                <li class="part-item">
+                    <div class="part-av" style="background:#6366f1; color:#fff;">{{ user.username|make_list|first|upper }}</div>
+                    <div class="part-name">You ({{ user.username }})</div>
+                    <div class="part-icons" id="myStatusList"><i class="fa-solid fa-microphone-slash"></i> <i class="fa-solid fa-video-slash"></i></div>
+                </li>
+                <li class="part-item">
+                    <div class="part-av">A</div>
+                    <div class="part-name">Anita Desai</div>
+                    <div class="part-icons"><i class="fa-solid fa-microphone-slash"></i> <i class="fa-solid fa-video"></i></div>
+                </li>
+                <li class="part-item">
+                    <div class="part-av">V</div>
+                    <div class="part-name">Vikram Singh</div>
+                    <div class="part-icons"><i class="fa-solid fa-microphone-slash"></i> <i class="fa-solid fa-video"></i></div>
+                </li>
+                <li class="part-item">
+                    <div class="part-av">S</div>
+                    <div class="part-name">Sneha Patel</div>
+                    <div class="part-icons"><i class="fa-solid fa-microphone-slash"></i> <i class="fa-solid fa-video-slash"></i></div>
+                </li>
+            </ul>
+        </div>
+        
+    </div>
+</div>
+
+<script>
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        
+        document.getElementById(`tab-${tabId}`).classList.add('active');
+        event.currentTarget.classList.add('active');
+        
+        if (tabId === 'chat') {
+            const w = document.getElementById('chatWindow');
+            w.scrollTop = w.scrollHeight;
+        }
+    }
+
+    let micOn = false;
+    function toggleMic() {
+        micOn = !micOn;
+        const btn = document.getElementById('micBtn');
+        if(micOn) {
+            btn.classList.remove('off');
+            btn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+        } else {
+            btn.classList.add('off');
+            btn.innerHTML = '<i class="fa-solid fa-microphone-slash"></i>';
+        }
+        
+        // If local stream exists, toggle audio track
+        if (localStream) {
+            localStream.getAudioTracks().forEach(track => {
+                track.enabled = micOn;
+            });
+        }
+        updateStatus();
+    }
+
+    let camOn = false;
+    let localStream = null;
+    
+    async function toggleCam() {
+        camOn = !camOn;
+        const btn = document.getElementById('camBtn');
+        
+        // Dynamic based on role UI
+        const isTrainer = "{{ user.userprofile.role }}" === "trainer";
+        
+        const overlay = document.getElementById(document.getElementById('mainCamOffOverlay') ? 'mainCamOffOverlay' : 'camOffOverlay');
+        const stream = document.getElementById(document.getElementById('mainTrainerCam') ? 'mainTrainerCam' : 'camStream');
+        
+        if(camOn) {
+            btn.classList.remove('off');
+            btn.innerHTML = '<i class="fa-solid fa-video"></i>';
+            if(overlay) overlay.style.display = 'none';
+            if(stream) stream.style.opacity = '1';
+
+            try {
+                if (!localStream) {
+                    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    // Sync initial mic state
+                    localStream.getAudioTracks().forEach(track => track.enabled = micOn);
+                }
+                if(stream) {
+                    stream.srcObject = localStream;
+                }
+            } catch (err) {
+                console.error("Camera access denied:", err);
+                alert("Please allow camera access to use this feature.");
+                // Revert UI
+                camOn = false;
+                btn.classList.add('off');
+                btn.innerHTML = '<i class="fa-solid fa-video-slash"></i>';
+                if(overlay) overlay.style.display = 'flex';
+                if(stream) stream.style.opacity = '0';
+            }
+        } else {
+            btn.classList.add('off');
+            btn.innerHTML = '<i class="fa-solid fa-video-slash"></i>';
+            if(overlay) overlay.style.display = 'flex';
+            
+            if(stream) {
+                stream.style.opacity = '0';
+                stream.srcObject = null;
+            }
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+        }
+        updateStatus();
+    }
+
+    function updateStatus() {
+        const iconContainer = document.getElementById('myStatusList');
+        const micIcon = micOn ? '<i class="fa-solid fa-microphone"></i>' : '<i class="fa-solid fa-microphone-slash"></i>';
+        const camIcon = camOn ? '<i class="fa-solid fa-video"></i>' : '<i class="fa-solid fa-video-slash"></i>';
+        iconContainer.innerHTML = `${micIcon} ${camIcon}`;
+    }
+
+    function sendMsg() {
+        const i = document.getElementById('chatInput');
+        const val = i.value.trim();
+        if(!val) return;
+        
+        const w = document.getElementById('chatWindow');
+        const now = new Date();
+        const time = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        
+        const markup = `
+            <div class="msg me">
+                <div class="msg-header">
+                    <span class="msg-name">You</span> <span class="msg-time">${time}</span>
+                </div>
+                <div class="msg-bubble">${val}</div>
+            </div>
+        `;
+        w.insertAdjacentHTML('beforeend', markup);
+        i.value = '';
+        w.scrollTop = w.scrollHeight;
+    }
+
+    // Timer simulation
+    let sec = 272; // 04:32
+    setInterval(() => {
+        sec++;
+        const mins = Math.floor(sec / 60).toString().padStart(2, '0');
+        const secs = (sec % 60).toString().padStart(2, '0');
+        document.getElementById('timer').innerText = `${mins}:${secs}`;
+    }, 1000);
+</script>
+{% endblock %}

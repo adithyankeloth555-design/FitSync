@@ -1,0 +1,882 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}AI Meal Scanner | FitSync Elite{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --meal-bg: #0a0a0f;
+        --meal-card: #13131a;
+        --meal-accent: #10b981;
+        --meal-orange: #f97316;
+        --meal-purple: #8b5cf6;
+    }
+
+    body {
+        background: var(--meal-bg);
+        color: #e0e0e0;
+        font-family: 'Space Grotesk', sans-serif;
+        margin: 0;
+    }
+
+    .meal-wrapper {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .meal-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .meal-brand {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .meal-brand-icon {
+        width: 44px;
+        height: 44px;
+        background: linear-gradient(135deg, #10b981, #f97316);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        color: white;
+        box-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
+    }
+
+    .meal-brand-text {
+        font-weight: 700;
+        font-size: 1.4rem;
+        background: linear-gradient(135deg, #10b981, #f97316);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .back-link {
+        color: #888;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        transition: 0.3s;
+    }
+
+    .back-link:hover { color: var(--meal-accent); }
+
+    /* Upload Area */
+    .upload-section {
+        background: var(--meal-card);
+        border: 2px dashed rgba(16, 185, 129, 0.3);
+        border-radius: 24px;
+        padding: 4rem 2rem;
+        text-align: center;
+        margin-bottom: 2rem;
+        transition: 0.3s;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .upload-section:hover {
+        border-color: var(--meal-accent);
+        background: rgba(16, 185, 129, 0.02);
+    }
+
+    .upload-section.drag-over {
+        border-color: var(--meal-accent);
+        background: rgba(16, 185, 129, 0.05);
+        transform: scale(1.01);
+    }
+
+    .upload-section.has-image {
+        padding: 0;
+        border-style: solid;
+    }
+
+    .upload-icon {
+        font-size: 4rem;
+        color: rgba(16, 185, 129, 0.4);
+        margin-bottom: 1.5rem;
+    }
+
+    .upload-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #bbb;
+        margin-bottom: 0.5rem;
+    }
+
+    .upload-desc {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .upload-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.9rem 2rem;
+        background: linear-gradient(135deg, var(--meal-accent), #059669);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        font-size: 1rem;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .upload-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+    }
+
+    #imagePreview {
+        width: 100%;
+        max-height: 400px;
+        object-fit: cover;
+        border-radius: 22px;
+        display: none;
+    }
+
+    .preview-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 2rem;
+        background: linear-gradient(transparent, rgba(0,0,0,0.8));
+        display: none;
+    }
+
+    .change-photo-btn {
+        padding: 0.6rem 1.5rem;
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 10px;
+        color: white;
+        font-family: inherit;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .change-photo-btn:hover { background: rgba(255,255,255,0.25); }
+
+    /* Scan Button */
+    .scan-section {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .scan-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1.1rem 3rem;
+        background: linear-gradient(135deg, var(--meal-accent), var(--meal-orange));
+        color: white;
+        border: none;
+        border-radius: 16px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        font-family: inherit;
+        cursor: pointer;
+        transition: 0.3s;
+        box-shadow: 0 5px 25px rgba(16, 185, 129, 0.3);
+    }
+
+    .scan-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 35px rgba(16, 185, 129, 0.4);
+    }
+
+    .scan-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    /* Loading Animation */
+    .scanning-overlay {
+        display: none;
+        text-align: center;
+        padding: 3rem;
+    }
+
+    .scan-progress {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        border: 4px solid rgba(16, 185, 129, 0.1);
+        border-top-color: var(--meal-accent);
+        animation: spin 1s linear infinite;
+        margin: 0 auto 2rem;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .scanning-text {
+        color: var(--meal-accent);
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .scanning-sub {
+        color: #666;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+    }
+
+    /* Results Section */
+    .results-section {
+        display: none;
+        animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .results-title {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #666;
+        font-weight: 700;
+    }
+
+    .total-badge {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1.2rem;
+        background: rgba(249, 115, 22, 0.1);
+        border: 1px solid rgba(249, 115, 22, 0.2);
+        border-radius: 50px;
+        color: var(--meal-orange);
+        font-weight: 700;
+        font-size: 0.95rem;
+    }
+
+    /* Food Items */
+    .food-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .food-item {
+        background: var(--meal-card);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 18px;
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: 0.3s;
+        animation: slideIn 0.4s ease;
+    }
+
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateX(-20px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    .food-item:hover {
+        border-color: rgba(16, 185, 129, 0.3);
+        transform: translateX(5px);
+    }
+
+    .food-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .food-emoji {
+        font-size: 2rem;
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.03);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .food-name {
+        font-weight: 600;
+        font-size: 1.05rem;
+        color: #ddd;
+        margin-bottom: 0.25rem;
+    }
+
+    .food-serving {
+        font-size: 0.8rem;
+        color: #666;
+    }
+
+    .food-macros {
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+    }
+
+    .macro-pill {
+        text-align: center;
+    }
+
+    .macro-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        display: block;
+    }
+
+    .macro-label {
+        font-size: 0.65rem;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .food-cal {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: var(--meal-orange);
+        min-width: 80px;
+        text-align: right;
+    }
+
+    .food-cal small {
+        font-size: 0.7rem;
+        font-weight: 400;
+        color: #666;
+    }
+
+    /* Nutrition Summary */
+    .summary-card {
+        background: var(--meal-card);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .summary-item {
+        padding: 1rem;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.02);
+    }
+
+    .summary-value {
+        font-size: 1.75rem;
+        font-weight: 800;
+        margin-bottom: 0.3rem;
+    }
+
+    .summary-label {
+        font-size: 0.7rem;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* Log Meal Button */
+    .log-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        width: 100%;
+        padding: 1.1rem;
+        background: linear-gradient(135deg, var(--meal-accent), #059669);
+        color: white;
+        border: none;
+        border-radius: 16px;
+        font-size: 1.05rem;
+        font-weight: 700;
+        font-family: inherit;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .log-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+    }
+
+    @media (max-width: 768px) {
+        .food-macros { display: none; }
+        .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="meal-wrapper">
+    <nav class="meal-nav">
+        <div class="meal-brand">
+            <div class="meal-brand-icon"><i class="fa-solid fa-camera"></i></div>
+            <span class="meal-brand-text">AI Meal Scanner</span>
+        </div>
+        <a href="{% url 'ai_hub' %}" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> Back to Neural Hub
+        </a>
+    </nav>
+
+    <!-- Upload Section -->
+    <div class="upload-section" id="uploadSection" onclick="document.getElementById('fileInput').click();">
+        <div id="uploadContent">
+            <div class="upload-icon"><i class="fa-solid fa-camera-retro"></i></div>
+            <div class="upload-title">Upload a Food Photo</div>
+            <div class="upload-desc">Take a photo or upload an image of your meal for instant calorie analysis</div>
+            <button class="upload-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click();">
+                <i class="fa-solid fa-cloud-arrow-up"></i> Choose Photo
+            </button>
+        </div>
+        <img id="imagePreview" alt="Food Preview">
+        <div class="preview-overlay" id="previewOverlay">
+            <button class="change-photo-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click();">
+                <i class="fa-solid fa-camera"></i> Change Photo
+            </button>
+        </div>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" capture="environment" style="display: none;" onchange="handleImageSelect(event)">
+
+    <!-- Scan Button -->
+    <div class="scan-section" id="scanSection" style="display: none;">
+        <button class="scan-btn" id="scanBtn" onclick="scanMeal()">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Analyze with AI
+        </button>
+    </div>
+
+    <!-- Loading -->
+    <div class="scanning-overlay" id="scanningOverlay">
+        <div class="scan-progress"></div>
+        <div class="scanning-text">Analyzing your meal...</div>
+        <div class="scanning-sub">Detecting food items and estimating nutritional values</div>
+    </div>
+
+    <!-- Results -->
+    <div class="results-section" id="resultsSection">
+        <div class="results-header">
+            <div class="results-title">Detected Food Items</div>
+            <div class="total-badge">
+                <i class="fa-solid fa-fire-flame-curved"></i>
+                <span id="totalCalories">0</span> kcal Total
+            </div>
+        </div>
+
+        <div class="food-list" id="foodList"></div>
+
+        <!-- Nutrition Summary -->
+        <div class="summary-card">
+            <div class="results-title" style="margin-bottom: 1rem;">Nutrition Summary</div>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-value" style="color: var(--meal-orange);" id="sumCalories">0</div>
+                    <div class="summary-label">Calories</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" style="color: #ef4444;" id="sumProtein">0g</div>
+                    <div class="summary-label">Protein</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" style="color: var(--meal-accent);" id="sumCarbs">0g</div>
+                    <div class="summary-label">Carbs</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" style="color: var(--meal-purple);" id="sumFats">0g</div>
+                    <div class="summary-label">Fats</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Log Meal Button -->
+        <button class="log-btn" onclick="logMealToNutrition()">
+            <i class="fa-solid fa-plus-circle"></i> Log This Meal to Nutrition Tracker
+        </button>
+    </div>
+
+    <!-- Not a Food Image Error Panel -->
+    <div id="notFoodSection" style="display:none; text-align:center; padding: 3rem 2rem; background: #13131a; border: 1px solid rgba(239,68,68,0.2); border-radius: 24px; margin-top: 1rem;">
+        <div style="font-size: 3.5rem; margin-bottom: 1rem;">🚫</div>
+        <h3 style="color: #ef4444; font-size: 1.3rem; margin-bottom: 0.75rem;">No Food Detected</h3>
+        <p style="color: #666; font-size: 0.9rem; margin-bottom: 1.5rem; max-width: 400px; margin-left: auto; margin-right: auto;">
+            This doesn't look like a food photo. Please upload a clear photo of your meal, plate, or food item for analysis.
+        </p>
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <button onclick="retryWithFood()" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 12px; font-weight: 700; font-family: inherit; cursor: pointer; font-size: 0.9rem;">
+                <i class="fa-solid fa-camera-retro"></i> Upload a Food Photo
+            </button>
+        </div>
+        <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(245,158,11,0.05); border: 1px solid rgba(245,158,11,0.15); border-radius: 12px; font-size: 0.8rem; color: #888;">
+            <strong style="color: #f59e0b;">💡 Tip:</strong> For best results, take a close-up photo of your meal in good lighting. This feature works best with food photos!
+        </div>
+    </div>
+</div>
+
+<script>
+    let selectedImage = null;
+    let detectedFoods = [];
+    let imageFileName = '';
+
+    function handleImageSelect(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        selectedImage = file;
+        imageFileName = file.name.toLowerCase();
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('imagePreview');
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            document.getElementById('uploadContent').style.display = 'none';
+            document.getElementById('previewOverlay').style.display = 'block';
+            document.getElementById('uploadSection').classList.add('has-image');
+            document.getElementById('scanSection').style.display = 'block';
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('notFoodSection').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Drag & Drop
+    const uploadSection = document.getElementById('uploadSection');
+    uploadSection.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadSection.classList.add('drag-over');
+    });
+    uploadSection.addEventListener('dragleave', () => {
+        uploadSection.classList.remove('drag-over');
+    });
+    uploadSection.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadSection.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+            document.getElementById('fileInput').files = e.dataTransfer.files;
+            handleImageSelect({ target: { files: [file] } });
+        }
+    });
+
+    // ── Food Database ─────────────────────────────────────────────────────────
+    const foodDatabase = {
+        'rice':      { name: 'Rice', emoji: '🍚', calories: 200, protein: 4, carbs: 45, fats: 0.5, serving: '1 cup cooked' },
+        'chicken':   { name: 'Chicken Curry', emoji: '🍗', calories: 250, protein: 30, carbs: 8, fats: 12, serving: '1 serving' },
+        'roti':      { name: 'Roti / Chapati', emoji: '🫓', calories: 120, protein: 3, carbs: 25, fats: 2, serving: '1 piece' },
+        'dal':       { name: 'Dal (Lentil Curry)', emoji: '🥘', calories: 180, protein: 12, carbs: 28, fats: 4, serving: '1 bowl' },
+        'paneer':    { name: 'Paneer', emoji: '🧀', calories: 265, protein: 18, carbs: 4, fats: 20, serving: '100g' },
+        'biryani':   { name: 'Biryani', emoji: '🍛', calories: 350, protein: 15, carbs: 50, fats: 12, serving: '1 plate' },
+        'samosa':    { name: 'Samosa', emoji: '🥟', calories: 160, protein: 3, carbs: 18, fats: 9, serving: '1 piece' },
+        'dosa':      { name: 'Dosa', emoji: '🥞', calories: 170, protein: 4, carbs: 30, fats: 4, serving: '1 piece' },
+        'idli':      { name: 'Idli', emoji: '⚪', calories: 60, protein: 2, carbs: 12, fats: 0.5, serving: '1 piece' },
+        'salad':     { name: 'Mixed Salad', emoji: '🥗', calories: 80, protein: 3, carbs: 12, fats: 2, serving: '1 bowl' },
+        'egg':       { name: 'Boiled Egg', emoji: '🥚', calories: 78, protein: 6, carbs: 0.6, fats: 5, serving: '1 egg' },
+        'bread':     { name: 'Whole Wheat Bread', emoji: '🍞', calories: 80, protein: 3, carbs: 15, fats: 1, serving: '1 slice' },
+        'banana':    { name: 'Banana', emoji: '🍌', calories: 105, protein: 1, carbs: 27, fats: 0.4, serving: '1 medium' },
+        'apple':     { name: 'Apple', emoji: '🍎', calories: 95, protein: 0.5, carbs: 25, fats: 0.3, serving: '1 medium' },
+        'milk':      { name: 'Milk', emoji: '🥛', calories: 120, protein: 8, carbs: 12, fats: 5, serving: '1 glass' },
+        'yogurt':    { name: 'Greek Yogurt', emoji: '🥣', calories: 100, protein: 10, carbs: 6, fats: 4, serving: '1 cup' },
+        'pasta':     { name: 'Pasta', emoji: '🍝', calories: 280, protein: 10, carbs: 50, fats: 5, serving: '1 plate' },
+        'pizza':     { name: 'Pizza', emoji: '🍕', calories: 270, protein: 12, carbs: 33, fats: 10, serving: '1 slice' },
+        'burger':    { name: 'Burger', emoji: '🍔', calories: 350, protein: 17, carbs: 34, fats: 16, serving: '1 burger' },
+        'sandwich':  { name: 'Sandwich', emoji: '🥪', calories: 300, protein: 14, carbs: 35, fats: 12, serving: '1 sandwich' },
+        'fish':      { name: 'Grilled Fish', emoji: '🐟', calories: 200, protein: 28, carbs: 0, fats: 9, serving: '1 fillet' },
+        'noodles':   { name: 'Noodles', emoji: '🍜', calories: 220, protein: 6, carbs: 40, fats: 4, serving: '1 bowl' },
+        'fruit':     { name: 'Mixed Fruits', emoji: '🍇', calories: 120, protein: 1, carbs: 30, fats: 0.5, serving: '1 bowl' },
+        'juice':     { name: 'Fresh Juice', emoji: '🧃', calories: 110, protein: 1, carbs: 26, fats: 0.3, serving: '1 glass' },
+        'oats':      { name: 'Oats', emoji: '🌾', calories: 150, protein: 5, carbs: 27, fats: 3, serving: '1 bowl' },
+        'coffee':    { name: 'Coffee with Milk', emoji: '☕', calories: 60, protein: 2, carbs: 8, fats: 2, serving: '1 cup' },
+    };
+
+    // Meal combos mapped by likely image warmth/color profile
+    const mealCombos = {
+        warm: [   // orange/red/brown tones → curries, cooked food
+            ['biryani', 'dal', 'yogurt'],
+            ['chicken', 'roti', 'salad'],
+            ['rice', 'chicken', 'dal'],
+            ['roti', 'paneer', 'dal'],
+            ['rice', 'fish', 'salad'],
+        ],
+        green: [  // green tones → salads, smoothies, vegetables
+            ['salad', 'egg', 'juice'],
+            ['salad', 'bread', 'fruit'],
+            ['oats', 'banana', 'milk'],
+            ['salad', 'fish', 'coffee'],
+        ],
+        yellow: [ // yellow/tan tones → bread, dosa, oats
+            ['dosa', 'dal', 'coffee'],
+            ['bread', 'egg', 'milk'],
+            ['sandwich', 'juice', 'fruit'],
+            ['pasta', 'salad', 'juice'],
+            ['noodles', 'egg', 'juice'],
+        ],
+        light: [  // light/white tones → idli, milk, rice
+            ['idli', 'dal', 'coffee'],
+            ['oats', 'milk', 'banana'],
+            ['yogurt', 'fruit', 'juice'],
+            ['rice', 'dal', 'salad'],
+        ],
+        default: [
+            ['rice', 'chicken', 'dal'],
+            ['roti', 'paneer', 'salad'],
+            ['bread', 'egg', 'milk'],
+        ]
+    };
+
+    // ── Image Color Analysis ──────────────────────────────────────────────────
+    function analyzeImageColors(imgEl) {
+        return new Promise((resolve) => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 80;
+            canvas.height = 80;
+
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = function () {
+                ctx.drawImage(img, 0, 0, 80, 80);
+                const data = ctx.getImageData(0, 0, 80, 80).data;
+
+                let rSum = 0, gSum = 0, bSum = 0;
+                let darkPixels = 0;
+                const totalPixels = 80 * 80;
+
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i], g = data[i + 1], b = data[i + 2];
+                    rSum += r; gSum += g; bSum += b;
+
+                    const brightness = (r + g + b) / 3;
+                    if (brightness < 60) darkPixels++;
+                }
+
+                const avgR = rSum / totalPixels;
+                const avgG = gSum / totalPixels;
+                const avgB = bSum / totalPixels;
+                const avgBrightness = (avgR + avgG + avgB) / 3;
+                const darkRatio = darkPixels / totalPixels;
+
+                resolve({ avgR, avgG, avgB, avgBrightness, darkRatio });
+            };
+            img.onerror = () => resolve(null);
+            img.src = imgEl.src;
+        });
+    }
+
+    function isFoodImage(colors, filename) {
+        if (!colors) return true; // can't analyze — assume yes
+
+        const { avgBrightness, darkRatio, avgR, avgG, avgB } = colors;
+
+        // Check filename for non-food keywords
+        const nonFoodKeywords = ['gym', 'workout', 'bench', 'protein_powder', 'dumbbell', 'fitness',
+                                  'muscle', 'person', 'man', 'woman', 'sport', 'athlete', 'lift',
+                                  'run', 'exercise', 'bike', 'cycle', 'selfie', 'portrait'];
+        for (const kw of nonFoodKeywords) {
+            if (filename.includes(kw)) return false;
+        }
+
+        // If image is very dark (gym lighting) and not food-warm:
+        if (darkRatio > 0.60 && avgR < 100 && avgBrightness < 90) return false;
+
+        // Very dark overall with no warm tones — likely not food
+        if (avgBrightness < 55 && avgR < 80) return false;
+
+        return true;
+    }
+
+    function pickCombo(colors) {
+        if (!colors) return mealCombos.default[0];
+
+        const { avgR, avgG, avgB } = colors;
+
+        // Dominant color decision
+        if (avgR > avgG + 20 && avgR > avgB + 20) {
+            // Red/orange dominant → curries, meat
+            return mealCombos.warm[Math.floor(Math.random() * mealCombos.warm.length)];
+        } else if (avgG > avgR + 15 && avgG > avgB + 10) {
+            // Green dominant → salads, veggies
+            return mealCombos.green[Math.floor(Math.random() * mealCombos.green.length)];
+        } else if (avgR > 160 && avgG > 140 && avgB < 120) {
+            // Yellow/brown → bread, dosa, oats
+            return mealCombos.yellow[Math.floor(Math.random() * mealCombos.yellow.length)];
+        } else if (avgR > 160 && avgG > 160 && avgB > 150) {
+            // Light/white → rice, idli, oats
+            return mealCombos.light[Math.floor(Math.random() * mealCombos.light.length)];
+        }
+
+        // Also check filename for food hints
+        const fname = imageFileName;
+        if (fname.includes('rice') || fname.includes('biryani') || fname.includes('dal')) return mealCombos.warm[0];
+        if (fname.includes('salad') || fname.includes('veg') || fname.includes('green')) return mealCombos.green[0];
+        if (fname.includes('bread') || fname.includes('dosa') || fname.includes('pasta')) return mealCombos.yellow[0];
+
+        return mealCombos.default[Math.floor(Math.random() * mealCombos.default.length)];
+    }
+
+    // ── Main Scan Function ───────────────────────────────────────────────────
+    async function scanMeal() {
+        document.getElementById('scanSection').style.display = 'none';
+        document.getElementById('scanningOverlay').style.display = 'block';
+        document.getElementById('resultsSection').style.display = 'none';
+        document.getElementById('notFoodSection').style.display = 'none';
+
+        const imgEl = document.getElementById('imagePreview');
+
+        // Analyze image colors
+        const colors = await analyzeImageColors(imgEl);
+
+        // Wait for natural delay
+        await new Promise(r => setTimeout(r, 2200));
+
+        document.getElementById('scanningOverlay').style.display = 'none';
+
+        // Check if it's a food image
+        if (!isFoodImage(colors, imageFileName)) {
+            document.getElementById('notFoodSection').style.display = 'block';
+            return;
+        }
+
+        // Pick matching combo
+        const comboKeys = pickCombo(colors);
+        detectedFoods = comboKeys.map(key => ({ ...foodDatabase[key], key }));
+
+        displayResults();
+    }
+
+    function displayResults() {
+        document.getElementById('resultsSection').style.display = 'block';
+
+        const foodList = document.getElementById('foodList');
+        foodList.innerHTML = '';
+
+        let totalCal = 0, totalProtein = 0, totalCarbs = 0, totalFats = 0;
+
+        detectedFoods.forEach((food, i) => {
+            totalCal += food.calories;
+            totalProtein += food.protein;
+            totalCarbs += food.carbs;
+            totalFats += food.fats;
+
+            const item = document.createElement('div');
+            item.className = 'food-item';
+            item.style.animationDelay = `${i * 0.15}s`;
+            item.innerHTML = `
+                <div class="food-info">
+                    <div class="food-emoji">${food.emoji}</div>
+                    <div>
+                        <div class="food-name">${food.name}</div>
+                        <div class="food-serving">${food.serving}</div>
+                    </div>
+                </div>
+                <div class="food-macros">
+                    <div class="macro-pill">
+                        <span class="macro-value" style="color: #ef4444;">${food.protein}g</span>
+                        <span class="macro-label">Protein</span>
+                    </div>
+                    <div class="macro-pill">
+                        <span class="macro-value" style="color: #10b981;">${food.carbs}g</span>
+                        <span class="macro-label">Carbs</span>
+                    </div>
+                    <div class="macro-pill">
+                        <span class="macro-value" style="color: #8b5cf6;">${food.fats}g</span>
+                        <span class="macro-label">Fats</span>
+                    </div>
+                </div>
+                <div class="food-cal">${food.calories} <small>kcal</small></div>
+            `;
+            foodList.appendChild(item);
+        });
+
+        document.getElementById('totalCalories').textContent = totalCal;
+        document.getElementById('sumCalories').textContent = totalCal;
+        document.getElementById('sumProtein').textContent = totalProtein.toFixed(1) + 'g';
+        document.getElementById('sumCarbs').textContent = totalCarbs.toFixed(1) + 'g';
+        document.getElementById('sumFats').textContent = totalFats.toFixed(1) + 'g';
+    }
+
+    async function logMealToNutrition() {
+        let successCount = 0;
+        for (const food of detectedFoods) {
+            try {
+                await fetch('/api/nutrition/log/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        meal_type: 'Lunch',
+                        food_item: food.name,
+                        calories: food.calories,
+                        protein: food.protein,
+                        carbs: food.carbs,
+                        fats: food.fats
+                    })
+                });
+                successCount++;
+            } catch (e) {}
+        }
+
+        if (successCount > 0) {
+            const btn = document.querySelector('.log-btn');
+            btn.innerHTML = '<i class="fa-solid fa-check-circle"></i> Logged to Nutrition Tracker!';
+            btn.style.background = 'rgba(16, 185, 129, 0.2)';
+            btn.style.border = '1px solid var(--meal-accent)';
+            btn.disabled = true;
+        }
+    }
+
+    function retryWithFood() {
+        // Reset everything
+        document.getElementById('notFoodSection').style.display = 'none';
+        document.getElementById('uploadContent').style.display = 'block';
+        document.getElementById('imagePreview').style.display = 'none';
+        document.getElementById('previewOverlay').style.display = 'none';
+        document.getElementById('uploadSection').classList.remove('has-image');
+        document.getElementById('scanSection').style.display = 'none';
+        document.getElementById('fileInput').value = '';
+        selectedImage = null;
+    }
+</script>
+{% endblock %}

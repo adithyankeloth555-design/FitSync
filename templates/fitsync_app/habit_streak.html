@@ -1,0 +1,613 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Habit & Streak Engine | FitSync Elite{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --streak-bg: #0a0a0f;
+        --streak-card: #13131a;
+        --streak-accent: #f59e0b;
+        --streak-purple: #8b5cf6;
+        --streak-green: #10b981;
+        --streak-red: #ef4444;
+        --streak-gradient: linear-gradient(135deg, #f59e0b, #ef4444);
+    }
+
+    body {
+        background: var(--streak-bg);
+        color: #e0e0e0;
+        font-family: 'Space Grotesk', sans-serif;
+        margin: 0;
+        overflow-x: hidden;
+    }
+
+    .streak-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    /* Nav */
+    .streak-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .streak-brand {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .streak-brand-icon {
+        width: 44px;
+        height: 44px;
+        background: var(--streak-gradient);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        color: white;
+        box-shadow: 0 0 30px rgba(245, 158, 11, 0.3);
+    }
+
+    .streak-brand-text {
+        font-weight: 700;
+        font-size: 1.4rem;
+        background: var(--streak-gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .back-link {
+        color: #888;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        transition: 0.3s;
+    }
+
+    .back-link:hover { color: var(--streak-accent); }
+
+    /* Hero Stats Row */
+    .hero-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .hero-stat-card {
+        background: var(--streak-card);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 24px;
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        transition: 0.3s;
+    }
+
+    .hero-stat-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(245, 158, 11, 0.3);
+    }
+
+    .hero-stat-card::before {
+        content: '';
+        position: absolute;
+        top: -60px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        opacity: 0.05;
+        pointer-events: none;
+    }
+
+    .hero-stat-card.streak-card::before { background: #f59e0b; }
+    .hero-stat-card.workout-card::before { background: #8b5cf6; }
+    .hero-stat-card.week-card::before { background: #10b981; }
+    .hero-stat-card.goal-card::before { background: #ef4444; }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+
+    .stat-num {
+        font-size: 3rem;
+        font-weight: 800;
+        line-height: 1;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #666;
+    }
+
+    .streak-card .stat-num { color: var(--streak-accent); }
+    .workout-card .stat-num { color: var(--streak-purple); }
+    .week-card .stat-num { color: var(--streak-green); }
+    .goal-card .stat-num { color: var(--streak-red); }
+
+    /* Level Card */
+    .level-card {
+        background: var(--streak-card);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 24px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .level-card::before {
+        content: '';
+        position: absolute;
+        right: -100px;
+        top: -100px;
+        width: 350px;
+        height: 350px;
+        background: radial-gradient(circle, rgba(245, 158, 11, 0.06) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .level-emblem {
+        font-size: 5rem;
+        flex-shrink: 0;
+        filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.3));
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+    }
+
+    .level-info {
+        flex-grow: 1;
+    }
+
+    .level-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+
+    .level-name {
+        font-size: 2rem;
+        font-weight: 800;
+        background: var(--streak-gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.75rem;
+    }
+
+    .level-bar-outer {
+        background: rgba(255,255,255,0.05);
+        border-radius: 10px;
+        height: 12px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+
+    .level-bar-fill {
+        height: 100%;
+        background: var(--streak-gradient);
+        border-radius: 10px;
+        transition: width 1.5s ease-out;
+        box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+    }
+
+    .level-bar-label {
+        font-size: 0.8rem;
+        color: #666;
+    }
+
+    .level-bar-label span {
+        color: var(--streak-accent);
+        font-weight: 700;
+    }
+
+    /* Two Column Layout */
+    .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .panel-card {
+        background: var(--streak-card);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 24px;
+        padding: 1.75rem;
+    }
+
+    .panel-title {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #666;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Badges */
+    .badges-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+
+    .badge-item {
+        text-align: center;
+        padding: 1rem;
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.06);
+        transition: 0.3s;
+        background: rgba(255,255,255,0.02);
+    }
+
+    .badge-item.earned {
+        border-color: rgba(245, 158, 11, 0.3);
+        background: rgba(245, 158, 11, 0.05);
+        box-shadow: 0 0 20px rgba(245, 158, 11, 0.08);
+    }
+
+    .badge-item:not(.earned) {
+        opacity: 0.5;
+        filter: grayscale(0.8);
+    }
+
+    .badge-emoji {
+        font-size: 2rem;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .badge-name {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #ddd;
+        margin-bottom: 0.3rem;
+    }
+
+    .badge-desc {
+        font-size: 0.7rem;
+        color: #666;
+    }
+
+    /* Activity Grid */
+    .activity-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 0.4rem;
+    }
+
+    .activity-cell {
+        aspect-ratio: 1;
+        border-radius: 6px;
+        position: relative;
+        transition: 0.3s;
+        cursor: pointer;
+    }
+
+    .activity-cell.attended {
+        background: var(--streak-accent);
+        box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+    }
+
+    .activity-cell:not(.attended) {
+        background: rgba(255,255,255,0.04);
+    }
+
+    .activity-cell:hover::after {
+        content: attr(data-date);
+        position: absolute;
+        bottom: calc(100% + 5px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.9);
+        color: #fff;
+        padding: 0.3rem 0.6rem;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        white-space: nowrap;
+        z-index: 10;
+    }
+
+    .activity-legend {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 1rem;
+        font-size: 0.75rem;
+        color: #666;
+    }
+
+    .legend-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 4px;
+    }
+
+    /* Leaderboard */
+    .leaderboard-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .lb-entry {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.04);
+        transition: 0.3s;
+    }
+
+    .lb-entry.is-you {
+        border-color: rgba(245, 158, 11, 0.3);
+        background: rgba(245, 158, 11, 0.05);
+    }
+
+    .lb-rank {
+        font-size: 0.9rem;
+        font-weight: 800;
+        min-width: 28px;
+        text-align: center;
+    }
+
+    .lb-rank.gold { color: #f59e0b; }
+    .lb-rank.silver { color: #9ca3af; }
+    .lb-rank.bronze { color: #b45309; }
+    .lb-rank.other { color: #555; }
+
+    .lb-name {
+        flex-grow: 1;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .lb-you-badge {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--streak-accent);
+        padding: 0.2rem 0.6rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 700;
+    }
+
+    .lb-count {
+        font-weight: 700;
+        color: var(--streak-accent);
+        font-size: 0.9rem;
+    }
+
+    .lb-count small {
+        color: #666;
+        font-weight: 400;
+        font-size: 0.7rem;
+        margin-left: 2px;
+    }
+
+    /* Fire animation for streak */
+    .fire-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1.2rem;
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        border-radius: 50px;
+        font-weight: 700;
+        color: var(--streak-accent);
+        margin-bottom: 1.5rem;
+        animation: glow 2s infinite;
+    }
+
+    @keyframes glow {
+        0%, 100% { box-shadow: 0 0 10px rgba(245, 158, 11, 0.2); }
+        50% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.5); }
+    }
+
+    .empty-lb {
+        text-align: center;
+        color: #444;
+        padding: 2rem;
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 900px) {
+        .hero-stats { grid-template-columns: repeat(2, 1fr); }
+        .two-col { grid-template-columns: 1fr; }
+        .badges-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 500px) {
+        .hero-stats { grid-template-columns: 1fr 1fr; }
+        .activity-grid { grid-template-columns: repeat(7, 1fr); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="streak-wrapper">
+    <nav class="streak-nav">
+        <div class="streak-brand">
+            <div class="streak-brand-icon"><i class="fa-solid fa-fire-flame-curved"></i></div>
+            <span class="streak-brand-text">Habit & Streak Engine</span>
+        </div>
+        <a href="{% url 'user_dashboard' %}" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </nav>
+
+    <!-- Fire badge if streak -->
+    {% if streak >= 3 %}
+    <div style="text-align: center; margin-bottom: 1.5rem;">
+        <div class="fire-badge">
+            🔥 {{ streak }}-Day Streak — You're on fire!
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Hero Stats -->
+    <div class="hero-stats">
+        <div class="hero-stat-card streak-card">
+            <span class="stat-icon">🔥</span>
+            <span class="stat-num">{{ streak }}</span>
+            <span class="stat-label">Day Streak</span>
+        </div>
+        <div class="hero-stat-card workout-card">
+            <span class="stat-icon">🏋️</span>
+            <span class="stat-num">{{ total_workouts }}</span>
+            <span class="stat-label">Total Sessions</span>
+        </div>
+        <div class="hero-stat-card week-card">
+            <span class="stat-icon">📅</span>
+            <span class="stat-num">{{ workouts_this_week }}</span>
+            <span class="stat-label">This Week</span>
+        </div>
+        <div class="hero-stat-card goal-card">
+            <span class="stat-icon">🎯</span>
+            <span class="stat-num">{{ goals_completed }}</span>
+            <span class="stat-label">Goals Done</span>
+        </div>
+    </div>
+
+    <!-- Level Card -->
+    <div class="level-card">
+        <div class="level-emblem">{{ level_icon }}</div>
+        <div class="level-info">
+            <div class="level-label">Current Level</div>
+            <div class="level-name">{{ level_name }}</div>
+            <div class="level-bar-outer">
+                <div class="level-bar-fill" style="width: {{ level_progress }}%;"></div>
+            </div>
+            <div class="level-bar-label">
+                <span>{{ total_workouts }}</span> / {{ next_level_at }} sessions to next level &nbsp;·&nbsp; 
+                <span>{{ level_progress }}%</span> progress
+            </div>
+        </div>
+        {% if user_rank %}
+        <div style="text-align: center; flex-shrink: 0;">
+            <div style="font-size: 0.7rem; color: #555; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.5rem;">Your Rank</div>
+            <div style="font-size: 3rem; font-weight: 800; color: var(--streak-accent);">#{{ user_rank }}</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Two Column -->
+    <div class="two-col">
+        <!-- Badges -->
+        <div class="panel-card">
+            <div class="panel-title">🏅 Achievement Badges</div>
+            <div class="badges-grid">
+                {% for badge in badges %}
+                <div class="badge-item {% if badge.earned %}earned{% endif %}">
+                    <span class="badge-emoji">{{ badge.icon }}</span>
+                    <div class="badge-name">{{ badge.name }}</div>
+                    <div class="badge-desc">{{ badge.desc }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Activity Grid -->
+        <div class="panel-card">
+            <div class="panel-title">📊 Activity (Last 14 Days)</div>
+            <div class="activity-grid">
+                {% for day in activity_grid %}
+                <div class="activity-cell {% if day.attended %}attended{% endif %}" 
+                     data-date="{{ day.date }}"
+                     title="{{ day.date }}"></div>
+                {% endfor %}
+            </div>
+            <div class="activity-legend">
+                <div class="legend-dot" style="background: rgba(255,255,255,0.06);"></div>
+                <span>No visit</span>
+                <div class="legend-dot" style="background: var(--streak-accent);"></div>
+                <span>Attended</span>
+            </div>
+
+            <!-- Goal Progress -->
+            {% if goals_total > 0 %}
+            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.06);">
+                <div class="panel-title" style="margin-bottom: 0.75rem;">🎯 Goal Completion</div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem;">
+                    <span style="color: #aaa;">{{ goals_completed }} of {{ goals_total }} goals completed</span>
+                    <span style="color: var(--streak-accent); font-weight: 700;">
+                        {{ goal_completion_pct }}%
+                    </span>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); border-radius: 6px; height: 8px; overflow: hidden;">
+                    <div style="height: 100%; background: linear-gradient(90deg, #10b981, #f59e0b); border-radius: 6px;
+                         width: {{ goal_completion_pct }}%;
+                         transition: 1.5s;"></div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="panel-card">
+        <div class="panel-title">🏆 Top Active Members Leaderboard</div>
+        {% if leaderboard %}
+        <div class="leaderboard-list">
+            {% for entry in leaderboard %}
+            <div class="lb-entry {% if entry.is_current_user %}is-you{% endif %}">
+                <div class="lb-rank 
+                    {% if entry.rank == 1 %}gold
+                    {% elif entry.rank == 2 %}silver
+                    {% elif entry.rank == 3 %}bronze
+                    {% else %}other{% endif %}">
+                    {% if entry.rank == 1 %}🥇
+                    {% elif entry.rank == 2 %}🥈
+                    {% elif entry.rank == 3 %}🥉
+                    {% else %}#{{ entry.rank }}{% endif %}
+                </div>
+                <div class="lb-name">
+                    {{ entry.name }}
+                    {% if entry.is_current_user %}<span class="lb-you-badge">YOU</span>{% endif %}
+                </div>
+                <div class="lb-count">{{ entry.workouts }} <small>sessions</small></div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-lb">No workout data yet. Start attending sessions to appear on the leaderboard!</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

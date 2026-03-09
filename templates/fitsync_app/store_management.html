@@ -1,0 +1,460 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Store Management | FitSync Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --admin-bg: #f8fafc;
+        --card-bg: #ffffff;
+        --sidebar-bg: #1e293b;
+        --accent: #f59e0b;
+        --text-primary: #1e293b;
+        --text-secondary: #64748b;
+        --success: #10b981;
+        --info: #3b82f6;
+        --danger: #ef4444;
+    }
+
+    body {
+        background-color: var(--admin-bg);
+        color: var(--text-primary);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .admin-container {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+        width: 260px;
+        background: var(--sidebar-bg);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        height: 100vh;
+        z-index: 1001;
+    }
+
+    .sidebar-header {
+        padding: 1.5rem;
+        font-weight: 800;
+        font-size: 1.2rem;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        color: var(--accent);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .sidebar-menu {
+        padding: 1rem;
+        flex-grow: 1;
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0.8rem 1rem;
+        color: #94a3b8;
+        text-decoration: none;
+        border-radius: 8px;
+        margin-bottom: 0.4rem;
+        transition: 0.2s;
+        font-size: 0.9rem;
+    }
+
+    .menu-item:hover, .menu-item.active {
+        background: rgba(255,255,255,0.05);
+        color: #fff;
+    }
+
+    .menu-item.active {
+        background: var(--accent);
+        color: #000;
+        font-weight: 600;
+    }
+
+    /* Main Content Area */
+    .main-content {
+        margin-left: 260px;
+        flex-grow: 1;
+        padding: 2rem;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .page-title h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .page-title p {
+        color: var(--text-secondary);
+        margin: 4px 0 0 0;
+        font-size: 0.9rem;
+    }
+
+    /* Stats Overview */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--card-bg);
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .stat-info h3 {
+        font-size: 1.25rem;
+        margin: 0;
+        font-weight: 700;
+    }
+
+    .stat-info p {
+        margin: 0;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+    }
+
+    /* Tabs/Sections */
+    .content-section {
+        background: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .section-header {
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .section-header h2 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    /* Table Styles */
+    .management-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .management-table th {
+        background: #f8fafc;
+        text-align: left;
+        padding: 1rem 1.5rem;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: #64748b;
+        font-weight: 600;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .management-table td {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.85rem;
+    }
+
+    .product-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .product-img {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        object-fit: cover;
+        background: #f1f5f9;
+    }
+
+    .badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .badge-success { background: #dcfce7; color: #166534; }
+    .badge-warning { background: #fef9c3; color: #854d0e; }
+    .badge-danger { background: #fee2e2; color: #991b1b; }
+    .badge-info { background: #dbeafe; color: #1e40af; }
+
+    .btn-action {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-secondary);
+        border: 1px solid #e2e8f0;
+        transition: 0.2s;
+        text-decoration: none;
+    }
+
+    .btn-action:hover {
+        background: #f1f5f9;
+        color: var(--text-primary);
+    }
+
+    .btn-primary {
+        background: var(--accent);
+        color: #000;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-primary:hover {
+        opacity: 0.9;
+    }
+
+    @media (max-width: 1024px) {
+        .sidebar { transform: translateX(-100%); }
+        .main-content { margin-left: 0; }
+        .stats-row { grid-template-columns: repeat(2, 1fr); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <i class="fa-solid fa-store"></i> FitSync Store
+        </div>
+        <nav class="sidebar-menu">
+            <a href="{% url 'admin_dashboard' %}" class="menu-item">
+                <i class="fa-solid fa-gauge"></i> Main Admin
+            </a>
+            <a href="{% url 'store_management' %}" class="menu-item active">
+                <i class="fa-solid fa-box"></i> Inventory
+            </a>
+            <a href="{% url 'admin_orders' %}" class="menu-item">
+                <i class="fa-solid fa-truck-fast"></i> Order Management
+            </a>
+            <a href="{% url 'report_payments' %}" class="menu-item">
+                <i class="fa-solid fa-indian-rupee-sign"></i> Store Revenue
+            </a>
+            <a href="{% url 'store' %}" class="menu-item" target="_blank">
+                <i class="fa-solid fa-eye"></i> View Store
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div class="page-title">
+                <h1>Catalog Management</h1>
+                <p>Manage products, stock levels, and store performance.</p>
+            </div>
+            <a href="{% url 'add_product' %}" class="btn-primary">
+                <i class="fa-solid fa-plus"></i> ADD NEW EQUIPMENT
+            </a>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">
+                    <i class="fa-solid fa-money-bill-trend-up"></i>
+                </div>
+                <div class="stat-info">
+                    <p>Total Revenue</p>
+                    <h3>₹{{ total_revenue }}</h3>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: var(--info);">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                </div>
+                <div class="stat-info">
+                    <p>Total Sales</p>
+                    <h3>{{ total_items_sold }}</h3>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--accent);">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                </div>
+                <div class="stat-info">
+                    <p>Unique Items</p>
+                    <h3>{{ products.count }}</h3>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: var(--danger);">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div class="stat-info">
+                    <p>Low Stock</p>
+                    <h3>{{ low_stock_count }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <div class="section-header">
+                <h2>Product Catalog</h2>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="management-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr>
+                            <td>
+                                <div class="product-cell">
+                                    {% if product.image %}
+                                    <img src="{{ product.image.url }}" class="product-img">
+                                    {% else %}
+                                    <div class="product-img" style="display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #94a3b8;">
+                                        <i class="fa-solid fa-image"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <div style="font-weight: 600;">{{ product.name }}</div>
+                                        <div style="font-size: 0.75rem; color: #64748b;">ID: #{{ product.id }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-info">{{ product.get_category_display }}</span></td>
+                            <td>
+                                <div style="font-weight: 700;">₹{{ product.price }}</div>
+                                {% if product.original_price %}
+                                <div style="font-size: 0.75rem; text-decoration: line-through; color: #94a3b8;">₹{{ product.original_price }}</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-weight: 600;">{{ product.stock }}</span>
+                                    {% if product.stock < 5 %}
+                                    <span class="badge badge-danger">Low</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                {% if product.is_active %}
+                                <span class="badge badge-success">Active</span>
+                                {% else %}
+                                <span class="badge badge-danger">Hidden</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 8px;">
+                                    <a href="{% url 'edit_product' product.pk %}" class="btn-action" title="Edit Product">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </a>
+                                    <a href="{% url 'product_detail' product.pk %}" class="btn-action" target="_blank" title="Preview">
+                                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <div class="section-header">
+                <h2>Recent Orders</h2>
+                <a href="{% url 'admin_orders' %}" style="font-size: 0.85rem; color: var(--info); font-weight: 600; text-decoration: none;">View All</a>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="management-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in recent_orders %}
+                        <tr>
+                            <td>#{{ order.id }}</td>
+                            <td>{{ order.full_name|default:order.user.username }}</td>
+                            <td style="font-weight: 700;">₹{{ order.total_amount }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if order.status == 'delivered' %}badge-success
+                                    {% elif order.status == 'shipped' %}badge-info
+                                    {% elif order.status == 'confirmed' %}badge-warning
+                                    {% elif order.status == 'cancelled' %}badge-danger
+                                    {% else %}badge-warning{% endif %}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </td>
+                            <td>{{ order.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <a href="{% url 'admin_orders' %}" class="btn-action">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

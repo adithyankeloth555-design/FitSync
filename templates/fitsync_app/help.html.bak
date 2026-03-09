@@ -1,0 +1,396 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Help Center | FitSync Elite{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --sidebar-bg: var(--bg-tertiary);
+        --accent-orange: var(--gold);
+        --content-bg: var(--bg-primary);
+        --text-main: var(--text-primary);
+        --text-muted: var(--text-muted);
+        --white: var(--bg-secondary);
+        --card-shadow: var(--shadow-main);
+    }
+
+    body {
+        background-color: var(--content-bg);
+        color: var(--text-main);
+        font-family: 'Outfit', sans-serif;
+        margin: 0;
+        min-height: 100vh;
+    }
+
+    /* Sidebar removed */
+
+    .main-wrapper {
+        margin: 0 auto;
+        max-width: 1400px;
+        flex-grow: 1;
+        padding: 3rem 4rem;
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        transition: 0.3s;
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .back-btn:hover {
+        color: var(--accent-orange);
+        transform: translateX(-5px);
+        box-shadow: var(--shadow-glow);
+    }
+
+    .page-title {
+        font-family: 'Cinzel', serif;
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--accent-orange);
+        text-transform: uppercase;
+        margin: 0 0 0.5rem 0;
+        text-align: center;
+    }
+
+    .page-subtitle {
+        color: var(--text-muted);
+        font-size: 1rem;
+        margin-top: 0.5rem;
+        text-align: center;
+        margin-bottom: 3.5rem;
+    }
+
+    .search-container {
+        background: var(--white);
+        padding: 3rem;
+        border-radius: 20px;
+        box-shadow: var(--card-shadow);
+        text-align: center;
+        margin-bottom: 3rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .search-box {
+        width: 100%;
+        max-width: 600px;
+        padding: 1rem 1.5rem;
+        background: var(--bg-tertiary);
+        border: 2px solid var(--border-color);
+        color: var(--text-primary);
+        border-radius: 50px;
+        font-size: 1rem;
+        margin-top: 1rem;
+    }
+
+    .search-box:focus {
+        outline: none;
+        border-color: var(--accent-orange);
+    }
+
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .category-card {
+        background: var(--white);
+        padding: 2.5rem;
+        border-radius: 16px;
+        box-shadow: var(--card-shadow);
+        text-align: center;
+        cursor: pointer;
+        transition: 0.3s;
+        border: 1px solid var(--border-color);
+    }
+
+    .category-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--accent-orange);
+        box-shadow: var(--shadow-glow);
+    }
+
+    .category-icon {
+        width: 70px;
+        height: 70px;
+        background: var(--bg-tertiary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+        color: var(--gold);
+    }
+
+    .category-title {
+        font-size: 1.2rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+
+    .category-description {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .faq-section {
+        background: var(--white);
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: var(--card-shadow);
+        margin-bottom: 3rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .faq-item {
+        border-bottom: 1px solid var(--border-color);
+        padding: 1.5rem 0;
+    }
+
+    .faq-item:last-child {
+        border-bottom: none;
+    }
+
+    .faq-question {
+        font-weight: 800;
+        font-size: 1.1rem;
+        margin-bottom: 0.8rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .faq-question:hover {
+        color: var(--accent-orange);
+    }
+
+    .faq-answer {
+        color: var(--text-muted);
+        line-height: 1.7;
+        padding-left: 1rem;
+    }
+
+    .contact-section {
+        background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+        padding: 3rem;
+        border-radius: 20px;
+        color: #000;
+        text-align: center;
+    }
+
+    .contact-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+    }
+
+    .contact-methods {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .contact-method {
+        background: rgba(0, 0, 0, 0.05);
+        padding: 1.5rem 2rem;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .contact-method:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-3px);
+    }
+
+    .contact-method i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="main-wrapper">
+    {% if user.is_authenticated and user.userprofile.role == 'admin' %}
+    <a href="{% url 'admin_dashboard' %}" class="back-btn">
+        {% elif user.is_authenticated and user.userprofile.role == 'trainer' %}
+        <a href="{% url 'trainer_dashboard' %}" class="back-btn">
+            {% else %}
+            <a href="{% url 'user_dashboard' %}" class="back-btn">
+                {% endif %}
+                <i class="fa-solid fa-arrow-left"></i> RETURN TO PORTAL
+            </a>
+            <header class="page-header" style="text-align: center;">
+                <h1 class="page-title">Help Center</h1>
+                <p class="page-subtitle">Find answers to your questions and get support.</p>
+            </header>
+
+            <div class="search-container">
+                <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem;">How can we help you?</h2>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Search for articles, guides, and FAQs</p>
+                <input type="text" class="search-box" placeholder="Search for help...">
+            </div>
+
+            <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 2rem; color: var(--text-main);">Browse by
+                Category
+            </h2>
+            <div class="categories-grid">
+                <div class="category-card">
+                    <div class="category-icon"><i class="fa-solid fa-dumbbell"></i></div>
+                    <div class="category-title">Workouts</div>
+                    <div class="category-description">Learn about workout plans, exercises, and training tips</div>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon"><i class="fa-solid fa-utensils"></i></div>
+                    <div class="category-title">Nutrition</div>
+                    <div class="category-description">Diet plans, meal tracking, and nutrition guidance</div>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon"><i class="fa-solid fa-crown"></i></div>
+                    <div class="category-title">Membership</div>
+                    <div class="category-description">Billing, subscriptions, and plan upgrades</div>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon"><i class="fa-solid fa-user"></i></div>
+                    <div class="category-title">Account</div>
+                    <div class="category-description">Profile settings, security, and privacy</div>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon"><i class="fa-solid fa-robot"></i></div>
+                    <div class="category-title">AI Features</div>
+                    <div class="category-description">Using AI workout generator and chatbot</div>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon"><i class="fa-solid fa-mobile"></i></div>
+                    <div class="category-title">Mobile App</div>
+                    <div class="category-description">Download and use the FitSync mobile app</div>
+                </div>
+            </div>
+
+            <div class="faq-section">
+                <h2 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 1.5rem;">Frequently Asked Questions</h2>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How do I create a custom workout plan?
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        You can create a custom workout plan by navigating to the Workouts section and clicking "Create
+                        New
+                        Workout". Our AI-powered workout generator can also help you create personalized plans based on
+                        your
+                        goals and fitness level.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How do I upgrade my membership?
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Go to the Membership page from your dashboard. You'll see all available plans with their
+                        features. Click
+                        "Upgrade Now" on your desired plan, and you'll be redirected to our secure payment gateway
+                        powered by
+                        Razorpay.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Can I track my nutrition and water intake?
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Yes! Visit the Nutrition Tracker page to log your meals, track water intake, and monitor your
+                        daily
+                        calorie and macronutrient consumption. You can set daily goals and receive reminders to stay on
+                        track.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How do I message my trainer?
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Navigate to the Messages section from your dashboard. You'll see a list of your trainers and can
+                        start a
+                        conversation with any of them. Premium members get priority response times.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What is the AI Coach feature?
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        The AI Coach is your 24/7 fitness assistant powered by advanced AI. It can answer questions
+                        about
+                        workouts, nutrition, form correction, and provide personalized recommendations based on your
+                        fitness
+                        journey.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How do I cancel my subscription?
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        You can manage your subscription from the Membership page. Click on "Manage Subscription" and
+                        follow the
+                        prompts. Note that you'll retain access until the end of your current billing period.
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-section">
+                <h2 class="contact-title">Still need help?</h2>
+                <p style="opacity: 0.9; font-size: 1.1rem;">Our support team is here to assist you</p>
+                <div class="contact-methods">
+                    <div class="contact-method">
+                        <i class="fa-solid fa-envelope"></i>
+                        <div style="font-weight: 700; margin-top: 0.5rem;">Email Support</div>
+                        <div style="opacity: 0.8; font-size: 0.9rem;">support@fitsync.com</div>
+                    </div>
+                    <div class="contact-method">
+                        <i class="fa-solid fa-phone"></i>
+                        <div style="font-weight: 700; margin-top: 0.5rem;">Call Us</div>
+                        <div style="opacity: 0.8; font-size: 0.9rem;">+91 1800-123-4567</div>
+                    </div>
+                    <div class="contact-method">
+                        <i class="fa-solid fa-comments"></i>
+                        <div style="font-weight: 700; margin-top: 0.5rem;">Live Chat</div>
+                        <div style="opacity: 0.8; font-size: 0.9rem;">Available 24/7</div>
+                    </div>
+                </div>
+            </div>
+</main>
+{% endblock %}

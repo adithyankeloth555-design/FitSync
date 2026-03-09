@@ -1,0 +1,685 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}AI Metabolic Architect | FitSync Elite{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --sidebar-bg: var(--bg-tertiary);
+        --accent-green: #10B981;
+        --accent-gold: var(--gold);
+        --content-bg: var(--bg-primary);
+        --text-main: var(--text-primary);
+        --text-muted: var(--text-muted);
+        --white: var(--bg-secondary);
+        --card-shadow: var(--shadow-main);
+    }
+
+    body {
+        background-color: var(--content-bg);
+        color: var(--text-main);
+        font-family: 'Outfit', sans-serif;
+        margin: 0;
+        min-height: 100vh;
+    }
+
+    .main-wrapper {
+        margin: 0 auto;
+        max-width: 1400px;
+        flex-grow: 1;
+        padding: 3rem 4rem;
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        transition: 0.3s;
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .back-btn:hover {
+        color: var(--accent-gold);
+        transform: translateX(-5px);
+    }
+
+    .page-header {
+        margin-bottom: 3.5rem;
+        text-align: center;
+    }
+
+    .page-title {
+        font-family: 'Cinzel', serif;
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--accent-gold);
+        text-transform: uppercase;
+        margin: 0;
+    }
+
+    .page-subtitle {
+        color: var(--text-muted);
+        font-size: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .ai-grid {
+        display: grid;
+        grid-template-columns: 400px 1fr;
+        gap: 3rem;
+        align-items: start;
+    }
+
+    .params-card {
+        background: var(--white);
+        padding: 2.5rem;
+        border-radius: 24px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--border-color);
+    }
+
+    .params-card h3 {
+        font-size: 1.3rem;
+        font-weight: 800;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .params-card h3 i {
+        color: var(--accent-green);
+    }
+
+    .form-group {
+        margin-bottom: 2rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 800;
+        color: var(--text-muted);
+        margin-bottom: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .form-select {
+        width: 100%;
+        padding: 1rem 1.2rem;
+        background: var(--bg-tertiary);
+        border: 2px solid transparent;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        color: var(--text-main);
+        outline: none;
+        transition: 0.2s;
+        font-weight: 600;
+        box-sizing: border-box;
+    }
+
+    select.form-select {
+        cursor: pointer;
+    }
+
+    .form-select:focus {
+        border-color: var(--accent-green);
+        background: var(--white);
+    }
+
+    .btn-execute {
+        width: 100%;
+        background: linear-gradient(135deg, var(--accent-green), #059669);
+        color: white;
+        border: none;
+        padding: 1.2rem;
+        border-radius: 15px;
+        font-size: 1rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-execute:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(16, 185, 129, 0.3);
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 1rem 1.2rem;
+        background: var(--bg-tertiary);
+        border: 2px solid transparent;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        color: var(--text-main);
+        outline: none;
+        transition: 0.2s;
+        font-weight: 600;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        border-color: var(--accent-green);
+        background: var(--white);
+    }
+
+    .day-selector::-webkit-scrollbar {
+        height: 4px;
+    }
+
+    .day-selector::-webkit-scrollbar-thumb {
+        background: var(--accent-green);
+        border-radius: 10px;
+    }
+
+    .day-btn {
+        background: none;
+        border: none;
+        padding: 0.5rem 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: var(--text-muted);
+        cursor: pointer;
+        position: relative;
+        transition: 0.3s;
+        white-space: nowrap;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .day-btn.active {
+        color: var(--accent-green);
+    }
+
+    .day-btn.active::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--accent-green);
+        border-radius: 10px;
+    }
+
+    .result-display {
+        background: var(--white);
+        border-radius: 24px;
+        box-shadow: var(--card-shadow);
+        min-height: 550px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+    }
+
+    .placeholder-view {
+        margin: auto;
+        text-align: center;
+        padding: 4rem;
+        color: var(--text-muted);
+    }
+
+    .placeholder-view i {
+        font-size: 5rem;
+        margin-bottom: 2rem;
+        opacity: 0.2;
+        color: var(--accent-green);
+    }
+
+    .loading-view {
+        margin: auto;
+        text-align: center;
+        padding: 4rem;
+    }
+
+    .proto-spinner {
+        width: 80px;
+        height: 80px;
+        border: 5px solid var(--border-color);
+        border-top-color: var(--accent-green);
+        border-radius: 50%;
+        animation: rotate 1s linear infinite;
+        margin: 0 auto 2rem;
+    }
+
+    @keyframes rotate {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .protocol-content {
+        padding: 3rem;
+    }
+
+    .proto-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 2.5rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .macro-chips {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .macro-chip {
+        background: var(--bg-tertiary);
+        padding: 1.5rem;
+        border-radius: 18px;
+        text-align: center;
+        border: 1px solid var(--border-color);
+    }
+
+    .macro-val {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--accent-green);
+        display: block;
+    }
+
+    .macro-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        letter-spacing: 1px;
+    }
+
+    .meal-row {
+        background: var(--bg-tertiary);
+        padding: 1.5rem;
+        border-radius: 15px;
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-left: 4px solid var(--accent-green);
+    }
+
+    .meal-name {
+        font-weight: 800;
+        font-size: 1.1rem;
+    }
+
+    .meal-desc {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-top: 0.25rem;
+    }
+
+    .btn-save {
+        width: 100%;
+        background: var(--accent-gold);
+        color: #000;
+        border: none;
+        padding: 1.1rem;
+        border-radius: 12px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.8rem;
+        text-decoration: none;
+        margin-top: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="main-wrapper">
+    <a href="{% url 'user_dashboard' %}" class="back-btn">
+        <i class="fa-solid fa-arrow-left"></i> RETURN TO PORTAL
+    </a>
+    <header class="page-header">
+        <h1 class="page-title">AI Metabolic Architect</h1>
+        <p class="page-subtitle">Synthesizing high-performance fueling protocols based on biometric vectors.</p>
+    </header>
+
+    <div class="ai-grid">
+        <section class="params-card">
+            <h3><i class="fa-solid fa-seedling"></i> Nutritional Vectors</h3>
+            <form id="aiForm">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Weight (KG)</label>
+                        <input type="number" id="weight" class="form-control"
+                            value="{{ user.userprofile.weight_kg|default:'75' }}" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Height (CM)</label>
+                        <input type="number" id="height" class="form-control"
+                            value="{{ user.userprofile.height_cm|default:'175' }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Nutritional Objective</label>
+                    <select id="goal" class="form-select">
+                        <option>Maintain (Performance)</option>
+                        <option>Deficit (Fat Loss)</option>
+                        <option>Surplus (Mass Gain)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Dietary Framework</label>
+                    <select id="diet" class="form-select">
+                        <option>Standard (Balanced Macros)</option>
+                        <option>Ketogenic (High Lipid)</option>
+                        <option>High Protein (Hypertrophy)</option>
+                        <option>Intermittent Fasting (16/8)</option>
+                        <option>Vegan (Plant Based)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Activity Coefficient</label>
+                    <select id="activity" class="form-select">
+                        <option>Sedentary (Low Output)</option>
+                        <option>Moderate (3-5 sessions)</option>
+                        <option>Athlete (Daily Training)</option>
+                        <option>Elite (Multiple Sessions)</option>
+                    </select>
+                </div>
+                <button type="button" onclick="generateDiet();" class="btn-execute">
+                    <i class="fa-solid fa-sparkles"></i> Synthesize Diet
+                </button>
+            </form>
+        </section>
+
+        <section class="result-display">
+            <div id="placeholder" class="placeholder-view">
+                <i class="fa-solid fa-utensils"></i>
+                <h2 style="font-family: 'Cinzel', serif;">System Standby</h2>
+                <p>Configure nutritional vectors to generate your bespoke fueling protocol.</p>
+            </div>
+
+            <div id="loading" class="loading-view" style="display: none;">
+                <div class="proto-spinner"></div>
+                <h3 style="font-family: 'Cinzel', serif;">Calculating Macros...</h3>
+                <p class="text-muted">Optimizing thermic effect and nutrient timing.</p>
+            </div>
+
+            <div id="dietOutput" class="protocol-content" style="display: none;">
+                <div class="day-selector"
+                    style="margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); display: flex; gap: 1rem;">
+                    <button class="day-btn active" onclick="switchDay('Mon')">Mon</button>
+                    <button class="day-btn" onclick="switchDay('Tue')">Tue</button>
+                    <button class="day-btn" onclick="switchDay('Wed')">Wed</button>
+                    <button class="day-btn" onclick="switchDay('Thu')">Thu</button>
+                    <button class="day-btn" onclick="switchDay('Fri')">Fri</button>
+                    <button class="day-btn" onclick="switchDay('Sat')">Sat</button>
+                    <button class="day-btn" onclick="switchDay('Sun')">Sun</button>
+                </div>
+
+                <header class="proto-header">
+                    <div>
+                        <h2 id="diet-day-title"
+                            style="font-family: 'Cinzel', serif; color: var(--accent-green); margin: 0;">Monday Protocol
+                        </h2>
+                        <span id="bmi-label"
+                            style="color: var(--text-muted); font-size: 0.8rem; font-weight: 800;">CALCULATING
+                            BIOMETRICS...</span>
+                    </div>
+                </header>
+
+                <div class="macro-chips">
+                    <div class="macro-chip">
+                        <span class="macro-val" id="res-calories">2,450</span>
+                        <span class="macro-label">Tot. Calories</span>
+                    </div>
+                    <div class="macro-chip">
+                        <span class="macro-val" id="res-protein">185g</span>
+                        <span class="macro-label">Protein</span>
+                    </div>
+                    <div class="macro-chip">
+                        <span class="macro-val" id="res-carbs">220g</span>
+                        <span class="macro-label">Carbs</span>
+                    </div>
+                </div>
+
+                <div class="meal-list" id="meal-container">
+                    <!-- Dynamic Meals Loaded Here -->
+                </div>
+
+                <button onclick="logWholeDay()" class="btn-save" id="importBtn" style="display: none;">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Sync Protocol to Nutrition Log
+                </button>
+            </div>
+        </section>
+    </div>
+</main>
+
+<script>
+    let weeklyPlan = {};
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+    function generateDiet() {
+        // 1. Get Inputs
+        const weight = parseFloat(document.getElementById('weight').value) || 75;
+        const height = parseFloat(document.getElementById('height').value) || 175;
+        const goal = document.getElementById('goal').value;
+        const framework = document.getElementById('diet').value;
+        const activity = document.getElementById('activity').value;
+
+        // BMI Calculation
+        const bmi = weight / ((height / 100) ** 2);
+        let bmiCategory = "NORMAL";
+        if (bmi < 18.5) bmiCategory = "UNDERWEIGHT";
+        else if (bmi >= 25 && bmi < 30) bmiCategory = "OVERWEIGHT";
+        else if (bmi >= 30) bmiCategory = "OBESE";
+
+        // 2. Show UI Loading
+        document.getElementById('placeholder').style.display = 'none';
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('dietOutput').style.display = 'none';
+
+        // 3. Calculation Engine
+        setTimeout(() => {
+            let baseCalories = weight * 22;
+            if (activity.includes('Sedentary')) baseCalories *= 1.2;
+            else if (activity.includes('Moderate')) baseCalories *= 1.4;
+            else if (activity.includes('Athlete')) baseCalories *= 1.6;
+            else if (activity.includes('Elite')) baseCalories *= 1.8;
+
+            if (goal.includes('Deficit')) baseCalories -= 500;
+            else if (goal.includes('Surplus')) baseCalories += 500;
+
+            const finalCalories = Math.round(baseCalories);
+
+            // Food Pool based on BMI and Framework
+            const foodPool = {
+                UNDERWEIGHT: [
+                    { name: 'Power Breakfast', desc: 'Whole eggs, avocado toast, and full-fat Greek yogurt.' },
+                    { name: 'Density Lunch', desc: 'Ribeye steak, sweet potatoes with butter, and walnuts.' },
+                    { name: 'Fueling Snack', desc: 'Casein shake with almond butter and a banana.' },
+                    { name: 'Recovery Dinner', desc: 'Salmon fillet with pesto pasta and roasted seeds.' }
+                ],
+                NORMAL: [
+                    { name: 'Optimal Start', desc: 'Oatmeal with whey, berries, and chia seeds.' },
+                    { name: 'Balanced Fuel', desc: 'Thai chicken basil with jasmine rice and green beans.' },
+                    { name: 'Nutrient Bridge', desc: 'Apple slices with almond butter.' },
+                    { name: 'Metabolic Reset', desc: 'Lean turkey chili with kidney beans and spinach.' }
+                ],
+                OVERWEIGHT: [
+                    { name: 'Volume Breakfast', desc: 'Egg white omelet with spinach, peppers, and 1/2 grapefruit.' },
+                    { name: 'Satiety Lunch', desc: 'Large kale salad with grilled chicken, lemon, and chickpeas.' },
+                    { name: 'Fiber Boost', desc: 'Carrot sticks with hummus.' },
+                    { name: 'Lean Closing', desc: 'White fish with zoodles and steamed broccoli.' }
+                ],
+                OBESE: [
+                    { name: 'Thermal Start', desc: 'Hard boiled eggs and unlimited cucumber/tomato salad.' },
+                    { name: 'Protein Priority', desc: 'Grilled shrimp with cauliflower rice and massive greens.' },
+                    { name: 'Metabolic Snack', desc: 'Handful of berries or 10 almonds.' },
+                    { name: 'Glycemic Shield', desc: 'Bison burger (no bun) with large side of asparagus.' }
+                ]
+            };
+
+            // Generate 7 days
+            days.forEach((day, idx) => {
+                const dayOffset = idx * 10; // Simple variety offset
+                weeklyPlan[day] = {
+                    calories: finalCalories + (idx % 2 === 0 ? 50 : -50),
+                    protein: Math.round((finalCalories * 0.35) / 4),
+                    carbs: Math.round((finalCalories * 0.35) / 4),
+                    bmiStatus: bmiCategory,
+                    bmiVal: bmi.toFixed(1),
+                    meals: foodPool[bmiCategory].map(m => ({
+                        ...m,
+                        // Add some daily variation to name/desc
+                        name: day === 'Sun' ? 'Sunday ' + m.name : m.name
+                    }))
+                };
+            });
+
+            renderDay('Mon');
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('dietOutput').style.display = 'block';
+            document.getElementById('importBtn').style.display = 'flex';
+        }, 1500);
+    }
+
+    let currentDay = 'Mon';
+    function switchDay(day) {
+        currentDay = day;
+        document.querySelectorAll('.day-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.innerText === day) btn.classList.add('active');
+        });
+        renderDay(day);
+    }
+
+    function renderDay(day) {
+        const data = weeklyPlan[day];
+        document.getElementById('diet-day-title').innerText = day + ' Protocol';
+        document.getElementById('bmi-label').innerText = `OPTIMIZED FOR: ${data.bmiStatus} (BMI: ${data.bmiVal})`;
+
+        document.getElementById('res-calories').innerText = data.calories.toLocaleString();
+        document.getElementById('res-protein').innerText = data.protein + 'g';
+        document.getElementById('res-carbs').innerText = data.carbs + 'g';
+
+        const container = document.getElementById('meal-container');
+        container.innerHTML = '';
+
+        data.meals.forEach((meal, idx) => {
+            const ratios = [0.3, 0.4, 0.1, 0.2];
+            const mCals = Math.round(data.calories * ratios[idx]);
+            const row = `
+                <div class="meal-row">
+                    <div>
+                        <div class="meal-name">${meal.name}</div>
+                        <div class="meal-desc">${meal.desc}</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1.5rem;">
+                        <div style="font-weight: 800; color: var(--accent-green);">${mCals}kcal</div>
+                        <button onclick="logAiMeal('${meal.name.replace(/'/g, "\\'")}', ${mCals}, '${meal.desc.replace(/'/g, "\\'")}')" 
+                                class="add-pill" style="width: 35px; height: 35px; border: none; background: var(--accent-green); color: white; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            container.innerHTML += row;
+        });
+    }
+
+    async function logAiMeal(name, calories, desc) {
+        const protein = Math.round((calories * 0.35) / 4);
+        const carbs = Math.round((calories * 0.35) / 4);
+        const fats = Math.round((calories * 0.30) / 9);
+
+        try {
+            const response = await fetch('/api/nutrition/log/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    food_item: name,
+                    meal_type: 'AI Fueling',
+                    calories: calories,
+                    protein: protein,
+                    carbs: carbs,
+                    fats: fats
+                })
+            });
+            const data = await response.json();
+            if (data.status === 'success') {
+                alert('Success: Fuel sequence synchronized to your logs.');
+            }
+        } catch (error) {
+            console.error('Logging error:', error);
+            alert('Functional failure in neural uplink.');
+        }
+    }
+
+    async function logWholeDay() {
+        const data = weeklyPlan[currentDay];
+        if (!data) return;
+
+        const btn = document.getElementById('importBtn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Synchronizing...';
+        btn.disabled = true;
+
+        try {
+            for (let i = 0; i < data.meals.length; i++) {
+                const meal = data.meals[i];
+                const ratios = [0.3, 0.4, 0.1, 0.2];
+                const mCals = Math.round(data.calories * ratios[i]);
+                const protein = Math.round((mCals * 0.35) / 4);
+                const carbs = Math.round((mCals * 0.35) / 4);
+                const fats = Math.round((mCals * 0.30) / 9);
+
+                await fetch('/api/nutrition/log/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        food_item: meal.name,
+                        meal_type: 'Whole Day Protocol',
+                        calories: mCals,
+                        protein: protein,
+                        carbs: carbs,
+                        fats: fats
+                    })
+                });
+            }
+            alert(`Protocol for ${currentDay} has been synchronized to your dashboard.`);
+        } catch (error) {
+            alert('Partial synchronization failure.');
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    }
+</script>
+{% endblock %}

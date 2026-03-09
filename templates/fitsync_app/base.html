@@ -1,0 +1,139 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FitSync | Elite Fitness Management{% endblock %}</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Outfit:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="{% static 'css/professional.css' %}">
+    <!-- Mobile Responsive CSS -->
+    <link rel="stylesheet" href="{% static 'css/mobile.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    {% block header %}
+    <nav class="navbar">
+        <div class="logo-group">
+            <div class="logo">FITSYNC</div>
+            <div class="logo-subtitle">Your Ultimate Fitness Companion</div>
+        </div>
+        <style>
+            .logo-group {
+                display: flex;
+                flex-direction: column;
+                line-height: 1.1;
+            }
+
+            .logo {
+                margin-bottom: 0 !important;
+                font-size: 1.8rem;
+            }
+
+            .logo-subtitle {
+                font-size: 0.7rem;
+                color: var(--text-muted);
+                font-family: var(--font-main);
+                letter-spacing: 0.5px;
+                opacity: 0.8;
+            }
+        </style>
+        <ul class="nav-links">
+            <li>
+                <button id="theme-toggle" class="btn-theme" title="Toggle Light/Dark Mode">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </li>
+            {% if user.is_authenticated %}
+            <li>
+                <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-outline"
+                        style="padding: 0.5rem 1rem; font-size: 0.9rem;">Logout</button>
+                </form>
+            </li>
+            {% else %}
+            <li><a href="{% url 'login' %}" class="btn-outline" style="padding: 0.5rem 1rem;">Login</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endblock %}
+
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+        const icon = themeToggle.querySelector('i');
+
+        // Check for saved theme
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        if (currentTheme === 'light') {
+            body.classList.add('light-mode');
+            icon.classList.replace('fa-moon', 'fa-sun');
+        } else {
+            body.classList.add('dark-mode');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            if (body.classList.contains('light-mode')) {
+                body.classList.replace('light-mode', 'dark-mode');
+                localStorage.setItem('theme', 'dark');
+                icon.classList.replace('fa-sun', 'fa-moon');
+            } else if (body.classList.contains('dark-mode')) {
+                body.classList.replace('dark-mode', 'light-mode');
+                localStorage.setItem('theme', 'light');
+                icon.classList.replace('fa-moon', 'fa-sun');
+            } else {
+                body.classList.add('light-mode');
+                localStorage.setItem('theme', 'light');
+                icon.classList.replace('fa-moon', 'fa-sun');
+            }
+        });
+    </script>
+
+    <!-- Main Content -->
+    <main>
+        {% if messages %}
+        <div class="container mt-1">
+            {% for message in messages %}
+            <div class="card" style="padding: 1rem; border-left: 4px solid var(--gold); background: rgba(0,0,0,0.8);">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    {% block footer %}
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 FitSync. All rights reserved.</p>
+            <p class="text-muted" style="font-size: 0.8rem; margin-top: 0.5rem;">Empowering Your Fitness Journey</p>
+        </div>
+    </footer>
+    {% endblock %}
+
+    <!-- Scripts -->
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,268 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}{{ member.username }} Progress | FitSync Elite{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --sidebar-bg: var(--bg-tertiary);
+        --accent-orange: var(--gold);
+        --content-bg: var(--bg-primary);
+        --text-main: var(--text-primary);
+        --text-muted: var(--text-muted);
+        --white: var(--bg-secondary);
+        --card-shadow: var(--shadow-main);
+    }
+
+    body {
+        background-color: var(--content-bg);
+        color: var(--text-main);
+        font-family: 'Outfit', sans-serif;
+    }
+
+    .main-wrapper {
+        margin: 0 auto;
+        max-width: 1200px;
+        padding: 4rem;
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        transition: 0.3s;
+    }
+
+    .back-btn:hover {
+        color: var(--accent-orange);
+    }
+
+    .page-header {
+        margin-bottom: 3rem;
+    }
+
+    .page-title {
+        font-family: 'Cinzel', serif;
+        font-size: 2.2rem;
+        color: var(--gold);
+        margin: 0;
+    }
+
+    .member-meta {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .member-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 2px solid var(--gold);
+    }
+
+    .chart-container {
+        background: var(--white);
+        padding: 2.5rem;
+        border-radius: 24px;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--card-shadow);
+        margin-bottom: 3rem;
+    }
+
+    .history-card {
+        background: var(--white);
+        border-radius: 24px;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+    }
+
+    .history-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .history-table th {
+        background: var(--bg-tertiary);
+        padding: 1.2rem 2rem;
+        text-align: left;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-muted);
+    }
+
+    .history-table td {
+        padding: 1.2rem 2rem;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 1rem;
+    }
+
+    .bmi-badge {
+        display: inline-block;
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        background: rgba(212, 175, 55, 0.1);
+        color: var(--gold);
+        border: 1px solid var(--gold);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="main-wrapper">
+    <a href="{% url 'trainer_dashboard' %}" class="back-btn">
+        <i class="fa-solid fa-arrow-left"></i> RETURN TO DASHBOARD
+    </a>
+
+    <header class="page-header">
+        <h1 class="page-title">Biometric Progression Curve</h1>
+        <div class="member-meta">
+            {% if member.userprofile.profile_photo %}
+            <img src="{{ member.userprofile.profile_photo.url }}" class="member-avatar" alt="{{ member.username }}">
+            {% else %}
+            <img src="https://i.pravatar.cc/150?u={{ member.username }}" class="member-avatar"
+                alt="{{ member.username }}">
+            {% endif %}
+            <div>
+                <div style="font-weight: 800; font-size: 1.2rem;">{{ member.get_full_name|default:member.username }}
+                </div>
+                <div style="color: var(--text-muted); font-size: 0.9rem;">Athlete Analytics</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="chart-container">
+        <canvas id="progressionChart" style="max-height: 450px;"></canvas>
+    </div>
+
+    <div class="history-card">
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>Entry Date</th>
+                    <th>Weight (kg)</th>
+                    <th>Height (cm)</th>
+                    <th>BMI Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in history %}
+                <tr>
+                    <td style="font-weight: 600;">{{ record.recorded_at|date:"F d, Y" }}</td>
+                    <td>{{ record.weight_kg }} kg</td>
+                    <td>{{ record.height_cm }} cm</td>
+                    <td><span class="bmi-badge">{{ record.bmi_score }}</span></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                        No biometric data available for this athlete.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div id="progression-data" style="display: none;"
+            data-history='[{% for record in history reversed %}{"date": "{{ record.recorded_at|date:"M d" }}", "bmi": {{ record.bmi_score }}, "weight": {{ record.weight_kg }}}{% if not forloop.last %},{% endif %}{% endfor %}]'>
+        </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('progressionChart').getContext('2d');
+        const dataContainer = document.getElementById('progression-data');
+        const rawData = JSON.parse(dataContainer.dataset.history);
+
+        const labels = rawData.map(item => item.date);
+        const bmiData = rawData.map(item => item.bmi);
+        const weightData = rawData.map(item => item.weight);
+
+        const gradientBMI = ctx.createLinearGradient(0, 0, 0, 400);
+        gradientBMI.addColorStop(0, 'rgba(212, 175, 55, 0.4)');
+        gradientBMI.addColorStop(1, 'rgba(212, 175, 55, 0.0)');
+
+        const gradientWeight = ctx.createLinearGradient(0, 0, 0, 400);
+        gradientWeight.addColorStop(0, 'rgba(16, 185, 129, 0.4)');
+        gradientWeight.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'BMI Score',
+                        data: bmiData,
+                        borderColor: '#D4AF37',
+                        backgroundColor: gradientBMI,
+                        fill: true,
+                        tension: 0.4,
+                        yAxisID: 'y',
+                    },
+                    {
+                        label: 'Weight (kg)',
+                        data: weightData,
+                        borderColor: '#10B981',
+                        backgroundColor: gradientWeight,
+                        fill: true,
+                        tension: 0.4,
+                        yAxisID: 'y1',
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'BMI',
+                            color: '#D4AF37'
+                        },
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Weight (kg)',
+                            color: '#10B981'
+                        },
+                        grid: { drawOnChartArea: false }
+                    },
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: { color: '#fff', font: { family: 'Outfit', size: 12 } }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

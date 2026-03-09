@@ -1,0 +1,786 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard | FitSync Elite{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --sidebar-width: 280px;
+        /* --sidebar-bg is now in professional.css */
+        /* --accent-glow is now in professional.css */
+    }
+
+    body {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: var(--font-main);
+        margin: 0;
+        display: flex;
+        min-height: 100vh;
+    }
+
+    /* Sidebar Refinement */
+    .sidebar {
+        width: var(--sidebar-width);
+        background: var(--sidebar-bg);
+        border-right: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        height: 100vh;
+        z-index: 1000;
+        transition: var(--transition-smooth);
+    }
+
+    .sidebar-profile {
+        padding: 2.5rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 1rem;
+    }
+
+    .profile-img-container {
+        position: relative;
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        overflow: hidden;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border: 2px solid transparent;
+        transition: 0.3s;
+    }
+
+    .profile-img-container:hover {
+        border-color: var(--accent-primary);
+        transform: scale(1.05);
+    }
+
+    .profile-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .profile-name {
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--text-primary);
+    }
+
+    .profile-role {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .sidebar-nav {
+        flex-grow: 1;
+        padding: 0 1rem;
+        overflow-y: auto;
+    }
+
+    .sidebar-nav::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .sidebar-nav::-webkit-scrollbar-thumb {
+        background: var(--border-color);
+        border-radius: 10px;
+    }
+
+    .nav-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .nav-section-title {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        padding: 0 1rem;
+        margin-bottom: 0.75rem;
+        opacity: 0.6;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.85rem 1rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.95rem;
+        font-weight: 500;
+        border-radius: 12px;
+        margin-bottom: 0.25rem;
+        transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .nav-link:hover {
+        background: rgba(212, 175, 55, 0.08);
+        color: var(--accent-primary);
+        transform: translateX(4px);
+    }
+
+    .nav-link.active {
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        color: white;
+        box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
+    }
+
+    .nav-link i {
+        width: 20px;
+        text-align: center;
+        font-size: 1.1rem;
+    }
+
+    .sidebar-footer {
+        padding: 1.5rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .logout-btn {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        color: var(--text-muted);
+        background: none;
+        border: none;
+        width: 100%;
+        cursor: pointer;
+        padding: 0.8rem 1rem;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+
+    .logout-btn:hover {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+    }
+
+    /* Main Content */
+    .main-wrapper {
+        margin-left: var(--sidebar-width);
+        flex-grow: 1;
+        padding: 3rem 4rem;
+        max-width: 1600px;
+    }
+
+    .page-header {
+        margin-bottom: 3.5rem;
+        animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    .page-title {
+        font-size: 2.25rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        background: linear-gradient(135deg, var(--text-primary), var(--text-muted));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        font-weight: 400;
+    }
+
+    /* Stats Grid */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        margin-bottom: 4rem;
+    }
+
+    .stat-card {
+        background: var(--bg-secondary);
+        padding: 2.25rem;
+        border-radius: 24px;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-main);
+        position: relative;
+        overflow: hidden;
+        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .stat-card:hover {
+        border-color: var(--accent-primary);
+        transform: translateY(-8px);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 150px;
+        height: 150px;
+        background: var(--accent-glow);
+        filter: blur(60px);
+        border-radius: 50%;
+        opacity: 0.5;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        display: block;
+        margin-bottom: 1.25rem;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        letter-spacing: -0.03em;
+        margin-bottom: 1rem;
+    }
+
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 6px 14px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+    }
+
+    .status-alert {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+    }
+
+    .status-premium {
+        background: rgba(212, 175, 55, 0.1);
+        color: var(--accent-primary);
+        border: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    /* Action Cards */
+    .section-header {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 4rem 0 2rem 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .section-header::after {
+        content: '';
+        flex-grow: 1;
+        height: 1px;
+        background: var(--border-color);
+    }
+
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 4rem;
+    }
+
+    .action-card {
+        background: var(--bg-secondary);
+        padding: 2.5rem 2rem;
+        border-radius: 24px;
+        text-decoration: none;
+        color: inherit;
+        border: 1px solid var(--border-color);
+        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .action-card:hover {
+        transform: translateY(-10px);
+        border-color: var(--accent-primary);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        background: linear-gradient(135deg, var(--bg-secondary), rgba(212, 175, 55, 0.05));
+    }
+
+    .action-card i {
+        font-size: 2.5rem;
+        color: var(--accent-primary);
+        margin-bottom: 1.5rem;
+        transition: 0.3s;
+    }
+
+    .action-card:hover i {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .action-card h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+    }
+
+    .action-card p {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    /* Coach Card */
+    .trainer-card-professional {
+        background: linear-gradient(135deg, var(--bg-secondary), #2d2605);
+        /* Dark Gold/Brown */
+        border: 1px solid rgba(212, 175, 55, 0.3);
+    }
+
+    .btn-update-v2 {
+        background: var(--accent-primary);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 700;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: 0.3s;
+        border: none;
+    }
+
+    .btn-update-v2:hover {
+        background: var(--accent-secondary);
+        box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+    }
+
+    @media (max-width: 1024px) {
+        .stats-row {
+            grid-template-columns: 1fr;
+        }
+
+        .main-wrapper {
+            padding: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Mobile Hamburger Button -->
+<button class="hamburger-btn" id="hamburger-btn" aria-label="Toggle Menu">
+    <i class="fa-solid fa-bars"></i>
+</button>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-profile">
+        <form id="dashboard-photo-form" method="post" enctype="multipart/form-data" style="display: none;">
+            {% csrf_token %}
+            <input type="file" name="profile_photo" id="dashboard-photo-input"
+                onchange="document.getElementById('dashboard-photo-form').submit();" accept="image/*">
+        </form>
+
+        <div class="profile-img-container" onclick="document.getElementById('dashboard-photo-input').click();">
+            {% if user.userprofile.profile_photo %}
+            <img src="{{ user.userprofile.profile_photo.url }}" class="profile-img" alt="Profile">
+            {% else %}
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ user.username }}" class="profile-img"
+                alt="Profile">
+            {% endif %}
+        </div>
+        <div class="profile-info">
+            <span class="profile-name">{{ user.username|title }}</span>
+            <span class="profile-role">
+                {% if subscription %}{{ subscription.plan.get_name_display }}{% else %}Member{% endif %}
+            </span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="nav-section">
+            <div class="nav-section-title">Main</div>
+            <a href="{% url 'user_dashboard' %}" class="nav-link active">
+                <i class="fa-solid fa-house"></i> Home
+            </a>
+            <a href="{% url 'progress' %}" class="nav-link">
+                <i class="fa-solid fa-chart-line"></i> Progress
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Fitness</div>
+            <a href="{% url 'workout_list' %}" class="nav-link">
+                <i class="fa-solid fa-dumbbell"></i> My Workouts
+            </a>
+            <a href="{% url 'diet_list' %}" class="nav-link">
+                <i class="fa-solid fa-utensils"></i> Diet Plan
+            </a>
+            <a href="{% url 'nutrition' %}" class="nav-link">
+                <i class="fa-solid fa-droplet"></i> Nutrition
+            </a>
+            <a href="{% url 'bmi_history' %}" class="nav-link">
+                <i class="fa-solid fa-heart-pulse"></i> Vitality
+            </a>
+            <a href="{% url 'goals' %}" class="nav-link">
+                <i class="fa-solid fa-bullseye"></i> Goals
+            </a>
+            <a href="{% url 'video_gallery' %}" class="nav-link">
+                <i class="fa-solid fa-film"></i> Exercise Videos
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Service</div>
+            <a href="{% url 'attendance' %}" class="nav-link">
+                <i class="fa-solid fa-calendar-check"></i> Attendance
+            </a>
+            <a href="{% url 'membership' %}" class="nav-link">
+                <i class="fa-solid fa-crown"></i> Membership
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Shop</div>
+            <a href="{% url 'store' %}" class="nav-link" style="color: var(--accent-primary);">
+                <i class="fa-solid fa-store"></i> FitSync Store
+            </a>
+            <a href="{% url 'cart' %}" class="nav-link">
+                <i class="fa-solid fa-cart-shopping"></i> My Cart
+            </a>
+            <a href="{% url 'order_history' %}" class="nav-link">
+                <i class="fa-solid fa-box-archive"></i> My Orders
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Connect</div>
+            <a href="{% url 'trainer_list' %}" class="nav-link">
+                <i class="fa-solid fa-user-tie"></i> Trainers
+            </a>
+            <a href="{% url 'messages' %}" class="nav-link">
+                <i class="fa-solid fa-comments"></i> Messages
+            </a>
+            <a href="{% url 'community' %}" class="nav-link">
+                <i class="fa-solid fa-users"></i> Community
+            </a>
+            <a href="{% url 'ai_hub' %}" class="nav-link">
+                <i class="fa-solid fa-brain"></i> Neural Hub
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Account</div>
+            {% if user.userprofile.role == 'admin' %}
+            <a href="{% url 'admin_dashboard' %}" class="nav-link"
+                style="color: var(--accent-primary); border: 1px solid rgba(212,175,55,0.2); background: rgba(212,175,55,0.05);">
+                <i class="fa-solid fa-user-shield"></i> Admin Portal
+            </a>
+            {% endif %}
+            <a href="{% url 'settings' %}" class="nav-link">
+                <i class="fa-solid fa-gear"></i> Settings
+            </a>
+            <a href="{% url 'help' %}" class="nav-link">
+                <i class="fa-solid fa-circle-question"></i> Help
+            </a>
+        </div>
+    </nav>
+
+    <div class="sidebar-footer">
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
+            </button>
+        </form>
+    </div>
+</aside>
+
+<main class="main-wrapper">
+    <header class="page-header">
+        <h1 class="page-title"
+            style="background: linear-gradient(135deg, var(--text-primary), var(--text-muted)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+            Performance Insights</h1>
+        <p class="page-subtitle">Welcome back, {{ user.username|title }}. Here is your current physiological summary.
+        </p>
+    </header>
+
+    {% if not user.fitness_assessment %}
+    <a href="{% url 'fitness_assessment' %}" style="text-decoration:none; display:block; margin-bottom: 2.5rem;">
+        <div style="background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(245,158,11,0.05)); border: 1px solid rgba(99,102,241,0.2); border-radius: 20px; padding: 1.5rem 2rem; display: flex; align-items: center; gap: 1.5rem; transition: 0.3s;" onmouseover="this.style.borderColor='rgba(99,102,241,0.4)'" onmouseout="this.style.borderColor='rgba(99,102,241,0.2)'">
+            <div style="width: 52px; height: 52px; background: rgba(99,102,241,0.12); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #818cf8; flex-shrink: 0;">🧠</div>
+            <div style="flex-grow:1;">
+                <div style="font-weight: 800; color: #c7d2fe; margin-bottom: 0.3rem;">Complete Your Smart Fitness Assessment</div>
+                <div style="font-size: 0.85rem; color: #555;">Takes 2 mins. Get a personalized workout plan, diet recommendation, and BMI analysis.</div>
+            </div>
+            <div style="background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); border-radius: 10px; padding: 0.5rem 1.2rem; color: #818cf8; font-size: 0.8rem; font-weight: 700; white-space: nowrap;">Get Started →</div>
+        </div>
+    </a>
+    {% endif %}
+
+    <div class="stats-row">
+        <div class="stat-card">
+            {% with last_bmi=user.bmi_records.first %}
+            <span class="stat-label">Biometric Index</span>
+            <div class="stat-value">{{ last_bmi.bmi_score|default:"--" }}</div>
+            {% if last_bmi %}
+            {% with score=last_bmi.bmi_score %}
+            <div class="status-pill {% if score < 18.5 or score >= 25 %}status-alert{% endif %}">
+                <i
+                    class="fa-solid {% if score < 18.5 or score >= 25 %}fa-triangle-exclamation{% else %}fa-circle-check{% endif %}"></i>
+                {% if score < 18.5 %}Underweight{% elif score < 25 %}Optimal Range{% elif score < 30 %}Overweight{% else
+                    %}Obese{% endif %} </div>
+                    {% endwith %}
+                    {% else %}
+                    <div class="status-pill status-alert"><i class="fa-solid fa-circle-info"></i> No Data</div>
+                    {% endif %}
+                    {% endwith %}
+                    <a href="{% url 'bmi_calculator' %}" class="btn-update-v2"
+                        style="width: 100%; justify-content: center; margin-top: 1.5rem;">Update Vitals</a>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">Training Intensity</span>
+                <div class="stat-value">{{ user.attendance_logs.count }}</div>
+                <div class="status-pill"><i class="fa-solid fa-fire"></i> Active Streak</div>
+                <p class="text-muted" style="font-size:0.85rem;margin-top:1.25rem">Sessions recorded in current cycle.
+                </p>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">Subscription Tier</span>
+                <div class="stat-value" style="font-size: 1.75rem; margin-top: 0.5rem;">
+                    {% if subscription %}{{ subscription.plan.get_name_display }}{% else %}Standard Access{% endif %}
+                </div>
+                <div class="status-pill status-premium">
+                    <i class="fa-solid fa-crown"></i>
+                    {% if is_basic %}Basic Active
+                    {% elif subscription.plan.name == 'elite' or subscription.plan.name == 'lifetime' %}Full Access
+                    Active
+                    {% elif subscription %}Premium Active
+                    {% else %}Trial Phase{% endif %}
+                </div>
+                <p class="text-muted" style="font-size:0.85rem;margin-top:1.25rem">
+                    {% if is_basic %}Upgrade for AI coaching tools.{% else %}All premium features unlocked.{% endif %}
+                </p>
+            </div>
+        </div>
+
+        {% if assigned_trainer %}
+        <h2 class="section-header">Elite Performance Coach</h2>
+        <div class="stat-card trainer-card-professional"
+            style="display: flex; align-items: center; gap: 2rem; margin-bottom: 4rem;">
+            {% if trainer_profile.profile_photo %}
+            <img src="{{ trainer_profile.profile_photo.url }}"
+                style="width: 110px; height: 110px; border-radius: 20px; border: 2px solid var(--accent-primary); object-fit: cover;">
+            {% else %}
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ assigned_trainer.username }}"
+                style="width: 110px; height: 110px; border-radius: 20px; border: 2px solid var(--accent-primary); object-fit: cover;">
+            {% endif %}
+            <div style="flex-grow: 1;">
+                <h3 style="margin: 0 0 0.25rem 0; color: white;">{{ trainer_display_name|title }}</h3>
+                <p style="color: var(--accent-primary); font-weight: 600; margin: 0 0 1.25rem 0; font-size: 0.9rem;">
+                    {{ trainer_profile.specialty|default:"Master Performance Specialist" }}</p>
+                <div style="display: flex; gap: 1rem;">
+                    <a href="{% url 'messages' %}?user_id={{ assigned_trainer.id }}" class="btn-update-v2">
+                        <i class="fa-solid fa-comments"></i> Instant Message
+                    </a>
+                    <a href="{% url 'trainer_list' %}" class="btn-update-v2"
+                        style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color);">
+                        Profile
+                    </a>
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <div class="status-pill" style="margin-bottom:0.5rem;"><i class="fa-solid fa-bolt"></i> Online Now</div>
+                <div style="color: var(--text-muted); font-size: 0.8rem;">Assigned {{ trainer_assignment_date }}</div>
+            </div>
+        </div>
+        {% elif is_basic %}
+        <h2 class="section-header">Elite Coaching Support</h2>
+        <div class="stat-card"
+            style="display: flex; align-items: center; gap: 2.5rem; margin-bottom: 4rem; border: 1px dashed var(--accent-primary); background: rgba(212, 175, 55, 0.03);">
+            <div
+                style="width: 70px; height: 70px; font-size: 1.75rem; background: rgba(212, 175, 55, 0.1); color: var(--accent-primary); display: flex; align-items: center; justify-content: center; border-radius: 18px;">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <div style="flex-grow: 1;">
+                <h3 style="color: var(--accent-primary); margin-bottom: 0.5rem;">Unlock Expert Guidance</h3>
+                <p style="color: var(--text-muted); margin: 0; font-size: 0.95rem;">1-on-1 coaching and custom feedback
+                    loops are exclusive to Premium & Elite members.</p>
+            </div>
+            <a href="{% url 'membership' %}" class="btn-update-v2" style="white-space: nowrap;">Upgrade Protocol</a>
+        </div>
+        {% endif %}
+
+        {% if live_sessions %}
+        <h2 class="section-header">Upcoming Live Sessions</h2>
+        <div class="actions-grid" style="margin-bottom: 3rem;">
+            {% for session in live_sessions %}
+            <div class="action-card" style="border-color: rgba(239,68,68,0.3); position: relative; overflow: hidden; background: linear-gradient(135deg, var(--bg-secondary), rgba(239,68,68,0.04));">
+                <span style="position: absolute; top: 12px; right: 12px; font-size: 0.65rem; background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 800; letter-spacing: 1px;">SCHEDULED</span>
+                <i class="fa-solid fa-video" style="color: #f87171;"></i>
+                <h3>{{ session.session_title }}</h3>
+                <p>Instructor: {{ session.trainer_name }}</p>
+                <p style="font-size: 0.85rem; color: #888;">{{ session.date }} at {{ session.time }}</p>
+                <a href="{{ session.meeting_link }}" target="_blank" class="btn-update-v2" style="margin-top: 1rem; padding: 0.5rem 1rem; width: 100%; text-align: center;">Join Session</a>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <h2 class="section-header">Operational Modules</h2>
+        <div class="actions-grid">
+            <a href="{% url 'workout_list' %}" class="action-card">
+                <i class="fa-solid fa-dumbbell"></i>
+                <h3>Training</h3>
+                <p>Execution protocols and AI-driven routine generation.</p>
+            </a>
+            <a href="{% url 'diet_list' %}" class="action-card">
+                <i class="fa-solid fa-leaf"></i>
+                <h3>Fueling</h3>
+                <p>Metabolic optimization and meal scheduling.</p>
+            </a>
+            <a href="{% url 'ai_hub' %}" class="action-card">
+                <i class="fa-solid fa-brain"></i>
+                <h3>Neural Hub</h3>
+                <p>Access the complete suite of AI training and fueling tools.</p>
+            </a>
+            <a href="{% url 'progress' %}" class="action-card">
+                <i class="fa-solid fa-chart-line"></i>
+                <h3>Analytics</h3>
+                <p>Quantitative progress tracking and performance charts.</p>
+            </a>
+            <a href="{% url 'fitness_assessment' %}" class="action-card" style="border-color: rgba(99,102,241,0.2); background: linear-gradient(135deg, var(--bg-secondary), rgba(99,102,241,0.04));">
+                <i class="fa-solid fa-microscope" style="color: #818cf8;"></i>
+                <h3>Fitness Assessment</h3>
+                <p>Get a personalized workout plan, diet plan & BMI analysis from your biometric data.</p>
+            </a>
+            <a href="{% url 'live_session' %}" class="action-card" style="border-color: rgba(239,68,68,0.3); background: linear-gradient(135deg, var(--bg-secondary), rgba(239,68,68,0.04));">
+                <i class="fa-solid fa-video" style="color: #f87171;"></i>
+                <h3>Classes & Sessions</h3>
+                <p>View and schedule live interactive sessions via meeting links.</p>
+            </a>
+            <a href="{% url 'store' %}" class="action-card" style="border-color: rgba(245,158,11,0.3); background: linear-gradient(135deg, var(--bg-secondary), rgba(245,158,11,0.04));">
+                <i class="fa-solid fa-store" style="color: #f59e0b;"></i>
+                <h3>FitSync Store</h3>
+                <p>Shop premium supplements and fitness equipment.</p>
+            </a>
+        </div>
+
+        <h2 class="section-header">Biometric Tracking</h2>
+        <div class="actions-grid">
+            <a href="{% url 'attendance' %}" class="action-card">
+                <i class="fa-solid fa-calendar-check"></i>
+                <h3>Attendance</h3>
+                <p>Temporal check-ins and consistency mapping.</p>
+            </a>
+            <a href="{% url 'nutrition' %}" class="action-card">
+                <i class="fa-solid fa-droplet"></i>
+                <h3>Hydration</h3>
+                <p>Water intake and electrolyte balancing.</p>
+            </a>
+            <a href="{% url 'goals' %}" class="action-card">
+                <i class="fa-solid fa-bullseye"></i>
+                <h3>Objectives</h3>
+                <p>Defining and monitoring mission-critical milestones.</p>
+            </a>
+            <a href="{% url 'bmi_history' %}" class="action-card">
+                <i class="fa-solid fa-heart-pulse"></i>
+                <h3>Vitality</h3>
+                <p>Cardiovascular metrics and biometric history.</p>
+            </a>
+        </div>
+
+        <h2 class="section-header">Network & Status</h2>
+        <div class="actions-grid">
+            <a href="{% url 'membership' %}" class="action-card">
+                <i class="fa-solid fa-crown"></i>
+                <h3>Membership</h3>
+                <p>Access level management and tier updates.</p>
+            </a>
+            <a href="{% url 'trainer_list' %}" class="action-card">
+                <i class="fa-solid fa-user-tie"></i>
+                <h3>Coaches</h3>
+                <p>Interface with professional performance staff.</p>
+            </a>
+            <a href="{% url 'messages' %}" class="action-card">
+                <i class="fa-solid fa-comments"></i>
+                <h3>Messaging</h3>
+                <p>Encrypted communication with trainers.</p>
+            </a>
+            <a href="{% url 'community' %}" class="action-card">
+                <i class="fa-solid fa-users"></i>
+                <h3>Syndicate</h3>
+                <p>Peer performance groups and challenges.</p>
+            </a>
+        </div>
+
+        <h2 class="section-header">System Configuration</h2>
+        <div class="actions-grid">
+            <a href="{% url 'settings' %}" class="action-card">
+                <i class="fa-solid fa-gear"></i>
+                <h3>Settings</h3>
+                <p>System preferences and credential management.</p>
+            </a>
+            <a href="{% url 'help' %}" class="action-card">
+                <i class="fa-solid fa-circle-question"></i>
+                <h3>Support</h3>
+                <p>Technical documentation and help protocols.</p>
+            </a>
+        </div>
+</main>
+
+<!-- Sidebar Toggle Script -->
+<script>
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const hamburgerIcon = hamburgerBtn.querySelector('i');
+
+    function toggleSidebar() {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
+        if (sidebar.classList.contains('open')) {
+            hamburgerIcon.classList.replace('fa-bars', 'fa-xmark');
+        } else {
+            hamburgerIcon.classList.replace('fa-xmark', 'fa-bars');
+        }
+    }
+
+    hamburgerBtn.addEventListener('click', toggleSidebar);
+    overlay.addEventListener('click', toggleSidebar);
+
+    // Close sidebar when a nav link is clicked (on mobile)
+    document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth <= 1024) {
+                toggleSidebar();
+            }
+        });
+    });
+</script>
+{% endblock %}

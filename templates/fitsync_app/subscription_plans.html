@@ -1,0 +1,620 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}
+{% if user.userprofile.role == 'admin' %}Manage Subscriptions | Admin{% else %}Membership Plans | FitSync Elite{% endif %}
+{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --admin-bg: var(--bg-primary);
+        --sidebar-bg: var(--bg-tertiary);
+        --accent-orange: var(--gold);
+        --text-dark: var(--text-primary);
+        --text-muted: var(--text-muted);
+        --white: var(--bg-secondary);
+    }
+
+        {% if user.is_authenticated and user.userprofile.role == 'admin' %}
+
+    body {
+        background-color: var(--admin-bg);
+        color: var(--text-dark);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .admin-wrapper {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+        width: 260px;
+        background: var(--sidebar-bg);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        height: 100vh;
+        z-index: 1001; transition: transform 0.3s ease;
+        padding: 0;
+    }
+
+    .sidebar-header {
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        margin-bottom: 1rem;
+    }
+
+    .admin-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 4px;
+        object-fit: cover;
+    }
+
+    .admin-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #f3f4f6;
+    }
+
+    .sidebar-menu {
+        padding: 0 0.8rem;
+        list-style: none;
+        flex-grow: 1;
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.65rem 1rem;
+        color: #94a3b8;
+        text-decoration: none;
+        font-size: 0.85rem;
+        border-radius: 6px;
+        margin-bottom: 0.25rem;
+        transition: all 0.2s;
+        font-weight: 500;
+    }
+
+    .menu-item:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .menu-item.active {
+        background: var(--accent-orange);
+        color: #fff;
+    }
+
+    .menu-item i {
+        font-size: 1rem;
+        width: 18px;
+        text-align: center;
+    }
+
+    .menu-item .chevron {
+        margin-left: auto;
+        font-size: 0.7rem;
+        opacity: 0.5;
+    }
+
+    /* Main Area Styles */
+    .main-area {
+        margin-left: 260px;
+        flex-grow: 1;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .top-bar {
+        background: var(--bg-secondary);
+        padding: 0.6rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: var(--shadow-sm);
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .search-input-wrapper {
+        position: relative;
+        width: 350px;
+    }
+
+    .search-input-wrapper i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        font-size: 0.85rem;
+    }
+
+    .search-input-wrapper input {
+        width: 100%;
+        padding: 0.45rem 1rem 0.45rem 2.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        font-size: 0.85rem;
+        outline: none;
+    }
+
+    .top-bar-right {
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
+    }
+
+    .top-bar-right i {
+        color: var(--text-dark);
+        font-size: 1rem;
+        cursor: pointer;
+        opacity: 0.7;
+    }
+
+    .admin-pill {
+        background: var(--accent-orange);
+        color: #000;
+        padding: 0.35rem 1rem;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+
+    .dashboard-content {
+        padding: 1.5rem 2rem;
+    }
+
+    .admin-page-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .admin-page-subtitle {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .plan-management-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .plan-card-admin {
+        background: var(--white);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .plan-card-admin:hover {
+        border-color: var(--gold);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .status-pill {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .status-active {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .status-inactive {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .plan-admin-name {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .plan-admin-price {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--gold);
+        margin: 0.5rem 0;
+    }
+
+    .plan-admin-meta {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+        display: flex;
+        gap: 15px;
+    }
+
+    .plan-admin-desc {
+        font-size: 0.9rem;
+        color: var(--text-primary);
+        line-height: 1.5;
+        margin-bottom: 1.5rem;
+        flex-grow: 1;
+    }
+
+    .admin-feature-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 1.5rem;
+    }
+
+    .admin-feature-tag {
+        font-size: 0.75rem;
+        background: var(--bg-tertiary);
+        color: var(--text-muted);
+        padding: 4px 10px;
+        border-radius: 4px;
+        border: 1px solid var(--border-color);
+    }
+
+    .btn-configure {
+        width: 100%;
+        padding: 0.8rem;
+        background: var(--gold);
+        color: #000;
+        border-radius: 8px;
+        text-decoration: none;
+        text-align: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        transition: 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .btn-configure:hover {
+        background: #eab308;
+        transform: translateY(-2px);
+    }
+
+        {% else %}
+
+    /* Member Theme Styles */
+    .plans-hero {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=1350&q=80');
+        background-size: cover;
+        background-position: center;
+        padding: 6rem 0;
+        text-align: center;
+        margin-bottom: 4rem;
+        border-radius: 0 0 50px 50px;
+    }
+
+    .plans-hero h1 {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        letter-spacing: 3px;
+    }
+
+    .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2.5rem;
+        padding-bottom: 5rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .pricing-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 30px;
+        padding: 3rem 2rem;
+        text-align: center;
+        transition: 0.4s;
+        position: relative;
+    }
+
+    .pricing-card.popular {
+        border: 2px solid var(--gold);
+        transform: scale(1.05);
+    }
+
+    .plan-price {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        color: var(--gold);
+    }
+
+    .btn-plan {
+        display: block;
+        width: 100%;
+        padding: 1rem;
+        border-radius: 15px;
+        font-weight: 700;
+        text-decoration: none;
+        margin-top: auto;
+    }
+
+    .btn-plan-solid {
+        background: var(--gold);
+        color: #000;
+    }
+
+    .btn-plan-outline {
+        border: 2px solid var(--gold);
+        color: var(--gold);
+    }
+
+    .back-btn {
+        position: absolute;
+        top: 2rem;
+        left: 2rem;
+        color: #fff;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        z-index: 10;
+    }
+
+        {% endif %}
+
+    /* Mobile Responsive dynamically injected */
+    @media (max-width: 1024px) {
+        .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+        .sidebar.open { transform: translateX(0); box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
+        .main-content, .main-area, .content-area { margin-left: 0 !important; padding: 1.5rem !important; padding-top: 4.5rem !important; }
+        .page-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+        .actions-bar { flex-direction: column; width: 100%; gap: 1rem; }
+        .search-wrapper { max-width: 100%; width: 100%; }
+        .premium-table { display: block; overflow-x: auto; white-space: nowrap; }
+    }
+    @media (max-width: 768px) {
+        .main-content, .main-area, .content-area { padding: 1rem !important; padding-top: 4.5rem !important; }
+        .page-title { font-size: 1.8rem; }
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated and user.userprofile.role == 'admin' %}
+<div class="admin-wrapper">
+    
+    <!-- Mobile Hamburger Button -->
+    <button class="hamburger-btn" id="hamburger-btn" aria-label="Toggle Menu">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <aside class="sidebar" id="sidebar" >
+        <div class="sidebar-header">
+            {% if user.userprofile.profile_photo %}
+            <img src="{{ user.userprofile.profile_photo.url }}" class="admin-avatar" alt="Admin">
+            {% else %}
+            <img src="https://i.pravatar.cc/150?u={{ user.username }}" class="admin-avatar" alt="Admin">
+            {% endif %}
+            <span class="admin-name">Admin <i class="fa-solid fa-chevron-down"></i></span>
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="{% url 'admin_dashboard' %}" class="menu-item">
+                <i class="fa-solid fa-gauge"></i> Dashboard
+            </a>
+            <a href="{% url 'report_members' %}" class="menu-item">
+                <i class="fa-regular fa-user"></i> Users
+            </a>
+            <a href="{% url 'trainer_list' %}" class="menu-item">
+                <i class="fa-solid fa-table-cells"></i> Trainers
+            </a>
+            <a href="{% url 'subscription_plans' %}" class="menu-item active">
+                <i class="fa-regular fa-envelope"></i> Subscriptions
+            </a>
+            <a href="{% url 'report_payments' %}" class="menu-item">
+                <i class="fa-solid fa-money-bill-transfer"></i> Payments
+            </a>
+            <a href="{% url 'admin_help_tickets' %}" class="menu-item">
+                <i class="fa-solid fa-headset"></i> Help Tickets
+            </a>
+            <div class="menu-item-group">
+                <a href="#" class="menu-item" onclick="toggleSubmenu('reports-submenu')">
+                    <i class="fa-regular fa-file-lines"></i> Reports <i class="fa-solid fa-chevron-down chevron"></i>
+                </a>
+                <div id="reports-submenu" style="display: none; padding-left: 1.5rem;">
+                    <a href="{% url 'report_members' %}" class="menu-item" style="font-size: 0.8rem;">
+                        <i class="fa-solid fa-users-viewfinder"></i> Members
+                    </a>
+                    <a href="{% url 'report_payments' %}" class="menu-item" style="font-size: 0.8rem;">
+                        <i class="fa-solid fa-file-invoice-dollar"></i> Financials
+                    </a>
+                    <a href="{% url 'report_attendance' %}" class="menu-item" style="font-size: 0.8rem;">
+                        <i class="fa-solid fa-clipboard-user"></i> Attendance
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </aside>
+
+    <div class="main-area">
+        <header class="top-bar">
+            <div class="search-input-wrapper">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Search">
+            </div>
+
+            <div class="top-bar-right">
+                <i class="fa-solid fa-arrows-rotate"></i>
+                <i class="fa-regular fa-envelope"></i>
+                <i class="fa-solid fa-thumbtack" style="color: #94a3b8; transform: rotate(45deg);"></i>
+                <div class="admin-pill">Admin</div>
+            </div>
+        </header>
+
+        <div class="dashboard-content">
+            <header>
+                <h1 class="admin-page-title">Membership Protocols</h1>
+                <p class="admin-page-subtitle">Configure subscription tiers, internal pricing, and available product
+                    features.</p>
+            </header>
+
+            <div class="plan-management-grid">
+                {% for plan in plans %}
+                <div class="plan-card-admin">
+                    <span class="status-pill {% if plan.is_active %}status-active{% else %}status-inactive{% endif %}">
+                        {% if plan.is_active %}Active{% else %}Inactive{% endif %}
+                    </span>
+                    <h3 class="plan-admin-name">{{ plan.get_name_display }}</h3>
+                    <div class="plan-admin-price">₹{{ plan.price|floatformat:0 }}</div>
+                    <div class="plan-admin-meta">
+                        <span><i class="fa-solid fa-calendar-day"></i> {{ plan.duration_text }}</span>
+                        {% if plan.annual_price %}
+                        <span><i class="fa-solid fa-receipt"></i> Annual: ₹{{ plan.annual_price|floatformat:0 }}</span>
+                        {% endif %}
+                    </div>
+                    <p class="plan-admin-desc">{{ plan.description }}</p>
+                    <div class="admin-feature-list">
+                        {% for feature in plan.get_features_list %}
+                        <span class="admin-feature-tag">{{ feature }}</span>
+                        {% endfor %}
+                    </div>
+                    <a href="{% url 'edit_subscription_plan' plan.id %}" class="btn-configure"><i
+                            class="fa-solid fa-sliders"></i> Modify Protocol</a>
+                </div>
+                {% endfor %}
+            </div>
+
+            <form action="{% url 'logout' %}" method="post"
+                style="margin-top: 2rem; display: flex; justify-content: center;">
+                {% csrf_token %}
+                <button type="submit"
+                    style="color: #ef4444; background: none; border: 1px solid #fee2e2; padding: 0.5rem 1.5rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600;">
+                    Logout of System
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleSubmenu(id) {
+        const el = document.getElementById(id);
+        if (el.style.display === 'none') {
+            el.style.display = 'block';
+        } else {
+            el.style.display = 'none';
+        }
+    }
+</script>
+{% else %}
+<section class="plans-hero" style="position: relative;">
+    <a href="{% url 'user_dashboard' %}" class="back-btn"><i class="fa-solid fa-arrow-left"></i> RETURN TO PORTAL</a>
+    <div class="container text-center">
+        <h1 class="text-gold">CHOOSE YOUR ELITE PLAN</h1>
+        <p>Elevate your fitness journey with our professional programs designed for peak performance and lasting
+            results.</p>
+    </div>
+</section>
+
+<div class="container">
+    <div class="pricing-grid">
+        {% for plan in plans %}
+        <div class="pricing-card {% if plan.name == 'premium' %}popular{% endif %}">
+            {% if plan.name == 'premium' %}
+            <div
+                style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 6px 20px; border-radius: 50px; font-weight: 800; font-size: 0.8rem; box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);">
+                MOST POPULAR</div>
+            {% endif %}
+            <div style="flex-grow: 1;">
+                <h3
+                    style="font-family: var(--font-heading); font-size: 1.8rem; margin-bottom: 1rem; color: var(--white);">
+                    {{ plan.get_name_display|upper }}</h3>
+                <div class="plan-price">₹{{ plan.price|floatformat:0 }}</div>
+                <div style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2.5rem;">{{ plan.duration_text
+                    }}</div>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">{{ plan.description }}
+                </p>
+                <ul style="list-style: none; padding: 0; margin-bottom: 2.5rem; text-align: left;">
+                    {% for feature in plan.get_features_list %}
+                    <li
+                        style="margin-bottom: 1rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.8rem; font-size: 0.95rem;">
+                        <i class="fa-solid fa-circle-check" style="color: var(--gold); font-size: 1rem;"></i> {{ feature
+                        }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <a href="{% url 'payment' %}?plan={{ plan.name }}"
+                class="btn-plan {% if plan.name == 'premium' %}btn-plan-solid{% else %}btn-plan-outline{% endif %}">
+                {% if plan.name == 'basic' %}Select Plan{% elif plan.name == 'lifetime' %}Unlock Forever{% else %}Go
+                Premium{% endif %}
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<script>
+    // Sidebar toggle for mobile
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
+    if (hamburgerBtn && sidebar && overlay) {
+        const hamburgerIcon = hamburgerBtn.querySelector('i');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            if (sidebar.classList.contains('open')) {
+                hamburgerIcon.classList.replace('fa-bars', 'fa-xmark');
+            } else {
+                hamburgerIcon.classList.replace('fa-xmark', 'fa-bars');
+            }
+        }
+
+        hamburgerBtn.addEventListener('click', toggleSidebar);
+        overlay.addEventListener('click', toggleSidebar);
+    }
+</script>
+
+{% endblock %}

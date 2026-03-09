@@ -1,0 +1,69 @@
+﻿            </div>
+
+            <!-- Support Ticket Submission -->
+            <div style="background: var(--white); padding: 3rem; border-radius: 20px; box-shadow: var(--card-shadow); margin-top: 3rem; border: 1px solid var(--border-color);">
+                <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem; color: var(--text-main);">Submit a Support Ticket</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Can't find what you're looking for? Submit a ticket and our team will get back to you.</p>
+                
+                <form method="post" style="display: grid; gap: 1.5rem;">
+                    {% csrf_token %}
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 700; color: var(--text-main);">Subject</label>
+                        {{ form.subject }}
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 700; color: var(--text-main);">Message</label>
+                        {{ form.message }}
+                    </div>
+                    <button type="submit" style="padding: 1rem 2rem; background: var(--gold); color: #000; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;">
+                        <i class="fa-solid fa-paper-plane"></i> Submit Ticket
+                    </button>
+                </form>
+            </div>
+
+            <!-- User's Ticket History -->
+            {% if user_tickets %}
+            <div style="background: var(--white); padding: 3rem; border-radius: 20px; box-shadow: var(--card-shadow); margin-top: 3rem; border: 1px solid var(--border-color);">
+                <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 2rem; color: var(--text-main);">Your Support Tickets</h2>
+                
+                {% for ticket in user_tickets %}
+                <div style="padding: 1.5rem; background: var(--bg-tertiary); border-radius: 12px; margin-bottom: 1.5rem; border-left: 3px solid {% if ticket.is_resolved %}#10b981{% else %}var(--gold){% endif %};">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h4 style="margin: 0; font-weight: 800; font-size: 1.1rem;">{{ ticket.subject }}</h4>
+                        <span style="padding: 0.3rem 0.8rem; border-radius: 50px; font-size: 0.75rem; font-weight: 800; background: {% if ticket.is_resolved %}rgba(16, 185, 129, 0.2); color: #10b981{% else %}rgba(212, 175, 55, 0.2); color: var(--gold){% endif %}; text-transform: uppercase;">
+                            {% if ticket.is_resolved %}Resolved{% else %}Pending{% endif %}
+                        </span>
+                    </div>
+                    <p style="color: var(--text-muted); margin-bottom: 0.5rem; font-size: 0.85rem;">{{ ticket.created_at|date:"M d, Y - h:i A" }}</p>
+                    <p style="color: var(--text-primary); margin-bottom: 1rem;">{{ ticket.message }}</p>
+                    
+                    {% if ticket.admin_response %}
+                    <div style="background: rgba(16, 185, 129, 0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                        <strong style="color: #10b981; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <i class="fa-solid fa-user-shield"></i> Admin Response
+                        </strong>
+                        <p style="margin: 0; color: var(--text-primary);">{{ ticket.admin_response }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+</main>
+
+<script>
+    // Add form-control class to form inputs
+    document.querySelectorAll('input[type="text"], textarea').forEach(el => {
+        if (el.closest('form')) {
+            el.style.width = '100%';
+            el.style.padding = '1rem';
+            el.style.borderRadius = '12px';
+            el.style.background = 'var(--bg-tertiary)';
+            el.style.border = '1px solid var(--border-color)';
+            el.style.color = 'var(--text-primary)';
+            el.style.fontSize = '1rem';
+            el.style.fontFamily = 'Outfit, sans-serif';
+        }
+    });
+</script>
+{% endblock %}

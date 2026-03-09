@@ -1,0 +1,265 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Join FitSync Elite{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --signup-orange: var(--gold);
+        --card-bg: var(--bg-secondary);
+        --text-color: var(--text-primary);
+        --input-bg: var(--bg-tertiary);
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        overflow: hidden;
+        background-color: var(--bg-primary);
+    }
+
+    .auth-page {
+        background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.7)),
+            url('/static/images/arnold.png');
+        background-size: cover;
+        background-position: center;
+        height: 100vh;
+        width: 100vw;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .login-card {
+        background: var(--card-bg);
+        width: 100%;
+        max-width: 420px;
+        border-radius: 12px;
+        padding: 2.5rem 2.5rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .card-header {
+        margin-bottom: 2rem;
+    }
+
+    .card-title {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--text-color);
+        margin: 0;
+        letter-spacing: -0.5px;
+    }
+
+    .form-group {
+        position: relative;
+        margin-bottom: 1rem;
+    }
+
+    .form-group i {
+        position: absolute;
+        left: 1.2rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        font-size: 1.1rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.85rem 1rem 0.85rem 3.2rem;
+        background: var(--input-bg);
+        border: 1px solid transparent;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        color: var(--text-color);
+        transition: all 0.2s;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        background: var(--bg-secondary);
+        border-color: var(--signup-orange);
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1);
+    }
+
+    .btn-login {
+        width: 100%;
+        padding: 1rem;
+        background: var(--signup-orange);
+        color: #000;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-top: 1rem;
+    }
+
+    .btn-login:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-glow);
+    }
+
+    .card-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .footer-link:hover {
+        color: var(--signup-orange);
+    }
+
+    .hero-text {
+        position: absolute;
+        left: 5%;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #fff;
+        z-index: 1;
+        max-width: 500px;
+        display: none;
+    }
+
+    @media (min-width: 1024px) {
+        .hero-text {
+            display: block;
+        }
+
+        .auth-page {
+            justify-content: flex-end;
+            padding-right: 10%;
+        }
+    }
+
+    .hero-text h1 {
+        font-family: 'Cinzel', serif;
+        font-size: 5rem;
+        font-weight: 900;
+        margin: 0;
+        line-height: 1;
+        letter-spacing: 5px;
+        background: linear-gradient(to bottom, var(--text-primary), var(--signup-orange));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .hero-text p {
+        font-size: 1.2rem;
+        font-weight: 700;
+        letter-spacing: 3px;
+        margin-top: 10px;
+        opacity: 0.9;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+
+    <div class="hero-text">
+        <h1>FITSYNC</h1>
+        <p>YOUR ULTIMATE FITNESS COMPANION</p>
+    </div>
+
+    <div class="login-card">
+        <div class="card-header">
+            <h1 class="card-title">Join the Elite</h1>
+            <p class="text-muted" style="margin-top: 5px;">Create your account to begin</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div style="display: flex; gap: 10px; margin-bottom: 1rem;">
+                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                    <i class="fa-solid fa-id-card"></i>
+                    <input type="text" name="first_name" class="form-control" placeholder="First Name" required>
+                </div>
+                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                    <i class="fa-solid fa-id-card"></i>
+                    <input type="text" name="last_name" class="form-control" placeholder="Last Name" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <i class="fa-solid fa-user"></i>
+                <input type="text" name="username" class="form-control" placeholder="Choose Username" required>
+            </div>
+
+            <div class="form-group">
+                <i class="fa-solid fa-envelope"></i>
+                <input type="email" name="email" class="form-control" placeholder="Email Address" required
+                    pattern="[a-z0-9._%+-]+@gmail\.com$"
+                    title="Please use a valid @gmail.com address (e.g. abc@gmail.com)">
+            </div>
+
+            <div class="form-group" style="display: flex; gap: 10px;">
+                <div style="flex: 0 0 100px; position: relative;">
+                    <i class="fa-solid fa-earth-americas" style="left: 1rem;"></i>
+                    <select name="country_code" class="form-control"
+                        style="padding-left: 2.5rem; appearance: none; cursor: pointer;" required>
+                        <option value="+91" selected>+91 (IN)</option>
+                        <option value="+1">+1 (US)</option>
+                        <option value="+44">+44 (UK)</option>
+                        <option value="+61">+61 (AU)</option>
+                        <option value="+971">+971 (UAE)</option>
+                        <option value="+65">+65 (SG)</option>
+                    </select>
+                </div>
+                <div style="flex: 1; position: relative;">
+                    <i class="fa-solid fa-phone" style="left: 1.2rem;"></i>
+                    <input type="text" name="phone_number" class="form-control" placeholder="Phone Number" required>
+                </div>
+            </div>
+
+            <div class="form-group" style="position: relative;">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" name="password" id="password" class="form-control" placeholder="Password"
+                    required autocomplete="new-password" minlength="8" maxlength="12">
+                <i class="fa-solid fa-eye-slash toggle-password" onclick="togglePassword('password', this)"
+                    style="position: absolute; right: 1.2rem; top: 50%; transform: translateY(-50%); cursor: pointer; color: #9ca3af; z-index: 10;"></i>
+            </div>
+
+            <div class="form-group" style="position: relative;">
+                <i class="fa-solid fa-shield-halved"></i>
+                <input type="password" name="confirm_password" id="confirm_password" class="form-control"
+                    placeholder="Confirm Password" required autocomplete="new-password" minlength="8" maxlength="12">
+                <i class="fa-solid fa-eye-slash toggle-password" onclick="togglePassword('confirm_password', this)"
+                    style="position: absolute; right: 1.2rem; top: 50%; transform: translateY(-50%); cursor: pointer; color: #9ca3af; z-index: 10;"></i>
+            </div>
+
+            <button type="submit" class="btn-login">Sign Up</button>
+        </form>
+
+        <script>
+            function togglePassword(inputId, icon) {
+                const input = document.getElementById(inputId);
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                } else {
+                    input.type = 'password';
+                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                }
+            }
+        </script>
+
+        <div class="card-footer">
+            <span class="text-muted">Already a member?</span>
+            <a href="{% url 'login' %}" class="footer-link" style="font-weight: 700; color: var(--signup-orange);">Login
+                Here</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

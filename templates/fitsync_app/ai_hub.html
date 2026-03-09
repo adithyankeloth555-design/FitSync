@@ -1,0 +1,347 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Neural Hub | FitSync Elite{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --hub-bg: #0a0a0f;
+        --hub-card: #13131a;
+        --hub-accent: #d4af37;
+        --hub-purple: #8B5CF6;
+        --hub-emerald: #10B981;
+        --hub-cyan: #00e5ff;
+        --hub-orange: #f97316;
+        --hub-pink: #ec4899;
+    }
+
+    body {
+        background-color: var(--hub-bg);
+        color: #e0e0e0;
+        font-family: 'Space Grotesk', sans-serif;
+        margin: 0;
+    }
+
+    .hub-wrapper {
+        margin: 0 auto;
+        max-width: 1300px;
+        padding: 3rem 2rem 5rem;
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        color: #666;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 2.5rem;
+        transition: 0.3s;
+    }
+
+    .back-btn:hover {
+        color: var(--hub-accent);
+        transform: translateX(-5px);
+    }
+
+    .hub-header {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    .hub-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        background: rgba(212, 175, 55, 0.1);
+        border: 1px solid rgba(212, 175, 55, 0.2);
+        color: var(--hub-accent);
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 1.5rem;
+    }
+
+    .hub-title {
+        font-family: 'Cinzel', serif;
+        font-size: clamp(2rem, 5vw, 3.5rem);
+        color: var(--hub-accent);
+        margin: 0 0 0.75rem;
+        letter-spacing: 2px;
+    }
+
+    .hub-subtitle {
+        color: #555;
+        font-size: 1rem;
+        margin: 0;
+    }
+
+    /* Section Headers */
+    .section-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        color: #444;
+        font-weight: 700;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .section-label::after {
+        content: '';
+        flex-grow: 1;
+        height: 1px;
+        background: rgba(255,255,255,0.04);
+    }
+
+    /* Card Grid */
+    .hub-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .hub-grid-5 {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .hub-card {
+        background: var(--hub-card);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 24px;
+        padding: 2rem 1.5rem;
+        text-align: center;
+        text-decoration: none;
+        color: inherit;
+        transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
+        display: block;
+    }
+
+    .hub-card::before {
+        content: '';
+        position: absolute;
+        top: -80px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        opacity: 0;
+        transition: 0.4s;
+        pointer-events: none;
+    }
+
+    .hub-card:hover { transform: translateY(-12px); }
+    .hub-card:hover::before { opacity: 0.08; }
+
+    /* Color per card */
+    .card-purple { --card-color: #8B5CF6; }
+    .card-gold { --card-color: #d4af37; }
+    .card-emerald { --card-color: #10B981; }
+    .card-cyan { --card-color: #00e5ff; }
+    .card-orange { --card-color: #f97316; }
+    .card-pink { --card-color: #ec4899; }
+    .card-red { --card-color: #ef4444; }
+    .card-blue { --card-color: #3b82f6; }
+
+    .hub-card:hover { border-color: var(--card-color, #d4af37); box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 30px rgba(0,0,0,0.1); }
+    .hub-card::before { background: var(--card-color, #d4af37); }
+
+    .hub-card-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        margin: 0 auto 1.25rem;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.06);
+        transition: 0.4s;
+        color: var(--card-color, #d4af37);
+    }
+
+    .hub-card:hover .hub-card-icon {
+        background: rgba(255,255,255,0.08);
+        box-shadow: 0 0 30px rgba(0,0,0,0.2);
+        color: var(--card-color, #d4af37);
+        transform: scale(1.1);
+    }
+
+    .hub-card h2 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem;
+        color: #ddd;
+    }
+
+    .hub-card p {
+        color: #555;
+        font-size: 0.82rem;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    /* Badges */
+    .badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 4px 10px;
+        border-radius: 50px;
+        font-size: 0.65rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-active {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .badge-premium {
+        background: rgba(212, 175, 55, 0.1);
+        color: var(--hub-accent);
+        border: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    .badge-locked {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .badge-new {
+        background: rgba(139, 92, 246, 0.1);
+        color: #8b5cf6;
+        border: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    @media (max-width: 1100px) {
+        .hub-grid-5 { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 900px) {
+        .hub-grid { grid-template-columns: 1fr; }
+        .hub-grid-5 { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 500px) {
+        .hub-grid-5 { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hub-wrapper">
+    <a href="{% url 'user_dashboard' %}" class="back-btn">
+        <i class="fa-solid fa-arrow-left"></i> Return to Dashboard
+    </a>
+
+    <header class="hub-header">
+        <div class="hub-tag"><i class="fa-solid fa-microchip"></i> AI-Powered Platform</div>
+        <h1 class="hub-title">The Neural Hub</h1>
+        <p class="hub-subtitle">High-fidelity algorithmic tools for physiological optimization.</p>
+    </header>
+
+    <!-- Core AI Tools -->
+    <div class="section-label">Core AI Tools</div>
+    <div class="hub-grid">
+        <!-- Chatbot -->
+        <a href="{% url 'chatbot' %}" class="hub-card card-purple">
+            <div class="badge badge-active">Active</div>
+            <div class="hub-card-icon"><i class="fa-solid fa-brain"></i></div>
+            <h2>AI Coach</h2>
+            <p>Direct interface with your analytical coaching entity. Expert advice on training, nutrition, and recovery.</p>
+        </a>
+
+        <!-- Workout Generator -->
+        <a href="{% url 'ai_workout' %}" class="hub-card card-gold">
+            {% if is_premium %}
+            <div class="badge badge-premium">Unlocked</div>
+            {% else %}
+            <div class="badge badge-locked"><i class="fa-solid fa-lock"></i> Locked</div>
+            {% endif %}
+            <div class="hub-card-icon"><i class="fa-solid fa-bolt"></i></div>
+            <h2>Protocol Architect</h2>
+            <p>Synthesize multi-phasic training systems based on your biological vectors and equipment access.</p>
+        </a>
+
+        <!-- Diet Generator -->
+        <a href="{% url 'ai_diet' %}" class="hub-card card-emerald">
+            {% if is_premium %}
+            <div class="badge badge-premium">Unlocked</div>
+            {% else %}
+            <div class="badge badge-locked"><i class="fa-solid fa-lock"></i> Locked</div>
+            {% endif %}
+            <div class="hub-card-icon"><i class="fa-solid fa-leaf"></i></div>
+            <h2>Metabolic Architect</h2>
+            <p>Algorithmic fueling protocols tailored to your metabolic state, goals, and dietary framework.</p>
+        </a>
+    </div>
+
+    <!-- Advanced AI Features -->
+    <div class="section-label" style="margin-top: 1rem;">Advanced AI Features</div>
+    <div class="hub-grid-5">
+        <!-- Exercise Detection -->
+        <a href="{% url 'exercise_detection' %}" class="hub-card card-cyan">
+            <div class="badge badge-new">CV AI</div>
+            <div class="hub-card-icon"><i class="fa-solid fa-eye"></i></div>
+            <h2>CV Exercise<br>Detection</h2>
+            <p>Camera-based pose estimation. Counts reps & analyzes your form in real-time using MediaPipe AI.</p>
+        </a>
+
+        <!-- Fitness Score -->
+        <a href="{% url 'fitness_score' %}" class="hub-card card-blue">
+            <div class="badge badge-active">Live Data</div>
+            <div class="hub-card-icon"><i class="fa-solid fa-gauge-high"></i></div>
+            <h2>Smart Fitness<br>Score</h2>
+            <p>AI health rating calculated from your BMI, workouts, calories, hydration, and goals.</p>
+        </a>
+
+        <!-- Meal Scanner -->
+        <a href="{% url 'meal_scanner' %}" class="hub-card card-orange">
+            <div class="badge badge-new">AI Vision</div>
+            <div class="hub-card-icon"><i class="fa-solid fa-camera"></i></div>
+            <h2>AI Meal<br>Scanner</h2>
+            <p>Upload a food photo. AI detects items, estimates calories, and logs macros to your nutrition tracker.</p>
+        </a>
+
+        <!-- Habit & Streak Engine -->
+        <a href="{% url 'habit_streak' %}" class="hub-card card-gold">
+            <div class="badge badge-active">Gamified</div>
+            <div class="hub-card-icon"><i class="fa-solid fa-fire-flame-curved"></i></div>
+            <h2>Habit & Streak<br>Engine</h2>
+            <p>Streak tracking, achievement badges, level system, and community leaderboard to keep you motivated.</p>
+        </a>
+
+        <!-- Fitness Chatbot (linked to main chatbot) -->
+        <a href="{% url 'chatbot' %}" class="hub-card card-pink">
+            <div class="badge badge-active">Online</div>
+            <div class="hub-card-icon"><i class="fa-solid fa-robot"></i></div>
+            <h2>AI Fitness<br>Chatbot Coach</h2>
+            <p>Ask anything — calorie goals, workout tips, diet plans. Powered by Gemini generative AI.</p>
+        </a>
+    </div>
+</div>
+{% endblock %}

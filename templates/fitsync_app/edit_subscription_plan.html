@@ -1,0 +1,507 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Edit Protocol | Admin Dashboard{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --admin-bg: var(--bg-primary);
+        --sidebar-bg: var(--bg-tertiary);
+        --accent-orange: var(--gold);
+        --text-dark: var(--text-primary);
+        --text-muted: var(--text-muted);
+        --white: var(--bg-secondary);
+    }
+
+    body {
+        background-color: var(--admin-bg);
+        color: var(--text-dark);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .admin-wrapper {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+        width: 260px;
+        background: var(--sidebar-bg);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        height: 100vh;
+        z-index: 1001;
+        transition: transform 0.3s ease;
+        padding: 0;
+    }
+
+    .sidebar-header {
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        margin-bottom: 1rem;
+    }
+
+    .admin-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 4px;
+        object-fit: cover;
+    }
+
+    .admin-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #f3f4f6;
+    }
+
+    .sidebar-menu {
+        padding: 0 0.8rem;
+        list-style: none;
+        flex-grow: 1;
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.65rem 1rem;
+        color: #94a3b8;
+        text-decoration: none;
+        font-size: 0.85rem;
+        border-radius: 6px;
+        margin-bottom: 0.25rem;
+        transition: all 0.2s;
+        font-weight: 500;
+    }
+
+    .menu-item:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .menu-item.active {
+        background: var(--accent-orange);
+        color: #fff;
+    }
+
+    .menu-item i {
+        font-size: 1rem;
+        width: 18px;
+        text-align: center;
+    }
+
+    .menu-item .chevron {
+        margin-left: auto;
+        font-size: 0.7rem;
+        opacity: 0.5;
+    }
+
+    /* Main Area Styles */
+    .main-area {
+        margin-left: 260px;
+        flex-grow: 1;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .top-bar {
+        background: var(--bg-secondary);
+        padding: 0.6rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: var(--shadow-sm);
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .top-bar-right {
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
+    }
+
+    .top-bar-right i {
+        color: var(--text-dark);
+        font-size: 1rem;
+        cursor: pointer;
+        opacity: 0.7;
+    }
+
+    .admin-pill {
+        background: var(--accent-orange);
+        color: #000;
+        padding: 0.35rem 1rem;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+
+    .dashboard-content {
+        padding: 1.5rem 2rem;
+    }
+
+    .edit-container {
+        max-width: 800px;
+    }
+
+    .edit-card {
+        background: var(--white);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 2.5rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .form-group {
+        margin-bottom: 1.8rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.7rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.85rem 1rem;
+        border-radius: 8px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        font-size: 1rem;
+        transition: 0.3s;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--gold);
+        box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1);
+    }
+
+    .help-text {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-top: 0.5rem;
+        line-height: 1.4;
+    }
+
+    .btn-save {
+        padding: 1rem 2rem;
+        background: var(--gold);
+        color: #000;
+        border: none;
+        border-radius: 8px;
+        font-weight: 800;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-save:hover {
+        background: #eab308;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2);
+    }
+
+    .cancel-link {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: 0.2s;
+    }
+
+    .cancel-link:hover {
+        color: var(--text-primary);
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: var(--bg-tertiary);
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+    }
+
+    .checkbox-group input {
+        width: 22px;
+        height: 22px;
+        cursor: pointer;
+        accent-color: var(--gold);
+    }
+
+    .checkbox-group label {
+        margin-bottom: 0;
+        cursor: pointer;
+    }
+
+    /* ---- Mobile Responsive ---- */
+    @media (max-width: 1024px) {
+        .sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .main-area {
+            margin-left: 0;
+        }
+
+        .dashboard-content {
+            padding: 1rem;
+            padding-top: 1rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .main-area {
+            margin-left: 0;
+        }
+
+        .top-bar {
+            padding: 0.5rem 1rem;
+        }
+
+        .dashboard-content {
+            padding: 1rem;
+        }
+
+        .dashboard-content > header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .dashboard-content > header h1 {
+            font-size: 1.4rem;
+        }
+
+        .edit-container {
+            max-width: 100%;
+        }
+
+        .edit-card {
+            padding: 1.5rem;
+        }
+
+        .btn-save {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-wrapper">
+
+    <!-- Mobile Hamburger Button -->
+    <button class="hamburger-btn" id="hamburger-btn" aria-label="Toggle Menu">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            {% if user.userprofile.profile_photo %}
+            <img src="{{ user.userprofile.profile_photo.url }}" class="admin-avatar" alt="Admin">
+            {% else %}
+            <img src="https://i.pravatar.cc/150?u={{ user.username }}" class="admin-avatar" alt="Admin">
+            {% endif %}
+            <span class="admin-name">Admin <i class="fa-solid fa-chevron-down"></i></span>
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="{% url 'admin_dashboard' %}" class="menu-item">
+                <i class="fa-solid fa-gauge"></i> Dashboard
+            </a>
+            <a href="{% url 'report_members' %}" class="menu-item">
+                <i class="fa-regular fa-user"></i> Users
+            </a>
+            <a href="{% url 'trainer_list' %}" class="menu-item">
+                <i class="fa-solid fa-table-cells"></i> Trainers
+            </a>
+            <a href="{% url 'subscription_plans' %}" class="menu-item active">
+                <i class="fa-regular fa-envelope"></i> Subscriptions
+            </a>
+            <a href="{% url 'report_payments' %}" class="menu-item">
+                <i class="fa-solid fa-money-bill-transfer"></i> Payments
+            </a>
+            <a href="{% url 'admin_help_tickets' %}" class="menu-item">
+                <i class="fa-solid fa-headset"></i> Help Tickets
+            </a>
+            <div class="menu-item-group">
+                <a href="#" class="menu-item" onclick="toggleSubmenu('reports-submenu')">
+                    <i class="fa-regular fa-file-lines"></i> Reports <i class="fa-solid fa-chevron-down chevron"></i>
+                </a>
+                <div id="reports-submenu" style="display: none; padding-left: 1.5rem;">
+                    <a href="{% url 'report_members' %}" class="menu-item" style="font-size: 0.8rem;">
+                        <i class="fa-solid fa-users-viewfinder"></i> Members
+                    </a>
+                    <a href="{% url 'report_payments' %}" class="menu-item" style="font-size: 0.8rem;">
+                        <i class="fa-solid fa-file-invoice-dollar"></i> Financials
+                    </a>
+                    <a href="{% url 'report_attendance' %}" class="menu-item" style="font-size: 0.8rem;">
+                        <i class="fa-solid fa-clipboard-user"></i> Attendance
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </aside>
+
+    <div class="main-area">
+        <header class="top-bar">
+            <div class="top-bar-right" style="margin-left: auto;">
+                <i class="fa-solid fa-arrows-rotate"></i>
+                <i class="fa-regular fa-envelope"></i>
+                <i class="fa-solid fa-thumbtack" style="color: #94a3b8; transform: rotate(45deg);"></i>
+                <div class="admin-pill">Admin</div>
+            </div>
+        </header>
+
+        <div class="dashboard-content">
+            <header style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 2.5rem;">
+                <div>
+                    <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.5rem;">
+                        Modify Protocol: {{ plan.get_name_display }}</h1>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2.5rem;">Configure pricing
+                        variables and service deliverables for this membership tier.</p>
+                </div>
+                <a href="{% url 'subscription_plans' %}" class="cancel-link">
+                    <i class="fa-solid fa-xmark"></i> Abandon Changes
+                </a>
+            </header>
+
+            <div class="edit-container">
+                <div class="edit-card">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                            <div class="form-group">
+                                <label for="{{ form.price.id_for_label }}">Monthly Rate (₹)</label>
+                                {{ form.price }}
+                                {% if form.price.help_text %}<p class="help-text">{{ form.price.help_text }}</p>{% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.annual_price.id_for_label }}">Annual Rate (₹)</label>
+                                {{ form.annual_price }}
+                                {% if form.annual_price.help_text %}<p class="help-text">{{ form.annual_price.help_text }}</p>{% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.duration_text.id_for_label }}">Billing Identifier</label>
+                            {{ form.duration_text }}
+                            <p class="help-text">Internal identifier for billing cycle (e.g., "Per Month", "One-time
+                                Payment")</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.description.id_for_label }}">Strategic Overview</label>
+                            {{ form.description }}
+                            <p class="help-text">Public-facing description of the plan's value proposition.</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.features.id_for_label }}">Service Deliverables (Newline
+                                Separated)</label>
+                            {{ form.features }}
+                            <p class="help-text">List each feature or service on a unique line. These will be rendered
+                                with validation checks.</p>
+                        </div>
+
+                        <div class="form-group checkbox-group">
+                            {{ form.is_active }}
+                            <label for="{{ form.is_active.id_for_label }}">Protocol Operational (Visible to
+                                Public)</label>
+                        </div>
+
+                        <div
+                            style="display: flex; align-items: center; gap: 2rem; margin-top: 3rem; border-top: 1px solid var(--border-color); padding-top: 2rem;">
+                            <button type="submit" class="btn-save">
+                                <i class="fa-solid fa-check-double"></i> Commit Protocol Updates
+                            </button>
+                            <span style="font-size: 0.8rem; color: var(--text-muted); font-style: italic;">
+                                <i class="fa-solid fa-circle-info"></i> Changes apply immediately to all portal nodes.
+                            </span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleSubmenu(id) {
+        const el = document.getElementById(id);
+        if (el.style.display === 'none') {
+            el.style.display = 'block';
+        } else {
+            el.style.display = 'none';
+        }
+    }
+    // Inject form classes
+    document.querySelectorAll('input:not([type="checkbox"]), textarea').forEach(el => {
+        el.classList.add('form-control');
+    });
+</script>
+
+<script>
+    // Sidebar toggle for mobile
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+
+    if (hamburgerBtn && sidebar && overlay) {
+        const hamburgerIcon = hamburgerBtn.querySelector('i');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            if (sidebar.classList.contains('open')) {
+                hamburgerIcon.classList.replace('fa-bars', 'fa-xmark');
+            } else {
+                hamburgerIcon.classList.replace('fa-xmark', 'fa-bars');
+            }
+        }
+
+        hamburgerBtn.addEventListener('click', toggleSidebar);
+        overlay.addEventListener('click', toggleSidebar);
+    }
+</script>
+
+{% endblock %}

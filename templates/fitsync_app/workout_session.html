@@ -1,0 +1,512 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Active Session: {{ workout.title }} | FitSync Elite{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --accent-orange: var(--gold);
+        --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        --glass: rgba(255, 255, 255, 0.03);
+        --glass-border: rgba(255, 255, 255, 0.08);
+    }
+
+    body {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: 'Outfit', sans-serif;
+        overflow-x: hidden;
+    }
+
+    /* Background Animation */
+    .bg-glow {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100vw;
+        height: 100vh;
+        background: radial-gradient(circle at center, rgba(212, 175, 55, 0.05) 0%, transparent 70%);
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .session-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 4rem 2rem;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .session-container {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 3rem;
+        animation: fadeIn 1s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.98);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* Main Display */
+    .main-display {
+        background: var(--bg-secondary);
+        border: 1px solid var(--glass-border);
+        border-radius: 40px;
+        padding: 5rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow-xl);
+        text-align: center;
+    }
+
+    .main-display::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .protocol-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 8px 24px;
+        background: rgba(212, 175, 55, 0.1);
+        color: var(--gold);
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        margin-bottom: 2.5rem;
+        border: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    .workout-title {
+        font-family: 'Cinzel', serif;
+        font-size: 4rem;
+        font-weight: 900;
+        color: var(--gold);
+        margin: 0 0 1.5rem 0;
+        text-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+        letter-spacing: 2px;
+    }
+
+    /* Timers Section */
+    .timers-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin: 4rem 0;
+    }
+
+    .timer-box {
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        border-radius: 30px;
+        padding: 2.5rem;
+        text-align: center;
+        transition: var(--transition);
+    }
+
+    .timer-box:hover {
+        border-color: var(--gold);
+        background: rgba(212, 175, 55, 0.02);
+    }
+
+    .timer-value {
+        font-size: 4.5rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -2px;
+    }
+
+    .timer-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: var(--gold);
+        font-weight: 900;
+        letter-spacing: 2px;
+        margin-top: 1rem;
+        opacity: 0.8;
+    }
+
+    /* Sidebar Controls */
+    .sidebar-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .control-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--glass-border);
+        border-radius: 30px;
+        padding: 2.5rem;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .control-title {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--gold);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .rest-input-group {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .rest-input {
+        flex-grow: 1;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1rem;
+        color: var(--text-primary);
+        font-weight: 700;
+        text-align: center;
+        font-size: 1.2rem;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 1.2rem;
+        border-radius: 15px;
+        font-weight: 900;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        cursor: pointer;
+        transition: var(--transition);
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.8rem;
+    }
+
+    .btn-gold {
+        background: var(--gold);
+        color: #000;
+        box-shadow: 0 10px 25px rgba(212, 175, 55, 0.2);
+    }
+
+    .btn-gold:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(212, 175, 55, 0.3);
+    }
+
+    .btn-outline {
+        background: transparent;
+        border: 2px solid var(--border-color);
+        color: var(--text-muted);
+    }
+
+    .btn-outline:hover {
+        border-color: var(--gold);
+        color: var(--gold);
+    }
+
+    .finish-btn {
+        margin-top: auto;
+        padding: 2rem;
+        font-size: 1.2rem;
+    }
+
+    /* Start Overlay */
+    #startOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--bg-primary);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        transition: 0.8s cubic-bezier(0.85, 0, 0.15, 1);
+    }
+
+    .countdown-text {
+        font-size: 15rem;
+        font-weight: 900;
+        color: var(--gold);
+        font-family: 'Cinzel', serif;
+    }
+
+    .ready-text {
+        font-size: 2rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 10px;
+        margin-top: 2rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 1100px) {
+        .session-container {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Animation Classes */
+    .pulse {
+        animation: pulseBeat 1s infinite alternate;
+    }
+
+    @keyframes pulseBeat {
+        from {
+            transform: scale(1);
+        }
+
+        to {
+            transform: scale(1.02);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bg-glow"></div>
+
+<!-- Initial Countdown Overlay -->
+<div id="startOverlay">
+    <div class="ready-text">GET READY</div>
+    <div class="countdown-text" id="initialCD">3</div>
+    <p style="color: var(--gold); margin-top: 3rem; opacity: 0.5;">PREPARING YOUR NEURAL UPLINK...</p>
+</div>
+
+<main class="session-wrapper">
+    <div class="session-container">
+        <!-- Main Panel -->
+        <div class="main-display">
+            <span class="protocol-badge">
+                <i class="fa-solid fa-microchip"></i>
+                Active Protocol: {{ workout.difficulty|title }}
+            </span>
+
+            <h1 class="workout-title">{{ workout.title }}</h1>
+
+            <div class="timers-grid">
+                <!-- Elapsed Timer -->
+                <div class="timer-box">
+                    <div id="elapsedTimer" class="timer-value">00:00:00</div>
+                    <div class="timer-label">Session Elapsed</div>
+                </div>
+
+                <!-- Rest Countdown -->
+                <div class="timer-box" id="restBox">
+                    <div id="restTimer" class="timer-value" style="color: var(--gold);">00:00</div>
+                    <div class="timer-label">Rest Countdown</div>
+                </div>
+            </div>
+
+            <p class="workout-desc"
+                style="color: var(--text-muted); line-height: 1.8; font-size: 1.1rem; opacity: 0.8;">
+                {{ workout.description }}
+            </p>
+        </div>
+
+        <!-- Sidebar Controls -->
+        <div class="sidebar-controls">
+            <!-- Rest Timer Control -->
+            <div class="control-card">
+                <div class="control-title">
+                    <i class="fa-solid fa-hourglass-half"></i>
+                    Rest Protocol
+                </div>
+                <div class="rest-input-group">
+                    <input type="number" id="restInput" class="rest-input" value="60" min="5" max="300">
+                    <div style="display: flex; align-items: center; font-weight: 800; color: var(--text-muted);">SEC
+                    </div>
+                </div>
+                <button id="startRestBtn" class="btn btn-gold">
+                    <i class="fa-solid fa-play"></i> Start Rest
+                </button>
+            </div>
+
+            <!-- Session Stats -->
+            <div class="control-card">
+                <div class="control-title">
+                    <i class="fa-solid fa-chart-simple"></i>
+                    Session Data
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                    <span style="color: var(--text-muted);">Target Freq:</span>
+                    <span style="color: var(--gold); font-weight: 800;">{{ workout.frequency_per_week }}x / WK</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted);">Status:</span>
+                    <span style="color: var(--success); font-weight: 800;">ACTIVE</span>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div style="margin-top: auto; display: flex; flex-direction: column; gap: 1rem;">
+                <button id="finishBtn" class="btn btn-gold finish-btn">
+                    <i class="fa-solid fa-flag-checkered"></i>
+                    {% if already_checked_in %}Sync Data (Additional){% else %}Finish & Sync{% endif %}
+                </button>
+                <a href="{% url 'workout_list' %}" class="btn btn-outline">
+                    <i class="fa-solid fa-xmark"></i> Abandon
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // 1. Initial Countdown Overlay
+    let initialCount = 3;
+    const overlay = document.getElementById('startOverlay');
+    const initialCDText = document.getElementById('initialCD');
+
+    const startInitialCD = setInterval(() => {
+        initialCount--;
+        if (initialCount > 0) {
+            initialCDText.textContent = initialCount;
+        } else if (initialCount === 0) {
+            initialCDText.textContent = "GO!";
+            initialCDText.style.color = "var(--success)";
+        } else {
+            clearInterval(startInitialCD);
+            overlay.style.opacity = '0';
+            overlay.style.pointerEvents = 'none';
+            overlay.style.transform = 'translateY(-100%)';
+            startSession();
+        }
+    }, 1000);
+
+    // 2. Session Timer Logic
+    let elapsedSeconds = 0;
+    let sessionInterval;
+    const elapsedDisplay = document.getElementById('elapsedTimer');
+
+    function startSession() {
+        sessionInterval = setInterval(() => {
+            elapsedSeconds++;
+            const h = Math.floor(elapsedSeconds / 3600);
+            const m = Math.floor((elapsedSeconds % 3600) / 60);
+            const s = elapsedSeconds % 60;
+            elapsedDisplay.textContent =
+                (h < 10 ? "0" + h : h) + ":" +
+                (m < 10 ? "0" + m : m) + ":" +
+                (s < 10 ? "0" + s : s);
+        }, 1000);
+    }
+
+    // 3. Rest Timer Logic
+    let restInterval;
+    const restTimerDisplay = document.getElementById('restTimer');
+    const startRestBtn = document.getElementById('startRestBtn');
+    const restInput = document.getElementById('restInput');
+    const restBox = document.getElementById('restBox');
+
+    startRestBtn.addEventListener('click', () => {
+        clearInterval(restInterval);
+        let count = parseInt(restInput.value);
+        restBox.classList.add('pulse');
+
+        updateRestDisplay(count);
+
+        restInterval = setInterval(() => {
+            count--;
+            if (count >= 0) {
+                updateRestDisplay(count);
+            } else {
+                clearInterval(restInterval);
+                restBox.classList.remove('pulse');
+                restTimerDisplay.textContent = "DONE";
+                playBell();
+            }
+        }, 1000);
+    });
+
+    function updateRestDisplay(s) {
+        const m = Math.floor(s / 60);
+        const sec = s % 60;
+        restTimerDisplay.textContent = (m < 10 ? "0" + m : m) + ":" + (sec < 10 ? "0" + sec : sec);
+    }
+
+    function playBell() {
+        // Simple visual feedback if audio not available
+        restTimerDisplay.style.color = "var(--success)";
+        setTimeout(() => { restTimerDisplay.style.color = "var(--gold)"; }, 2000);
+    }
+
+    // 4. Finish Session Logic
+    document.getElementById('finishBtn').addEventListener('click', function () {
+        const btn = this;
+        const totalDuration = elapsedDisplay.textContent;
+        const workoutTitle = "{{ workout.title }}";
+
+        if (!confirm("End session and synchronize your performance metrics?")) return;
+
+        clearInterval(sessionInterval);
+        clearInterval(restInterval);
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> TRANSMITTING...';
+
+        fetch("{% url 'mark_attendance_api' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({
+                workout_type: workoutTitle,
+                notes: `Neural sync complete. Duration: ${totalDuration}. Protocol: {{ workout.difficulty }}`
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i> SYNC COMPLETE';
+                    btn.style.background = 'var(--success)';
+                    btn.style.color = '#fff';
+                    setTimeout(() => { window.location.href = "{% url 'attendance' %}"; }, 1500);
+                } else {
+                    alert("Neural link error: " + data.message);
+                    btn.disabled = false;
+                    btn.innerHTML = 'Finish & Sync';
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                alert("Verification failed. Pulse signal lost.");
+                btn.disabled = false;
+            });
+    });
+</script>
+{% endblock %}
