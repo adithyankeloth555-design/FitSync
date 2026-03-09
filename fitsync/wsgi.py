@@ -16,16 +16,13 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fitsync.settings')
 
 from django.core.wsgi import get_wsgi_application
 
-# Auto-run migrations on Vercel startup (needed for serverless environments)
+# Auto-run migrations on every startup when on Vercel (SQLite /tmp or Postgres)
 if os.environ.get('VERCEL'):
     try:
         from django.core.management import call_command
-        # Run database migrations
-        call_command('migrate', '--run-syncdb', verbosity=0)
-        # Collect static files (WhiteNoise serves them)
-        call_command('collectstatic', '--noinput', verbosity=0)
+        call_command('migrate', verbosity=0)
     except Exception as e:
-        print(f"Startup warning: {e}")
+        print(f"Migration warning: {e}")
 
 application = get_wsgi_application()
 app = application

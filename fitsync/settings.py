@@ -79,30 +79,31 @@ WSGI_APPLICATION = 'fitsync.wsgi.application'
 import os
 import dj_database_url
 
-if 'VERCEL' in os.environ:
-    # Use Vercel Postgres if available, otherwise fallback to in-memory
-    if 'POSTGRES_URL' in os.environ:
-        DATABASES = {
-            'default': dj_database_url.config(
-                default=os.environ.get('POSTGRES_URL'),
-                conn_max_age=600,
-                ssl_require=True
-            )
+if 'POSTGRES_URL' in os.environ:
+    # Production: Use PostgreSQL (Neon, Supabase, etc.)
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('POSTGRES_URL'),
+            conn_max_age=600,
+            ssl_require=True
+        )
+    }
+elif os.environ.get('VERCEL'):
+    # Vercel without PostgreSQL: use /tmp SQLite (persists within container)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': '/tmp/fitsync.db',
         }
-    else:
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': ':memory:',
-            }
-        }
+    }
 else:
+    # Local development: MySQL
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
             'NAME': 'fitsync_db',
             'USER': 'root',
-            'PASSWORD': 'root',  # Enter your MySQL password here
+            'PASSWORD': 'root',
             'HOST': 'localhost',
             'PORT': '3306',
         }
