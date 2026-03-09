@@ -2597,15 +2597,26 @@ def why_fitsync_view(request):
     return render(request, 'fitsync_app/why_fitsync.html', {'benefits': benefits})
 
 def migrate_db_view(request):
-    """Temporary view to trigger database migrations on Vercel."""
+    """Temporary view to trigger database migrations and create admin on Vercel."""
     from django.core.management import call_command
     from django.http import HttpResponse
+    from django.contrib.auth.models import User
+    from .models import UserProfile
     
-    # Only allow if a secret key is provided in URL to prevent abuse
     if request.GET.get('key') == 'fitsync_deploy_2026':
         try:
+            # 1. Run Migrations
             call_command('migrate', interactive=False)
-            return HttpResponse("✅ Migrations completed successfully!")
+            
+            # 2. Create Default Admin if it doesn't exist
+            if not User.objects.filter(username='admin').exists():
+                admin_user = User.objects.create_superuser('admin', 'admin@fitsync.com', 'admin123')
+                UserProfile.objects.get_or_create(user=admin_user, role='admin', phone='0000000000')
+                msg = "✅ Migrations completed and Admin (admin/admin123) created!"
+            else:
+                msg = "✅ Migrations completed successfully!"
+                
+            return HttpResponse(msg)
         except Exception as e:
             return HttpResponse(f"❌ Error: {str(e)}")
     return HttpResponse("Unauthorized", status=401)
