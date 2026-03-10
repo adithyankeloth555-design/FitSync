@@ -300,8 +300,6 @@ def add_trainer_view(request):
             
             # Send welcome email
             try:
-                from django.core.mail import send_mail
-                from django.conf import settings
                 subject = 'Welcome to FitSync Fitness Management System'
                 message = f"""Dear {trainer_name},
 
