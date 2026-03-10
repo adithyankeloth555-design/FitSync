@@ -147,9 +147,10 @@
             <div class="form-group">
                 <i class="fa-solid fa-lock"></i>
                 <input type="password" name="password" id="password" class="form-control" placeholder="Password"
-                    required autocomplete="current-password" minlength="8" maxlength="12">
+                    required autocomplete="current-password" minlength="8" maxlength="12"
+                    style="padding-right: 2.5rem;">
                 <i class="fa-solid fa-eye-slash toggle-password" onclick="togglePassword('password', this)"
-                    style="left: auto; right: 1.2rem; cursor: pointer; position: absolute; right: 1.2rem; top: 50%; transform: translateY(-50%); color: #9ca3af;"></i>
+                    style="position: absolute; left: auto; right: 1.2rem; top: 50%; transform: translateY(-50%); cursor: pointer; color: #9ca3af; z-index: 10;"></i>
             </div>
 
             <button type="submit" class="btn-login">Login</button>
