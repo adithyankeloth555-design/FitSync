@@ -144,7 +144,7 @@ def signup_view(request):
         EmailOTP.objects.create(email=e, otp=otp)
 
         # Send Email
-        subject = 'Verify Your FitSync Account'
+        subject = f'Welcome to FitSync, {fn}! Your 6-digit Verification Code'
         message = f"""Hello,
 
 We received a request to verify your account on FitSync – Your Ultimate Fitness Companion
