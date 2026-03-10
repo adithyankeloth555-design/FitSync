@@ -7,9 +7,9 @@ from . import views_help # pyre-ignore[21]
 urlpatterns = [
     # Auth
     path('login/', views.login_view, name='login'),
-    path('trainer/login/', views.trainer_login_view, name='trainer_login'),
-    path('admin/login/', views.admin_login_view, name='admin_login'),
-    path('admin_login.html', RedirectView.as_view(url='/admin/login/')), # Handle direct filename access
+    path('trainer/login/', views.login_view, name='trainer_login'),
+    path('admin/login/', views.login_view, name='admin_login'),
+    path('admin_login.html', RedirectView.as_view(url='/login/')), # Handle direct filename access
     path('signup/', views.signup_view, name='signup'),
     path('verify-otp/', views.verify_otp_view, name='verify_otp'),
     path('forgot-password/', views.forgot_password_view, name='forgot_password'),

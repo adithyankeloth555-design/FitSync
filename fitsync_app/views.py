@@ -61,43 +61,7 @@ def login_view(request):
             messages.error(request, "Invalid username or password.")
     return render(request, 'fitsync_app/login.html')
 
-def admin_login_view(request):
-    if request.method == 'POST':
-        u = request.POST.get('username')
-        p = request.POST.get('password')
-        user = authenticate(request, username=u, password=p)
-        if user is not None:
-            try:
-                if user.userprofile.role == 'admin':
-                    login(request, user)
-                    messages.success(request, "Admin access granted.")
-                    return redirect('admin_dashboard')
-                else:
-                    messages.error(request, "Access denied. Admin credentials required.")
-            except UserProfile.DoesNotExist:
-                messages.error(request, "Access denied. No profile found.")
-        else:
-            messages.error(request, "Invalid credentials.")
-    return render(request, 'fitsync_app/admin_login.html')
 
-def trainer_login_view(request):
-    if request.method == 'POST':
-        u = request.POST.get('username')
-        p = request.POST.get('password')
-        user = authenticate(request, username=u, password=p)
-        if user is not None:
-            try:
-                if hasattr(user, 'userprofile') and user.userprofile.role in ['trainer', 'admin']:
-                    login(request, user)
-                    messages.success(request, f"Welcome back, Coach {u}!")
-                    return redirect('trainer_dashboard')
-                else:
-                    messages.error(request, "Access denied. Trainer credentials required.")
-            except UserProfile.DoesNotExist:
-                messages.error(request, "Access denied. No profile found.")
-        else:
-            messages.error(request, "Invalid credentials.")
-    return render(request, 'fitsync_app/trainer_login.html')
 
 
 def signup_view(request):
@@ -268,7 +232,7 @@ def admin_dashboard_view(request):
             
     if not hasattr(request.user, 'userprofile') or request.user.userprofile.role != 'admin':
         messages.error(request, "Access denied. Admin account required.")
-        return redirect('admin_login')
+        return redirect('login')
         
     # Real stats for the dashboard
     # Count only members as "Total Users" to avoid confusion with staff/admin accounts
