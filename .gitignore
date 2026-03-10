@@ -25,6 +25,8 @@ venv.bak/
 *.jpg
 !static/img/*.png
 !static/img/*.jpg
+!static/images/*.png
+!static/images/*.jpg
 !templates/img/*.png
 !templates/img/*.jpg
 
