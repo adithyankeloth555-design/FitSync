@@ -6,12 +6,12 @@
 {% block extra_css %}
 <style>
     :root {
-        --admin-bg: #f8fafc;
-        --card-bg: #ffffff;
-        --sidebar-bg: #1e293b;
-        --accent: #f59e0b;
-        --text-primary: #1e293b;
-        --text-secondary: #64748b;
+        --admin-bg: #121212;
+        --card-bg: #1e1e1e;
+        --sidebar-bg: #1e1e1e;
+        --accent: #d4af37;
+        --text-primary: #ffffff;
+        --text-secondary: #a0aec0;
         --success: #10b981;
         --info: #3b82f6;
         --danger: #ef4444;
@@ -44,7 +44,7 @@
         padding: 1.5rem;
         font-weight: 800;
         font-size: 1.2rem;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         color: var(--accent);
         display: flex;
         align-items: center;
@@ -61,7 +61,7 @@
         align-items: center;
         gap: 12px;
         padding: 0.8rem 1rem;
-        color: #94a3b8;
+        color: var(--text-secondary);
         text-decoration: none;
         border-radius: 8px;
         margin-bottom: 0.4rem;
@@ -69,8 +69,9 @@
         font-size: 0.9rem;
     }
 
-    .menu-item:hover, .menu-item.active {
-        background: rgba(255,255,255,0.05);
+    .menu-item:hover,
+    .menu-item.active {
+        background: rgba(255, 255, 255, 0.05);
         color: #fff;
     }
 
@@ -118,7 +119,7 @@
         background: var(--card-bg);
         padding: 1.5rem;
         border-radius: 12px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         display: flex;
         align-items: center;
         gap: 1rem;
@@ -150,14 +151,14 @@
     .content-section {
         background: var(--card-bg);
         border-radius: 12px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         overflow: hidden;
         margin-bottom: 2rem;
     }
 
     .section-header {
         padding: 1.2rem 1.5rem;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -176,19 +177,19 @@
     }
 
     .management-table th {
-        background: #f8fafc;
+        background: rgba(255, 255, 255, 0.02);
         text-align: left;
         padding: 1rem 1.5rem;
         font-size: 0.75rem;
         text-transform: uppercase;
-        color: #64748b;
+        color: var(--text-secondary);
         font-weight: 600;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     .management-table td {
         padding: 1rem 1.5rem;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         font-size: 0.85rem;
     }
 
@@ -203,7 +204,7 @@
         height: 40px;
         border-radius: 8px;
         object-fit: cover;
-        background: #f1f5f9;
+        background: rgba(255, 255, 255, 0.05);
     }
 
     .badge {
@@ -214,10 +215,25 @@
         text-transform: uppercase;
     }
 
-    .badge-success { background: #dcfce7; color: #166534; }
-    .badge-warning { background: #fef9c3; color: #854d0e; }
-    .badge-danger { background: #fee2e2; color: #991b1b; }
-    .badge-info { background: #dbeafe; color: #1e40af; }
+    .badge-success {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .badge-warning {
+        background: #fef9c3;
+        color: #854d0e;
+    }
+
+    .badge-danger {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .badge-info {
+        background: #dbeafe;
+        color: #1e40af;
+    }
 
     .btn-action {
         width: 32px;
@@ -227,13 +243,13 @@
         align-items: center;
         justify-content: center;
         color: var(--text-secondary);
-        border: 1px solid #e2e8f0;
+        border: 1px solid rgba(255, 255, 255, 0.1);
         transition: 0.2s;
         text-decoration: none;
     }
 
     .btn-action:hover {
-        background: #f1f5f9;
+        background: rgba(255, 255, 255, 0.1);
         color: var(--text-primary);
     }
 
@@ -255,9 +271,17 @@
     }
 
     @media (max-width: 1024px) {
-        .sidebar { transform: translateX(-100%); }
-        .main-content { margin-left: 0; }
-        .stats-row { grid-template-columns: repeat(2, 1fr); }
+        .sidebar {
+            transform: translateX(-100%);
+        }
+
+        .main-content {
+            margin-left: 0;
+        }
+
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
     }
 </style>
 {% endblock %}
@@ -361,13 +385,15 @@
                                     {% if product.image %}
                                     <img src="{{ product.image.url }}" class="product-img">
                                     {% else %}
-                                    <div class="product-img" style="display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #94a3b8;">
+                                    <div class="product-img"
+                                        style="display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: var(--text-secondary);">
                                         <i class="fa-solid fa-image"></i>
                                     </div>
                                     {% endif %}
                                     <div>
                                         <div style="font-weight: 600;">{{ product.name }}</div>
-                                        <div style="font-size: 0.75rem; color: #64748b;">ID: #{{ product.id }}</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">ID: #{{
+                                            product.id }}</div>
                                     </div>
                                 </div>
                             </td>
@@ -375,15 +401,16 @@
                             <td>
                                 <div style="font-weight: 700;">₹{{ product.price }}</div>
                                 {% if product.original_price %}
-                                <div style="font-size: 0.75rem; text-decoration: line-through; color: #94a3b8;">₹{{ product.original_price }}</div>
+                                <div
+                                    style="font-size: 0.75rem; text-decoration: line-through; color: var(--text-secondary);">
+                                    ₹{{ product.original_price }}</div>
                                 {% endif %}
                             </td>
                             <td>
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <span style="font-weight: 600;">{{ product.stock }}</span>
-                                    {% if product.stock < 5 %}
-                                    <span class="badge badge-danger">Low</span>
-                                    {% endif %}
+                                    {% if product.stock < 5 %} <span class="badge badge-danger">Low</span>
+                                        {% endif %}
                                 </div>
                             </td>
                             <td>
@@ -395,10 +422,12 @@
                             </td>
                             <td>
                                 <div style="display: flex; gap: 8px;">
-                                    <a href="{% url 'edit_product' product.pk %}" class="btn-action" title="Edit Product">
+                                    <a href="{% url 'edit_product' product.pk %}" class="btn-action"
+                                        title="Edit Product">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
-                                    <a href="{% url 'product_detail' product.pk %}" class="btn-action" target="_blank" title="Preview">
+                                    <a href="{% url 'product_detail' product.pk %}" class="btn-action" target="_blank"
+                                        title="Preview">
                                         <i class="fa-solid fa-arrow-up-right-from-square"></i>
                                     </a>
                                 </div>
@@ -413,7 +442,9 @@
         <div class="content-section">
             <div class="section-header">
                 <h2>Recent Orders</h2>
-                <a href="{% url 'admin_orders' %}" style="font-size: 0.85rem; color: var(--info); font-weight: 600; text-decoration: none;">View All</a>
+                <a href="{% url 'admin_orders' %}"
+                    style="font-size: 0.85rem; color: var(--info); font-weight: 600; text-decoration: none;">View
+                    All</a>
             </div>
             <div style="overflow-x: auto;">
                 <table class="management-table">
