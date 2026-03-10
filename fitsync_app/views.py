@@ -283,6 +283,7 @@ def add_trainer_view(request):
         return redirect('admin_dashboard')
     
     if request.method == 'POST':
+        trainer_name = request.POST.get('trainer_name', '')
         u = request.POST.get('username')
         e = request.POST.get('email')
         p = request.POST.get('password')
@@ -293,8 +294,55 @@ def add_trainer_view(request):
             messages.error(request, "Username already taken.")
         else:
             user = User.objects.create_user(username=u, email=e, password=p)
+            user.first_name = trainer_name
+            user.save()
             UserProfile.objects.create(user=user, role='trainer', specialty=sp, price=float(pr))
-            messages.success(request, f"Trainer {u} added successfully!")
+            
+            # Send welcome email
+            try:
+                from django.core.mail import send_mail
+                from django.conf import settings
+                subject = 'Welcome to FitSync Fitness Management System'
+                message = f"""Dear {trainer_name},
+
+Welcome to FitSync Fitness Management System.
+
+Your trainer account has been successfully created by the FitSync Admin. You can now log in to the FitSync Trainer Portal and start managing your workout sessions and members.
+
+Here are your account details:
+
+Trainer Email: {e}
+Username: {u}
+Session Price: ₹{pr} per session
+Security Key:{p}
+
+Please keep your security key confidential. It will be required for verifying your account and accessing trainer features.
+
+Trainer Responsibilities:
+* Conduct live workout sessions for users
+* Guide members with proper workout techniques
+* Track user performance and progress
+* Communicate with users during training sessions
+
+Login Link: http://{request.get_host()}/login/
+
+If you have any questions, please contact the FitSync Admin team.
+
+Best Regards,
+FitSync Admin Team
+FitSync – Smart Fitness Management System
+"""
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'admin@fitsync.com',
+                    [e],
+                    fail_silently=True,
+                )
+            except Exception as email_err:
+                print(f"Failed to send email: {email_err}")
+
+            messages.success(request, f"Trainer {trainer_name} ({u}) added successfully! Verification email sent.")
             return redirect('trainer_list')
             
     return render(request, 'fitsync_app/add_trainer.html')

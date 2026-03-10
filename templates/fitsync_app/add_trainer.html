@@ -178,6 +178,12 @@
         <form method="POST">
             {% csrf_token %}
             <div class="form-grid">
+                <div class="form-group full-width" style="margin-bottom: 0;">
+                    <label>Trainer Full Name</label>
+                    <input type="text" name="trainer_name" class="form-control" placeholder="e.g. Rajan Sharma"
+                        required>
+                </div>
+
                 <div class="form-group">
                     <label>Network ID (Username)</label>
                     <input type="text" name="username" class="form-control" placeholder="e.g. CoachMax" required>
