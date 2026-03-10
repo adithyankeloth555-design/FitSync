@@ -104,7 +104,24 @@ def signup_view(request):
 
         # Send Email
         subject = 'Verify Your FitSync Account'
-        message = f'Welcome to FitSync, {fn}!\n\nYour 6-digit verification code is: {otp}\n\nPlease enter this on the verification page to complete your registration.'
+        message = f"""Hello,
+
+We received a request to verify your account on FitSync – Your Ultimate Fitness Companion
+
+Your One-Time Password (OTP) is:
+
+🔐 OTP Code: {otp}
+
+This OTP is valid for 5 minutes. Please do not share this code with anyone.
+
+If you did not request this verification, please ignore this email or contact the FitSync support team.
+
+Stay strong. Stay Fit.
+
+Best Regards,
+FitSync Security Team
+FitSync – Your Ultimate Fitness Companion
+"""
         email_from = settings.DEFAULT_FROM_EMAIL
         recipient_list = [e]
         
