@@ -46,6 +46,47 @@ def login_view(request):
             login(request, user)
             messages.success(request, f"Welcome back, {u}!")
             
+            # Send Login Notification Email
+            try:
+                login_time = timezone.now().strftime("%d %B %Y – %I:%M %p")
+                user_name = f"{user.first_name} {user.last_name}".strip() or user.username
+                user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
+                
+                device = "Desktop / Laptop"
+                if 'mobile' in user_agent or 'android' in user_agent or 'iphone' in user_agent:
+                    device = "Mobile Device"
+                
+                subject = 'Security Alert: New Login to Your FitSync Account'
+                message = f"""Hello,
+
+Your FitSync account was successfully logged in.
+
+Login Details:
+
+User: {user_name}
+Login Time: {login_time}
+Device: {device}
+Location: India (Based on IP)
+
+If this was you, no further action is required.
+
+If you did not log in to your account, please change your password immediately and contact the FitSync support team.
+
+Your fitness journey matters to us. We are committed to keeping your account secure.
+
+Best Regards,
+FitSync Security Team
+"""
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=True
+                )
+            except Exception as e:
+                print(f"Login email failed: {e}")
+
             # Role-based redirect
             try:
                 role = user.userprofile.role
