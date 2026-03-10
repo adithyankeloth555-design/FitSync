@@ -506,7 +506,7 @@ def trainer_list_view(request):
     is_admin = hasattr(request.user, 'userprofile') and request.user.userprofile.role == 'admin'
     
     sub = UserSubscription.objects.filter(user=request.user, is_active=True).first()
-    if not is_admin and (not sub or sub.plan.name == 'basic'):
+    if not is_admin and (not sub or not sub.plan or sub.plan.name == 'basic'):
         messages.warning(request, "Access to elite personal trainers requires a Premium or Elite membership.")
         return redirect('membership')
 
@@ -1395,7 +1395,7 @@ def payment_success_view(request):
 def chatbot_view(request):
     # Subscription Check: Nova AI is a Premium Feature
     sub = UserSubscription.objects.filter(user=request.user, is_active=True).first()
-    if not sub or sub.plan.name == 'basic':
+    if not sub or not sub.plan or sub.plan.name == 'basic':
         messages.warning(request, "Nova AI Coaching is reserved for Premium and Elite members.")
         return redirect('membership')
         
@@ -1405,7 +1405,7 @@ def chatbot_view(request):
 def ai_hub_view(request):
     # Subscription Check
     sub = UserSubscription.objects.filter(user=request.user, is_active=True).first()
-    is_premium = sub and sub.plan.name != 'basic'
+    is_premium = sub and sub.plan and sub.plan.name != 'basic'
     
     return render(request, 'fitsync_app/ai_hub.html', {
         'is_premium': is_premium
@@ -1825,7 +1825,7 @@ def habit_streak_view(request):
 def ai_workout_view(request):
     # Subscription Check: AI Tools are Premium Features
     sub = UserSubscription.objects.filter(user=request.user, is_active=True).first()
-    if not sub or sub.plan.name == 'basic':
+    if not sub or not sub.plan or sub.plan.name == 'basic':
         messages.warning(request, "Neural Workout Generation is reserved for Premium and Elite members.")
         return redirect('membership')
         
@@ -1835,7 +1835,7 @@ def ai_workout_view(request):
 def ai_diet_view(request):
     # Subscription Check: AI Tools are Premium Features
     sub = UserSubscription.objects.filter(user=request.user, is_active=True).first()
-    if not sub or sub.plan.name == 'basic':
+    if not sub or not sub.plan or sub.plan.name == 'basic':
         messages.warning(request, "AI Metabolic Fueling Protocols are reserved for Premium and Elite members.")
         return redirect('membership')
         
