@@ -82,35 +82,31 @@ import dj_database_url
 # Neon PostgreSQL connection (used on Vercel/production)
 _NEON_URL = 'postgresql://neondb_owner:npg_6ZoNBSMh1Jen@ep-restless-queen-adfcnr1g-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require'
 
+# Always use Neon PostgreSQL for both local and production
 if os.environ.get('POSTGRES_URL'):
-    # Env var takes priority (set this in Vercel dashboard for security)
     _pg_url = os.environ['POSTGRES_URL']
-elif os.environ.get('VERCEL'):
-    # Fallback: use hardcoded Neon URL on Vercel
+else:
     _pg_url = _NEON_URL
-else:
-    _pg_url = None
 
-if _pg_url:
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=_pg_url,
-            conn_max_age=600,
-            ssl_require=True
-        )
-    }
-else:
-    # Local development: MySQL
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'fitsync_db',
-            'USER': 'root',
-            'PASSWORD': 'root',
-            'HOST': 'localhost',
-            'PORT': '3306',
-        }
-    }
+DATABASES = {
+    'default': dj_database_url.config(
+        default=_pg_url,
+        conn_max_age=600,
+        ssl_require=True
+    )
+}
+
+# Original Local MySQL Config (Commented out)
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'fitsync_db',
+#         'USER': 'root',
+#         'PASSWORD': 'root',
+#         'HOST': 'localhost',
+#         'PORT': '3306',
+#     }
+# }
 
 # Original SQLite Config (Commented out)
 # DATABASES = {
