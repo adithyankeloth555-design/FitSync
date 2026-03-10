@@ -480,7 +480,7 @@ def user_dashboard_view(request):
 
     # Subscription check for trainer section visibility
     sub = UserSubscription.objects.filter(user=request.user, is_active=True).first()
-    is_basic = sub and sub.plan.name == 'basic'
+    is_basic = sub and sub.plan and sub.plan.name == 'basic'
     
     # Get upcoming live sessions
     upcoming_sessions = LiveSession.objects.filter(date__gte=timezone.now().date()).order_by('date', 'time')[:3]
