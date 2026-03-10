@@ -18,6 +18,8 @@ from django.core.wsgi import get_wsgi_application
 
 # Auto-run migrations on every startup when on Vercel (SQLite /tmp or Postgres)
 if os.environ.get('VERCEL'):
+    # Create /tmp/media for file uploads (Vercel filesystem is read-only elsewhere)
+    os.makedirs('/tmp/media', exist_ok=True)
     try:
         from django.core.management import call_command
         call_command('migrate', verbosity=0)
