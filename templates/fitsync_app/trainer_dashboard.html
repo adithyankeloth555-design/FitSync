@@ -38,7 +38,8 @@
         display: flex;
         flex-direction: column;
         position: fixed;
-        height: 100vh;
+        top: 0;
+        bottom: 0;
         z-index: 1001;
         border-right: 1px solid var(--border-color);
         transition: transform 0.3s ease;
@@ -113,6 +114,7 @@
 
     .logout-box {
         padding: 1rem;
+        padding-bottom: calc(1rem + env(safe-area-inset-bottom));
         border-top: 1px solid var(--border-color);
         flex-shrink: 0;
     }
