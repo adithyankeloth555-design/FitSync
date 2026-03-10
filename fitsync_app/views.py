@@ -1,3 +1,4 @@
+import os
 import random
 import string
 import calendar
@@ -734,7 +735,12 @@ def user_dashboard_view(request):
         'cart_count': cart_count,
         'next_session': next_session,
     }
-    return render(request, 'fitsync_app/user_dashboard.html', context)
+    # Vercel-specific style check: Render the new "Channel Analytics" style on Vercel only
+    template_name = 'fitsync_app/user_dashboard.html'
+    if os.environ.get('VERCEL'):
+        template_name = 'fitsync_app/user_dashboard_vercel.html'
+        
+    return render(request, template_name, context)
 
 @login_required
 def trainer_list_view(request):
