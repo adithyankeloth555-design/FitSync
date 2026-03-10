@@ -77,7 +77,7 @@ WSGI_APPLICATION = 'fitsync.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 import os
-import dj_database_url
+import dj_database_url # pyre-ignore[21]
 
 # Neon PostgreSQL connection (used on Vercel/production)
 _NEON_URL = 'postgresql://neondb_owner:npg_6ZoNBSMh1Jen@ep-restless-queen-adfcnr1g-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require'
