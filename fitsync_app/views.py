@@ -361,8 +361,7 @@ def add_trainer_view(request):
                 subject = 'Welcome to FitSync Fitness Management System'
                 message = f"""Dear {trainer_name},
 
-Welcome to FitSync Fitness Management System.
-
+Welcome to FitSync 
 Your trainer account has been successfully created by the FitSync Admin. You can now log in to the FitSync Trainer Portal and start managing your workout sessions and members.
 
 Here are your account details:
@@ -386,7 +385,7 @@ If you have any questions, please contact the FitSync Admin team.
 
 Best Regards,
 FitSync Admin Team
-FitSync – Smart Fitness Management System
+FitSync – Your Ultimate Fitness Companion
 """
                 send_mail(
                     subject,
