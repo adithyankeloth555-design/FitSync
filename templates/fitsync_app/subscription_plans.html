@@ -2,7 +2,8 @@
 {% load static %}
 
 {% block title %}
-{% if user.userprofile.role == 'admin' %}Manage Subscriptions | Admin{% else %}Membership Plans | FitSync Elite{% endif %}
+{% if user.userprofile.role == 'admin' %}Manage Subscriptions | Admin{% else %}Membership Plans | FitSync Elite{% endif
+%}
 {% endblock %}
 
 {% block header %}{% endblock %}
@@ -19,7 +20,9 @@
         --white: var(--bg-secondary);
     }
 
-        {% if user.is_authenticated and user.userprofile.role == 'admin' %}
+        {
+        % if user.is_authenticated and user.userprofile.role=='admin' %
+    }
 
     body {
         background-color: var(--admin-bg);
@@ -41,7 +44,8 @@
         flex-direction: column;
         position: fixed;
         height: 100vh;
-        z-index: 1001; transition: transform 0.3s ease;
+        z-index: 1001;
+        transition: transform 0.3s ease;
         padding: 0;
     }
 
@@ -305,7 +309,9 @@
         transform: translateY(-2px);
     }
 
-        {% else %}
+        {
+        % else %
+    }
 
     /* Member Theme Styles */
     .plans-hero {
@@ -394,30 +400,74 @@
         z-index: 10;
     }
 
-        {% endif %}
+        {
+        % endif %
+    }
 
     /* Mobile Responsive dynamically injected */
     @media (max-width: 1024px) {
-        .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
-        .sidebar.open { transform: translateX(0); box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
-        .main-content, .main-area, .content-area { margin-left: 0 !important; padding: 1.5rem !important; padding-top: 4.5rem !important; }
-        .page-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
-        .actions-bar { flex-direction: column; width: 100%; gap: 1rem; }
-        .search-wrapper { max-width: 100%; width: 100%; }
-        .premium-table { display: block; overflow-x: auto; white-space: nowrap; }
-    }
-    @media (max-width: 768px) {
-        .main-content, .main-area, .content-area { padding: 1rem !important; padding-top: 4.5rem !important; }
-        .page-title { font-size: 1.8rem; }
+        .sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .main-content,
+        .main-area,
+        .content-area {
+            margin-left: 0 !important;
+            padding: 1.5rem !important;
+            padding-top: 4.5rem !important;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .actions-bar {
+            flex-direction: column;
+            width: 100%;
+            gap: 1rem;
+        }
+
+        .search-wrapper {
+            max-width: 100%;
+            width: 100%;
+        }
+
+        .premium-table {
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
     }
 
+    @media (max-width: 768px) {
+
+        .main-content,
+        .main-area,
+        .content-area {
+            padding: 1rem !important;
+            padding-top: 4.5rem !important;
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+        }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 {% if user.is_authenticated and user.userprofile.role == 'admin' %}
 <div class="admin-wrapper">
-    
+
     <!-- Mobile Hamburger Button -->
     <button class="hamburger-btn" id="hamburger-btn" aria-label="Toggle Menu">
         <i class="fa-solid fa-bars"></i>
@@ -426,7 +476,7 @@
     <!-- Sidebar Overlay -->
     <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-    <aside class="sidebar" id="sidebar" >
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             {% if user.userprofile.profile_photo %}
             <img src="{{ user.userprofile.profile_photo.url }}" class="admin-avatar" alt="Admin">
@@ -490,10 +540,14 @@
         </header>
 
         <div class="dashboard-content">
-            <header>
-                <h1 class="admin-page-title">Membership Protocols</h1>
-                <p class="admin-page-subtitle">Configure subscription tiers, internal pricing, and available product
-                    features.</p>
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
+                <div>
+                    <h1 class="admin-page-title">Membership Protocols</h1>
+                    <p class="admin-page-subtitle" style="margin-bottom: 0;">Configure subscription tiers, internal
+                        pricing, and available product features.</p>
+                </div>
+                <a href="{% url 'add_subscription_plan' %}" class="btn-configure"
+                    style="width: auto; padding: 0.8rem 1.5rem;"><i class="fa-solid fa-plus"></i> Add New Plan</a>
             </header>
 
             <div class="plan-management-grid">
@@ -598,7 +652,7 @@
     const hamburgerBtn = document.getElementById('hamburger-btn');
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
-    
+
     if (hamburgerBtn && sidebar && overlay) {
         const hamburgerIcon = hamburgerBtn.querySelector('i');
 

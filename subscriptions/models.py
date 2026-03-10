@@ -2,20 +2,17 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class SubscriptionPlan(models.Model):
-    PLAN_CHOICES = [
-        ('basic', 'Basic'),
-        ('premium', 'Premium'),
-        ('gold', 'Premium Gold'),
-        ('elite', 'Elite'),
-        ('lifetime', 'Elite Lifetime'),
-    ]
-    name = models.CharField(max_length=50, choices=PLAN_CHOICES, unique=True)
+    name = models.CharField(max_length=50, unique=True, help_text="Internal name e.g. 'platinum', 'gold', 'basic'")
     price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Monthly Price")
     annual_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Annual Price (Leave blank for lifetime plans)")
     duration_text = models.CharField(max_length=50, help_text="e.g. 'Per Month', 'Once-off Payment'")
     description = models.TextField(blank=True, default="Elevate your fitness journey.")
     features = models.TextField(help_text="Checkmark separated by newlines")
     is_active = models.BooleanField(default=True)
+
+    def get_name_display(self):
+        # Compatibility method to title-case the 'name' field
+        return self.name.title()
 
     def get_features_list(self):
         return [f.strip() for f in self.features.split('\n') if f.strip()]

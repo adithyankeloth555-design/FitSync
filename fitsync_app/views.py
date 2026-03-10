@@ -1259,6 +1259,25 @@ def subscription_plans_view(request):
     })
 
 @login_required
+def add_subscription_plan(request):
+    if request.user.userprofile.role != 'admin':
+        messages.error(request, "Access denied. Administrative privileges required.")
+        return redirect('subscription_plans')
+        
+    if request.method == 'POST':
+        form = SubscriptionPlanForm(request.POST)
+        if form.is_valid():
+            plan = form.save()
+            messages.success(request, f"Subscription plan '{plan.get_name_display()}' created successfully!")
+            return redirect('subscription_plans')
+    else:
+        form = SubscriptionPlanForm()
+        
+    return render(request, 'fitsync_app/add_subscription_plan.html', {
+        'form': form
+    })
+
+@login_required
 def edit_subscription_plan(request, plan_id):
     if request.user.userprofile.role != 'admin':
         messages.error(request, "Access denied. Administrative privileges required.")
@@ -2598,10 +2617,10 @@ def why_fitsync_view(request):
 
 def migrate_db_view(request):
     """Temporary view to trigger database migrations and create admin on Vercel."""
-    from django.core.management import call_command
-    from django.http import HttpResponse
-    from django.contrib.auth.models import User
-    from .models import UserProfile
+    from django.core.management import call_command # type: ignore
+    from django.http import HttpResponse # type: ignore
+    from django.contrib.auth.models import User # type: ignore
+    from fitsync_app.models import UserProfile # type: ignore
     
     if request.GET.get('key') == 'fitsync_deploy_2026':
         try:

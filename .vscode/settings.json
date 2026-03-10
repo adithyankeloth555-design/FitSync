@@ -1,0 +1,17 @@
+{
+    "python.defaultInterpreterPath": "C:/Users/adith/AppData/Local/Programs/Python/Python39/python.exe",
+    "python.pythonPath": "C:/Users/adith/AppData/Local/Programs/Python/Python39/python.exe",
+    "python.analysis.extraPaths": [
+        ".",
+        "C:/Users/adith/AppData/Local/Programs/Python/Python39/Lib/site-packages"
+    ],
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportMissingImports": "none",
+        "reportMissingModuleSource": "none",
+        "reportGeneralTypeIssues": "none"
+    },
+    "python.analysis.typeCheckingMode": "off",
+    "python.languageServer": "Pylance",
+    "html.validate.styles": false,
+    "html.validate.scripts": false
+}

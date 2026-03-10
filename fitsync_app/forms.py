@@ -1,5 +1,10 @@
 from django import forms
-from .models import DietPlan, WorkoutProgram, BMIHistory, Attendance
+from .models import (
+    DietPlan, WorkoutProgram, BMIHistory, Attendance,
+    UserProfile, Meal, Goal, NutritionLog, Message,
+    CommunityPost, ExerciseVideo, HelpTicket, Product, Order,
+)
+
 
 class DietPlanForm(forms.ModelForm):
     class Meta:
@@ -21,21 +26,15 @@ class AttendanceForm(forms.ModelForm):
         model = Attendance
         fields = ['workout_type', 'notes']
 
-from .models import UserProfile
-
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ['fitness_goal', 'weight_kg', 'height_cm', 'phone_number', 'address', 'bio', 'profile_photo']
 
-from .models import Meal
-
 class MealForm(forms.ModelForm):
     class Meta:
         model = Meal
         fields = ['day', 'name', 'calories', 'protein', 'carbs', 'fats', 'description', 'time']
-
-from .models import Goal, NutritionLog, Message, CommunityPost
 
 class GoalForm(forms.ModelForm):
     class Meta:
@@ -64,14 +63,10 @@ class CommunityPostForm(forms.ModelForm):
         model = CommunityPost
         fields = ['content', 'image']
 
-from .models import ExerciseVideo
-
 class ExerciseVideoForm(forms.ModelForm):
     class Meta:
         model = ExerciseVideo
         fields = ['title', 'description', 'video_file', 'thumbnail']
-
-from .models import HelpTicket
 
 class HelpTicketForm(forms.ModelForm):
     class Meta:
@@ -81,8 +76,6 @@ class HelpTicketForm(forms.ModelForm):
             'subject': forms.TextInput(attrs={'placeholder': 'What can we help you with?'}),
             'message': forms.Textarea(attrs={'placeholder': 'Please provide details about your issue...', 'rows': 4}),
         }
-
-from .models import Product, Order
 
 class ProductForm(forms.ModelForm):
     class Meta:

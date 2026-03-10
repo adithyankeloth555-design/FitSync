@@ -397,12 +397,12 @@
             </div>
 
             <div class="bmi-display">
-                <div class="bmi-circle" style="border-color: {{ bmi_color }}; color: {{ bmi_color }}; box-shadow: 0 0 30px {{ bmi_color }}33;">
+                <div class="bmi-circle" id="bmi-circle" data-color="{{ bmi_color }}">
                     <span class="bmi-number">{{ bmi }}</span>
                     <span class="bmi-unit">BMI</span>
                 </div>
                 <div class="bmi-details">
-                    <div class="bmi-category" style="color: {{ bmi_color }};">{{ assessment.bmi_category }}</div>
+                    <div class="bmi-category" id="bmi-category" data-color="{{ bmi_color }}">{{ assessment.bmi_category }}</div>
                     <div class="bmi-rec">{{ bmi_rec }}</div>
                 </div>
             </div>
@@ -567,5 +567,18 @@ document.querySelectorAll('.progress-fill').forEach(el => {
     const target = el.dataset.width || 0;
     setTimeout(() => { el.style.width = target + '%'; }, 400);
 });
+
+// Apply BMI color from data attributes (avoids Django template vars in inline CSS)
+const bmiCircle = document.getElementById('bmi-circle');
+if (bmiCircle) {
+    const c = bmiCircle.dataset.color;
+    bmiCircle.style.borderColor = c;
+    bmiCircle.style.color = c;
+    bmiCircle.style.boxShadow = `0 0 30px ${c}33`;
+}
+const bmiCat = document.getElementById('bmi-category');
+if (bmiCat) {
+    bmiCat.style.color = bmiCat.dataset.color;
+}
 </script>
 {% endblock %}

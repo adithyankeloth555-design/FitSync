@@ -67,6 +67,7 @@ urlpatterns = [
 
     # Subscription & Payment
     path('subscription/', views.subscription_plans_view, name='subscription_plans'),
+    path('subscription/add/', views.add_subscription_plan, name='add_subscription_plan'),
     path('subscription/edit/<int:plan_id>/', views.edit_subscription_plan, name='edit_subscription_plan'),
     path('payment/', views.payment_view, name='payment'),
     path('payment/trainer/<int:trainer_id>/', views.trainer_payment_view, name='trainer_payment'),

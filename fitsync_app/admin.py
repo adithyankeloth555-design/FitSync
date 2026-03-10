@@ -1,5 +1,6 @@
-from django.contrib import admin
-from .models import (
+# pyre-ignore-all-errors[21]
+from django.contrib import admin # type: ignore
+from fitsync_app.models import ( # type: ignore
     UserProfile, DietPlan, WorkoutProgram, Attendance, Payment, Goal,
     NutritionLog, Message, CommunityPost, CommunityComment, Notification,
     BMIHistory, ExerciseVideo, WaterLog, TrainerFeedback, EmailOTP,

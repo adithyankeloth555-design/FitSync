@@ -1,0 +1,12 @@
+{
+    "pythonVersion": "3.9",
+    "pythonPlatform": "Windows",
+    "venv": "",
+    "extraPaths": [
+        "."
+    ],
+    "pythonPath": "C:/Users/adith/AppData/Local/Programs/Python/Python39/python.exe",
+    "reportMissingImports": false,
+    "reportMissingModuleSource": false,
+    "typeCheckingMode": "off"
+}
