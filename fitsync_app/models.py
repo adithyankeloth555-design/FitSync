@@ -25,6 +25,8 @@ class UserProfile(models.Model):
     
     # Relationship
     assigned_trainer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='trainees')
+    active_diet      = models.ForeignKey('DietPlan', on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_users')
+    active_workout   = models.ForeignKey('WorkoutProgram', on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_users')
     
     created_at = models.DateTimeField(auto_now_add=True)
 

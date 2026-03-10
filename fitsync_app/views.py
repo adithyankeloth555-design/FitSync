@@ -657,12 +657,22 @@ def user_dashboard_view(request):
     # Get upcoming live sessions
     upcoming_sessions = LiveSession.objects.filter(date__gte=timezone.now().date()).order_by('date', 'time')[:3]
     
-    # NEW: Performance Dashboard Connectivity
+    # Performance Dashboard Connectivity
     today = timezone.now().date()
     calories_today = NutritionLog.objects.filter(user=request.user, date=today).aggregate(Sum('calories'))['calories__sum'] or 0
     water_today = WaterLog.objects.filter(user=request.user, date=today).first()
     water_ml = water_today.amount_ml if water_today else 0
     
+    # Active Protocols
+    active_diet = user_profile.active_diet
+    active_workout = user_profile.active_workout
+    
+    # Get today's meals from the active diet plan
+    day_name = today.strftime('%A').lower() # e.g. 'monday'
+    today_meals = []
+    if active_diet:
+        today_meals = active_diet.meals.filter(day=day_name).order_by('time')
+
     # Goal Metrics
     total_goals = Goal.objects.filter(user=request.user).count()
     completed_goals = Goal.objects.filter(user=request.user, is_completed=True).count()
@@ -712,6 +722,11 @@ def user_dashboard_view(request):
         'total_diets': total_diets,
         'attendance_streak': attendance_streak,
         'last_bmi': last_bmi,
+        
+        # Protocol Context
+        'active_diet': active_diet,
+        'active_workout': active_workout,
+        'today_meals': today_meals,
         
         # Store & Feedback
         'recent_orders': recent_orders,
