@@ -90,6 +90,7 @@
         flex-grow: 1;
         padding: 0 1rem;
         overflow-y: auto;
+        min-height: 0;
     }
 
     .sidebar-nav::-webkit-scrollbar {
@@ -151,6 +152,7 @@
     .sidebar-footer {
         padding: 1.5rem;
         border-top: 1px solid var(--border-color);
+        flex-shrink: 0;
     }
 
     .logout-btn {
@@ -530,13 +532,21 @@
 
     {% if not user.fitness_assessment %}
     <a href="{% url 'fitness_assessment' %}" style="text-decoration:none; display:block; margin-bottom: 2.5rem;">
-        <div style="background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(245,158,11,0.05)); border: 1px solid rgba(99,102,241,0.2); border-radius: 20px; padding: 1.5rem 2rem; display: flex; align-items: center; gap: 1.5rem; transition: 0.3s;" onmouseover="this.style.borderColor='rgba(99,102,241,0.4)'" onmouseout="this.style.borderColor='rgba(99,102,241,0.2)'">
-            <div style="width: 52px; height: 52px; background: rgba(99,102,241,0.12); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #818cf8; flex-shrink: 0;">🧠</div>
+        <div style="background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(245,158,11,0.05)); border: 1px solid rgba(99,102,241,0.2); border-radius: 20px; padding: 1.5rem 2rem; display: flex; align-items: center; gap: 1.5rem; transition: 0.3s;"
+            onmouseover="this.style.borderColor='rgba(99,102,241,0.4)'"
+            onmouseout="this.style.borderColor='rgba(99,102,241,0.2)'">
+            <div
+                style="width: 52px; height: 52px; background: rgba(99,102,241,0.12); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #818cf8; flex-shrink: 0;">
+                🧠</div>
             <div style="flex-grow:1;">
-                <div style="font-weight: 800; color: #c7d2fe; margin-bottom: 0.3rem;">Complete Your Smart Fitness Assessment</div>
-                <div style="font-size: 0.85rem; color: #555;">Takes 2 mins. Get a personalized workout plan, diet recommendation, and BMI analysis.</div>
+                <div style="font-weight: 800; color: #c7d2fe; margin-bottom: 0.3rem;">Complete Your Smart Fitness
+                    Assessment</div>
+                <div style="font-size: 0.85rem; color: #555;">Takes 2 mins. Get a personalized workout plan, diet
+                    recommendation, and BMI analysis.</div>
             </div>
-            <div style="background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); border-radius: 10px; padding: 0.5rem 1.2rem; color: #818cf8; font-size: 0.8rem; font-weight: 700; white-space: nowrap;">Get Started →</div>
+            <div
+                style="background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); border-radius: 10px; padding: 0.5rem 1.2rem; color: #818cf8; font-size: 0.8rem; font-weight: 700; white-space: nowrap;">
+                Get Started →</div>
         </div>
     </a>
     {% endif %}
@@ -640,13 +650,16 @@
         <h2 class="section-header">Upcoming Live Sessions</h2>
         <div class="actions-grid" style="margin-bottom: 3rem;">
             {% for session in live_sessions %}
-            <div class="action-card" style="border-color: rgba(239,68,68,0.3); position: relative; overflow: hidden; background: linear-gradient(135deg, var(--bg-secondary), rgba(239,68,68,0.04));">
-                <span style="position: absolute; top: 12px; right: 12px; font-size: 0.65rem; background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 800; letter-spacing: 1px;">SCHEDULED</span>
+            <div class="action-card"
+                style="border-color: rgba(239,68,68,0.3); position: relative; overflow: hidden; background: linear-gradient(135deg, var(--bg-secondary), rgba(239,68,68,0.04));">
+                <span
+                    style="position: absolute; top: 12px; right: 12px; font-size: 0.65rem; background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 800; letter-spacing: 1px;">SCHEDULED</span>
                 <i class="fa-solid fa-video" style="color: #f87171;"></i>
                 <h3>{{ session.session_title }}</h3>
                 <p>Instructor: {{ session.trainer_name }}</p>
                 <p style="font-size: 0.85rem; color: #888;">{{ session.date }} at {{ session.time }}</p>
-                <a href="{{ session.meeting_link }}" target="_blank" class="btn-update-v2" style="margin-top: 1rem; padding: 0.5rem 1rem; width: 100%; text-align: center;">Join Session</a>
+                <a href="{{ session.meeting_link }}" target="_blank" class="btn-update-v2"
+                    style="margin-top: 1rem; padding: 0.5rem 1rem; width: 100%; text-align: center;">Join Session</a>
             </div>
             {% endfor %}
         </div>
@@ -674,17 +687,20 @@
                 <h3>Analytics</h3>
                 <p>Quantitative progress tracking and performance charts.</p>
             </a>
-            <a href="{% url 'fitness_assessment' %}" class="action-card" style="border-color: rgba(99,102,241,0.2); background: linear-gradient(135deg, var(--bg-secondary), rgba(99,102,241,0.04));">
+            <a href="{% url 'fitness_assessment' %}" class="action-card"
+                style="border-color: rgba(99,102,241,0.2); background: linear-gradient(135deg, var(--bg-secondary), rgba(99,102,241,0.04));">
                 <i class="fa-solid fa-microscope" style="color: #818cf8;"></i>
                 <h3>Fitness Assessment</h3>
                 <p>Get a personalized workout plan, diet plan & BMI analysis from your biometric data.</p>
             </a>
-            <a href="{% url 'live_session' %}" class="action-card" style="border-color: rgba(239,68,68,0.3); background: linear-gradient(135deg, var(--bg-secondary), rgba(239,68,68,0.04));">
+            <a href="{% url 'live_session' %}" class="action-card"
+                style="border-color: rgba(239,68,68,0.3); background: linear-gradient(135deg, var(--bg-secondary), rgba(239,68,68,0.04));">
                 <i class="fa-solid fa-video" style="color: #f87171;"></i>
                 <h3>Classes & Sessions</h3>
                 <p>View and schedule live interactive sessions via meeting links.</p>
             </a>
-            <a href="{% url 'store' %}" class="action-card" style="border-color: rgba(245,158,11,0.3); background: linear-gradient(135deg, var(--bg-secondary), rgba(245,158,11,0.04));">
+            <a href="{% url 'store' %}" class="action-card"
+                style="border-color: rgba(245,158,11,0.3); background: linear-gradient(135deg, var(--bg-secondary), rgba(245,158,11,0.04));">
                 <i class="fa-solid fa-store" style="color: #f59e0b;"></i>
                 <h3>FitSync Store</h3>
                 <p>Shop premium supplements and fitness equipment.</p>

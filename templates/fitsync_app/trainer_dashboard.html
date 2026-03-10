@@ -77,6 +77,8 @@
         padding: 1rem 0.8rem;
         list-style: none;
         flex-grow: 1;
+        overflow-y: auto;
+        min-height: 0;
     }
 
     .menu-item {
@@ -112,6 +114,7 @@
     .logout-box {
         padding: 1rem;
         border-top: 1px solid var(--border-color);
+        flex-shrink: 0;
     }
 
     /* Main Content */
@@ -596,7 +599,8 @@
             <a href="{% url 'messages' %}" class="menu-item">
                 <i class="fa-solid fa-message"></i> Messages
             </a>
-            <a href="{% url 'store' %}" class="menu-item" style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem; border-radius: 0;">
+            <a href="{% url 'store' %}" class="menu-item"
+                style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem; border-radius: 0;">
                 <i class="fa-solid fa-store" style="color: var(--gold);"></i> FitSync Store
             </a>
         </nav>
@@ -619,8 +623,10 @@
             <p class="page-subtitle">Monitor and optimize your athletes' performance.</p>
         </header>
         <!-- Operational Controls -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-            <a href="{% url 'live_session' %}" class="btn" style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; border: none; padding: 1.2rem; font-size: 1.1rem; box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);">
+        <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+            <a href="{% url 'live_session' %}" class="btn"
+                style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; border: none; padding: 1.2rem; font-size: 1.1rem; box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);">
                 <i class="fa-solid fa-video pulse" style="animation: pulse 2s infinite;"></i> Start Live Session
             </a>
             <a href="{% url 'workout_list' %}" class="btn btn-secondary" style="padding: 1.2rem; font-size: 1.1rem;">
