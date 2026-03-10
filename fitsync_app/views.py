@@ -228,31 +228,120 @@ def verify_otp_view(request):
     return render(request, 'fitsync_app/verify_otp.html', {'email': signup_data['email']})
 
 def forgot_password_view(request):
+    # Initialize reset session if not present
+    if 'reset_step' not in request.session:
+        request.session['reset_step'] = 1
+
+    step = request.session.get('reset_step', 1)
+    email = request.session.get('reset_email', '')
+
     if request.method == 'POST':
-        u = request.POST.get('username')
-        e = request.POST.get('email')
-        new_p = request.POST.get('new_password')
-        confirm_p = request.POST.get('confirm_password')
+        if step == 1:
+            email = request.POST.get('email', '').strip()
+            # Security: Phrasing "If an account exists"
+            user = User.objects.filter(email=email).first()
+            
+            if user:
+                # Generate and save OTP
+                otp = ''.join(random.choices(string.digits, k=6))
+                EmailOTP.objects.filter(email=email).delete()
+                EmailOTP.objects.create(email=email, otp=otp)
 
-        user = User.objects.filter(username=u, email=e).first()
-        if not user:
-            messages.error(request, "User identity verification failed. Username or Email incorrect.")
-            return render(request, 'fitsync_app/forgot_password.html')
+                # Send Email
+                subject = 'FitSync Security: Password Reset Request'
+                message = f"""Hello {user.first_name or user.username},
 
-        if len(new_p) < 8 or len(new_p) > 12:
-            messages.error(request, "New password must be between 8 and 12 characters.")
-            return render(request, 'fitsync_app/forgot_password.html')
+We received a request to reset your password for your FitSync Elite account.
 
-        if new_p != confirm_p:
-            messages.error(request, "New passwords do not match.")
-            return render(request, 'fitsync_app/forgot_password.html')
+Your 6-digit verification code is:
 
-        user.set_password(new_p)
-        user.save()
-        messages.success(request, "Password reset successful! You can now login with your new password.")
-        return redirect('login')
+🔐 OTP Code: {otp}
 
-    return render(request, 'fitsync_app/forgot_password.html')
+This code is valid for 10 minutes. 
+
+Security Tip: If you did not request this, please ensure your account is secure.
+
+Stay strong.
+FitSync Security Team
+"""
+                email_from = settings.DEFAULT_FROM_EMAIL
+                try:
+                    send_mail(subject, message, email_from, [email])
+                except Exception as ex:
+                    messages.error(request, f"Relay error: {str(ex)}")
+                    # Continue to avoid leaking if error only happens for real/fake emails
+            
+            # Mask email for Step 2 display: u*****@gmail.com
+            if '@' in email:
+                user_part, domain_part = email.split('@')
+                masked_email = user_part[0] + ('*' * 5) + '@' + domain_part
+            else:
+                masked_email = "****"
+            
+            request.session['reset_email'] = email
+            request.session['masked_email'] = masked_email
+            request.session['reset_step'] = 2
+            messages.info(request, "A verification code has been dispatched to your identity address.")
+            return redirect('forgot_password')
+
+        elif step == 2:
+            otp_input = request.POST.get('otp', '').strip()
+            # If the user clicks "Resend" or similar, we might need a separate logic, 
+            # but for now we handle OTP verification.
+            
+            otp_obj = EmailOTP.objects.filter(email=email, otp=otp_input).first()
+            if otp_obj:
+                if otp_obj.is_expired():
+                    messages.error(request, "Verification code expired. Please request a new one.")
+                    request.session['reset_step'] = 1
+                    return redirect('forgot_password')
+                
+                # Verified!
+                otp_obj.delete()
+                request.session['reset_step'] = 3
+                return redirect('forgot_password')
+            else:
+                messages.error(request, "Invalid verification code. Access denied.")
+                return redirect('forgot_password')
+
+        elif step == 3:
+            new_p = request.POST.get('new_password')
+            confirm_p = request.POST.get('confirm_password')
+
+            # Requirements: Min 12 chars, symbol
+            has_symbol = bool(re.search(r'[!@#$%^&*(),.?":{}|<>]', new_p))
+            
+            if len(new_p) < 12:
+                messages.error(request, "Security breach: Password must be at least 12 characters.")
+                return redirect('forgot_password')
+            
+            if not has_symbol:
+                messages.error(request, "Security breach: Password must contain at least one symbol.")
+                return redirect('forgot_password')
+
+            if new_p != confirm_p:
+                messages.error(request, "Parity error: Passwords do not match.")
+                return redirect('forgot_password')
+
+            user = User.objects.filter(email=email).first()
+            if user:
+                user.set_password(new_p)
+                user.save()
+                # Cleanup session
+                for key in ['reset_step', 'reset_email', 'masked_email']:
+                    if key in request.session: del request.session[key]
+                
+                messages.success(request, "Vault updated. New credentials active.")
+                return redirect('login')
+            else:
+                messages.error(request, "Critical identity failure. Please restart.")
+                request.session['reset_step'] = 1
+                return redirect('forgot_password')
+
+    return render(request, 'fitsync_app/forgot_password.html', {
+        'step': step,
+        'email': request.session.get('masked_email', '')
+    })
 
 def logout_view(request):
     logout(request)
@@ -554,7 +643,6 @@ def user_dashboard_view(request):
         trainer_assignment_date = user_profile.created_at.strftime("%b %d, %Y") if user_profile.created_at else "Recently"
 
     # Handle photo upload from dashboard
-    user_profile = request.user.userprofile
     if request.method == 'POST' and request.FILES.get('profile_photo'):
         form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
         if form.is_valid():
@@ -569,6 +657,39 @@ def user_dashboard_view(request):
     # Get upcoming live sessions
     upcoming_sessions = LiveSession.objects.filter(date__gte=timezone.now().date()).order_by('date', 'time')[:3]
     
+    # NEW: Performance Dashboard Connectivity
+    today = timezone.now().date()
+    calories_today = NutritionLog.objects.filter(user=request.user, date=today).aggregate(Sum('calories'))['calories__sum'] or 0
+    water_today = WaterLog.objects.filter(user=request.user, date=today).first()
+    water_ml = water_today.amount_ml if water_today else 0
+    
+    # Goal Metrics
+    total_goals = Goal.objects.filter(user=request.user).count()
+    completed_goals = Goal.objects.filter(user=request.user, is_completed=True).count()
+    goal_progress = (completed_goals / total_goals * 100) if total_goals > 0 else 0
+    next_goal = Goal.objects.filter(user=request.user, is_completed=False).order_by('target_date').first()
+    
+    # Activity Stats
+    total_workouts = WorkoutProgram.objects.count()
+    total_diets = DietPlan.objects.count()
+    attendance_streak = Attendance.objects.filter(user=request.user).count()
+    
+    # Last BMI Record
+    last_bmi = request.user.bmi_records.first()
+    
+    # Recent Orders
+    recent_orders = Order.objects.filter(user=request.user).order_by('-created_at')[:3]
+    
+    # Notifications
+    notifications = Notification.objects.filter(user=request.user, is_read=False).order_by('-created_at')[:5]
+    
+    # Store Stats
+    cart = Cart.objects.filter(user=request.user).first()
+    cart_count = cart.items.count() if cart else 0
+    
+    # Next Workout
+    next_session = upcoming_sessions[0] if upcoming_sessions else None
+    
     context = {
         'recent_feedback': recent_feedback,
         'assigned_trainer': assigned_trainer if not is_basic else None,
@@ -579,6 +700,24 @@ def user_dashboard_view(request):
         'is_basic': is_basic,
         'subscription': sub,
         'live_sessions': upcoming_sessions,
+        
+        # New Context Variables
+        'calories_today': calories_today,
+        'water_today': water_ml,
+        'total_goals': total_goals,
+        'completed_goals': completed_goals,
+        'goal_progress': goal_progress,
+        'next_goal': next_goal,
+        'total_workouts': total_workouts,
+        'total_diets': total_diets,
+        'attendance_streak': attendance_streak,
+        'last_bmi': last_bmi,
+        
+        # Store & Feedback
+        'recent_orders': recent_orders,
+        'notifications': notifications,
+        'cart_count': cart_count,
+        'next_session': next_session,
     }
     return render(request, 'fitsync_app/user_dashboard.html', context)
 

@@ -1,4 +1,4 @@
-{% extends 'fitsync_app/base.html' %}
+﻿{% extends 'fitsync_app/base.html' %}
 
 {% block title %}Success | FitSync Elite{% endblock %}
 
@@ -29,8 +29,7 @@
             style="background: var(--bg-tertiary); padding: 2rem; border-radius: 20px; text-align: left; margin-bottom: 3rem;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
                 <span style="color: var(--text-muted); font-weight: 600;">Transaction ID</span>
-                <span style="color: var(--text-primary); font-family: monospace; font-weight: 800;">#{{
-                    transaction_id|truncatechars:12 }}</span>
+                <span style="color: var(--text-primary); font-family: monospace; font-weight: 800;">#{{ transaction_id|truncatechars:12 }}</span>
             </div>
             <div style="display: flex; justify-content: space-between;">
                 {% if payment_type == 'trainer' %}
@@ -52,3 +51,4 @@
     </div>
 </div>
 {% endblock %}
+

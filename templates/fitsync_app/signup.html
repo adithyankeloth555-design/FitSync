@@ -1,7 +1,7 @@
 {% extends 'fitsync_app/base.html' %}
 {% load static %}
 
-{% block title %}Join FitSync Elite{% endblock %}
+{% block title %}Join the Elite | FitSync{% endblock %}
 
 {% block header %}{% endblock %}
 {% block footer %}{% endblock %}
@@ -9,10 +9,13 @@
 {% block extra_css %}
 <style>
     :root {
-        --signup-orange: var(--gold);
-        --card-bg: var(--bg-secondary);
-        --text-color: var(--text-primary);
-        --input-bg: var(--bg-tertiary);
+        --accent-gold: #d4af37;
+        --accent-gold-glow: rgba(212, 175, 55, 0.4);
+        --bg-dark: #0a0a0a;
+        --glass-bg: rgba(20, 20, 20, 0.7);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --text-pure: #ffffff;
+        --text-dim: #a0a0a0;
     }
 
     body {
@@ -20,12 +23,14 @@
         padding: 0;
         height: 100vh;
         overflow: hidden;
-        background-color: var(--bg-primary);
+        background-color: var(--bg-dark);
+        font-family: 'Outfit', 'Inter', sans-serif;
     }
 
     .auth-page {
-        background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.7)),
-            url('/static/images/arnold.png');
+        position: relative;
+        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8)),
+            url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1920&q=100');
         background-size: cover;
         background-position: center;
         height: 100vh;
@@ -33,234 +38,331 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        font-family: 'Inter', sans-serif;
+    }
+
+    /* Ambient Glow */
+    .auth-page::before {
+        content: '';
+        position: absolute;
+        top: -10%;
+        right: -10%;
+        width: 40%;
+        height: 40%;
+        background: radial-gradient(circle, var(--accent-gold-glow) 0%, transparent 70%);
+        filter: blur(80px);
+        z-index: 0;
+    }
+
+    .hero-container {
+        position: absolute;
+        left: 8%;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 1;
+        display: none;
+        animation: slideInLeft 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateY(-50%) translateX(-50px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(-50%) translateX(0);
+        }
+    }
+
+    .hero-container h1 {
+        font-family: 'Cinzel', serif;
+        font-size: 6rem;
+        font-weight: 900;
+        color: transparent;
+        background: linear-gradient(135deg, #fff 30%, var(--accent-gold));
+        -webkit-background-clip: text;
+        background-clip: text;
+        margin: 0;
+        line-height: 0.9;
+        letter-spacing: 8px;
+        text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .hero-container p {
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 6px;
+        color: var(--accent-gold);
+        margin-top: 1.5rem;
+        font-weight: 600;
+        opacity: 0.8;
     }
 
     .login-card {
-        background: var(--card-bg);
+        background: var(--glass-bg);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
         width: 100%;
-        max-width: 420px;
-        border-radius: 12px;
-        padding: 2.5rem 2.5rem;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        max-width: 480px;
+        border-radius: 30px;
+        padding: 4rem 3rem;
+        box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8),
+            inset 0 0 0 1px var(--glass-border);
+        position: relative;
+        z-index: 2;
+        animation: scaleIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
     }
 
     .card-header {
-        margin-bottom: 2rem;
+        text-align: center;
+        margin-bottom: 3rem;
     }
 
     .card-title {
-        font-size: 2rem;
+        font-family: 'Cinzel', serif;
+        font-size: 2.5rem;
         font-weight: 800;
-        color: var(--text-color);
+        color: var(--text-pure);
         margin: 0;
-        letter-spacing: -0.5px;
+        letter-spacing: 2px;
+    }
+
+    .card-subtitle {
+        color: var(--text-dim);
+        font-size: 0.95rem;
+        margin-top: 0.75rem;
+        font-weight: 400;
     }
 
     .form-group {
         position: relative;
-        margin-bottom: 1rem;
+        margin-bottom: 1.25rem;
+        transition: 0.3s;
     }
 
-    .form-group i {
+    .form-group i:not(.toggle-password) {
         position: absolute;
-        left: 1.2rem;
+        left: 1.25rem;
         top: 50%;
         transform: translateY(-50%);
-        color: #9ca3af;
-        font-size: 1.1rem;
+        color: var(--accent-gold);
+        font-size: 1rem;
+        opacity: 0.6;
+        transition: 0.3s;
     }
 
     .form-control {
         width: 100%;
-        padding: 0.85rem 1rem 0.85rem 3.2rem;
-        background: var(--input-bg);
-        border: 1px solid transparent;
-        border-radius: 8px;
-        font-size: 0.95rem;
-        color: var(--text-color);
-        transition: all 0.2s;
+        padding: 1.1rem 1.2rem 1.1rem 3.5rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        font-size: 1rem;
+        color: var(--text-pure);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         box-sizing: border-box;
     }
 
     .form-control:focus {
-        background: var(--bg-secondary);
-        border-color: var(--signup-orange);
+        background: rgba(212, 175, 55, 0.05);
+        border-color: var(--accent-gold);
         outline: none;
         box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1);
     }
 
-    .btn-login {
-        width: 100%;
-        padding: 1rem;
-        background: var(--signup-orange);
-        color: #000;
-        border: none;
-        border-radius: 8px;
-        font-size: 1.1rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.2s;
-        margin-top: 1rem;
+    .form-control:focus+i {
+        opacity: 1;
+        transform: translateY(-50%) scale(1.1);
     }
 
-    .btn-login:hover {
-        opacity: 0.9;
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-glow);
+    .btn-signup {
+        width: 100%;
+        padding: 1.25rem;
+        background: var(--accent-gold);
+        color: #000;
+        border: none;
+        border-radius: 18px;
+        font-size: 1.1rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        margin-top: 2rem;
+        box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2);
+    }
+
+    .btn-signup:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(212, 175, 55, 0.4);
+        letter-spacing: 4px;
     }
 
     .card-footer {
         text-align: center;
-        margin-top: 1.5rem;
-        font-size: 0.9rem;
+        margin-top: 2.5rem;
+        font-size: 0.95rem;
+        color: var(--text-dim);
+    }
+
+    .footer-link {
+        color: var(--accent-gold);
+        text-decoration: none;
+        font-weight: 800;
+        margin-left: 0.5rem;
+        transition: 0.3s;
     }
 
     .footer-link:hover {
-        color: var(--signup-orange);
+        text-decoration: underline;
+        filter: brightness(1.2);
     }
 
-    .hero-text {
-        position: absolute;
-        left: 5%;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #fff;
-        z-index: 1;
-        max-width: 500px;
-        display: none;
-    }
-
-    @media (min-width: 1024px) {
-        .hero-text {
+    @media (min-width: 1200px) {
+        .hero-container {
             display: block;
         }
 
         .auth-page {
             justify-content: flex-end;
-            padding-right: 10%;
+            padding-right: 12%;
         }
     }
 
-    .hero-text h1 {
-        font-family: 'Cinzel', serif;
-        font-size: 5rem;
-        font-weight: 900;
-        margin: 0;
-        line-height: 1;
-        letter-spacing: 5px;
-        background: linear-gradient(to bottom, var(--text-primary), var(--signup-orange));
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
+    /* Floating Labels Alternative Style */
+    .name-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
     }
 
-    .hero-text p {
-        font-size: 1.2rem;
-        font-weight: 700;
-        letter-spacing: 3px;
-        margin-top: 10px;
-        opacity: 0.9;
+    .name-row .form-group {
+        margin-bottom: 0;
+    }
+
+    select.form-control {
+        appearance: none;
+        cursor: pointer;
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 1.25rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-dim);
+        cursor: pointer;
+        transition: 0.3s;
+        z-index: 5;
+    }
+
+    .toggle-password:hover {
+        color: var(--text-pure);
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="auth-page">
-
-    <div class="hero-text">
-        <h1>FITSYNC</h1>
-        <p>YOUR ULTIMATE FITNESS COMPANION</p>
+    <div class="hero-container">
+        <h1>UNLEASH<br>THE ELITE</h1>
+        <p>Your Ultimate Fitness Companion</p>
     </div>
 
     <div class="login-card">
         <div class="card-header">
             <h1 class="card-title">Join the Elite</h1>
-            <p class="text-muted" style="margin-top: 5px;">Create your account to begin</p>
+            <p class="card-subtitle">Begin your high-performance journey</p>
         </div>
 
         <form method="post">
             {% csrf_token %}
-            <div style="display: flex; gap: 10px; margin-bottom: 1rem;">
-                <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                    <i class="fa-solid fa-id-card"></i>
-                    <input type="text" name="first_name" class="form-control" placeholder="First Name" required>
+
+            <div class="name-row">
+                <div class="form-group">
+                    <i class="fa-solid fa-signature"></i>
+                    <input type="text" name="first_name" class="form-control" placeholder="First" required>
                 </div>
-                <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                    <i class="fa-solid fa-id-card"></i>
-                    <input type="text" name="last_name" class="form-control" placeholder="Last Name" required>
+                <div class="form-group">
+                    <i class="fa-solid fa-signature"></i>
+                    <input type="text" name="last_name" class="form-control" placeholder="Last" required>
                 </div>
             </div>
 
             <div class="form-group">
-                <i class="fa-solid fa-user"></i>
+                <i class="fa-solid fa-user-ninja"></i>
                 <input type="text" name="username" class="form-control" placeholder="Choose Username" required>
             </div>
 
             <div class="form-group">
-                <i class="fa-solid fa-envelope"></i>
+                <i class="fa-solid fa-envelope-open-text"></i>
                 <input type="email" name="email" class="form-control" placeholder="Email Address" required
-                    pattern="[a-z0-9._%+-]+@gmail\.com$"
-                    title="Please use a valid @gmail.com address (e.g. abc@gmail.com)">
+                    pattern="[a-z0-9._%+-]+@gmail\.com$" title="Please use a valid @gmail.com address">
             </div>
 
-            <div class="form-group" style="display: flex; gap: 10px;">
-                <div style="flex: 0 0 100px; position: relative;">
-                    <i class="fa-solid fa-earth-americas" style="left: 1rem;"></i>
-                    <select name="country_code" class="form-control"
-                        style="padding-left: 2.5rem; appearance: none; cursor: pointer;" required>
-                        <option value="+91" selected>+91 (IN)</option>
-                        <option value="+1">+1 (US)</option>
-                        <option value="+44">+44 (UK)</option>
-                        <option value="+61">+61 (AU)</option>
-                        <option value="+971">+971 (UAE)</option>
-                        <option value="+65">+65 (SG)</option>
+            <div style="display: grid; grid-template-columns: 110px 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <i class="fa-solid fa-globe"></i>
+                    <select name="country_code" class="form-control" style="padding-left: 3rem;" required>
+                        <option value="+91" selected>+91</option>
+                        <option value="+1">+1</option>
+                        <option value="+44">+44</option>
+                        <option value="+61">+61</option>
                     </select>
                 </div>
-                <div style="flex: 1; position: relative;">
-                    <i class="fa-solid fa-phone" style="left: 1.2rem;"></i>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <i class="fa-solid fa-phone-volume"></i>
                     <input type="text" name="phone_number" class="form-control" placeholder="Phone Number" required>
                 </div>
             </div>
 
-            <div class="form-group" style="position: relative;">
-                <i class="fa-solid fa-lock"></i>
-                <input type="password" name="password" id="password" class="form-control" placeholder="Password"
-                    required autocomplete="new-password" minlength="8" maxlength="12" style="padding-right: 2.5rem;">
-                <i class="fa-solid fa-eye-slash toggle-password" onclick="togglePassword('password', this)"
-                    style="position: absolute; left: auto; right: 1.2rem; top: 50%; transform: translateY(-50%); cursor: pointer; color: #9ca3af; z-index: 10;"></i>
+            <div class="form-group">
+                <i class="fa-solid fa-vault"></i>
+                <input type="password" name="password" id="password" class="form-control" placeholder="Secret Key"
+                    required autocomplete="new-password" minlength="8" maxlength="12">
+                <i class="fa-solid fa-eye-slash toggle-password" onclick="togglePassword('password', this)"></i>
             </div>
 
-            <div class="form-group" style="position: relative;">
+            <div class="form-group">
                 <i class="fa-solid fa-shield-halved"></i>
                 <input type="password" name="confirm_password" id="confirm_password" class="form-control"
-                    placeholder="Confirm Password" required autocomplete="new-password" minlength="8" maxlength="12"
-                    style="padding-right: 2.5rem;">
-                <i class="fa-solid fa-eye-slash toggle-password" onclick="togglePassword('confirm_password', this)"
-                    style="position: absolute; left: auto; right: 1.2rem; top: 50%; transform: translateY(-50%); cursor: pointer; color: #9ca3af; z-index: 10;"></i>
+                    placeholder="Confirm Secret" required autocomplete="new-password" minlength="8" maxlength="12">
+                <i class="fa-solid fa-eye-slash toggle-password" onclick="togglePassword('confirm_password', this)"></i>
             </div>
 
-            <button type="submit" class="btn-login">Sign Up</button>
+            <button type="submit" class="btn-signup">Initialize Access</button>
         </form>
 
-        <script>
-            function togglePassword(inputId, icon) {
-                const input = document.getElementById(inputId);
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    icon.classList.replace('fa-eye-slash', 'fa-eye');
-                } else {
-                    input.type = 'password';
-                    icon.classList.replace('fa-eye', 'fa-eye-slash');
-                }
-            }
-        </script>
-
         <div class="card-footer">
-            <span class="text-muted">Already a member?</span>
-            <a href="{% url 'login' %}" class="footer-link" style="font-weight: 700; color: var(--signup-orange);">Login
-                Here</a>
+            Already initiated? <a href="{% url 'login' %}" class="footer-link">Login to Vault</a>
         </div>
     </div>
 </div>
+
+<script>
+    function togglePassword(inputId, icon) {
+        const input = document.getElementById(inputId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        }
+    }
+</script>
 {% endblock %}
