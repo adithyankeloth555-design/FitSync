@@ -578,6 +578,31 @@
                 <div>
                     <div class="trainer-name">{{ user.get_full_name|default:user.username }}</div>
                     <div class="trainer-role">Elite Trainer</div>
+                    <div class="trainer-phone"
+                        style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fa-solid fa-phone" style="font-size: 0.7rem;"></i>
+                        <span id="display-phone">{{ user.userprofile.phone_number|default:"No number set" }}</span>
+                        <i class="fa-solid fa-pen-to-square" id="edit-phone-btn"
+                            style="cursor: pointer; color: var(--gold);" onclick="togglePhoneEdit()"
+                            title="Edit Phone Number"></i>
+                    </div>
+                    <form id="edit-phone-form" method="post"
+                        style="display: none; margin-top: 0.5rem; animation: slideDown 0.3s ease;">
+                        {% csrf_token %}
+                        <div style="display: flex; gap: 0.3rem;">
+                            <input type="text" name="new_phone" value="{{ user.userprofile.phone_number|default:'' }}"
+                                style="width: 100%; font-size: 0.75rem; background: var(--bg-tertiary); border: 1px solid var(--gold); border-radius: 4px; padding: 2px 5px; color: white;"
+                                placeholder="Mobile Number" required>
+                            <button type="submit"
+                                style="background: var(--gold); border: none; border-radius: 4px; padding: 2px 6px; cursor: pointer;">
+                                <i class="fa-solid fa-check" style="color: #000; font-size: 0.7rem;"></i>
+                            </button>
+                            <button type="button" onclick="togglePhoneEdit()"
+                                style="background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 4px; padding: 2px 6px; cursor: pointer;">
+                                <i class="fa-solid fa-xmark" style="color: white; font-size: 0.7rem;"></i>
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -847,5 +872,16 @@
 
     hamburgerBtn.addEventListener('click', toggleSidebar);
     overlay.addEventListener('click', toggleSidebar);
+    function togglePhoneEdit() {
+        const form = document.getElementById('edit-phone-form');
+        const phoneDisplay = document.querySelector('.trainer-phone');
+        if (form.style.display === 'none') {
+            form.style.display = 'block';
+            phoneDisplay.style.display = 'none';
+        } else {
+            form.style.display = 'none';
+            phoneDisplay.style.display = 'flex';
+        }
+    }
 </script>
 {% endblock %}

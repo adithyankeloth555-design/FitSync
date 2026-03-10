@@ -448,6 +448,15 @@ def trainer_dashboard_view(request):
             profile.save()
             messages.success(request, "Profile photo updated successfully!")
             return redirect('trainer_dashboard')
+            
+        # Handle Phone Number Update
+        if 'new_phone' in request.POST:
+            new_phone = request.POST.get('new_phone')
+            profile = request.user.userprofile
+            profile.phone_number = new_phone
+            profile.save()
+            messages.success(request, "Mobile number updated successfully!")
+            return redirect('trainer_dashboard')
 
         user_id = request.POST.get('user_id')
         feedback_text = request.POST.get('feedback_text')
