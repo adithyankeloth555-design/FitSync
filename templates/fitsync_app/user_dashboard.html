@@ -590,10 +590,10 @@
                 </div>
             </div>
             {% if active_workout %}
-            <a href="{% url 'workout_program_detail' active_workout.id %}"
+            <a href="{% url 'workout_session' active_workout.id %}"
                 style="color: var(--accent-primary); font-size: 0.75rem; text-decoration: none; font-weight: 700;">VIEW</a>
             {% else %}
-            <a href="{% url 'workout_programs' %}"
+            <a href="{% url 'workout_list' %}"
                 style="color: var(--accent-primary); font-size: 0.75rem; text-decoration: none; font-weight: 700;">BROWSE</a>
             {% endif %}
         </div>
@@ -614,10 +614,10 @@
                 </div>
             </div>
             {% if active_diet %}
-            <a href="{% url 'diet_plan_detail' active_diet.id %}"
+            <a href="{% url 'diet_detail' active_diet.id %}"
                 style="color: #10b981; font-size: 0.75rem; text-decoration: none; font-weight: 700;">TRACK</a>
             {% else %}
-            <a href="{% url 'diet_plans' %}"
+            <a href="{% url 'diet_list' %}"
                 style="color: #10b981; font-size: 0.75rem; text-decoration: none; font-weight: 700;">EXPLORE</a>
             {% endif %}
         </div>
