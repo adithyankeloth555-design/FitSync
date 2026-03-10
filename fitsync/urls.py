@@ -20,7 +20,10 @@ from django.views.generic.base import RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
 
+from fitsync_app.temp_migrate import run_migrations_view
+
 urlpatterns = [
+    path('migrate/', run_migrations_view),
     path('django-admin/', admin.site.urls),
     path('', include('fitsync_app.urls')),
     path('favicon.ico', RedirectView.as_view(url='/static/img/favicon.png')),
