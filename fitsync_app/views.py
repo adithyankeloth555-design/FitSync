@@ -354,7 +354,15 @@ def add_trainer_view(request):
             user = User.objects.create_user(username=u, email=e, password=p)
             user.first_name = trainer_name
             user.save()
-            UserProfile.objects.create(user=user, role='trainer', specialty=sp, price=float(pr))
+            
+            photo = request.FILES.get('profile_photo')
+            UserProfile.objects.create(
+                user=user, 
+                role='trainer', 
+                specialty=sp, 
+                price=float(pr),
+                profile_photo=photo
+            )
             
             # Send welcome email
             try:

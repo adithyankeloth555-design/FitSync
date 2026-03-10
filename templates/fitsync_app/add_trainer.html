@@ -175,7 +175,7 @@
                 network.</p>
         </div>
 
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form-grid">
                 <div class="form-group full-width" style="margin-bottom: 0;">
@@ -208,6 +208,11 @@
                     <label>Security Key (Password)</label>
                     <input type="password" name="password" class="form-control" placeholder="Minimum 8 characters"
                         required minlength="8">
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Profile Photo</label>
+                    <input type="file" name="profile_photo" class="form-control" accept="image/*">
                 </div>
             </div>
 
