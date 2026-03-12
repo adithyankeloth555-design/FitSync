@@ -11,7 +11,7 @@
     :root {
         --content-bg: var(--bg-primary);
         --card-bg: var(--bg-secondary);
-        --gold: #D4AF37;
+        --gold: #4F46E5;
         --text-main: var(--text-primary);
         --text-muted: var(--text-muted);
         --border: var(--border-color);
@@ -20,7 +20,7 @@
     body {
         background-color: var(--content-bg);
         color: var(--text-main);
-        font-family: 'Outfit', sans-serif;
+        font-family: 'Inter', sans-serif;
         min-height: 100vh;
         display: flex;
         align-items: center;
@@ -52,7 +52,7 @@
     }
 
     h1 {
-        font-family: 'Cinzel', serif;
+        font-family: 'Inter', serif;
         color: var(--gold);
         margin-bottom: 2rem;
         font-size: 1.8rem;
@@ -121,7 +121,7 @@
         background: var(--bg-tertiary);
         border: 1px solid var(--border);
         border-radius: 12px;
-        color: #fff;
+        color: var(--text-primary);
         font-size: 1rem;
     }
 
@@ -215,7 +215,7 @@
                     data-description="Hiring {{ trainer.user.get_full_name|default:trainer.user.username|title }}"
                     data-image="https://razorpay.com/assets/razorpay-glyph.svg"
                     data-prefill.name="{{ user.get_full_name }}" data-prefill.email="{{ user.email }}"
-                    data-theme.color="#D4AF37"></script>
+                    data-theme.color="#4F46E5"></script>
                 <input type="hidden" name="razorpay_payment_id" value="PRE_AUTH">
             </form>
 
@@ -234,13 +234,13 @@
                     cursor: pointer !important;
                     transition: 0.3s !important;
                     margin-top: 1rem !important;
-                    font-family: 'Outfit', sans-serif !important;
+                    font-family: 'Inter', sans-serif !important;
                 }
 
                 .razorpay-payment-button:hover {
                     opacity: 0.9 !important;
                     transform: translateY(-2px) !important;
-                    box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3) !important;
+                    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3) !important;
                 }
             </style>
         </div>

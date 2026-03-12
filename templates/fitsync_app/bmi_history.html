@@ -71,7 +71,7 @@
     }
 
     .header-info h1 {
-        font-family: 'Cinzel', serif;
+        font-family: 'Inter', serif;
         font-size: 2rem;
         font-weight: 700;
         color: var(--accent-orange);
@@ -178,7 +178,7 @@
 
     .btn-primary:hover {
         opacity: 0.9;
-        box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
     }
 </style>
 {% endblock %}
@@ -214,7 +214,7 @@
                 {% for record in history %}
                 <tr>
                     <td>{{ record.recorded_at|date:"F d, Y" }}</td>
-                    <td style="color: var(--accent-orange); font-family: 'Cinzel', serif;">{{ record.bmi_score }}</td>
+                    <td style="color: var(--accent-orange); font-family: 'Inter', serif;">{{ record.bmi_score }}</td>
                     <td>{{ record.weight_kg }} kg</td>
                     <td>
                         {% if record.bmi_score < 18.5 %} <span class="status-badge status-warning">Underweight</span>
@@ -263,8 +263,8 @@
 
         // Gradient for BMI
         const gradientBMI = ctx.createLinearGradient(0, 0, 0, 400);
-        gradientBMI.addColorStop(0, 'rgba(212, 175, 55, 0.4)');
-        gradientBMI.addColorStop(1, 'rgba(212, 175, 55, 0.0)');
+        gradientBMI.addColorStop(0, 'rgba(79, 70, 229, 0.4)');
+        gradientBMI.addColorStop(1, 'rgba(79, 70, 229, 0.0)');
 
         // Gradient for Weight
         const gradientWeight = ctx.createLinearGradient(0, 0, 0, 400);
@@ -279,12 +279,12 @@
                     {
                         label: 'BMI Index',
                         data: bmiData,
-                        borderColor: '#D4AF37', // Gold
+                        borderColor: '#4F46E5', // Gold
                         backgroundColor: gradientBMI,
                         borderWidth: 3,
                         pointBackgroundColor: '#fff',
-                        pointBorderColor: '#D4AF37',
-                        pointHoverBackgroundColor: '#D4AF37',
+                        pointBorderColor: '#4F46E5',
+                        pointHoverBackgroundColor: '#4F46E5',
                         pointHoverBorderColor: '#fff',
                         fill: true,
                         tension: 0.4,
@@ -319,7 +319,7 @@
                         labels: {
                             color: '#9ca3af',
                             font: {
-                                family: "'Outfit', sans-serif",
+                                family: "'Inter', sans-serif",
                                 size: 12
                             },
                             usePointStyle: true,
@@ -328,17 +328,17 @@
                     },
                     tooltip: {
                         backgroundColor: 'rgba(17, 24, 39, 0.9)',
-                        titleColor: '#D4AF37',
+                        titleColor: '#4F46E5',
                         bodyColor: '#fff',
-                        borderColor: 'rgba(212, 175, 55, 0.3)',
+                        borderColor: 'rgba(79, 70, 229, 0.3)',
                         borderWidth: 1,
                         padding: 12,
                         titleFont: {
-                            family: "'Cinzel', serif",
+                            family: "'Inter', serif",
                             size: 14
                         },
                         bodyFont: {
-                            family: "'Outfit', sans-serif"
+                            family: "'Inter', sans-serif"
                         }
                     }
                 },
@@ -351,7 +351,7 @@
                         ticks: {
                             color: '#6b7280',
                             font: {
-                                family: "'Outfit', sans-serif"
+                                family: "'Inter', sans-serif"
                             }
                         }
                     },
@@ -364,15 +364,15 @@
                             drawBorder: false
                         },
                         ticks: {
-                            color: '#D4AF37', // Gold for BMI
+                            color: '#4F46E5', // Gold for BMI
                             font: {
-                                family: "'Outfit', sans-serif"
+                                family: "'Inter', sans-serif"
                             }
                         },
                         title: {
                             display: true,
                             text: 'BMI',
-                            color: '#D4AF37'
+                            color: '#4F46E5'
                         }
                     },
                     y1: {
@@ -385,7 +385,7 @@
                         ticks: {
                             color: '#34d399', // Green for Weight
                             font: {
-                                family: "'Outfit', sans-serif"
+                                family: "'Inter', sans-serif"
                             }
                         },
                         title: {

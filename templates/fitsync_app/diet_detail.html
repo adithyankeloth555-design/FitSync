@@ -1,4 +1,4 @@
-﻿{% extends 'fitsync_app/base.html' %}
+{% extends 'fitsync_app/base.html' %}
 {% load static %}
 
 {% block title %}Diet Protocol | FitSync Elite{% endblock %}
@@ -29,7 +29,7 @@
     body {
         background-color: var(--content-bg);
         color: var(--text-main);
-        font-family: 'Outfit', sans-serif;
+        font-family: 'Inter', sans-serif;
         margin: 0;
         display: flex;
         min-height: 100vh;
@@ -39,7 +39,7 @@
     .sidebar {
         width: 250px;
         background: var(--sidebar-bg);
-        color: #fff;
+        color: var(--text-primary);
         display: flex;
         flex-direction: column;
         position: fixed;
@@ -65,7 +65,7 @@
     .profile-name {
         font-weight: 700;
         font-size: 0.95rem;
-        color: #fff;
+        color: var(--text-primary);
     }
 
     .sidebar-nav {
@@ -88,12 +88,12 @@
 
     .nav-link:hover {
         background: var(--sidebar-hover);
-        color: #fff;
+        color: var(--text-primary);
     }
 
     .nav-link.active {
         background: var(--accent-orange);
-        color: #fff;
+        color: var(--text-primary);
     }
 
     .nav-link i {
@@ -118,7 +118,7 @@
     }
 
     .plan-header h1 {
-        font-family: 'Cinzel', serif;
+        font-family: 'Inter', serif;
         font-size: 2.5rem;
         font-weight: 700;
         color: var(--accent-orange);
@@ -437,7 +437,7 @@
         {% endfor %}
 
         <div class="summary-footer">
-            <div style="font-size: 1.4rem; font-weight: 800; font-family: 'Cinzel', serif;">Daily Summary</div>
+            <div style="font-size: 1.4rem; font-weight: 800; font-family: 'Inter', serif;">Daily Summary</div>
             <div style="display: flex; gap: 2rem; align-items: center;">
                 <span style="font-weight: 800;" id="{{ day }}-footer-cal">0 Calories</span>
                 <span class="macro-tag" id="{{ day }}-footer-p"

@@ -6,9 +6,9 @@
 /* ---- Hamburger Menu Button ---- */
 .hamburger-btn {
     display: none;
-    background: var(--bg-secondary, #1A1A1A);
-    border: 1px solid var(--border-color, #2C2C2C);
-    color: var(--gold, #D4AF37);
+    background: var(--bg-secondary, #FFFFFF);
+    border: 1px solid var(--border-color, #E5E7EB);
+    color: var(--gold, #4F46E5);
     font-size: 1.4rem;
     width: 46px;
     height: 46px;
@@ -21,7 +21,7 @@
     position: fixed;
     top: 1rem;
     left: 1rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .hamburger-btn:hover {

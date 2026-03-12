@@ -21,7 +21,7 @@
     body {
         background-color: var(--content-bg);
         color: var(--text-main);
-        font-family: 'Outfit', sans-serif;
+        font-family: 'Inter', sans-serif;
     }
 
     .main-wrapper {
@@ -50,7 +50,7 @@
     }
 
     .page-title {
-        font-family: 'Cinzel', serif;
+        font-family: 'Inter', serif;
         font-size: 2.2rem;
         color: var(--gold);
         margin: 0;
@@ -113,7 +113,7 @@
         border-radius: 50px;
         font-weight: 700;
         font-size: 0.85rem;
-        background: rgba(212, 175, 55, 0.1);
+        background: rgba(79, 70, 229, 0.1);
         color: var(--gold);
         border: 1px solid var(--gold);
     }
@@ -191,8 +191,8 @@
         const weightData = rawData.map(item => item.weight);
 
         const gradientBMI = ctx.createLinearGradient(0, 0, 0, 400);
-        gradientBMI.addColorStop(0, 'rgba(212, 175, 55, 0.4)');
-        gradientBMI.addColorStop(1, 'rgba(212, 175, 55, 0.0)');
+        gradientBMI.addColorStop(0, 'rgba(79, 70, 229, 0.4)');
+        gradientBMI.addColorStop(1, 'rgba(79, 70, 229, 0.0)');
 
         const gradientWeight = ctx.createLinearGradient(0, 0, 0, 400);
         gradientWeight.addColorStop(0, 'rgba(16, 185, 129, 0.4)');
@@ -206,7 +206,7 @@
                     {
                         label: 'BMI Score',
                         data: bmiData,
-                        borderColor: '#D4AF37',
+                        borderColor: '#4F46E5',
                         backgroundColor: gradientBMI,
                         fill: true,
                         tension: 0.4,
@@ -237,7 +237,7 @@
                         title: {
                             display: true,
                             text: 'BMI',
-                            color: '#D4AF37'
+                            color: '#4F46E5'
                         },
                         grid: { color: 'rgba(255, 255, 255, 0.05)' }
                     },
@@ -258,7 +258,7 @@
                 },
                 plugins: {
                     legend: {
-                        labels: { color: '#fff', font: { family: 'Outfit', size: 12 } }
+                        labels: { color: '#fff', font: { family: 'Inter', size: 12 } }
                     }
                 }
             }

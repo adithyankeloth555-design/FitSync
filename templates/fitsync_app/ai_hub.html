@@ -7,12 +7,12 @@
 {% block footer %}{% endblock %}
 
 {% block extra_css %}
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@700&display=swap" rel="stylesheet">
 <style>
     :root {
         --hub-bg: #0a0a0f;
         --hub-card: #13131a;
-        --hub-accent: #d4af37;
+        --hub-accent: #4F46E5;
         --hub-purple: #8B5CF6;
         --hub-emerald: #10B981;
         --hub-cyan: #00e5ff;
@@ -61,8 +61,8 @@
         gap: 0.5rem;
         padding: 0.4rem 1rem;
         border-radius: 50px;
-        background: rgba(212, 175, 55, 0.1);
-        border: 1px solid rgba(212, 175, 55, 0.2);
+        background: rgba(79, 70, 229, 0.1);
+        border: 1px solid rgba(79, 70, 229, 0.2);
         color: var(--hub-accent);
         font-size: 0.8rem;
         font-weight: 700;
@@ -72,7 +72,7 @@
     }
 
     .hub-title {
-        font-family: 'Cinzel', serif;
+        font-family: 'Inter', serif;
         font-size: clamp(2rem, 5vw, 3.5rem);
         color: var(--hub-accent);
         margin: 0 0 0.75rem;
@@ -153,7 +153,7 @@
 
     /* Color per card */
     .card-purple { --card-color: #8B5CF6; }
-    .card-gold { --card-color: #d4af37; }
+    .card-gold { --card-color: #4F46E5; }
     .card-emerald { --card-color: #10B981; }
     .card-cyan { --card-color: #00e5ff; }
     .card-orange { --card-color: #f97316; }
@@ -161,8 +161,8 @@
     .card-red { --card-color: #ef4444; }
     .card-blue { --card-color: #3b82f6; }
 
-    .hub-card:hover { border-color: var(--card-color, #d4af37); box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 30px rgba(0,0,0,0.1); }
-    .hub-card::before { background: var(--card-color, #d4af37); }
+    .hub-card:hover { border-color: var(--card-color, #4F46E5); box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 30px rgba(0,0,0,0.1); }
+    .hub-card::before { background: var(--card-color, #4F46E5); }
 
     .hub-card-icon {
         width: 64px;
@@ -176,13 +176,13 @@
         background: rgba(255,255,255,0.04);
         border: 1px solid rgba(255,255,255,0.06);
         transition: 0.4s;
-        color: var(--card-color, #d4af37);
+        color: var(--card-color, #4F46E5);
     }
 
     .hub-card:hover .hub-card-icon {
         background: rgba(255,255,255,0.08);
         box-shadow: 0 0 30px rgba(0,0,0,0.2);
-        color: var(--card-color, #d4af37);
+        color: var(--card-color, #4F46E5);
         transform: scale(1.1);
     }
 
@@ -220,9 +220,9 @@
     }
 
     .badge-premium {
-        background: rgba(212, 175, 55, 0.1);
+        background: rgba(79, 70, 229, 0.1);
         color: var(--hub-accent);
-        border: 1px solid rgba(212, 175, 55, 0.2);
+        border: 1px solid rgba(79, 70, 229, 0.2);
     }
 
     .badge-locked {

@@ -1,7 +1,7 @@
 {% extends 'fitsync_app/base.html' %}
 {% load static %}
 
-{% block title %}Join the Elite | FitSync{% endblock %}
+{% block title %}Start your home workout journey today | FitSync{% endblock %}
 
 {% block header %}{% endblock %}
 {% block footer %}{% endblock %}
@@ -9,8 +9,8 @@
 {% block extra_css %}
 <style>
     :root {
-        --accent-gold: #d4af37;
-        --accent-gold-glow: rgba(212, 175, 55, 0.4);
+        --accent-gold: #4F46E5;
+        --accent-gold-glow: rgba(79, 70, 229, 0.4);
         --bg-dark: #0a0a0a;
         --glass-bg: rgba(20, 20, 20, 0.7);
         --glass-border: rgba(255, 255, 255, 0.1);
@@ -21,10 +21,8 @@
     body {
         margin: 0;
         padding: 0;
-        height: 100vh;
-        overflow: hidden;
         background-color: var(--bg-dark);
-        font-family: 'Outfit', 'Inter', sans-serif;
+        font-family: 'Inter', sans-serif;
     }
 
     .auth-page {
@@ -33,11 +31,14 @@
             url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1920&q=100');
         background-size: cover;
         background-position: center;
-        height: 100vh;
-        width: 100vw;
+        background-attachment: fixed;
+        min-height: 100vh;
+        width: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
+        padding: 2rem 1rem;
+        box-sizing: border-box;
     }
 
     /* Ambient Glow */
@@ -76,7 +77,7 @@
     }
 
     .hero-container h1 {
-        font-family: 'Cinzel', serif;
+        font-family: 'Inter', serif;
         font-size: 6rem;
         font-weight: 900;
         color: transparent;
@@ -132,7 +133,7 @@
     }
 
     .card-title {
-        font-family: 'Cinzel', serif;
+        font-family: 'Inter', serif;
         font-size: 2.5rem;
         font-weight: 800;
         color: var(--text-pure);
@@ -149,7 +150,7 @@
 
     .form-group {
         position: relative;
-        margin-bottom: 1.25rem;
+        margin-bottom: 1.75rem;
         transition: 0.3s;
     }
 
@@ -177,10 +178,10 @@
     }
 
     .form-control:focus {
-        background: rgba(212, 175, 55, 0.05);
+        background: rgba(79, 70, 229, 0.05);
         border-color: var(--accent-gold);
         outline: none;
-        box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1);
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
     }
 
     .form-control:focus+i {
@@ -202,12 +203,12 @@
         cursor: pointer;
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         margin-top: 2rem;
-        box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2);
+        box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
     }
 
     .btn-signup:hover {
         transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(212, 175, 55, 0.4);
+        box-shadow: 0 15px 35px rgba(79, 70, 229, 0.4);
         letter-spacing: 4px;
     }
 
@@ -246,8 +247,8 @@
     .name-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        margin-bottom: 1.25rem;
+        gap: 1.25rem;
+        margin-bottom: 1.75rem;
     }
 
     .name-row .form-group {
@@ -285,7 +286,7 @@
 
     <div class="login-card">
         <div class="card-header">
-            <h1 class="card-title">Join the Elite</h1>
+            <h1 class="card-title" style="font-size: 1.8rem; line-height: 1.2;">Start your home workout journey today</h1>
             <p class="card-subtitle">Begin your high-performance journey</p>
         </div>
 
@@ -295,11 +296,11 @@
             <div class="name-row">
                 <div class="form-group">
                     <i class="fa-solid fa-signature"></i>
-                    <input type="text" name="first_name" class="form-control" placeholder="First" required>
+                    <input type="text" name="first_name" class="form-control" placeholder="First Name" required>
                 </div>
                 <div class="form-group">
                     <i class="fa-solid fa-signature"></i>
-                    <input type="text" name="last_name" class="form-control" placeholder="Last" required>
+                    <input type="text" name="last_name" class="form-control" placeholder="Last Name" required>
                 </div>
             </div>
 
@@ -314,7 +315,7 @@
                     pattern="[a-z0-9._%+-]+@gmail\.com$" title="Please use a valid @gmail.com address">
             </div>
 
-            <div style="display: grid; grid-template-columns: 110px 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+            <div style="display: grid; grid-template-columns: 110px 1fr; gap: 1rem; margin-bottom: 1.75rem;">
                 <div class="form-group" style="margin-bottom: 0;">
                     <i class="fa-solid fa-globe"></i>
                     <select name="country_code" class="form-control" style="padding-left: 3rem;" required>
@@ -332,7 +333,7 @@
 
             <div class="form-group">
                 <i class="fa-solid fa-vault"></i>
-                <input type="password" name="password" id="password" class="form-control" placeholder="Secret Key"
+                <input type="password" name="password" id="password" class="form-control" placeholder="Password"
                     required autocomplete="new-password" minlength="8" maxlength="12">
                 <i class="fa-solid fa-eye-slash toggle-password" onclick="togglePassword('password', this)"></i>
             </div>
@@ -340,11 +341,11 @@
             <div class="form-group">
                 <i class="fa-solid fa-shield-halved"></i>
                 <input type="password" name="confirm_password" id="confirm_password" class="form-control"
-                    placeholder="Confirm Secret" required autocomplete="new-password" minlength="8" maxlength="12">
+                    placeholder="Confirm Password" required autocomplete="new-password" minlength="8" maxlength="12">
                 <i class="fa-solid fa-eye-slash toggle-password" onclick="togglePassword('confirm_password', this)"></i>
             </div>
 
-            <button type="submit" class="btn-signup">Initialize Access</button>
+            <button type="submit" class="btn-signup">Create Account</button>
         </form>
 
         <div class="card-footer">

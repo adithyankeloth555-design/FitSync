@@ -30,7 +30,7 @@
     body {
         background-color: var(--content-bg);
         color: var(--text-main);
-        font-family: 'Outfit', sans-serif;
+        font-family: 'Inter', sans-serif;
         margin: 0;
         min-height: 100vh;
     }
@@ -76,7 +76,7 @@
     }
 
     .page-title {
-        font-family: 'Cinzel', serif;
+        font-family: 'Inter', serif;
         font-size: 2.2rem;
         font-weight: 700;
         color: var(--accent-orange);
@@ -285,11 +285,11 @@
             {% if diet %}
             <!-- Detailed Plan View -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h2 style="font-family: 'Cinzel', serif; color: var(--gold); margin-bottom: 0;">{{ diet.name }}</h2>
+                <h2 style="font-family: 'Inter', serif; color: var(--gold); margin-bottom: 0;">{{ diet.name }}</h2>
                 {% if user.userprofile.role == 'trainer' or user.userprofile.role == 'admin' %}
                 <div style="display: flex; gap: 1rem;">
                     <a href="{% url 'diet_edit' diet.id %}" class="btn-primary"
-                        style="background: rgba(212, 175, 55, 0.1); color: var(--gold); border: 1px solid rgba(212, 175, 55, 0.2);">
+                        style="background: rgba(79, 70, 229, 0.1); color: var(--gold); border: 1px solid rgba(79, 70, 229, 0.2);">
                         <i class="fa-solid fa-pen-to-square"></i> Edit Plan
                     </a>
                     <a href="{% url 'diet_delete' diet.id %}" class="btn-primary"
@@ -356,7 +356,7 @@
 
                 {% if meals %}
                 <div class="summary-footer">
-                    <div style="font-size: 1.4rem; font-weight: 800; font-family: 'Cinzel', serif;">Daily Summary</div>
+                    <div style="font-size: 1.4rem; font-weight: 800; font-family: 'Inter', serif;">Daily Summary</div>
                     <div style="display: flex; gap: 2rem; align-items: center;">
                         <span style="font-weight: 800;" id="{{ day }}-footer-cal">0 Calories</span>
                         {% if user.userprofile.role == 'trainer' or user.userprofile.role == 'admin' %}
@@ -375,7 +375,7 @@
             <div style="background: var(--white); padding: 5rem; text-align: center; border-radius: 24px;">
                 <i class="fa-solid fa-apple-whole"
                     style="font-size: 3.5rem; color: var(--text-muted); opacity: 0.1; margin-bottom: 1.5rem; display: block;"></i>
-                <h2 style="font-family: 'Cinzel', serif; color: var(--text-muted);">No Diet Plans Architected</h2>
+                <h2 style="font-family: 'Inter', serif; color: var(--text-muted);">No Diet Plans Architected</h2>
                 <p style="color: var(--text-muted);">Your personalized metabolic protocol is currently in development.
                 </p>
                 <a href="{% url 'diet_add' %}" class="btn-primary"

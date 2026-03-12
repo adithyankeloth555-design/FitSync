@@ -629,11 +629,34 @@ def user_dashboard_view(request):
         elif request.user.userprofile.role == 'admin':
             return redirect('admin_dashboard')
 
+    user_profile = request.user.userprofile
+
+    # ── First-Time Setup Detection ──
+    has_profile_data = user_profile.height_cm and user_profile.weight_kg
+    has_subscription = UserSubscription.objects.filter(user=request.user, is_active=True).exists()
+    has_bmi = request.user.bmi_records.exists()
+    has_assessment = hasattr(request.user, 'fitness_assessment')
+    has_workout = user_profile.active_workout is not None
+
+    # Determine setup step for new users
+    is_new_user = not (has_subscription and has_profile_data and has_bmi and has_assessment and has_workout)
+    setup_step = 0
+    if is_new_user:
+        if not has_subscription:
+            setup_step = 1  # Choose subscription
+        elif not has_profile_data:
+            setup_step = 2  # Profile setup
+        elif not has_bmi:
+            setup_step = 3  # BMI calculation
+        elif not has_assessment:
+            setup_step = 4  # Smart Fitness Assessment
+        else:
+            setup_step = 5  # AI workout recommendation
+
     # Get recent feedback from trainers
     recent_feedback = TrainerFeedback.objects.filter(user=request.user).order_by('-created_at')[:5]
     
     # Get assigned trainer details
-    user_profile = request.user.userprofile
     assigned_trainer = user_profile.assigned_trainer
     trainer_display_name = ""
     trainer_assignment_date = ""
@@ -669,7 +692,7 @@ def user_dashboard_view(request):
     active_workout = user_profile.active_workout
     
     # Get today's meals from the active diet plan
-    day_name = today.strftime('%A').lower() # e.g. 'monday'
+    day_name = today.strftime('%A').lower()
     today_meals = []
     if active_diet:
         today_meals = active_diet.meals.filter(day=day_name).order_by('time')
@@ -700,6 +723,13 @@ def user_dashboard_view(request):
     
     # Next Workout
     next_session = upcoming_sessions[0] if upcoming_sessions else None
+
+    # Today's attendance status
+    attended_today = Attendance.objects.filter(user=request.user, logged_at__date=today).exists()
+
+    # Weekly attendance count (last 7 days)
+    seven_days_ago = today - timedelta(days=7)
+    weekly_attendance = Attendance.objects.filter(user=request.user, logged_at__date__gte=seven_days_ago).count()
     
     context = {
         'recent_feedback': recent_feedback,
@@ -734,13 +764,20 @@ def user_dashboard_view(request):
         'notifications': notifications,
         'cart_count': cart_count,
         'next_session': next_session,
+
+        # First-time setup
+        'is_new_user': is_new_user,
+        'setup_step': setup_step,
+        'has_profile_data': has_profile_data,
+        'has_subscription': has_subscription,
+        'has_bmi': has_bmi,
+        'has_assessment': has_assessment,
+        'has_workout': has_workout,
+        'attended_today': attended_today,
+        'weekly_attendance': weekly_attendance,
     }
-    # Vercel-specific style check: Render the new "Channel Analytics" style on Vercel only
-    template_name = 'fitsync_app/user_dashboard.html'
-    if os.environ.get('VERCEL'):
-        template_name = 'fitsync_app/user_dashboard_vercel.html'
-        
-    return render(request, template_name, context)
+
+    return render(request, 'fitsync_app/user_dashboard.html', context)
 
 @login_required
 def trainer_list_view(request):

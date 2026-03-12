@@ -32,7 +32,7 @@
     .sidebar {
         width: 260px;
         background: var(--sidebar-bg);
-        color: #fff;
+        color: var(--text-primary);
         display: flex;
         flex-direction: column;
         position: fixed;
@@ -98,13 +98,13 @@
     }
 
     .menu-item:hover {
-        color: #fff;
+        color: var(--text-primary);
         background: rgba(255, 255, 255, 0.05);
     }
 
     .menu-item.active {
         background: var(--accent-orange);
-        color: #fff;
+        color: var(--text-primary);
     }
 
     .menu-item i {
@@ -645,7 +645,7 @@
             <!-- FitSync Store Control Center -->
             <div style="margin-bottom: 2rem;">
                 <div class="section-title"
-                    style="background: #1e293b; color: #fff; border-radius: 12px 12px 0 0; border-bottom: none; display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem;">
+                    style="background: #1e293b; color: var(--text-primary); border-radius: 12px 12px 0 0; border-bottom: none; display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem;">
                     <span style="display: flex; align-items: center; gap: 12px;">
                         <i class="fa-solid fa-shop" style="color: var(--gold);"></i>
                         FITSVNC STORE OPERATIONAL CONTROL
@@ -766,11 +766,11 @@
                         <i class="fa-solid fa-users-gear"></i> COACH NETWORK
                     </a>
                     <a href="{% url 'report_payments' %}"
-                        style="background: #8b5cf6; color: #fff; padding: 0.8rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; gap: 10px;">
+                        style="background: #8b5cf6; color: var(--text-primary); padding: 0.8rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; gap: 10px;">
                         <i class="fa-solid fa-indian-rupee-sign"></i> CHECK PAYMENTS
                     </a>
                     <a href="{% url 'admin_help_tickets' %}"
-                        style="background: #ef4444; color: #fff; padding: 0.8rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; gap: 10px;">
+                        style="background: #ef4444; color: var(--text-primary); padding: 0.8rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; gap: 10px;">
                         <i class="fa-solid fa-headset"></i> CUSTOMER CARE
                     </a>
                 </div>

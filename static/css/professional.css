@@ -1,56 +1,65 @@
+/* ============================================
+   FITSYNC — Clean Minimal Fitness UI
+   Global Design System
+   ============================================ */
+
 :root {
-    --gold: #D4AF37;
-    --gold-dark: #AA8C2C;
-    --gold-light: #F2D266;
-    --danger: #FF4D4D;
-    --success: #00CC66;
+    /* Brand */
+    --gold: #4F46E5;
+    --gold-dark: #4338CA;
+    --gold-light: #818CF8;
+    --danger: #EF4444;
+    --success: #10B981;
 
-    --font-main: 'Outfit', sans-serif;
-    --font-heading: 'Cinzel', serif;
+    /* Fonts */
+    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
-    /* Theme Variables - Default Dark */
-    --bg-primary: #0F0F0F;
-    --bg-secondary: #1A1A1A;
-    --bg-tertiary: #2C2C2C;
-    --text-primary: #FFFFFF;
-    --text-secondary: #E0E0E0;
-    --text-muted: #A0A0A0;
-    --border-color: #2C2C2C;
+    /* Theme Variables - Default Light */
+    --bg-primary: #F7F8FA;
+    --bg-secondary: #FFFFFF;
+    --bg-tertiary: #F1F5F9;
+    --text-primary: #1A1D26;
+    --text-secondary: #374151;
+    --text-muted: #6B7280;
+    --border-color: #E5E7EB;
 
     /* Shadows */
-    --shadow-main: 0 8px 15px rgba(0, 0, 0, 0.4);
-    --shadow-glow: 0 0 15px rgba(212, 175, 55, 0.3);
+    --shadow-main: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow-glow: 0 4px 14px rgba(79, 70, 229, 0.15);
 
     /* Compatibility Variables for Dashboard */
     --accent-primary: var(--gold);
     --accent-secondary: var(--gold-dark);
-    --accent-glow: rgba(212, 175, 55, 0.15);
-    /* Gold Glow */
+    --accent-glow: rgba(79, 70, 229, 0.1);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Sidebar */
+    --sidebar-bg: var(--bg-secondary);
 }
 
 body.light-mode {
-    --bg-primary: #F5F7F9;
+    --bg-primary: #F7F8FA;
     --bg-secondary: #FFFFFF;
-    --bg-tertiary: #E2E8F0;
-    --text-primary: #1E293B;
-    --text-secondary: #334155;
-    --text-muted: #64748B;
-    --border-color: #E2E8F0;
-    --shadow-main: 0 4px 20px rgba(0, 0, 0, 0.05);
-    --shadow-glow: 0 0 10px rgba(212, 175, 55, 0.1);
+    --bg-tertiary: #F1F5F9;
+    --text-primary: #1A1D26;
+    --text-secondary: #374151;
+    --text-muted: #6B7280;
+    --border-color: #E5E7EB;
+    --shadow-main: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow-glow: 0 4px 14px rgba(79, 70, 229, 0.15);
 }
 
 body.dark-mode {
-    --bg-primary: #0F0F0F;
-    --bg-secondary: #1A1A1A;
-    --bg-tertiary: #2C2C2C;
-    --text-primary: #FFFFFF;
-    --text-secondary: #E0E0E0;
-    --text-muted: #A0A0A0;
-    --border-color: #2C2C2C;
-    --shadow-main: 0 8px 15px rgba(0, 0, 0, 0.4);
-    --shadow-glow: 0 0 15px rgba(212, 175, 55, 0.3);
+    --bg-primary: #111118;
+    --bg-secondary: #1A1A24;
+    --bg-tertiary: #252530;
+    --text-primary: #F1F1F4;
+    --text-secondary: #D1D5DB;
+    --text-muted: #6B7280;
+    --border-color: #2A2A36;
+    --shadow-main: 0 1px 3px rgba(0, 0, 0, 0.2);
+    --shadow-glow: 0 4px 14px rgba(79, 70, 229, 0.2);
 }
 
 * {
@@ -69,14 +78,9 @@ body {
 }
 
 /* Typography */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
-    color: var(--gold);
+    color: var(--text-primary);
     margin-bottom: 1rem;
     font-weight: 700;
 }
@@ -99,26 +103,26 @@ h6 {
     align-items: center;
     justify-content: center;
     padding: 0.8rem 1.5rem;
-    border-radius: 8px;
-    /* Slightly more modern than 5px */
+    border-radius: 12px;
     font-weight: 600;
     cursor: pointer;
     border: none;
     text-align: center;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     text-decoration: none;
     gap: 0.5rem;
+    font-family: var(--font-main);
 }
 
 .btn-gold {
-    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-    color: #000;
+    background: var(--gold);
+    color: #FFFFFF;
     box-shadow: var(--shadow-glow);
 }
 
 .btn-gold:hover {
     transform: translateY(-2px);
-    box-shadow: 0 0 25px rgba(212, 175, 55, 0.5);
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
 }
 
 .btn-outline {
@@ -129,7 +133,7 @@ h6 {
 
 .btn-outline:hover {
     background: var(--gold);
-    color: #000;
+    color: #FFFFFF;
 }
 
 /* Navbar */
@@ -137,21 +141,21 @@ h6 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 5%;
-    background: var(--bg-primary);
+    padding: 0.75rem 5%;
+    background: var(--bg-secondary);
     position: sticky;
     top: 0;
     z-index: 1000;
     border-bottom: 1px solid var(--border-color);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(12px);
 }
 
 .logo {
     font-family: var(--font-heading);
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     color: var(--gold);
-    font-weight: 900;
-    letter-spacing: 2px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
 }
 
 .nav-links {
@@ -165,7 +169,7 @@ h6 {
     text-decoration: none;
     color: var(--text-secondary);
     font-weight: 500;
-    transition: color 0.3s;
+    transition: color 0.2s;
 }
 
 .nav-links a:hover {
@@ -197,13 +201,14 @@ input,
 select,
 textarea {
     width: 100%;
-    padding: 0.8rem;
-    background: var(--bg-tertiary);
+    padding: 0.8rem 1rem;
+    background: var(--bg-secondary);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 12px;
     color: var(--text-primary);
     font-family: var(--font-main);
-    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
 }
 
 input:focus,
@@ -211,7 +216,7 @@ select:focus,
 textarea:focus {
     outline: none;
     border-color: var(--gold);
-    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
 /* Utilities */
@@ -232,8 +237,37 @@ textarea:focus {
 /* Footer */
 footer {
     background: var(--bg-secondary);
-    padding: 3rem 0;
+    padding: 2rem 0;
     text-align: center;
     border-top: 1px solid var(--border-color);
     margin-top: auto;
+    font-size: 0.85rem;
+}
+
+/* ── Links ── */
+a {
+    color: var(--gold);
+    transition: color 0.2s;
+}
+
+a:hover {
+    color: var(--gold-dark);
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
 }

@@ -1,393 +1,788 @@
 {% extends 'fitsync_app/base.html' %}
 {% load static %}
 
-{% block title %}Dashboard | FitSync Elite{% endblock %}
+{% block title %}Dashboard | FitSync{% endblock %}
 
 {% block header %}{% endblock %}
 {% block footer %}{% endblock %}
 
 {% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
+    /* ── Clean Minimal Fitness UI ── */
     :root {
-        --sidebar-width: 280px;
-        /* --sidebar-bg is now in professional.css */
-        /* --accent-glow is now in professional.css */
+        --fs-bg: #F7F8FA;
+        --fs-card: #FFFFFF;
+        --fs-text: #1A1D26;
+        --fs-text-secondary: #6B7280;
+        --fs-text-muted: #9CA3AF;
+        --fs-border: #E5E7EB;
+        --fs-primary: #4F46E5;
+        --fs-primary-light: #EEF2FF;
+        --fs-success: #10B981;
+        --fs-success-light: #ECFDF5;
+        --fs-warning: #F59E0B;
+        --fs-warning-light: #FFFBEB;
+        --fs-danger: #EF4444;
+        --fs-danger-light: #FEF2F2;
+        --fs-radius: 16px;
+        --fs-radius-sm: 12px;
+        --fs-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+        --fs-shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+        --fs-shadow-lg: 0 10px 25px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.04);
+        --sidebar-width: 260px;
     }
 
     body {
-        background-color: var(--bg-primary);
-        color: var(--text-primary);
-        font-family: var(--font-main);
+        background: var(--fs-bg) !important;
+        color: var(--fs-text) !important;
+        font-family: 'Inter', -apple-system, sans-serif !important;
         margin: 0;
         display: flex;
         min-height: 100vh;
     }
 
-    /* Sidebar Refinement */
+    body.dark-mode {
+        --fs-bg: #111118;
+        --fs-card: #1A1A24;
+        --fs-text: #F1F1F4;
+        --fs-text-secondary: #9CA3AF;
+        --fs-text-muted: #6B7280;
+        --fs-border: #2A2A36;
+        --fs-primary-light: #1E1B4B;
+        --fs-success-light: #064E3B;
+        --fs-warning-light: #451A03;
+        --fs-danger-light: #450A0A;
+        --fs-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        --fs-shadow-md: 0 4px 6px rgba(0,0,0,0.2);
+        --fs-shadow-lg: 0 10px 25px rgba(0,0,0,0.3);
+    }
+
+    * { box-sizing: border-box; }
+
+    /* ── Sidebar ── */
     .sidebar {
         width: var(--sidebar-width);
-        background: var(--sidebar-bg);
-        border-right: 1px solid var(--border-color);
+        background: var(--fs-card);
+        border-right: 1px solid var(--fs-border);
         display: flex;
         flex-direction: column;
         position: fixed;
-        top: 0;
-        bottom: 0;
+        top: 0; bottom: 0;
         z-index: 1000;
-        transition: var(--transition-smooth);
+        overflow: hidden;
+    }
+
+    .sidebar-brand {
+        padding: 1.75rem 1.5rem;
+        border-bottom: 1px solid var(--fs-border);
+    }
+
+    .sidebar-brand h1 {
+        font-family: 'Inter', sans-serif !important;
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: var(--fs-primary) !important;
+        letter-spacing: -0.5px;
+        margin: 0;
+    }
+
+    .sidebar-brand span {
+        font-size: 0.7rem;
+        color: var(--fs-text-muted);
+        font-weight: 500;
+        letter-spacing: 0.3px;
     }
 
     .sidebar-profile {
-        padding: 2.5rem 1.5rem;
+        padding: 1.25rem 1.5rem;
         display: flex;
         align-items: center;
-        gap: 1rem;
-        border-bottom: 1px solid var(--border-color);
-        margin-bottom: 1rem;
+        gap: 0.75rem;
+        border-bottom: 1px solid var(--fs-border);
     }
 
-    .profile-img-container {
-        position: relative;
-        width: 48px;
-        height: 48px;
-        border-radius: 14px;
-        overflow: hidden;
-        cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        border: 2px solid transparent;
-        transition: 0.3s;
-    }
-
-    .profile-img-container:hover {
-        border-color: var(--accent-primary);
-        transform: scale(1.05);
-    }
-
-    .profile-img {
-        width: 100%;
-        height: 100%;
+    .profile-avatar {
+        width: 40px; height: 40px;
+        border-radius: 50%;
         object-fit: cover;
+        cursor: pointer;
+        border: 2px solid var(--fs-border);
+        transition: 0.2s;
     }
 
-    .profile-info {
-        display: flex;
-        flex-direction: column;
-    }
+    .profile-avatar:hover { border-color: var(--fs-primary); }
 
-    .profile-name {
+    .profile-info h3 {
+        font-size: 0.85rem;
         font-weight: 700;
-        font-size: 1rem;
-        color: var(--text-primary);
+        color: var(--fs-text) !important;
+        margin: 0;
+        font-family: 'Inter', sans-serif !important;
     }
 
-    .profile-role {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+    .profile-info p {
+        font-size: 0.7rem;
+        color: var(--fs-text-muted);
+        margin: 0;
     }
 
     .sidebar-nav {
-        flex-grow: 1;
-        padding: 0 1rem;
+        flex: 1;
         overflow-y: auto;
-        min-height: 0;
+        padding: 0.75rem 0;
     }
 
-    .sidebar-nav::-webkit-scrollbar {
-        width: 4px;
-    }
+    .sidebar-nav::-webkit-scrollbar { width: 3px; }
+    .sidebar-nav::-webkit-scrollbar-thumb { background: var(--fs-border); border-radius: 10px; }
 
-    .sidebar-nav::-webkit-scrollbar-thumb {
-        background: var(--border-color);
-        border-radius: 10px;
-    }
+    .nav-group { margin-bottom: 0.5rem; }
 
-    .nav-section {
-        margin-bottom: 1.5rem;
-    }
-
-    .nav-section-title {
-        font-size: 0.7rem;
+    .nav-group-label {
+        font-size: 0.6rem;
         text-transform: uppercase;
-        color: var(--text-muted);
-        font-weight: 800;
         letter-spacing: 1.5px;
-        padding: 0 1rem;
-        margin-bottom: 0.75rem;
-        opacity: 0.6;
+        color: var(--fs-text-muted);
+        font-weight: 700;
+        padding: 0.5rem 1.5rem;
     }
 
-    .nav-link {
+    .nav-item {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        padding: 0.85rem 1rem;
-        color: var(--text-secondary);
+        gap: 0.75rem;
+        padding: 0.6rem 1.5rem;
+        color: var(--fs-text-secondary);
         text-decoration: none;
-        font-size: 0.95rem;
+        font-size: 0.82rem;
         font-weight: 500;
-        border-radius: 12px;
-        margin-bottom: 0.25rem;
-        transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: 0.15s;
+        border-left: 3px solid transparent;
     }
 
-    .nav-link:hover {
-        background: rgba(212, 175, 55, 0.08);
-        color: var(--accent-primary);
-        transform: translateX(4px);
+    .nav-item:hover {
+        background: var(--fs-primary-light);
+        color: var(--fs-primary);
+        border-left-color: var(--fs-primary);
     }
 
-    .nav-link.active {
-        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    .nav-item.active {
+        background: var(--fs-primary-light);
+        color: var(--fs-primary);
+        font-weight: 700;
+        border-left-color: var(--fs-primary);
+    }
+
+    .nav-item i { width: 18px; text-align: center; font-size: 0.9rem; }
+
+    .nav-badge {
+        margin-left: auto;
+        background: var(--fs-primary);
         color: white;
-        box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
-    }
-
-    .nav-link i {
-        width: 20px;
+        font-size: 0.6rem;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 10px;
+        min-width: 18px;
         text-align: center;
-        font-size: 1.1rem;
     }
 
     .sidebar-footer {
-        padding: 1.5rem;
-        padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
-        border-top: 1px solid var(--border-color);
-        flex-shrink: 0;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid var(--fs-border);
     }
 
     .logout-btn {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        color: var(--text-muted);
+        gap: 0.75rem;
+        color: var(--fs-text-muted);
         background: none;
         border: none;
-        width: 100%;
+        font-size: 0.82rem;
+        font-weight: 500;
         cursor: pointer;
-        padding: 0.8rem 1rem;
-        border-radius: 12px;
-        font-weight: 600;
-        transition: 0.2s;
+        padding: 0.5rem 0;
+        width: 100%;
+        font-family: 'Inter', sans-serif;
+        transition: 0.15s;
     }
 
-    .logout-btn:hover {
-        background: rgba(239, 68, 68, 0.1);
-        color: var(--danger);
-    }
+    .logout-btn:hover { color: var(--fs-danger); }
 
-    /* Main Content */
+    /* ── Main Content ── */
     .main-wrapper {
         margin-left: var(--sidebar-width);
-        flex-grow: 1;
-        padding: 3rem 4rem;
-        max-width: 1600px;
+        flex: 1;
+        padding: 2rem 2.5rem;
+        max-width: 1200px;
     }
 
-    .page-header {
-        margin-bottom: 3.5rem;
-        animation: fadeIn 0.6s ease-out forwards;
+    /* ── Page Header ── */
+    .dash-header {
+        margin-bottom: 2rem;
     }
 
-    .page-title {
-        font-size: 2.25rem;
+    .dash-header h1 {
+        font-family: 'Inter', sans-serif !important;
+        font-size: 1.75rem;
         font-weight: 800;
-        letter-spacing: -0.02em;
-        background: linear-gradient(135deg, var(--text-primary), var(--text-muted));
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 0.5rem;
+        color: var(--fs-text) !important;
+        letter-spacing: -0.5px;
+        margin: 0 0 0.25rem 0;
     }
 
-    .page-subtitle {
-        color: var(--text-muted);
-        font-size: 1.1rem;
-        font-weight: 400;
+    .dash-header p {
+        color: var(--fs-text-muted);
+        font-size: 0.9rem;
+        margin: 0;
     }
 
-    /* Stats Grid */
-    .stats-row {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 2rem;
-        margin-bottom: 4rem;
+    /* ── Setup Wizard ── */
+    .setup-wizard {
+        background: var(--fs-card);
+        border: 2px solid var(--fs-primary);
+        border-radius: var(--fs-radius);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--fs-shadow-lg);
     }
 
-    .stat-card {
-        background: var(--bg-secondary);
-        padding: 2.25rem;
-        border-radius: 24px;
-        border: 1px solid var(--border-color);
-        box-shadow: var(--shadow-main);
+    .setup-title {
+        font-family: 'Inter', sans-serif !important;
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: var(--fs-primary) !important;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .setup-subtitle {
+        color: var(--fs-text-muted);
+        font-size: 0.85rem;
+        margin: 0 0 1.5rem 0;
+    }
+
+    .setup-steps {
+        display: flex;
+        gap: 0;
+        margin-bottom: 1.5rem;
+    }
+
+    .step-item {
+        flex: 1;
+        text-align: center;
         position: relative;
-        overflow: hidden;
-        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .stat-card:hover {
-        border-color: var(--accent-primary);
-        transform: translateY(-8px);
-    }
-
-    .stat-card::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -50%;
-        width: 150px;
-        height: 150px;
-        background: var(--accent-glow);
-        filter: blur(60px);
+    .step-circle {
+        width: 36px; height: 36px;
         border-radius: 50%;
-        opacity: 0.5;
-    }
-
-    .stat-label {
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        color: var(--text-muted);
-        font-weight: 700;
-        letter-spacing: 1.5px;
-        display: block;
-        margin-bottom: 1.25rem;
-    }
-
-    .stat-value {
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: var(--text-primary);
-        letter-spacing: -0.03em;
-        margin-bottom: 1rem;
-    }
-
-    .status-pill {
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
-        padding: 6px 14px;
-        border-radius: 50px;
-        font-size: 0.75rem;
+        justify-content: center;
+        font-size: 0.8rem;
         font-weight: 700;
-        background: rgba(16, 185, 129, 0.1);
-        color: var(--success);
+        border: 2px solid var(--fs-border);
+        color: var(--fs-text-muted);
+        background: var(--fs-bg);
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
     }
 
-    .status-alert {
-        background: rgba(239, 68, 68, 0.1);
-        color: var(--danger);
+    .step-item.done .step-circle {
+        background: var(--fs-success);
+        border-color: var(--fs-success);
+        color: white;
     }
 
-    .status-premium {
-        background: rgba(212, 175, 55, 0.1);
-        color: var(--accent-primary);
-        border: 1px solid rgba(212, 175, 55, 0.2);
+    .step-item.current .step-circle {
+        background: var(--fs-primary);
+        border-color: var(--fs-primary);
+        color: white;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
     }
 
-    /* Action Cards */
-    .section-header {
-        font-size: 1.5rem;
-        font-weight: 700;
-        margin: 4rem 0 2rem 0;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
+    .step-label {
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: var(--fs-text-muted);
+        display: block;
     }
 
-    .section-header::after {
-        content: '';
-        flex-grow: 1;
-        height: 1px;
-        background: var(--border-color);
-    }
+    .step-item.current .step-label { color: var(--fs-primary); font-weight: 700; }
+    .step-item.done .step-label { color: var(--fs-success); }
 
-    .actions-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 4rem;
-    }
-
-    .action-card {
-        background: var(--bg-secondary);
-        padding: 2.5rem 2rem;
-        border-radius: 24px;
-        text-decoration: none;
-        color: inherit;
-        border: 1px solid var(--border-color);
-        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+    .setup-action {
         text-align: center;
     }
 
-    .action-card:hover {
-        transform: translateY(-10px);
-        border-color: var(--accent-primary);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        background: linear-gradient(135deg, var(--bg-secondary), rgba(212, 175, 55, 0.05));
-    }
-
-    .action-card i {
-        font-size: 2.5rem;
-        color: var(--accent-primary);
-        margin-bottom: 1.5rem;
-        transition: 0.3s;
-    }
-
-    .action-card:hover i {
-        transform: scale(1.1) rotate(5deg);
-    }
-
-    .action-card h3 {
-        font-size: 1.25rem;
-        font-weight: 700;
-        margin-bottom: 0.75rem;
-    }
-
-    .action-card p {
-        color: var(--text-muted);
-        font-size: 0.9rem;
-        line-height: 1.6;
-    }
-
-    /* Coach Card */
-    .trainer-card-professional {
-        background: linear-gradient(135deg, var(--bg-secondary), #2d2605);
-        /* Dark Gold/Brown */
-        border: 1px solid rgba(212, 175, 55, 0.3);
-    }
-
-    .btn-update-v2 {
-        background: var(--accent-primary);
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 12px;
-        font-weight: 700;
-        text-decoration: none;
+    .btn-setup {
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        transition: 0.3s;
+        background: var(--fs-primary);
+        color: white;
+        padding: 0.85rem 2rem;
+        border-radius: var(--fs-radius-sm);
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-decoration: none;
         border: none;
+        cursor: pointer;
+        transition: 0.2s;
+        font-family: 'Inter', sans-serif;
     }
 
-    .btn-update-v2:hover {
-        background: var(--accent-secondary);
-        box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+    .btn-setup:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
     }
 
+    /* ── Fitness Status Card ── */
+    .status-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .status-card {
+        background: var(--fs-card);
+        border: 1px solid var(--fs-border);
+        border-radius: var(--fs-radius);
+        padding: 1.25rem;
+        box-shadow: var(--fs-shadow);
+        transition: 0.2s;
+    }
+
+    .status-card:hover {
+        box-shadow: var(--fs-shadow-md);
+        transform: translateY(-2px);
+    }
+
+    .status-card .label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: var(--fs-text-muted);
+        margin-bottom: 0.5rem;
+    }
+
+    .status-card .value {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: var(--fs-text);
+        line-height: 1;
+        margin-bottom: 0.4rem;
+    }
+
+    .status-card .value span { font-size: 0.8rem; color: var(--fs-text-muted); font-weight: 500; }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 3px 10px;
+        border-radius: 50px;
+        font-size: 0.65rem;
+        font-weight: 700;
+    }
+
+    .badge-success { background: var(--fs-success-light); color: var(--fs-success); }
+    .badge-warning { background: var(--fs-warning-light); color: var(--fs-warning); }
+    .badge-danger { background: var(--fs-danger-light); color: var(--fs-danger); }
+    .badge-primary { background: var(--fs-primary-light); color: var(--fs-primary); }
+
+    /* ── Workout CTA (Hero Card) ── */
+    .workout-hero {
+        background: var(--fs-card);
+        border: 1px solid var(--fs-border);
+        border-radius: var(--fs-radius);
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--fs-shadow);
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .workout-hero-content { flex: 1; }
+
+    .workout-hero-content .overline {
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--fs-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .workout-hero-content h2 {
+        font-family: 'Inter', sans-serif !important;
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: var(--fs-text) !important;
+        margin: 0 0 0.4rem 0;
+    }
+
+    .workout-hero-content p {
+        color: var(--fs-text-muted);
+        font-size: 0.85rem;
+        margin: 0 0 1.25rem 0;
+    }
+
+    .btn-start {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--fs-primary);
+        color: white;
+        padding: 0.85rem 2rem;
+        border-radius: var(--fs-radius-sm);
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: 0.2s;
+        border: none;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .btn-start:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
+    }
+
+    .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--fs-bg);
+        color: var(--fs-text);
+        padding: 0.85rem 1.5rem;
+        border-radius: var(--fs-radius-sm);
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: 0.2s;
+        border: 1px solid var(--fs-border);
+        margin-left: 0.75rem;
+    }
+
+    .btn-secondary:hover { border-color: var(--fs-primary); color: var(--fs-primary); }
+
+    .workout-hero-icon {
+        width: 100px; height: 100px;
+        background: var(--fs-primary-light);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: var(--fs-primary);
+        flex-shrink: 0;
+    }
+
+    /* ── Progress Summary ── */
+    .progress-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .progress-card {
+        background: var(--fs-card);
+        border: 1px solid var(--fs-border);
+        border-radius: var(--fs-radius);
+        padding: 1.25rem;
+        box-shadow: var(--fs-shadow);
+    }
+
+    .progress-card .card-title {
+        font-family: 'Inter', sans-serif !important;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--fs-text) !important;
+        margin: 0 0 1rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .progress-card .card-title i { color: var(--fs-primary); font-size: 0.85rem; }
+
+    .progress-bar-track {
+        height: 8px;
+        background: var(--fs-bg);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        border-radius: 4px;
+        background: var(--fs-primary);
+        transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .progress-bar-fill.green { background: var(--fs-success); }
+    .progress-bar-fill.yellow { background: var(--fs-warning); }
+
+    .progress-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.7rem;
+        color: var(--fs-text-muted);
+        font-weight: 600;
+    }
+
+    /* ── Quick Tools ── */
+    .tools-section { margin-bottom: 1.5rem; }
+
+    .section-title {
+        font-family: 'Inter', sans-serif !important;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--fs-text) !important;
+        margin: 0 0 1rem 0;
+    }
+
+    .tools-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+    }
+
+    .tool-card {
+        background: var(--fs-card);
+        border: 1px solid var(--fs-border);
+        border-radius: var(--fs-radius);
+        padding: 1.25rem 1rem;
+        text-decoration: none;
+        text-align: center;
+        transition: 0.2s;
+        box-shadow: var(--fs-shadow);
+    }
+
+    .tool-card:hover {
+        box-shadow: var(--fs-shadow-md);
+        transform: translateY(-3px);
+        border-color: var(--fs-primary);
+    }
+
+    .tool-icon {
+        width: 44px; height: 44px;
+        margin: 0 auto 0.75rem;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+
+    .tool-card h4 {
+        font-family: 'Inter', sans-serif !important;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--fs-text) !important;
+        margin: 0 0 0.2rem 0;
+    }
+
+    .tool-card p {
+        font-size: 0.65rem;
+        color: var(--fs-text-muted);
+        margin: 0;
+        line-height: 1.3;
+    }
+
+    /* ── Meals & Trainer Widget ── */
+    .widget-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .widget-card {
+        background: var(--fs-card);
+        border: 1px solid var(--fs-border);
+        border-radius: var(--fs-radius);
+        padding: 1.25rem;
+        box-shadow: var(--fs-shadow);
+    }
+
+    .widget-card .card-title {
+        font-family: 'Inter', sans-serif !important;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--fs-text) !important;
+        margin: 0 0 1rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .widget-card .card-title i { font-size: 0.85rem; }
+
+    .meal-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.6rem 0;
+        border-bottom: 1px solid var(--fs-border);
+    }
+
+    .meal-item:last-child { border-bottom: none; }
+
+    .meal-time {
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: var(--fs-primary);
+        min-width: 45px;
+    }
+
+    .meal-name {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--fs-text);
+        flex: 1;
+    }
+
+    .meal-cal {
+        font-size: 0.7rem;
+        color: var(--fs-text-muted);
+        font-weight: 600;
+    }
+
+    .trainer-widget {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 0;
+    }
+
+    .trainer-photo {
+        width: 52px; height: 52px;
+        border-radius: 14px;
+        object-fit: cover;
+        border: 2px solid var(--fs-border);
+    }
+
+    .trainer-info h4 {
+        font-family: 'Inter', sans-serif !important;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--fs-text) !important;
+        margin: 0 0 0.15rem 0;
+    }
+
+    .trainer-info p {
+        font-size: 0.7rem;
+        color: var(--fs-text-muted);
+        margin: 0;
+    }
+
+    .btn-sm {
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 0.4rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: 0.15s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .btn-sm-primary {
+        background: var(--fs-primary);
+        color: white;
+    }
+
+    .btn-sm-primary:hover { background: #4338CA; }
+
+    .btn-sm-outline {
+        background: transparent;
+        color: var(--fs-primary);
+        border: 1px solid var(--fs-primary);
+    }
+
+    .btn-sm-outline:hover { background: var(--fs-primary-light); }
+
+    /* ── Notification Toast ── */
+    .notif-bar {
+        background: var(--fs-primary-light);
+        border: 1px solid rgba(79, 70, 229, 0.2);
+        border-radius: var(--fs-radius-sm);
+        padding: 0.7rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.8rem;
+        color: var(--fs-primary);
+        font-weight: 600;
+    }
+
+    .notif-bar .dot {
+        width: 8px; height: 8px;
+        background: var(--fs-primary);
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .notif-bar a {
+        margin-left: auto;
+        color: var(--fs-primary);
+        font-weight: 700;
+        font-size: 0.7rem;
+        text-decoration: none;
+    }
+
+    /* ── Empty State ── */
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: var(--fs-text-muted);
+        font-size: 0.85rem;
+    }
+
+    /* ── Responsive ── */
     @media (max-width: 1024px) {
-        .stats-row {
-            grid-template-columns: 1fr;
-        }
-
-        .main-wrapper {
-            padding: 2rem;
-        }
+        .sidebar { transform: translateX(-100%); }
+        .sidebar.open { transform: translateX(0); box-shadow: 10px 0 40px rgba(0,0,0,0.15); }
+        .main-wrapper { margin-left: 0 !important; padding: 1.5rem 1rem !important; padding-top: 4.5rem !important; }
+        .status-grid { grid-template-columns: 1fr 1fr 1fr; }
+        .tools-grid { grid-template-columns: repeat(2, 1fr); }
+        .widget-row { grid-template-columns: 1fr; }
+        .progress-row { grid-template-columns: 1fr; }
     }
+
+    @media (max-width: 640px) {
+        .status-grid { grid-template-columns: 1fr; }
+        .tools-grid { grid-template-columns: 1fr 1fr; }
+        .workout-hero { flex-direction: column; text-align: center; gap: 1rem; }
+        .workout-hero-icon { width: 70px; height: 70px; font-size: 1.8rem; }
+        .setup-steps { flex-wrap: wrap; gap: 0.5rem; }
+        .btn-secondary { margin-left: 0; margin-top: 0.5rem; }
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-in { animation: fadeUp 0.4s ease-out forwards; }
+    .delay-1 { animation-delay: 0.05s; }
+    .delay-2 { animation-delay: 0.1s; }
+    .delay-3 { animation-delay: 0.15s; }
+    .delay-4 { animation-delay: 0.2s; }
+    .delay-5 { animation-delay: 0.25s; }
 </style>
 {% endblock %}
 
@@ -400,119 +795,107 @@
 <!-- Sidebar Overlay -->
 <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
+<!-- ── Sidebar ── -->
 <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <h1>FitSync</h1>
+        <span style="display: block; line-height: 1.4; margin-top: 0.2rem;">Your Ultimate Fitness Companion<br>Train Anywhere. No Gym Required.</span>
+    </div>
+
     <div class="sidebar-profile">
-        <form id="dashboard-photo-form" method="post" enctype="multipart/form-data" style="display: none;">
+        <form id="dashboard-photo-form" method="post" enctype="multipart/form-data" style="display:none;">
             {% csrf_token %}
             <input type="file" name="profile_photo" id="dashboard-photo-input"
                 onchange="document.getElementById('dashboard-photo-form').submit();" accept="image/*">
         </form>
 
-        <div class="profile-img-container" onclick="document.getElementById('dashboard-photo-input').click();">
-            {% if user.userprofile.profile_photo %}
-            <img src="{{ user.userprofile.profile_photo.url }}" class="profile-img" alt="Profile">
-            {% else %}
-            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ user.username }}" class="profile-img"
-                alt="Profile">
-            {% endif %}
-        </div>
+        {% if user.userprofile.profile_photo %}
+        <img src="{{ user.userprofile.profile_photo.url }}" class="profile-avatar" alt="Profile"
+            onclick="document.getElementById('dashboard-photo-input').click();">
+        {% else %}
+        <img src="https://api.dicebear.com/7.x/initials/svg?seed={{ user.first_name }}+{{ user.last_name }}&backgroundColor=4F46E5&textColor=ffffff" class="profile-avatar" alt="Profile"
+            onclick="document.getElementById('dashboard-photo-input').click();">
+        {% endif %}
+
         <div class="profile-info">
-            <span class="profile-name">{{ user.username|title }}</span>
-            <span class="profile-role">
-                {% if subscription %}{{ subscription.plan.get_name_display }}{% else %}Member{% endif %}
-            </span>
+            <h3>{{ user.first_name|default:user.username|title }}</h3>
+            <p>{% if subscription %}{{ subscription.plan.get_name_display }} Member{% else %}Free Member{% endif %}</p>
         </div>
     </div>
 
     <nav class="sidebar-nav">
-        <div class="nav-section">
-            <div class="nav-section-title">Main</div>
-            <a href="{% url 'user_dashboard' %}" class="nav-link active">
+        <div class="nav-group">
+            <div class="nav-group-label">Dashboard</div>
+            <a href="{% url 'user_dashboard' %}" class="nav-item active">
                 <i class="fa-solid fa-house"></i> Home
             </a>
-            <a href="{% url 'progress' %}" class="nav-link">
+            <a href="{% url 'progress' %}" class="nav-item">
                 <i class="fa-solid fa-chart-line"></i> Progress
             </a>
         </div>
 
-        <div class="nav-section">
-            <div class="nav-section-title">Fitness</div>
-            <a href="{% url 'workout_list' %}" class="nav-link">
-                <i class="fa-solid fa-dumbbell"></i> My Workouts
+        <div class="nav-group">
+            <div class="nav-group-label">Fitness</div>
+            <a href="{% url 'workout_list' %}" class="nav-item">
+                <i class="fa-solid fa-dumbbell"></i> Workouts
             </a>
-            <a href="{% url 'diet_list' %}" class="nav-link">
-                <i class="fa-solid fa-utensils"></i> Diet Plan
+            <a href="{% url 'diet_list' %}" class="nav-item">
+                <i class="fa-solid fa-utensils"></i> Diet Plans
             </a>
-            <a href="{% url 'nutrition' %}" class="nav-link">
+            <a href="{% url 'nutrition' %}" class="nav-item">
                 <i class="fa-solid fa-droplet"></i> Nutrition
             </a>
-            <a href="{% url 'bmi_history' %}" class="nav-link">
-                <i class="fa-solid fa-heart-pulse"></i> Vitality
+            <a href="{% url 'bmi_history' %}" class="nav-item">
+                <i class="fa-solid fa-heart-pulse"></i> BMI & Vitals
             </a>
-            <a href="{% url 'goals' %}" class="nav-link">
+            <a href="{% url 'goals' %}" class="nav-item">
                 <i class="fa-solid fa-bullseye"></i> Goals
             </a>
-            <a href="{% url 'video_gallery' %}" class="nav-link">
-                <i class="fa-solid fa-film"></i> Exercise Videos
-            </a>
         </div>
 
-        <div class="nav-section">
-            <div class="nav-section-title">Service</div>
-            <a href="{% url 'attendance' %}" class="nav-link">
+        <div class="nav-group">
+            <div class="nav-group-label">Services</div>
+            <a href="{% url 'attendance' %}" class="nav-item">
                 <i class="fa-solid fa-calendar-check"></i> Attendance
             </a>
-            <a href="{% url 'membership' %}" class="nav-link">
+            <a href="{% url 'membership' %}" class="nav-item">
                 <i class="fa-solid fa-crown"></i> Membership
             </a>
-        </div>
-
-        <div class="nav-section">
-            <div class="nav-section-title">Shop</div>
-            <a href="{% url 'store' %}" class="nav-link" style="color: var(--accent-primary);">
-                <i class="fa-solid fa-store"></i> FitSync Store
-            </a>
-            <a href="{% url 'cart' %}" class="nav-link">
-                <i class="fa-solid fa-cart-shopping"></i> My Cart
-                {% if cart_count > 0 %}
-                <span
-                    style="background: var(--accent-primary); color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 50%; margin-left: auto; min-width: 18px; text-align: center;">{{
-                    cart_count }}</span>
-                {% endif %}
-            </a>
-            <a href="{% url 'order_history' %}" class="nav-link">
-                <i class="fa-solid fa-box-archive"></i> My Orders
+            <a href="{% url 'ai_hub' %}" class="nav-item">
+                <i class="fa-solid fa-brain"></i> AI Hub
             </a>
         </div>
 
-        <div class="nav-section">
-            <div class="nav-section-title">Connect</div>
-            <a href="{% url 'trainer_list' %}" class="nav-link">
+        <div class="nav-group">
+            <div class="nav-group-label">Connect</div>
+            <a href="{% url 'trainer_list' %}" class="nav-item">
                 <i class="fa-solid fa-user-tie"></i> Trainers
             </a>
-            <a href="{% url 'messages' %}" class="nav-link">
+            <a href="{% url 'messages' %}" class="nav-item">
                 <i class="fa-solid fa-comments"></i> Messages
             </a>
-            <a href="{% url 'community' %}" class="nav-link">
+            <a href="{% url 'community' %}" class="nav-item">
                 <i class="fa-solid fa-users"></i> Community
-            </a>
-            <a href="{% url 'ai_hub' %}" class="nav-link">
-                <i class="fa-solid fa-brain"></i> Neural Hub
             </a>
         </div>
 
-        <div class="nav-section">
-            <div class="nav-section-title">Account</div>
-            {% if user.userprofile.role == 'admin' %}
-            <a href="{% url 'admin_dashboard' %}" class="nav-link"
-                style="color: var(--accent-primary); border: 1px solid rgba(212,175,55,0.2); background: rgba(212,175,55,0.05);">
-                <i class="fa-solid fa-user-shield"></i> Admin Portal
+        <div class="nav-group">
+            <div class="nav-group-label">Shop</div>
+            <a href="{% url 'store' %}" class="nav-item">
+                <i class="fa-solid fa-store"></i> Store
             </a>
-            {% endif %}
-            <a href="{% url 'settings' %}" class="nav-link">
+            <a href="{% url 'cart' %}" class="nav-item">
+                <i class="fa-solid fa-cart-shopping"></i> Cart
+                {% if cart_count > 0 %}<span class="nav-badge">{{ cart_count }}</span>{% endif %}
+            </a>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-group-label">Account</div>
+            <a href="{% url 'settings' %}" class="nav-item">
                 <i class="fa-solid fa-gear"></i> Settings
             </a>
-            <a href="{% url 'help' %}" class="nav-link">
+            <a href="{% url 'help' %}" class="nav-item">
                 <i class="fa-solid fa-circle-question"></i> Help
             </a>
         </div>
@@ -528,419 +911,217 @@
     </div>
 </aside>
 
+<!-- ── Main Content ── -->
 <main class="main-wrapper">
+
+    <!-- Notification Banner -->
     {% if notifications %}
-    <div
-        style="margin-bottom: 2rem; background: rgba(212, 175, 55, 0.05); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 12px; padding: 0.75rem 1.25rem; display: flex; align-items: center; gap: 1rem; animation: slideDown 0.5s ease-out;">
-        <div
-            style="width: 8px; height: 8px; background: var(--accent-primary); border-radius: 50%; box-shadow: 0 0 10px var(--accent-primary);">
-        </div>
-        <div style="flex-grow: 1; font-size: 0.85rem; color: var(--text-secondary);">
-            <strong style="color: var(--accent-primary);">ALERT:</strong> You have {{ notifications.count }} unread
-            notifications.
-            <span style="opacity: 0.8; margin-left: 0.5rem;">"{{ notifications.0.title }}"</span>
-        </div>
-        <a href="{% url 'messages' %}"
-            style="font-size: 0.75rem; font-weight: 700; color: var(--accent-primary); text-decoration: none;">VIEW
-            ALL</a>
+    <div class="notif-bar animate-in">
+        <div class="dot"></div>
+        <span>You have {{ notifications.count }} unread notification{{ notifications.count|pluralize }} — "{{ notifications.0.title }}"</span>
+        <a href="{% url 'messages' %}">VIEW ALL</a>
     </div>
     {% endif %}
 
-    <header class="page-header" style="margin-bottom: 2.5rem;">
-        <h1 class="page-title">Performance Insights</h1>
-        <p class="page-subtitle">Welcome back, {{ user.username|title }}. Your current physiological summary.</p>
-    </header>
+    <!-- Page Header -->
+    <div class="dash-header animate-in">
+        <h1>Good {% now "H" as current_hour %}{% if current_hour|add:"0" < 12 %}morning{% elif current_hour|add:"0" < 17 %}afternoon{% else %}evening{% endif %}, {{ user.first_name|default:user.username|title }}.</h1>
+        <p>{% if is_new_user %}Complete your setup to get started with personalized fitness.{% else %}Here's your fitness overview for today.{% endif %}</p>
+    </div>
 
-    {% if not user.fitness_assessment %}
-    <a href="{% url 'fitness_assessment' %}" style="text-decoration:none; display:block; margin-bottom: 2.5rem;">
-        <div style="background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(245,158,11,0.05)); border: 1px solid rgba(99,102,241,0.2); border-radius: 20px; padding: 1.5rem 2rem; display: flex; align-items: center; gap: 1.5rem; transition: 0.3s;"
-            onmouseover="this.style.borderColor='rgba(99,102,241,0.4)'"
-            onmouseout="this.style.borderColor='rgba(99,102,241,0.2)'">
-            <div
-                style="width: 52px; height: 52px; background: rgba(99,102,241,0.12); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #818cf8; flex-shrink: 0;">
-                &#129504;</div>
-            <div style="flex-grow:1;">
-                <div style="font-weight: 800; color: #c7d2fe; margin-bottom: 0.3rem;">Complete Your Smart Fitness
-                    Assessment</div>
-                <div style="font-size: 0.85rem; color: #555;">Takes 2 mins. Get a personalized workout plan, diet
-                    recommendation, and BMI analysis.</div>
-            </div>
-            <div
-                style="background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); border-radius: 10px; padding: 0.5rem 1.2rem; color: #818cf8; font-size: 0.8rem; font-weight: 700; white-space: nowrap;">
-                Get Started &rarr;</div>
-        </div>
-    </a>
-    {% endif %}
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- SECTION 1: First-Time Setup Wizard (if new user)  -->
+    <!-- ══════════════════════════════════════════════════ -->
+    {% if is_new_user %}
+    <div class="setup-wizard animate-in delay-1">
+        <h3 class="setup-title">🚀 Complete Your Setup</h3>
+        <p class="setup-subtitle">Follow these steps to get personalized workout and diet plans.</p>
 
-    <!-- Assigned Protocols Grid -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2.5rem;">
-        <!-- Workout Protocol -->
-        <div
-            style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 20px; padding: 1.5rem; display: flex; align-items: center; gap: 1.25rem;">
-            <div
-                style="width: 48px; height: 48px; background: rgba(212, 175, 55, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--accent-primary); font-size: 1.2rem;">
-                <i class="fa-solid fa-dumbbell"></i>
+        <div class="setup-steps">
+            <div class="step-item {% if has_subscription %}done{% elif setup_step == 1 %}current{% endif %}">
+                <div class="step-circle">{% if has_subscription %}<i class="fa-solid fa-check"></i>{% else %}1{% endif %}</div>
+                <span class="step-label">Subscription</span>
             </div>
-            <div style="flex: 1;">
-                <div
-                    style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.25rem;">
-                    Active Training Protocol</div>
-                <div style="font-weight: 700; color: var(--text-primary);">
-                    {% if active_workout %}{{ active_workout.title }}{% else %}No Protocol Assigned{% endif %}
-                </div>
+            <div class="step-item {% if has_profile_data %}done{% elif setup_step == 2 %}current{% endif %}">
+                <div class="step-circle">{% if has_profile_data %}<i class="fa-solid fa-check"></i>{% else %}2{% endif %}</div>
+                <span class="step-label">Profile</span>
             </div>
-            {% if active_workout %}
-            <a href="{% url 'workout_session' active_workout.id %}"
-                style="color: var(--accent-primary); font-size: 0.75rem; text-decoration: none; font-weight: 700;">VIEW</a>
-            {% else %}
-            <a href="{% url 'workout_list' %}"
-                style="color: var(--accent-primary); font-size: 0.75rem; text-decoration: none; font-weight: 700;">BROWSE</a>
-            {% endif %}
+            <div class="step-item {% if has_bmi %}done{% elif setup_step == 3 %}current{% endif %}">
+                <div class="step-circle">{% if has_bmi %}<i class="fa-solid fa-check"></i>{% else %}3{% endif %}</div>
+                <span class="step-label">BMI</span>
+            </div>
+            <div class="step-item {% if has_assessment %}done{% elif setup_step == 4 %}current{% endif %}">
+                <div class="step-circle">{% if has_assessment %}<i class="fa-solid fa-check"></i>{% else %}4{% endif %}</div>
+                <span class="step-label">Assessment</span>
+            </div>
+            <div class="step-item {% if has_workout %}done{% elif setup_step == 5 %}current{% endif %}">
+                <div class="step-circle">{% if has_workout %}<i class="fa-solid fa-check"></i>{% else %}5{% endif %}</div>
+                <span class="step-label">Workout</span>
+            </div>
         </div>
 
-        <!-- Diet Protocol -->
-        <div
-            style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 20px; padding: 1.5rem; display: flex; align-items: center; gap: 1.25rem;">
-            <div
-                style="width: 48px; height: 48px; background: rgba(16, 185, 129, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #10b981; font-size: 1.2rem;">
-                <i class="fa-solid fa-utensils"></i>
-            </div>
-            <div style="flex: 1;">
-                <div
-                    style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.25rem;">
-                    Current Diet Plan</div>
-                <div style="font-weight: 700; color: var(--text-primary);">
-                    {% if active_diet %}{{ active_diet.name }}{% else %}No Plan Assigned{% endif %}
-                </div>
-            </div>
-            {% if active_diet %}
-            <a href="{% url 'diet_detail' active_diet.id %}"
-                style="color: #10b981; font-size: 0.75rem; text-decoration: none; font-weight: 700;">TRACK</a>
-            {% else %}
-            <a href="{% url 'diet_list' %}"
-                style="color: #10b981; font-size: 0.75rem; text-decoration: none; font-weight: 700;">EXPLORE</a>
+        <div class="setup-action">
+            {% if setup_step == 1 %}
+                <a href="{% url 'membership' %}" class="btn-setup"><i class="fa-solid fa-crown"></i> Choose a Plan</a>
+            {% elif setup_step == 2 %}
+                <a href="{% url 'profile' %}" class="btn-setup"><i class="fa-solid fa-user"></i> Setup Profile</a>
+            {% elif setup_step == 3 %}
+                <a href="{% url 'bmi_calculator' %}" class="btn-setup"><i class="fa-solid fa-heart-pulse"></i> Calculate BMI</a>
+            {% elif setup_step == 4 %}
+                <a href="{% url 'fitness_assessment' %}" class="btn-setup"><i class="fa-solid fa-clipboard-check"></i> Take Assessment</a>
+            {% elif setup_step == 5 %}
+                <a href="{% url 'ai_workout' %}" class="btn-setup"><i class="fa-solid fa-brain"></i> Get AI Workout</a>
             {% endif %}
         </div>
     </div>
+    {% else %}
 
-    <div class="stats-row">
-        <div class="stat-card">
-            <span class="stat-label">Biometric Index</span>
-            <div class="stat-value">{{ last_bmi.bmi_score|default:"--" }}</div>
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- SECTION 2: Fitness Status (BMI + Goal + Streak)   -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <div class="status-grid animate-in delay-2">
+        <!-- BMI Card -->
+        <div class="status-card">
+            <div class="label">BMI Score</div>
+            <div class="value">{{ last_bmi.bmi_score|default:"—" }}</div>
             {% if last_bmi %}
-            {% with score=last_bmi.bmi_score %}
-            <div class="status-pill {% if score < 18.5 or score >= 25 %}status-alert{% endif %}">
-                <i
-                    class="fa-solid {% if score < 18.5 or score >= 25 %}fa-triangle-exclamation{% else %}fa-circle-check{% endif %}"></i>
-                {% if score < 18.5 %} Underweight {% elif score < 25 %} Optimal Range {% elif score < 30 %} Overweight
-                    {% else %} Obese {% endif %} </div>
-                    {% endwith %}
-                    {% else %}
-                    <div class="status-pill status-alert"><i class="fa-solid fa-circle-info"></i> No Data</div>
-                    {% endif %}
-                    <a href="{% url 'bmi_calculator' %}" class="btn-update-v2"
-                        style="width: 100%; justify-content: center; margin-top: 1.5rem;">Update Vitals</a>
-            </div>
-
-            <div class="stat-card">
-                <span class="stat-label">Mission Objectives</span>
-                <div class="stat-value">{{ completed_goals }}/{{ total_goals }}</div>
-                <div
-                    style="height: 6px; background: rgba(0,0,0,0.1); border-radius: 3px; margin: 1rem 0; overflow: hidden;">
-                    <div
-                        style="width: {{ goal_progress }}%; height: 100%; background: var(--accent-primary); border-radius: 3px; transition: 1s cubic-bezier(0.4, 0, 0.2, 1);">
-                    </div>
-                </div>
-                <div class="status-pill"><i class="fa-solid fa-bullseye"></i> {{ goal_progress|floatformat:0 }}%
-                    Complete</div>
-                <p class="text-muted" style="font-size:0.85rem;margin-top:1rem">Targeted fitness benchmarks reached.</p>
-            </div>
-
-            <div class="stat-card">
-                <span class="stat-label">Fueling & Hydration</span>
-                <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-                    <div>
-                        <div class="stat-value" style="font-size: 1.8rem; margin-bottom: 0.2rem;">{{ calories_today }}
-                            <span style="font-size: 0.8rem; color: var(--text-muted);">kcal</span>
-                        </div>
-                        <div class="status-pill"><i class="fa-solid fa-fire"></i> Energy</div>
-                    </div>
-                    <div style="text-align: right;">
-                        <div class="stat-value" style="font-size: 1.8rem; margin-bottom: 0.2rem; color: #60a5fa;">{{ water_today }} <span style="font-size: 0.8rem; color: var(--text-muted);">ml</span></div>
-                        <div class="status-pill" style="color: #60a5fa; background: rgba(96, 165, 250, 0.1);"><i
-                                class="fa-solid fa-droplet"></i> Water</div>
-                    </div>
-                </div>
-                <p class="text-muted" style="font-size:0.85rem;margin-top:1.25rem">Real-time metabolic consumption logs.
-                </p>
-            </div>
-        </div>
-
-        {% if assigned_trainer %}
-        <h2 class="section-header">Elite Performance Coach</h2>
-        <div class="stat-card trainer-card-professional"
-            style="display: flex; align-items: center; gap: 2rem; margin-bottom: 4rem;">
-            {% if trainer_profile.profile_photo %}
-            <img src="{{ trainer_profile.profile_photo.url }}"
-                style="width: 110px; height: 110px; border-radius: 20px; border: 2px solid var(--accent-primary); object-fit: cover;">
+                {% with score=last_bmi.bmi_score %}
+                <span class="status-badge {% if score < 18.5 or score >= 30 %}badge-danger{% elif score >= 25 %}badge-warning{% else %}badge-success{% endif %}">
+                    <i class="fa-solid {% if score < 18.5 or score >= 25 %}fa-circle-exclamation{% else %}fa-circle-check{% endif %}"></i>
+                    {% if score < 18.5 %}Underweight{% elif score < 25 %}Normal{% elif score < 30 %}Overweight{% else %}Obese{% endif %}
+                </span>
+                {% endwith %}
             {% else %}
-            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ assigned_trainer.username }}"
-                style="width: 110px; height: 110px; border-radius: 20px; border: 2px solid var(--accent-primary); object-fit: cover;">
+                <a href="{% url 'bmi_calculator' %}" style="font-size:0.75rem; color:var(--fs-primary); font-weight:600; text-decoration:none;">Calculate Now →</a>
             {% endif %}
-            <div style="flex-grow: 1;">
-                <h3 style="margin: 0 0 0.25rem 0; color: white;">{{ trainer_display_name|title }}</h3>
-                <p style="color: var(--accent-primary); font-weight: 600; margin: 0 0 1.25rem 0; font-size: 0.9rem;">
-                    {{ trainer_profile.specialty|default:"Master Performance Specialist" }}</p>
-                <div style="display: flex; gap: 1rem;">
-                    <a href="{% url 'messages' %}?user_id={{ assigned_trainer.id }}" class="btn-update-v2">
-                        <i class="fa-solid fa-comments"></i> Instant Message
-                    </a>
-                    <a href="{% url 'trainer_list' %}" class="btn-update-v2"
-                        style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color);">
-                        Profile
-                    </a>
-                </div>
-            </div>
-            <div style="text-align: right;">
-                <div class="status-pill" style="margin-bottom:0.5rem;"><i class="fa-solid fa-bolt"></i> Online Now</div>
-                <div style="color: var(--text-muted); font-size: 0.8rem;">Assigned {{ trainer_assignment_date }}</div>
-            </div>
         </div>
-        {% elif is_basic %}
-        <h2 class="section-header">Elite Coaching Support</h2>
-        <div class="stat-card"
-            style="display: flex; align-items: center; gap: 2.5rem; margin-bottom: 4rem; border: 1px dashed var(--accent-primary); background: rgba(212, 175, 55, 0.03);">
-            <div
-                style="width: 70px; height: 70px; font-size: 1.75rem; background: rgba(212, 175, 55, 0.1); color: var(--accent-primary); display: flex; align-items: center; justify-content: center; border-radius: 18px;">
-                <i class="fa-solid fa-lock"></i>
-            </div>
-            <div style="flex-grow: 1;">
-                <h3 style="color: var(--accent-primary); margin-bottom: 0.5rem;">Unlock Expert Guidance</h3>
-                <p style="color: var(--text-muted); margin: 0; font-size: 0.95rem;">1-on-1 coaching and custom feedback
-                    loops are exclusive to Premium & Elite members.</p>
-            </div>
-            <a href="{% url 'membership' %}" class="btn-update-v2" style="white-space: nowrap;">Upgrade Protocol</a>
+
+        <!-- Goals Card -->
+        <div class="status-card">
+            <div class="label">Goals Progress</div>
+            <div class="value">{{ completed_goals }}<span>/{{ total_goals }}</span></div>
+            <span class="status-badge badge-primary">
+                <i class="fa-solid fa-bullseye"></i> {{ goal_progress|floatformat:0 }}% Complete
+            </span>
         </div>
-        {% endif %}
-        {% if active_diet %}
-        <h2 class="section-header">Tactical Nutrition Protocol</h2>
-        <div class="stat-card" style="margin-bottom: 4rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+
+        <!-- Streak Card -->
+        <div class="status-card">
+            <div class="label">This Week</div>
+            <div class="value">{{ weekly_attendance }}<span>/7 days</span></div>
+            <span class="status-badge {% if attended_today %}badge-success{% else %}badge-warning{% endif %}">
+                <i class="fa-solid {% if attended_today %}fa-check{% else %}fa-clock{% endif %}"></i>
+                {% if attended_today %}Checked in today{% else %}Not checked in{% endif %}
+            </span>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- SECTION 3: Today's Workout (Hero Card)            -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <div class="workout-hero animate-in delay-3">
+        <div class="workout-hero-content">
+            <div class="overline">{% if active_workout %}Active Training Protocol{% else %}Start Training{% endif %}</div>
+            <h2>{% if active_workout %}{{ active_workout.title }}{% else %}No Workout Assigned Yet{% endif %}</h2>
+            <p>{% if active_workout %}{{ active_workout.get_difficulty_display }} · {{ active_workout.frequency_per_week }}x per week{% else %}Browse our workout library or get an AI-powered recommendation.{% endif %}</p>
+            {% if active_workout %}
+                <a href="{% url 'workout_session' active_workout.id %}" class="btn-start">
+                    <i class="fa-solid fa-play"></i> Start Today's Workout
+                </a>
+                <a href="{% url 'workout_list' %}" class="btn-secondary">Browse All</a>
+            {% else %}
+                <a href="{% url 'ai_workout' %}" class="btn-start">
+                    <i class="fa-solid fa-brain"></i> Get AI Recommendation
+                </a>
+                <a href="{% url 'workout_list' %}" class="btn-secondary">Browse Workouts</a>
+            {% endif %}
+        </div>
+        <div class="workout-hero-icon">
+            <i class="fa-solid fa-dumbbell"></i>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- SECTION 4: Progress Summary                       -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <div class="progress-row animate-in delay-4">
+        <!-- Nutrition Today -->
+        <div class="progress-card">
+            <div class="card-title"><i class="fa-solid fa-fire"></i> Today's Nutrition</div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:0.75rem;">
                 <div>
-                    <h3 style="color: white; margin: 0;">{{ active_diet.name }}</h3>
-                    <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.5rem 0 0 0;">Mandated daily
-                        nutritional targets: {{ active_diet.daily_calories }} kcal</p>
+                    <div style="font-size:1.5rem; font-weight:800; color:var(--fs-text);">{{ calories_today }}</div>
+                    <div style="font-size:0.7rem; color:var(--fs-text-muted); font-weight:600;">Calories</div>
                 </div>
-                <div style="text-align: right;">
-                    <span class="status-pill status-success"><i class="fa-solid fa-circle-check"></i> Plan Active</span>
-                </div>
-            </div>
-
-            <div class="actions-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
-                {% for meal in today_meals %}
-                <div class="action-card"
-                    style="padding: 1rem; text-align: left; align-items: flex-start; gap: 0.25rem;">
-                    <span
-                        style="font-size: 0.65rem; font-weight: 800; color: var(--accent-primary); text-transform: uppercase;">{{
-                        meal.get_day_display|default:meal.day }} | {{ meal.time|time:"H:i" }}</span>
-                    <h4 style="margin: 0.25rem 0; font-size: 0.95rem; color: white;">{{ meal.name }}</h4>
-                    <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">{{ meal.calories }} kcal | {{
-                        meal.protein }}P | {{ meal.carbs }}C</p>
-                </div>
-                {% empty %}
-                <div
-                    style="grid-column: span 4; text-align: center; color: var(--text-muted); padding: 2rem; background: var(--bg-tertiary); border-radius: 15px;">
-                    No specific meals logged for today in this protocol.
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-
-        {% if recent_orders %}
-        <h2 class="section-header">Active Orders & Recent Logistics</h2>
-        <div class="actions-grid" style="margin-bottom: 3rem;">
-            {% for order in recent_orders %}
-            <div class="action-card" style="align-items: flex-start; text-align: left; padding: 1.5rem; gap: 0.5rem;">
-                <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-                    <span style="font-size: 0.7rem; font-weight: 800; color: var(--accent-primary);">ORDER #{{ order.id
-                        }}</span>
-                    <span
-                        class="status-pill {% if order.status == 'delivered' %}status-success{% elif order.status == 'cancelled' %}status-alert{% endif %}"
-                        style="padding: 2px 8px; font-size: 0.65rem;">
-                        {{ order.status|upper }}
-                    </span>
-                </div>
-                <h3 style="margin: 0.5rem 0 0 0; font-size: 1.1rem;">&#8377;{{ order.total_amount }}</h3>
-                <p style="font-size: 0.8rem; margin: 0;">{{ order.created_at|date:"M d, Y" }}</p>
-                <div style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; margin-top: 0.5rem;">
-                    {% for item in order.items.all|slice:":2" %}
-                    &bull; {{ item.product_name|truncatechars:25 }}<br>
-                    {% endfor %}
-                </div>
-                <a href="{% url 'order_history' %}"
-                    style="color: var(--accent-primary); font-size: 0.8rem; font-weight: 600; text-decoration: none; margin-top: 0.5rem;">Track
-                    Logistics &rarr;</a>
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-
-        {% if recent_feedback %}
-        <h2 class="section-header">Trainer Performance Feedback</h2>
-        <div class="actions-grid" style="margin-bottom: 3rem;">
-            {% for feedback in recent_feedback %}
-            <div class="action-card" style="align-items: flex-start; text-align: left; padding: 1.5rem;">
-                <div style="display: flex; gap: 0.5rem; color: #fbbf24; margin-bottom: 0.75rem;">
-                    {% for i in "12345"|make_list %}
-                    {% if forloop.counter <= feedback.rating %} <i class="fa-solid fa-star"
-                        style="font-size: 0.8rem; margin: 0;"></i>
-                        {% else %}
-                        <i class="fa-regular fa-star" style="font-size: 0.8rem; margin: 0;"></i>
-                        {% endif %}
-                        {% endfor %}
-                </div>
-                <p style="font-size: 0.9rem; font-style: italic; color: var(--text-primary); margin-bottom: 1rem;">"{{
-                    feedback.feedback_text }}"</p>
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <div style="font-size: 0.75rem; color: var(--text-muted);">
-                        Sent by <strong>Coach {{ feedback.trainer.username|title }}</strong> on {{
-                        feedback.created_at|date:"M d" }}
-                    </div>
+                <div style="text-align:right;">
+                    <div style="font-size:1.5rem; font-weight:800; color:#3B82F6;">{{ water_today }}</div>
+                    <div style="font-size:0.7rem; color:var(--fs-text-muted); font-weight:600;">ml Water</div>
                 </div>
             </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-
-        {% if live_sessions %}
-        <h2 class="section-header">Upcoming Live Sessions</h2>
-        <div class="actions-grid" style="margin-bottom: 3rem;">
-            {% for session in live_sessions %}
-            <div class="action-card"
-                style="border-color: rgba(239,68,68,0.3); position: relative; overflow: hidden; background: linear-gradient(135deg, var(--bg-secondary), rgba(239,68,68,0.04));">
-                <span
-                    style="position: absolute; top: 12px; right: 12px; font-size: 0.65rem; background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 800; letter-spacing: 1px;">SCHEDULED</span>
-                <i class="fa-solid fa-video" style="color: #f87171;"></i>
-                <h3>{{ session.session_title }}</h3>
-                <p>Instructor: {{ session.trainer_name }}</p>
-                <p style="font-size: 0.85rem; color: #888;">{{ session.date }} at {{ session.time }}</p>
-                <a href="{% url 'live_session_room' session.id %}" class="btn-update-v2"
-                    style="margin-top: 1rem; padding: 0.5rem 1rem; width: 100%; text-align: center;">Join Session</a>
+            <div style="display:flex; gap:0.5rem;">
+                <a href="{% url 'nutrition' %}" class="btn-sm btn-sm-outline" style="flex:1; justify-content:center;">
+                    <i class="fa-solid fa-plus"></i> Log Meal
+                </a>
+                <a href="{% url 'nutrition' %}" class="btn-sm btn-sm-outline" style="flex:1; justify-content:center;">
+                    <i class="fa-solid fa-droplet"></i> Add Water
+                </a>
             </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-
-        <h2 class="section-header">Operational Modules</h2>
-        <div class="actions-grid">
-            <a href="{% url 'workout_list' %}" class="action-card">
-                <i class="fa-solid fa-dumbbell"></i>
-                <div
-                    style="position: absolute; top: 1.5rem; right: 1.5rem; background: rgba(212, 175, 55, 0.1); padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 700; color: var(--accent-primary);">
-                    {{ total_workouts }} PROGRAMS</div>
-                <h3>Training</h3>
-                <p>Execution protocols and AI-driven routine generation.</p>
-            </a>
-            <a href="{% url 'diet_list' %}" class="action-card">
-                <i class="fa-solid fa-leaf"></i>
-                <div
-                    style="position: absolute; top: 1.5rem; right: 1.5rem; background: rgba(16, 185, 129, 0.1); padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 700; color: #10b981;">
-                    {{ total_diets }} PLANS</div>
-                <h3>Fueling</h3>
-                <p>Metabolic optimization and meal scheduling.</p>
-            </a>
-            <a href="{% url 'ai_hub' %}" class="action-card">
-                <i class="fa-solid fa-brain"></i>
-                <h3>Neural Hub</h3>
-                <p>Access the complete suite of AI training and fueling tools.</p>
-            </a>
-            <a href="{% url 'progress' %}" class="action-card">
-                <i class="fa-solid fa-chart-line"></i>
-                <h3>Analytics</h3>
-                <p>Quantitative progress tracking and performance charts.</p>
-            </a>
-            <a href="{% url 'fitness_assessment' %}" class="action-card"
-                style="border-color: rgba(99,102,241,0.2); background: linear-gradient(135deg, var(--bg-secondary), rgba(99,102,241,0.04));">
-                <i class="fa-solid fa-microscope" style="color: #818cf8;"></i>
-                <h3>Fitness Assessment</h3>
-                <p>Get a personalized workout plan, diet plan & BMI analysis from your biometric data.</p>
-            </a>
-            <a href="{% url 'live_session' %}" class="action-card"
-                style="border-color: rgba(239,68,68,0.3); background: linear-gradient(135deg, var(--bg-secondary), rgba(239,68,68,0.04));">
-                <i class="fa-solid fa-video" style="color: #f87171;"></i>
-                <h3>Classes & Sessions</h3>
-                <p>View and schedule live interactive sessions via meeting links.</p>
-            </a>
-            <a href="{% url 'store' %}" class="action-card"
-                style="border-color: rgba(245,158,11,0.3); background: linear-gradient(135deg, var(--bg-secondary), rgba(245,158,11,0.04));">
-                <i class="fa-solid fa-store" style="color: #f59e0b;"></i>
-                <h3>FitSync Store</h3>
-                <p>Shop premium supplements and fitness equipment.</p>
-            </a>
         </div>
 
-        <h2 class="section-header">Biometric Tracking</h2>
-        <div class="actions-grid">
-            <a href="{% url 'attendance' %}" class="action-card">
-                <i class="fa-solid fa-calendar-check"></i>
-                <h3>Attendance</h3>
-                <p>Temporal check-ins and consistency mapping.</p>
-            </a>
-            <a href="{% url 'nutrition' %}" class="action-card">
-                <i class="fa-solid fa-droplet"></i>
-                <h3>Hydration</h3>
-                <p>Water intake and electrolyte balancing.</p>
-            </a>
-            <a href="{% url 'goals' %}" class="action-card">
-                <i class="fa-solid fa-bullseye"></i>
-                <h3>Objectives</h3>
-                <p>Defining and monitoring mission-critical milestones.</p>
-            </a>
-            <a href="{% url 'bmi_history' %}" class="action-card">
-                <i class="fa-solid fa-heart-pulse"></i>
-                <h3>Vitality</h3>
-                <p>Cardiovascular metrics and biometric history.</p>
-            </a>
+        <!-- Goal Progress -->
+        <div class="progress-card">
+            <div class="card-title"><i class="fa-solid fa-bullseye"></i> Goal Tracker</div>
+            {% if next_goal %}
+                <div style="font-size:0.85rem; font-weight:700; color:var(--fs-text); margin-bottom:0.4rem;">{{ next_goal.title }}</div>
+                <div class="progress-bar-track">
+                    <div class="progress-bar-fill green" style="width:{{ next_goal.get_progress_percent }}%;"></div>
+                </div>
+                <div class="progress-meta">
+                    <span>{{ next_goal.current_value }} / {{ next_goal.target_value }} {{ next_goal.unit }}</span>
+                    <span>{{ next_goal.get_progress_percent|floatformat:0 }}%</span>
+                </div>
+            {% else %}
+                <div class="empty-state" style="padding:1rem;">
+                    <p>No active goals.</p>
+                    <a href="{% url 'goals' %}" class="btn-sm btn-sm-primary" style="margin-top:0.5rem;">Set a Goal</a>
+                </div>
+            {% endif %}
         </div>
+    </div>
 
-        <h2 class="section-header">Network & Status</h2>
-        <div class="actions-grid">
-            <a href="{% url 'membership' %}" class="action-card">
-                <i class="fa-solid fa-crown"></i>
-                <h3>Membership</h3>
-                <p>Access level management and tier updates.</p>
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- SECTION 5: Quick Tools                            -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <div class="tools-section animate-in delay-5">
+        <h3 class="section-title">Quick Tools</h3>
+        <div class="tools-grid">
+            <a href="{% url 'nutrition' %}" class="tool-card">
+                <div class="tool-icon" style="background:var(--fs-success-light); color:var(--fs-success);">
+                    <i class="fa-solid fa-utensils"></i>
+                </div>
+                <h4>Nutrition</h4>
+                <p>Log meals & water</p>
             </a>
-            <a href="{% url 'trainer_list' %}" class="action-card">
-                <i class="fa-solid fa-user-tie"></i>
-                <h3>Coaches</h3>
-                <p>Interface with professional performance staff.</p>
-            </a>
-            <a href="{% url 'messages' %}" class="action-card">
-                <i class="fa-solid fa-comments"></i>
-                <h3>Messaging</h3>
-                <p>Encrypted communication with trainers.</p>
-            </a>
-            <a href="{% url 'community' %}" class="action-card">
-                <i class="fa-solid fa-users"></i>
-                <h3>Syndicate</h3>
-                <p>Peer performance groups and challenges.</p>
-            </a>
-        </div>
 
-        <h2 class="section-header">System Configuration</h2>
-        <div class="actions-grid">
-            <a href="{% url 'settings' %}" class="action-card">
-                <i class="fa-solid fa-gear"></i>
-                <h3>Settings</h3>
-                <p>System preferences and credential management.</p>
+            <a href="{% url 'trainer_list' %}" class="tool-card">
+                <div class="tool-icon" style="background:var(--fs-primary-light); color:var(--fs-primary);">
+                    <i class="fa-solid fa-user-tie"></i>
+                </div>
+                <h4>Trainers</h4>
+                <p>Find a coach</p>
             </a>
-            <a href="{% url 'help' %}" class="action-card">
-                <i class="fa-solid fa-circle-question"></i>
-                <h3>Support</h3>
-                <p>Technical documentation and help protocols.</p>
+
+            <a href="{% url 'store' %}" class="tool-card">
+                <div class="tool-icon" style="background:var(--fs-warning-light); color:var(--fs-warning);">
+                    <i class="fa-solid fa-store"></i>
+                </div>
+                <h4>Store</h4>
+                <p>Gear & supplements</p>
             </a>
         </div>
+    </div>
+    {% endif %}
+
 </main>
 
 <!-- Sidebar Toggle Script -->
@@ -963,12 +1144,9 @@
     hamburgerBtn.addEventListener('click', toggleSidebar);
     overlay.addEventListener('click', toggleSidebar);
 
-    // Close sidebar when a nav link is clicked (on mobile)
-    document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+    document.querySelectorAll('.sidebar .nav-item').forEach(link => {
         link.addEventListener('click', () => {
-            if (window.innerWidth <= 1024) {
-                toggleSidebar();
-            }
+            if (window.innerWidth <= 1024) toggleSidebar();
         });
     });
 </script>

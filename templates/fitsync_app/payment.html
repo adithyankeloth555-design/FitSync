@@ -5,11 +5,11 @@
 
 {% block extra_css %}
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Cinzel:wght@700;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Inter:wght@700;900&display=swap');
 
     :root {
-        --elite-gold: #D4AF37;
-        --gold-glow: rgba(212, 175, 55, 0.4);
+        --elite-gold: #4F46E5;
+        --gold-glow: rgba(79, 70, 229, 0.4);
         --carbon-bg: #050505;
         --glass-surface: rgba(20, 20, 22, 0.85);
         --border-glass: rgba(255, 255, 255, 0.08);
@@ -18,8 +18,8 @@
 
     body {
         background: radial-gradient(circle at 100% 0%, #1a1a1d 0%, #050505 100%);
-        color: #fff;
-        font-family: 'Outfit', sans-serif;
+        color: var(--text-primary);
+        font-family: 'Inter', sans-serif;
         min-height: 100vh;
     }
 
@@ -109,7 +109,7 @@
         right: 0;
         width: 150px;
         height: 150px;
-        background: radial-gradient(circle, rgba(212, 175, 55, 0.05), transparent 70%);
+        background: radial-gradient(circle, rgba(79, 70, 229, 0.05), transparent 70%);
         pointer-events: none;
     }
 
@@ -127,7 +127,7 @@
     }
 
     .vault-title {
-        font-family: 'Cinzel', serif;
+        font-family: 'Inter', serif;
         font-size: 2.2rem;
         margin-bottom: 2.5rem;
         background: linear-gradient(to bottom, #fff, #888);
@@ -161,8 +161,8 @@
     .investment-price {
         font-size: 3.5rem;
         font-weight: 900;
-        font-family: 'Cinzel', serif;
-        color: #fff;
+        font-family: 'Inter', serif;
+        color: var(--text-primary);
     }
 
     /* Central Gateway */
@@ -198,13 +198,13 @@
     }
 
     .payment-tile:hover {
-        background: rgba(212, 175, 55, 0.08);
+        background: rgba(79, 70, 229, 0.08);
         border-color: var(--elite-gold);
         transform: translateY(-10px) scale(1.02);
     }
 
     .payment-tile.active {
-        background: rgba(212, 175, 55, 0.12);
+        background: rgba(79, 70, 229, 0.12);
         border-color: var(--elite-gold);
         box-shadow: 0 20px 40px var(--gold-glow);
     }
@@ -240,10 +240,10 @@
         border-bottom: 2px solid var(--border-glass);
         padding: 1.5rem 0.5rem;
         font-size: 1.3rem;
-        color: #fff;
+        color: var(--text-primary);
         outline: none;
         transition: 0.4s;
-        font-family: 'Outfit', sans-serif;
+        font-family: 'Inter', sans-serif;
     }
 
     .quantum-input:focus {
@@ -369,7 +369,7 @@
     }
 
     .close-modal:hover {
-        color: #fff;
+        color: var(--text-primary);
     }
 
     @media (max-width: 1000px) {
@@ -410,15 +410,15 @@
             <div class="breakdown-details">
                 <div class="breakdown-row">
                     <span>Target Interface</span>
-                    <span style="color: #fff;">{{ plan.get_name_display }} Elite</span>
+                    <span style="color: var(--text-primary);">{{ plan.get_name_display }} Elite</span>
                 </div>
                 <div class="breakdown-row">
                     <span>Lifecycle Term</span>
-                    <span style="color: #fff;">{{ billing_cycle|title }} Pulse</span>
+                    <span style="color: var(--text-primary);">{{ billing_cycle|title }} Pulse</span>
                 </div>
                 <div class="breakdown-row">
                     <span>Secure Link</span>
-                    <span style="color: #fff;">Enrypted - AES-256</span>
+                    <span style="color: var(--text-primary);">Enrypted - AES-256</span>
                 </div>
                 <div class="breakdown-row">
                     <span>Platform Fee</span>
@@ -440,7 +440,7 @@
         <!-- Payment Interface -->
         <main class="gateway-panel">
             <div style="margin-bottom: 4rem;">
-                <h3 style="font-family: 'Cinzel', serif; font-size: 1.8rem; letter-spacing: 2px;">SECURE GATEWAY</h3>
+                <h3 style="font-family: 'Inter', serif; font-size: 1.8rem; letter-spacing: 2px;">SECURE GATEWAY</h3>
                 <p style="color: rgba(255,255,255,0.3); font-size: 0.75rem; letter-spacing: 1px;">SUBSCRIPTION PROTOCOL
                     ACTIVE</p>
             </div>
@@ -454,7 +454,7 @@
                         data-description="{{ plan.get_name_display }} Protocol - {{ billing_cycle|title }}"
                         data-image="https://razorpay.com/assets/razorpay-glyph.svg"
                         data-prefill.name="{{ request.user.get_full_name }}"
-                        data-prefill.email="{{ request.user.email }}" data-theme.color="#D4AF37"
+                        data-prefill.email="{{ request.user.email }}" data-theme.color="#4F46E5"
                         data-buttontext="AUTHORIZE DEPLOYMENT"></script>
                     <input type="hidden" custom="Hidden Element" name="razorpay_payment_id" value="PRE_AUTH">
                 </form>
@@ -475,7 +475,7 @@
                         cursor: pointer !important;
                         transition: 0.5s !important;
                         margin-top: 2rem !important;
-                        font-family: 'Outfit', sans-serif !important;
+                        font-family: 'Inter', sans-serif !important;
                         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
                     }
 

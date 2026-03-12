@@ -2,14 +2,15 @@
 .bmi-result-card {
     text-align: center;
     border: 2px solid var(--gold);
-    background: linear-gradient(135deg, var(--dark-grey), #222);
+    background: var(--bg-secondary);
+    border-radius: 16px;
 }
 
 .bmi-meter {
     width: 100%;
-    height: 20px;
-    background: #333;
-    border-radius: 10px;
+    height: 10px;
+    background: var(--bg-tertiary);
+    border-radius: 5px;
     margin: 2rem 0;
     position: relative;
     overflow: hidden;
@@ -17,32 +18,23 @@
 
 .bmi-meter-fill {
     height: 100%;
-    background: linear-gradient(to right, #4CAF50, #FFEB3B, #FF9800, #F44336);
+    background: linear-gradient(to right, #10B981, #F59E0B, #EF4444);
     width: 100%;
+    border-radius: 5px;
 }
 
 .bmi-pointer {
     position: absolute;
-    top: -5px;
+    top: -4px;
     width: 4px;
-    height: 30px;
-    background: var(--white);
-    box-shadow: 0 0 10px var(--gold);
+    height: 18px;
+    background: var(--text-primary);
+    border-radius: 2px;
+    box-shadow: var(--shadow-glow);
     transition: left 0.5s ease-out;
 }
 
-.bmi-status-under {
-    color: #4CAF50;
-}
-
-.bmi-status-normal {
-    color: #8BC34A;
-}
-
-.bmi-status-over {
-    color: #FFEB3B;
-}
-
-.bmi-status-obese {
-    color: #F44336;
-}
+.bmi-status-under { color: #10B981; }
+.bmi-status-normal { color: #10B981; }
+.bmi-status-over { color: #F59E0B; }
+.bmi-status-obese { color: #EF4444; }

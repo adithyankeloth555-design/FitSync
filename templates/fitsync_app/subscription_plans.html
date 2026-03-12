@@ -39,7 +39,7 @@
     .sidebar {
         width: 260px;
         background: var(--sidebar-bg);
-        color: #fff;
+        color: var(--text-primary);
         display: flex;
         flex-direction: column;
         position: fixed;
@@ -95,13 +95,13 @@
     }
 
     .menu-item:hover {
-        color: #fff;
+        color: var(--text-primary);
         background: rgba(255, 255, 255, 0.05);
     }
 
     .menu-item.active {
         background: var(--accent-orange);
-        color: #fff;
+        color: var(--text-primary);
     }
 
     .menu-item i {
@@ -385,7 +385,7 @@
         position: absolute;
         top: 2rem;
         left: 2rem;
-        color: #fff;
+        color: var(--text-primary);
         text-decoration: none;
         display: flex;
         align-items: center;
@@ -614,7 +614,7 @@
         <div class="pricing-card {% if plan.name == 'premium' %}popular{% endif %}">
             {% if plan.name == 'premium' %}
             <div
-                style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 6px 20px; border-radius: 50px; font-weight: 800; font-size: 0.8rem; box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);">
+                style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 6px 20px; border-radius: 50px; font-weight: 800; font-size: 0.8rem; box-shadow: 0 5px 15px rgba(79, 70, 229, 0.4);">
                 MOST POPULAR</div>
             {% endif %}
             <div style="flex-grow: 1;">

@@ -17,13 +17,13 @@
         --text-muted: var(--text-muted);
         --white: var(--bg-secondary);
         --card-shadow: var(--shadow-main);
-        --border-color: rgba(212, 175, 55, 0.2);
+        --border-color: rgba(79, 70, 229, 0.2);
     }
 
     body {
         background-color: var(--content-bg);
         color: var(--text-main);
-        font-family: 'Outfit', sans-serif;
+        font-family: 'Inter', sans-serif;
         margin: 0;
         min-height: 100vh;
     }
@@ -61,7 +61,7 @@
     }
 
     .page-title {
-        font-family: 'Cinzel', serif;
+        font-family: 'Inter', serif;
         font-size: 2.8rem;
         font-weight: 900;
         color: var(--accent-orange);
@@ -118,7 +118,7 @@
         right: 0;
         background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
         padding: 2rem;
-        color: #fff;
+        color: var(--text-primary);
     }
 
     .badge-status {
@@ -140,12 +140,12 @@
 
     .badge-hired {
         background: #10b981;
-        color: #fff;
+        color: var(--text-primary);
         box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
     }
 
     .trainer-name {
-        font-family: 'Cinzel', serif;
+        font-family: 'Inter', serif;
         font-size: 1.8rem;
         margin: 0;
     }
@@ -220,7 +220,7 @@
 
     .btn-hire:hover {
         transform: scale(1.02);
-        box-shadow: 0 5px 20px rgba(212, 175, 55, 0.4);
+        box-shadow: 0 5px 20px rgba(79, 70, 229, 0.4);
     }
 
     .btn-secondary {
@@ -345,7 +345,7 @@
         <div style="grid-column: 1/-1; text-align: center; padding: 5rem;">
             <i class="fa-solid fa-user-ninja"
                 style="font-size: 4rem; color: var(--gold); opacity: 0.3; margin-bottom: 2rem;"></i>
-            <h2 style="font-family: 'Cinzel', serif;">Coaching Academy Empty</h2>
+            <h2 style="font-family: 'Inter', serif;">Coaching Academy Empty</h2>
             <p>New elite coaches are currently being vetted.</p>
         </div>
         {% endfor %}
