@@ -2,6 +2,7 @@
 
 {% block title %}Add Meal | FitSync{% endblock %}
 
+{% block extra_css %}
 <style>
     body {
         background-color: var(--bg-primary);
@@ -109,6 +110,9 @@
         border-color: var(--text-primary);
     }
 </style>
+{% endblock %}
+
+{% block content %}
 <div class="container">
     <div class="card">
         <h2 class="mb-2 text-gold">Add Meal to {{ diet.name }}</h2>

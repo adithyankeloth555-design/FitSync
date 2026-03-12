@@ -1,340 +1,854 @@
 {% extends 'fitsync_app/base.html' %}
 {% load static %}
 
-{% block title %}Settings | FitSync{% endblock %}
+{% block title %}Account Settings | FitSync{% endblock %}
 
 {% block header %}{% endblock %}
 {% block footer %}{% endblock %}
 
 {% block extra_css %}
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
 
   :root {
-    --st-bg: #0E0E0E;
-    --st-card: #1A1A1A;
-    --st-card-border: rgba(255,255,255,0.09);
-    --st-text: #F0ECE8;
-    --st-text-soft: #A8A29E;
-    --st-text-muted: #7A756F;
-    --st-gold: #D4B37A;
-    --st-gold-bg: rgba(212,179,122,0.12);
-    --st-gold-border: rgba(212,179,122,0.4);
-    --st-green: #96BF64;
-    --st-green-bg: rgba(150,191,100,0.14);
-    --st-green-border: rgba(150,191,100,0.35);
-    --st-blue: #6AAAD0;
-    --st-purple: #AA90D0;
-    --st-red: #D88A7A;
-    --st-radius: 18px;
+    --bg-main: #F7F9F8;
+    --bg-card: #FFFFFF;
+    --text-main: #111827;
+    --text-muted: #6B7280;
+    --border-light: #E5E7EB;
+    --teal: #1D9E75;
+    --teal-glow: rgba(29, 158, 117, 0.15);
+    --rail-bg: #0B110F;
+    --danger: #DC2626;
+    --danger-bg: #FEF2F2;
+  }
+  
+  body {
+    margin: 0;
+    font-family: 'DM Sans', sans-serif !important;
+    background: var(--bg-main) !important;
+    display: flex;
+    min-height: 100vh;
+    color: var(--text-main) !important;
+    overflow-x: hidden;
+  }
+  
+  /* Icon Rail */
+  .icon-rail {
+    width: 72px;
+    background: var(--rail-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 0;
+    position: fixed;
+    height: 100vh;
+    z-index: 50;
+  }
+  
+  .rail-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6B7280;
+    font-size: 20px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  
+  .rail-icon:hover { color: white; background: rgba(255,255,255,0.05); }
+  
+  .rail-icon.brand {
+    background: var(--teal); 
+    color: white; 
+    margin-bottom: 40px; 
+    border-radius: 14px; 
+    box-shadow: 0 4px 12px var(--teal-glow);
+  }
+  
+  .rail-icon.active {
+    color: var(--teal);
+    background: rgba(29,158,117,0.1);
+    position: relative;
+    border-radius: 12px;
+  }
+  
+  .rail-icon.active::after {
+    content: '';
+    position: absolute;
+    right: -14px; 
+    top: 50%;
+    transform: translateY(-50%);
+    height: 24px;
+    width: 3px;
+    background: var(--teal);
+    border-radius: 3px 0 0 3px;
+  }
+  
+  .avatar-bottom {
+    margin-top: auto;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #E85D04;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 16px;
+    border: 2px solid var(--rail-bg);
+    cursor: pointer;
+    overflow: hidden;
   }
 
-  body { background:var(--st-bg)!important; color:var(--st-text)!important; font-family:'DM Sans',sans-serif!important; margin:0; min-height:100vh; }
-
-  .settings-page { max-width:580px; margin:0 auto; padding:44px 28px 80px; animation:stFade 0.6s ease both; }
-  @keyframes stFade { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-
-  .st-topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; }
-  .st-back { display:inline-flex; align-items:center; gap:10px; color:var(--st-text-soft); font-size:13px; font-weight:500; padding:10px 22px; border-radius:50px; border:1.5px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.03); text-decoration:none; transition:all 0.25s; }
-  .st-back:hover { color:var(--st-text); border-color:rgba(255,255,255,0.15); }
-  .st-email { font-size:12px; color:var(--st-text-soft); }
-
-  .st-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:2.5px; color:var(--st-text-soft); margin-bottom:10px; }
-  .st-title { font-family:'Playfair Display',serif; font-size:30px; font-weight:500; color:var(--st-text); margin:0 0 6px; }
-  .st-subtitle { font-size:13px; color:var(--st-text-soft); margin-bottom:24px; }
-
-  /* Tabs */
-  .st-tabs { display:flex; gap:0; margin-bottom:24px; border-radius:12px; overflow:hidden; border:1.5px solid rgba(255,255,255,0.06); }
-  .st-tab { flex:1; padding:10px; text-align:center; font-size:12px; font-weight:600; color:var(--st-text-soft); cursor:pointer; transition:all 0.2s; background:transparent; border:none; font-family:'DM Sans',sans-serif; }
-  .st-tab.active { background:rgba(255,255,255,0.08); color:var(--st-text); }
-  .st-tab:hover:not(.active) { color:var(--st-text-soft); }
-
-  /* Sections */
-  .st-section { background:var(--st-card); border:1.5px solid var(--st-card-border); border-radius:var(--st-radius); padding:22px; margin-bottom:14px; }
-
-  .st-sec-title { display:flex; align-items:center; gap:10px; margin-bottom:18px; }
-  .st-sec-icon { width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:13px; }
-  .st-sec-icon.gold { background:var(--st-gold-bg); color:var(--st-gold); }
-  .st-sec-icon.red { background:rgba(200,122,106,0.12); color:var(--st-red); }
-  .st-sec-icon.blue { background:rgba(90,154,192,0.12); color:var(--st-blue); }
-  .st-sec-icon.purple { background:rgba(154,128,192,0.12); color:var(--st-purple); }
-  .st-sec-icon.green { background:var(--st-green-bg); color:var(--st-green); }
-  .st-sec-name { font-size:14px; font-weight:600; color:var(--st-text); }
-
-  /* Profile avatar */
-  .st-avatar-row { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
-  .st-avatar { width:52px; height:52px; border-radius:50%; object-fit:cover; border:2px solid var(--st-gold-border); }
-  .st-avatar-placeholder { width:52px; height:52px; border-radius:50%; background:var(--st-gold-bg); border:2px solid var(--st-gold-border); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; color:var(--st-gold); }
-  .st-avatar-info {}
-  .st-avatar-name { font-size:14px; font-weight:600; color:var(--st-text); }
-  .st-avatar-email { font-size:12px; color:var(--st-text-soft); }
-  .st-change-photo { display:inline-flex; align-items:center; gap:5px; margin-top:4px; padding:4px 10px; border-radius:6px; font-size:10px; font-weight:700; color:var(--st-text-soft); border:1px solid rgba(255,255,255,0.1); background:transparent; cursor:pointer; }
-
-  /* Form */
-  .st-form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
-  .st-form-full { margin-bottom:10px; }
-  .st-form-lbl { display:block; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--st-text-soft); margin-bottom:5px; }
-  .st-form-input {
-    width:100%; padding:11px 14px; border-radius:10px; box-sizing:border-box;
-    border:1.5px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05);
-    color:var(--st-text); font-family:'DM Sans',sans-serif; font-size:14px; transition:all 0.2s;
-  }
-  .st-form-input:focus { outline:none; border-color:var(--st-gold-border); background:rgba(255,255,255,0.05); }
-
-  .st-form-actions { display:flex; gap:8px; margin-top:4px; }
-  .st-btn-save {
-    padding:9px 20px; border-radius:10px; font-size:12px; font-weight:700;
-    background:rgba(255,255,255,0.06); border:1.5px solid rgba(255,255,255,0.08);
-    color:var(--st-text); cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s;
-  }
-  .st-btn-save:hover { background:rgba(255,255,255,0.1); }
-  .st-btn-cancel {
-    padding:9px 20px; border-radius:10px; font-size:12px; font-weight:600;
-    background:transparent; border:1.5px solid rgba(255,255,255,0.06);
-    color:var(--st-text-muted); cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s;
+  /* Main Area */
+  .layout-wrapper {
+    margin-left: 72px;
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(360px, 420px);
+    height: 100vh;
   }
 
-  .st-btn-change {
-    padding:9px 20px; border-radius:10px; font-size:12px; font-weight:700;
-    background:rgba(255,255,255,0.06); border:1.5px solid rgba(255,255,255,0.08);
-    color:var(--st-text); cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s;
+  /* Left Column */
+  .form-col {
+    padding: 40px 60px;
+    overflow-y: auto;
+  }
+  
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 40px;
+  }
+  
+  .header-titles h1 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0 0 8px 0;
+    color: #111;
+  }
+  
+  .header-titles p {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin: 0;
+    max-width: 250px;
+    line-height: 1.4;
+  }
+  
+  .header-actions {
+    display: flex;
+    gap: 12px;
+  }
+  
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border-light);
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #4B5563;
+    cursor: pointer;
+    text-decoration: none;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+  }
+  
+  .btn-outline:hover { background: #f9fafb; color: #111; border-color: #D1D5DB; }
+  
+  .btn-save {
+    background: #fafafa; 
+    border: 1px dashed var(--border-light);
+    color: #9CA3AF;
+  }
+  
+  .btn-save.active {
+    background: var(--bg-card);
+    color: #111;
+    border: 1px solid var(--border-light);
   }
 
-  /* Toggle items */
-  .st-toggle-item { display:flex; align-items:center; justify-content:space-between; padding:14px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
-  .st-toggle-item:last-child { border-bottom:none; }
-  .st-toggle-label { font-size:13px; font-weight:600; color:var(--st-text); margin-bottom:2px; }
-  .st-toggle-desc { font-size:11px; color:var(--st-text-soft); }
-
-  .st-notif-count { margin-left:auto; margin-right:12px; font-size:10px; font-weight:700; padding:3px 10px; border-radius:50px; background:var(--st-green-bg); color:var(--st-green); border:1px solid var(--st-green-border); }
-
-  /* Toggle switch */
-  .st-toggle { width:42px; height:22px; border-radius:20px; cursor:pointer; transition:all 0.3s; position:relative; flex-shrink:0; border:none; }
-  .st-toggle.on { background:var(--st-gold); }
-  .st-toggle.off { background:rgba(255,255,255,0.08); }
-  .st-toggle::after { content:''; position:absolute; width:16px; height:16px; border-radius:50%; top:3px; transition:all 0.3s; }
-  .st-toggle.on::after { left:23px; background:#1a1a1a; }
-  .st-toggle.off::after { left:3px; background:var(--st-text-muted); }
-
-  /* Danger zone */
-  .st-danger-label { font-size:12px; font-weight:700; color:var(--st-red); display:flex; align-items:center; gap:6px; margin-bottom:14px; }
-  .st-danger-item { display:flex; align-items:center; justify-content:space-between; }
-  .st-danger-text { font-size:13px; font-weight:600; color:var(--st-text); margin-bottom:2px; }
-  .st-danger-desc { font-size:11px; color:var(--st-text-soft); }
-  .st-btn-delete {
-    padding:9px 18px; border-radius:10px; font-size:12px; font-weight:700;
-    background:transparent; border:1.5px solid rgba(200,122,106,0.3);
-    color:var(--st-red); cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s;
-    display:inline-flex; align-items:center; gap:6px; flex-shrink:0;
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #9CA3AF;
+    margin-bottom: 16px;
   }
-  .st-btn-delete:hover { background:rgba(200,122,106,0.1); }
 
-  @media(max-width:500px) {
-    .settings-page { padding:24px 18px 60px; }
-    .st-title { font-size:24px; }
-    .st-form-row { grid-template-columns:1fr; }
-    .st-tabs { flex-wrap:wrap; }
+  .form-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 32px;
   }
+
+  .photo-upload-row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  
+  .pu-avatar {
+    width: 72px; 
+    height: 72px; 
+    border-radius: 50%; 
+    background: #E85D04; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    color: white; 
+    font-size: 28px; 
+    font-weight: 700; 
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .pu-dot {
+    position: absolute; 
+    bottom: 0; 
+    right: 0; 
+    width: 14px; 
+    height: 14px; 
+    background: var(--teal); 
+    border: 2px solid white; 
+    border-radius: 50%;
+  }
+  
+  .pu-info h3 { 
+    margin: 0 0 6px 0; 
+    font-size: 16px; 
+    font-weight: 600; 
+    color: #111; 
+  }
+  
+  .pu-info p { 
+    margin: 0; 
+    font-size: 13px; 
+    color: var(--text-muted); 
+    line-height: 1.4;
+    max-width: 140px;
+  }
+  
+  .btn-upload {
+    margin-left: auto;
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: 1px dashed var(--border-light);
+    background: #fafafa;
+    color: #f9fafb; /* mock text is hidden unless hover/active but I will map to light gray text as requested */
+    color: #f3f4f6;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  
+  .btn-upload:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-glow); }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  
+  .fg-full { grid-column: 1 / -1; }
+  
+  .input-label { 
+    display: block; 
+    font-size: 11px; 
+    font-weight: 700; 
+    text-transform: uppercase; 
+    color: #9CA3AF; 
+    margin-bottom: 8px; 
+  }
+  
+  .input-field {
+    width: 100%;
+    padding: 14px 16px;
+    background: #333333; /* Dark background inputs as per mockup */
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 15px;
+    box-sizing: border-box;
+    transition: 0.2s;
+  }
+  
+  .input-field:focus { 
+    outline: none; 
+    box-shadow: 0 0 0 2px var(--teal); 
+  }
+  
+  select.input-field { 
+    appearance: none; 
+    background-color: white; /* In mockup 'Muscle Gain' is white */
+    color: #111;
+    border: 1px solid var(--border-light);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%231D9E75' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='4 6 8 10 12 6'/%3E%3C/svg%3E"); 
+    background-repeat: no-repeat; 
+    background-position: right 14px center; 
+  }
+
+  /* Goal Tags */
+  .tag-container { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 10px; 
+    margin-bottom: 40px; 
+  }
+  
+  .goal-tag {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border-light);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    background: white;
+    transition: 0.2s;
+  }
+  
+  .goal-tag:hover { background: #f9fafb; border-color: #D1D5DB; }
+  
+  .goal-tag.active {
+    border-color: var(--teal);
+    color: var(--teal);
+    /* No bg in mockup just outlined green */
+  }
+
+  /* Right Column: Info Panel */
+  .info-col {
+    background: white;
+    border-left: 1px solid var(--border-light);
+    padding: 40px;
+    overflow-y: auto;
+  }
+
+  .profile-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-bottom: 1px solid var(--border-light);
+    padding-bottom: 32px;
+    margin-bottom: 32px;
+  }
+  
+  .ph-avatar {
+    width: 88px; 
+    height: 88px;
+    border-radius: 50%;
+    background: #E85D04;
+    color: white;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    font-size: 32px; 
+    font-weight: 700;
+    border: 4px solid var(--teal);
+    padding: 2px;
+    background-clip: content-box;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  
+  .ph-name { 
+    font-size: 20px; 
+    font-weight: 700; 
+    color: #111; 
+    margin: 0 0 8px 0; 
+  }
+  
+  .ph-badge {
+    background: rgba(29, 158, 117, 0.1);
+    color: var(--teal);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px; 
+    font-weight: 700;
+    display: inline-flex; 
+    align-items: center; 
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  
+  .ph-since { 
+    font-size: 13px; 
+    color: #9CA3AF; 
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  
+  .stat-box {
+    background: #fcfcfc;
+    border: 1px solid #f3f4f6;
+    border-radius: 16px;
+    padding: 20px 16px;
+    text-align: center;
+  }
+  
+  .sb-val { 
+    font-size: 18px; 
+    font-weight: 700; 
+    color: #111; 
+    margin-bottom: 6px; 
+  }
+  
+  .sb-lbl { 
+    font-size: 10px; 
+    font-weight: 600; 
+    text-transform: uppercase; 
+    color: #9CA3AF; 
+    letter-spacing: 0.5px;
+  }
+  
+  .sb-badge {
+    background: var(--teal-glow);
+    color: var(--teal);
+    font-size: 10px; 
+    font-weight: 700;
+    padding: 2px 8px; 
+    border-radius: 4px;
+    display: inline-block; 
+    margin-top: 6px;
+  }
+
+  .info-section { margin-bottom: 40px; }
+  
+  .is-title { 
+    font-size: 11px; 
+    font-weight: 700; 
+    text-transform: uppercase; 
+    color: #9CA3AF; 
+    margin-bottom: 20px; 
+    letter-spacing: 1px;
+  }
+  
+  .setting-row {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  
+  .sr-left { display: flex; gap: 16px; align-items: center; }
+  
+  .sr-icon {
+    width: 36px; 
+    height: 36px; 
+    border-radius: 10px;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-size: 15px;
+  }
+  
+  .sr-icon.blue { background: #eff6ff; color: #3b82f6; }
+  .sr-icon.orange { background: #fff7ed; color: #f97316; }
+  .sr-icon.purple { background: #f3e8ff; color: #a855f7; }
+  .sr-icon.gray { background: transparent; border: 1px solid var(--border-light); color: var(--text-muted); }
+  
+  .sr-text h4 { margin: 0 0 2px 0; font-size: 14px; font-weight: 600; color: #374151; }
+  .sr-text p { margin: 0; font-size: 12px; color: #9CA3AF; }
+
+  /* Custom Toggle using CSS */
+  .toggle-switch {
+    width: 44px; 
+    height: 24px; 
+    background: white; 
+    border: 1px solid var(--border-light);
+    border-radius: 20px; 
+    position: relative; 
+    cursor: pointer; 
+    transition: 0.2s;
+  }
+  
+  .toggle-switch::after {
+    content: ''; 
+    position: absolute; 
+    left: 2px; 
+    top: 2px; 
+    width: 18px; 
+    height: 18px; 
+    background: white; 
+    border: 1px solid var(--border-light);
+    border-radius: 50%; 
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05); 
+    transition: 0.2s;
+  }
+  
+  .toggle-switch.on { background: var(--teal); border-color: var(--teal); }
+  .toggle-switch.on::after { left: 22px; border-color: transparent;}
+
+  /* Connected Devices */
+  .device-card {
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  
+  .status-badge {
+    font-size: 11px; 
+    font-weight: 700; 
+    padding: 4px 10px; 
+    border-radius: 6px;
+  }
+  
+  .status-badge.active { background: #ecfdf5; color: #047857; }
+  .status-badge.idle { background: #f3f4f6; color: #6b7280; }
+
+  /* Danger Zone */
+  .danger-card {
+    background: var(--danger-bg);
+    border: 1px solid #fee2e2;
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+  }
+  
+  .dc-title { 
+    font-size: 15px; 
+    font-weight: 600; 
+    color: var(--danger); 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 8px; 
+    margin-bottom: 6px; 
+  }
+  
+  .dc-desc { 
+    font-size: 13px; 
+    color: #991b1b; 
+    margin-bottom: 20px; 
+  }
+  
+  .btn-danger {
+    background: transparent; 
+    border: 1px solid rgba(220, 38, 38, 0.1); 
+    color: #fca5a5;
+    padding: 12px 0; 
+    width: 100%; 
+    border-radius: 10px; 
+    font-weight: 600; 
+    font-size: 14px; 
+    cursor: pointer; 
+    transition: 0.2s;
+  }
+  
+  .btn-danger:hover { background: rgba(220, 38, 38, 0.05); color: var(--danger); }
+
+  @media (max-width: 1024px) {
+    .layout-wrapper { display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden; height: 100vh; }
+    .form-col { padding: 40px 24px; order: 1; overflow: visible; }
+    .info-col { padding: 40px 24px; order: 0; border-left: none; border-bottom: 1px solid var(--border-light); overflow: visible; }
+    .icon-rail { width: 100%; height: 60px; flex-direction: row; padding: 0 20px; bottom: 0; z-index: 100; justify-content: space-around; }
+    .rail-icon { margin-bottom: 0; }
+    .rail-icon.brand { margin-bottom: 0; }
+    .avatar-bottom { margin-top: 0; }
+    .layout-wrapper { margin-left: 0; padding-bottom: 60px; }
+  }
+
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="settings-page">
 
-  <div class="st-topbar">
-    {% if user.is_authenticated and user.userprofile.role == 'admin' %}
-    <a href="{% url 'admin_dashboard' %}" class="st-back"><i class="fa-solid fa-chevron-left"></i> Return to portal</a>
-    {% elif user.is_authenticated and user.userprofile.role == 'trainer' %}
-    <a href="{% url 'trainer_dashboard' %}" class="st-back"><i class="fa-solid fa-chevron-left"></i> Return to portal</a>
+<!-- Role-based portal URL setup -->
+{% if user.is_authenticated and user.userprofile.role == 'admin' %}
+  {% url 'admin_dashboard' as portal_url %}
+{% elif user.is_authenticated and user.userprofile.role == 'trainer' %}
+  {% url 'trainer_dashboard' as portal_url %}
+{% else %}
+  {% url 'user_dashboard' as portal_url %}
+{% endif %}
+
+<!-- Left Icon Rail -->
+<div class="icon-rail">
+  <a href="{% url 'home' %}" class="rail-icon brand"><i class="fa-solid fa-heart-pulse"></i></a>
+  <a href="{{ portal_url }}" class="rail-icon"><i class="fa-solid fa-border-all"></i></a>
+  <a href="{% url 'workout_list' %}" class="rail-icon"><i class="fa-solid fa-dumbbell"></i></a>
+  <a href="#" class="rail-icon active"><i class="fa-solid fa-gear"></i></a>
+  
+  <div class="avatar-bottom" style="margin-top:auto;" onclick="window.location.href='{{ portal_url }}'">
+    {% if user.userprofile.profile_photo %}
+      <img src="{{ user.userprofile.profile_photo.url }}" style="width:100%;height:100%;object-fit:cover;">
     {% else %}
-    <a href="{% url 'user_dashboard' %}" class="st-back"><i class="fa-solid fa-chevron-left"></i> Return to portal</a>
+      {{ user.first_name|default:user.username|make_list|first|upper }}
     {% endif %}
-    <span class="st-email">{{ user.email }}</span>
   </div>
+</div>
 
-  <div class="st-label">Account</div>
-  <h1 class="st-title">Settings</h1>
-  <p class="st-subtitle">Manage your account preferences and privacy settings.</p>
-
-  <!-- Tabs -->
-  <div class="st-tabs">
-    <button class="st-tab active" onclick="showTab('profile')">Profile</button>
-    <button class="st-tab" onclick="showTab('security')">Security</button>
-    <button class="st-tab" onclick="showTab('notifications')">Notifications</button>
-    <button class="st-tab" onclick="showTab('privacy')">Privacy</button>
-  </div>
-
-  <!-- Profile Section -->
-  <div id="tab-profile">
-    <div class="st-section">
-      <div class="st-sec-title">
-        <div class="st-sec-icon gold"><i class="fa-solid fa-user"></i></div>
-        <span class="st-sec-name">Profile Information</span>
+<div class="layout-wrapper">
+  
+  <!-- Content Left: Edit Form -->
+  <div class="form-col">
+    <div class="page-header">
+      <div class="header-titles">
+        <h1>Account Settings</h1>
+        <p>Update your personal info and preferences</p>
       </div>
-
-      <div class="st-avatar-row">
-        {% if user.userprofile.profile_photo %}
-        <img src="{{ user.userprofile.profile_photo.url }}" class="st-avatar" alt="Profile">
-        {% else %}
-        <div class="st-avatar-placeholder">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
-        {% endif %}
-        <div class="st-avatar-info">
-          <div class="st-avatar-name">{{ user.get_full_name|default:user.username }}</div>
-          <div class="st-avatar-email">{{ user.email }}</div>
-          <label class="st-change-photo"><i class="fa-solid fa-camera"></i> Change photo
-            <input type="file" name="profile_photo_js" accept="image/*" style="display:none" onchange="document.getElementById('settingsForm').querySelector('[name=profile_photo]').files = this.files;">
-          </label>
-        </div>
+      <div class="header-actions">
+        <a href="{{ portal_url }}" class="btn-outline">Return to Portal</a>
+        <button type="button" form="profileForm" class="btn-outline btn-save"><i class="fa-solid fa-check" style="margin-right:6px"></i> Save Changes</button>
       </div>
+    </div>
 
-      <form method="post" enctype="multipart/form-data" id="settingsForm">
+    <!-- MAIN FORM -->
+    <form id="profileForm" method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <input type="file" name="profile_photo" accept="image/*" style="display:none">
-        <div class="st-form-row">
-          <div>
-            <label class="st-form-lbl">First Name</label>
-            <input type="text" name="first_name" class="st-form-input" value="{{ user.first_name }}">
-          </div>
-          <div>
-            <label class="st-form-lbl">Last Name</label>
-            <input type="text" name="last_name" class="st-form-input" value="{{ user.last_name }}">
-          </div>
+        
+        <!-- Hidden required standard fields to preserve data on submit if views.py expects them -->
+        <input type="hidden" name="first_name" value="{{ user.first_name }}">
+        <input type="hidden" name="last_name" value="{{ user.last_name }}">
+        <input type="hidden" name="email" value="{{ user.email }}">
+        
+        <div class="section-label">Profile Photo</div>
+        <div class="form-card photo-upload-row">
+            <div class="pu-avatar">
+                {% if user.userprofile.profile_photo %}
+                  <img src="{{ user.userprofile.profile_photo.url }}" style="width:100%;height:100%;object-fit:cover;">
+                {% else %}
+                  {{ user.first_name|default:user.username|make_list|first|upper }}
+                {% endif %}
+                <div class="pu-dot"></div>
+            </div>
+            <div class="pu-info">
+                <h3>{{ user.get_full_name|default:user.username }}</h3>
+                <p>JPG or PNG · max 2MB · 400×400 recommended</p>
+            </div>
+            <label class="btn-upload">
+                Upload Photo
+                <input type="file" name="profile_photo" hidden onchange="document.getElementById('profileForm').submit();">
+            </label>
         </div>
-        <div class="st-form-full">
-          <label class="st-form-lbl">Email Address</label>
-          <input type="email" name="email" class="st-form-input" value="{{ user.email }}">
+
+        <div class="section-label">Personal Information</div>
+        <div class="form-card form-grid">
+            
+            <div>
+                <label class="input-label">Username</label>
+                <input type="text" name="username" class="input-field" value="{{ user.username }}">
+            </div>
+            
+            <div>
+                <label class="input-label">Fitness Focus</label>
+                <select name="fitness_goal" class="input-field">
+                    <option value="Select" {% if user.userprofile.fitness_goal == 'Select' %}selected{% endif %}>Select Goal</option>
+                    <option value="Muscle Gain" {% if user.userprofile.fitness_goal == 'Muscle Gain' %}selected{% endif %}>Muscle Gain</option>
+                    <option value="Weight Loss" {% if user.userprofile.fitness_goal == 'Weight Loss' %}selected{% endif %}>Weight Loss</option>
+                    <option value="Endurance" {% if user.userprofile.fitness_goal == 'Endurance' %}selected{% endif %}>Endurance</option>
+                    <option value="Flexibility" {% if user.userprofile.fitness_goal == 'Flexibility' %}selected{% endif %}>Flexibility</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="input-label">Weight (kg)</label>
+                <input type="number" step="0.01" name="weight_kg" class="input-field" value="{{ user.userprofile.weight_kg|default:'' }}" placeholder="54.00">
+            </div>
+            
+            <div>
+                <label class="input-label">Height (cm)</label>
+                <input type="number" step="0.01" name="height_cm" class="input-field" value="{{ user.userprofile.height_cm|default:'' }}" placeholder="167.00">
+            </div>
+
+            <div>
+                <label class="input-label">Phone Number</label>
+                <input type="text" name="phone_number" class="input-field" value="{{ user.userprofile.phone_number }}" placeholder="9557579889">
+            </div>
+            
+            <div>
+                <label class="input-label">Address</label>
+                <!-- This field serves as UI representation from mockup -->
+                <input type="text" name="address" class="input-field" placeholder="keloth">
+            </div>
+
+            <div class="fg-full">
+                <label class="input-label">Bio</label>
+                <textarea rows="3" name="bio" class="input-field" style="resize:vertical;" placeholder="Write a short bio...">i</textarea>
+            </div>
+
         </div>
-        <div class="st-form-full">
-          <label class="st-form-lbl">Phone Number</label>
-          <input type="tel" name="phone_number" class="st-form-input" value="{{ user.userprofile.phone_number }}">
-        </div>
-        <div class="st-form-actions">
-          <button type="submit" class="st-btn-save">Save changes</button>
-          <button type="reset" class="st-btn-cancel">Cancel</button>
-        </div>
-      </form>
+    </form>
+    
+    <div class="section-label">Goal Tags</div>
+    <div class="tag-container">
+        <div class="goal-tag active">Muscle Gain</div>
+        <div class="goal-tag">Weight Loss</div>
+        <div class="goal-tag active">Strength</div>
+        <div class="goal-tag">Cardio</div>
+        <div class="goal-tag">Flexibility</div>
+        <div class="goal-tag">Endurance</div>
     </div>
-  </div>
 
-  <!-- Security Section -->
-  <div id="tab-security" style="display:none;">
-    <div class="st-section">
-      <div class="st-sec-title">
-        <div class="st-sec-icon red"><i class="fa-solid fa-lock"></i></div>
-        <span class="st-sec-name">Security</span>
-      </div>
-      <form>
-        <div class="st-form-full">
-          <label class="st-form-lbl">Current Password</label>
-          <input type="password" class="st-form-input" placeholder="Enter current password">
+  </div> <!-- /form-col -->
+
+
+  <!-- Content Right: Info Panel -->
+  <div class="info-col">
+    
+    <div class="profile-hero">
+        <div class="ph-avatar">
+            {% if user.userprofile.profile_photo %}
+              <img src="{{ user.userprofile.profile_photo.url }}" style="width:100%;height:100%;object-fit:cover;">
+            {% else %}
+              {{ user.first_name|default:user.username|make_list|first|upper }}
+            {% endif %}
         </div>
-        <div class="st-form-row">
-          <div>
-            <label class="st-form-lbl">New Password</label>
-            <input type="password" class="st-form-input" placeholder="New password">
-          </div>
-          <div>
-            <label class="st-form-lbl">Confirm Password</label>
-            <input type="password" class="st-form-input" placeholder="Confirm password">
-          </div>
+        <h2 class="ph-name">{{ user.get_full_name|default:user.username }}</h2>
+        <div class="ph-badge">
+            <i class="fa-solid fa-star" style="font-size:10px;"></i> {{ user.userprofile.role|title }}
         </div>
-        <button type="button" class="st-btn-change" onclick="alert('Password changed!')">Change password</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Notifications Section -->
-  <div id="tab-notifications" style="display:none;">
-    <div class="st-section">
-      <div class="st-sec-title">
-        <div class="st-sec-icon blue"><i class="fa-solid fa-bell"></i></div>
-        <span class="st-sec-name">Notifications</span>
-        <span class="st-notif-count">3 active</span>
-      </div>
-
-      <div class="st-toggle-item">
-        <div><div class="st-toggle-label">Workout reminders</div><div class="st-toggle-desc">Get notified about upcoming workout sessions</div></div>
-        <div class="st-toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div>
-      </div>
-      <div class="st-toggle-item">
-        <div><div class="st-toggle-label">Nutrition alerts</div><div class="st-toggle-desc">Reminders to log meals and track water intake</div></div>
-        <div class="st-toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div>
-      </div>
-      <div class="st-toggle-item">
-        <div><div class="st-toggle-label">Progress updates</div><div class="st-toggle-desc">Weekly summaries of your fitness progress</div></div>
-        <div class="st-toggle off" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div>
-      </div>
-      <div class="st-toggle-item">
-        <div><div class="st-toggle-label">Trainer messages</div><div class="st-toggle-desc">Notifications when your trainer sends a message</div></div>
-        <div class="st-toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div>
-      </div>
+        <span class="ph-since">Since {{ user.date_joined|date:"F Y" }}</span>
     </div>
 
-    <!-- Appearance -->
-    <div class="st-section">
-      <div class="st-sec-title">
-        <div class="st-sec-icon green"><i class="fa-solid fa-palette"></i></div>
-        <span class="st-sec-name">Appearance</span>
-      </div>
-      <div class="st-toggle-item">
-        <div><div class="st-toggle-label">Dark mode</div><div class="st-toggle-desc">Switch to dark theme for better viewing at night</div></div>
-        <div class="st-toggle on" id="darkModeToggle" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div>
-      </div>
-      <div class="st-toggle-item">
-        <div><div class="st-toggle-label">Compact view</div><div class="st-toggle-desc">Show more content on screen</div></div>
-        <div class="st-toggle off" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div>
-      </div>
+    <!-- Stat Grid -->
+    <div class="stat-grid">
+        <div class="stat-box">
+            <div class="sb-val">{{ user.userprofile.weight_kg|default:"--" }} kg</div>
+            <div class="sb-lbl">Weight</div>
+        </div>
+        <div class="stat-box">
+            <div class="sb-val">{{ user.userprofile.height_cm|default:"--" }} cm</div>
+            <div class="sb-lbl">Height</div>
+        </div>
+        <div class="stat-box">
+            <!-- Dynamic BMI calculation -->
+            <div class="sb-val">{{ user.userprofile.bmi|default:"--" }}</div>
+            <div class="sb-lbl">BMI</div>
+            <div class="sb-badge">{{ user.userprofile.bmi_category }}</div>
+        </div>
+        <div class="stat-box">
+            <div class="sb-val">0</div>
+            <div class="sb-lbl">Workouts</div>
+        </div>
     </div>
-  </div>
 
-  <!-- Privacy Section -->
-  <div id="tab-privacy" style="display:none;">
-    <div class="st-section">
-      <div class="st-sec-title">
-        <div class="st-sec-icon purple"><i class="fa-solid fa-shield-halved"></i></div>
-        <span class="st-sec-name">Privacy</span>
-      </div>
-      <div class="st-toggle-item">
-        <div><div class="st-toggle-label">Profile visibility</div><div class="st-toggle-desc">Allow other members to view your profile</div></div>
-        <div class="st-toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div>
-      </div>
-      <div class="st-toggle-item">
-        <div><div class="st-toggle-label">Activity sharing</div><div class="st-toggle-desc">Share your workouts with the community</div></div>
-        <div class="st-toggle off" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div>
-      </div>
-      <div class="st-toggle-item">
-        <div><div class="st-toggle-label">Data analytics</div><div class="st-toggle-desc">Help improve FitSync by sharing usage data</div></div>
-        <div class="st-toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div>
-      </div>
+    <!-- Quick Settings -->
+    <div class="info-section">
+        <div class="is-title">Quick Settings</div>
+        
+        <div class="setting-row">
+            <div class="sr-left">
+                <div class="sr-icon blue"><i class="fa-solid fa-shield-halved"></i></div>
+                <div class="sr-text">
+                    <h4>Two-Factor Auth</h4>
+                    <p>Extra security layer</p>
+                </div>
+            </div>
+            <div class="toggle-switch off" onclick="this.classList.toggle('on');"></div>
+        </div>
+
+        <div class="setting-row">
+            <div class="sr-left">
+                <div class="sr-icon orange"><i class="fa-regular fa-bell"></i></div>
+                <div class="sr-text">
+                    <h4>Login Alerts</h4>
+                    <p>Notify on new sign-in</p>
+                </div>
+            </div>
+            <div class="toggle-switch off" onclick="this.classList.toggle('on');"></div>
+        </div>
+
+        <div class="setting-row">
+            <div class="sr-left">
+                <div class="sr-icon purple"><i class="fa-regular fa-envelope"></i></div>
+                <div class="sr-text">
+                    <h4>Email Notifications</h4>
+                    <p>Workout reminders</p>
+                </div>
+            </div>
+            <div class="toggle-switch off" onclick="this.classList.toggle('on');"></div>
+        </div>
+    </div>
+
+    <!-- Connected Devices -->
+    <div class="info-section">
+        <div class="is-title">Connected Devices</div>
+        
+        <div class="device-card">
+            <div class="sr-left">
+                <div class="sr-icon gray"><i class="fa-solid fa-desktop"></i></div>
+                <div class="sr-text">
+                    <h4>Chrome · Windows</h4>
+                    <p>Kerala, India</p>
+                </div>
+            </div>
+            <div class="status-badge active">Active</div>
+        </div>
+
+        <div class="device-card">
+            <div class="sr-left">
+                <div class="sr-icon gray"><i class="fa-solid fa-mobile-screen"></i></div>
+                <div class="sr-text">
+                    <h4>Mobile · Android</h4>
+                    <p>2 days ago</p>
+                </div>
+            </div>
+            <div class="status-badge idle">Idle</div>
+        </div>
     </div>
 
     <!-- Danger Zone -->
-    <div class="st-danger-label"><i class="fa-solid fa-triangle-exclamation"></i> Danger zone</div>
-    <div class="st-section" style="border-color:rgba(200,122,106,0.15);">
-      <div class="st-danger-item">
-        <div>
-          <div class="st-danger-text">Delete account</div>
-          <div class="st-danger-desc">Permanently delete your account and all data. This cannot be undone.</div>
-        </div>
-        <form method="post" action="{% url 'delete_account' %}" onsubmit="return confirm('Are you absolutely sure? All data will be permanently deleted.');">
-          {% csrf_token %}
-          <button type="submit" class="st-btn-delete"><i class="fa-solid fa-trash"></i> Delete account</button>
+    <div class="danger-card">
+        <div class="dc-title"><i class="fa-solid fa-triangle-exclamation"></i> Delete Account</div>
+        <div class="dc-desc">This cannot be undone</div>
+        <form method="post" action="{% url 'delete_account' %}" onsubmit="return confirm('WARNING: Are you absolutely sure? This action cannot be undone.');">
+            {% csrf_token %}
+            <button type="submit" class="btn-danger">Delete My Account</button>
         </form>
-      </div>
     </div>
-  </div>
 
-</div>
+  </div> <!-- /info-col -->
+</div> <!-- /layout-wrapper -->
 
 <script>
-  function showTab(name) {
-    ['profile','security','notifications','privacy'].forEach(t => {
-      document.getElementById('tab-' + t).style.display = t === name ? 'block' : 'none';
+    // Simulate active glow on form modifications
+    const formInputs = document.querySelectorAll('.input-field');
+    const saveBtn = document.querySelector('.btn-save');
+    
+    // On input change, make save button glow active teal
+    formInputs.forEach(input => {
+        input.addEventListener('input', () => {
+            saveBtn.classList.add('active');
+            saveBtn.innerHTML = '<i class="fa-solid fa-check" style="margin-right:6px"></i> Save Changes';
+            saveBtn.type = 'submit'; 
+        });
     });
-    document.querySelectorAll('.st-tab').forEach((tab, i) => {
-      const names = ['profile','security','notifications','privacy'];
-      tab.classList.toggle('active', names[i] === name);
+
+    // Make goal tags toggleable
+    const tags = document.querySelectorAll('.goal-tag');
+    tags.forEach(tag => {
+        tag.addEventListener('click', () => {
+            tag.classList.toggle('active');
+        });
     });
-  }
 </script>
+
 {% endblock %}

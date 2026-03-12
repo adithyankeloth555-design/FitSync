@@ -1514,7 +1514,7 @@ a { text-decoration: none; color: inherit; }
   </div>
 
   <div class="sidebar-bottom">
-    <a href="{% url 'profile' %}" class="user-card" style="text-decoration:none;">
+    <a href="{% url 'settings' %}" class="user-card" style="text-decoration:none;">
       {% if user_profile.profile_photo %}
       <img src="{{ user_profile.profile_photo.url }}" class="user-avatar" style="object-fit:cover;" alt="User">
       {% else %}

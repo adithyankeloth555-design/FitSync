@@ -30,6 +30,27 @@ class UserProfile(models.Model):
     
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def bmi(self):
+        try:
+            if self.weight_kg and self.height_cm and self.height_cm > 0:
+                w = float(self.weight_kg)
+                h = float(self.height_cm) / 100
+                return round(w / (h * h), 1)
+        except:
+            pass
+        return None
+
+    @property
+    def bmi_category(self):
+        val = self.bmi
+        if val:
+            if val < 18.5: return "Underweight"
+            if val < 25: return "Normal"
+            if val < 30: return "Overweight"
+            return "Obese"
+        return "N/A"
+
     def __str__(self):
         return f"{self.user.username} ({self.role})"
 

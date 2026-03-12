@@ -350,21 +350,6 @@ def logout_view(request):
     messages.info(request, "You have been logged out.")
     return redirect('login')
 
-@login_required
-def profile_view(request):
-    user_profile = request.user.userprofile
-    if request.method == 'POST':
-        form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Profile updated successfully!")
-            return redirect('profile')
-        else:
-            messages.error(request, "Error updating profile. Please check the form.")
-    else:
-        form = UserProfileForm(instance=user_profile)
-    
-    return render(request, 'fitsync_app/profile.html', {'form': form, 'user_profile': user_profile})
 
 # Dashboard
 def home_view(request):
