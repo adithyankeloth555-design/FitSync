@@ -132,9 +132,12 @@
 
     .pricing-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        grid-template-columns: 1fr;
         gap: 1.5rem;
         margin-bottom: 3rem;
+        max-width: 450px;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .pricing-card {
@@ -395,19 +398,9 @@
             </div>
 
             <h2
-                style="font-family: 'Inter', serif; font-size: 1.8rem; margin-bottom: 1.5rem; color: var(--text-main); text-align: center;">
-                Upgrade Your Plan
+                style="font-family: 'Inter', serif; font-size: 1.8rem; margin-bottom: 3rem; color: var(--text-main); text-align: center;">
+                Activate Your Membership
             </h2>
-
-            <div class="billing-toggle">
-                <span class="toggle-label active" id="label-monthly" onclick="setBilling('monthly')">Monthly</span>
-                <label class="switch">
-                    <input type="checkbox" id="billing-switch" onchange="toggleBilling()">
-                    <span class="slider round"></span>
-                </label>
-                <span class="toggle-label" id="label-annual" onclick="setBilling('annual')">Annually <span
-                        class="save-badge">SAVE 45%</span></span>
-            </div>
 
             <div class="pricing-grid">
                 {% for plan in plans %}
@@ -423,12 +416,11 @@
 
                     <div class="plan-name">{{ plan.get_name_display }}</div>
 
-                    <div class="plan-price" {% if plan.annual_price %}data-monthly="{{ plan.price|floatformat:0 }}"
-                        data-annual="{{ plan.annual_price|floatformat:0 }}" {% endif %}>
+                    <div class="plan-price">
                         ₹{{ plan.price|floatformat:0 }}
                     </div>
 
-                    <div class="plan-period" {% if plan.name == 'lifetime' %}style="color:#000" {% endif %}>
+                    <div class="plan-period">
                         {{ plan.duration_text }}
                     </div>
 
@@ -504,65 +496,6 @@
             </div>
 </main>
 
-<script>
-    function toggleBilling() {
-        const isAnnual = document.getElementById('billing-switch').checked;
-        updatePrices(isAnnual);
-    }
-
-    function setBilling(mode) {
-        const switchEl = document.getElementById('billing-switch');
-        if (mode === 'annual' && !switchEl.checked) {
-            switchEl.checked = true;
-            updatePrices(true);
-        } else if (mode === 'monthly' && switchEl.checked) {
-            switchEl.checked = false;
-            updatePrices(false);
-        }
-    }
-
-    function updatePrices(isAnnual) {
-        const prices = document.querySelectorAll('.plan-price');
-        const periods = document.querySelectorAll('.plan-period');
-
-        document.getElementById('label-monthly').classList.toggle('active', !isAnnual);
-        document.getElementById('label-annual').classList.toggle('active', isAnnual);
-
-        prices.forEach(price => {
-            if (price.dataset.monthly) {
-                const amount = isAnnual ₹ price.dataset.annual : price.dataset.monthly;
-                price.style.opacity = 0;
-                setTimeout(() => {
-                    price.innerHTML = '₹' + parseInt(amount).toLocaleString();
-                    price.style.opacity = 1;
-                }, 200);
-            }
-        });
-
-        periods.forEach(period => {
-            if (period.innerHTML.includes('/') || period.innerHTML.includes('cycle')) {
-                period.style.opacity = 0;
-                setTimeout(() => {
-                    period.innerHTML = isAnnual ₹ '/year' : '/month';
-                    period.style.opacity = 1;
-                }, 200);
-            }
-        });
-
-        const upgradeLinks = document.querySelectorAll('a.upgrade-btn');
-        upgradeLinks.forEach(link => {
-            const url = new URL(link.href, window.location.origin);
-            if (isAnnual) {
-                url.searchParams.set('billing', 'annual');
-            } else {
-                url.searchParams.delete('billing');
-            }
-            link.href = url.pathname + url.search;
-        });
-    }
-</script>
 {% endblock %}
-
-
 
 
