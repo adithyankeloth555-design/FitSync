@@ -10,7 +10,8 @@
 <style>
     :root {
         --sidebar-bg: var(--bg-tertiary);
-        --accent-orange: var(--gold);
+        --accent-orange: #4f46e5;
+        --gold-dark: #4338ca;
         --content-bg: var(--bg-primary);
         --text-main: var(--text-primary);
         --text-muted: var(--text-muted);
@@ -193,7 +194,7 @@
     }
 
     .add-goal-card {
-        background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+        background: linear-gradient(135deg, var(--accent-orange), var(--gold-dark));
         padding: 3rem;
         border-radius: 20px;
         color: #000;
@@ -311,7 +312,11 @@
                         <div class="metric">
                             <div class="metric-value">
                                 {% if goal.target_date %}
-                                {{ goal.target_date|timeuntil }}
+                                    {% if goal.is_completed %}
+                                    <i class="fa-solid fa-check"></i> Done
+                                    {% else %}
+                                    {{ goal.target_date|timeuntil }}
+                                    {% endif %}
                                 {% else %}
                                 ∞
                                 {% endif %}
