@@ -631,27 +631,17 @@ def user_dashboard_view(request):
 
     user_profile = request.user.userprofile
 
-    # ── First-Time Setup Detection ──
-    has_profile_data = user_profile.height_cm and user_profile.weight_kg
     has_subscription = UserSubscription.objects.filter(user=request.user, is_active=True).exists()
-    has_bmi = request.user.bmi_records.exists()
     has_assessment = hasattr(request.user, 'fitness_assessment')
-    has_workout = user_profile.active_workout is not None
 
     # Determine setup step for new users
-    is_new_user = not (has_subscription and has_profile_data and has_bmi and has_assessment and has_workout)
+    is_new_user = not (has_subscription and has_assessment)
     setup_step = 0
     if is_new_user:
         if not has_subscription:
-            setup_step = 1  # Choose subscription
-        elif not has_profile_data:
-            setup_step = 2  # Profile setup
-        elif not has_bmi:
-            setup_step = 3  # BMI calculation
-        elif not has_assessment:
-            setup_step = 4  # Smart Fitness Assessment
+            setup_step = 1  # Get Subscription (3 months for ₹199)
         else:
-            setup_step = 5  # AI workout recommendation
+            setup_step = 2  # Smart Fitness Assessment (gathers all details, generates BMI/Goal/Workout/Diet)
 
     # Get recent feedback from trainers
     recent_feedback = TrainerFeedback.objects.filter(user=request.user).order_by('-created_at')[:5]
@@ -1618,6 +1608,8 @@ def payment_view(request):
             sub.expiry_date = timezone.now() + timedelta(days=365)
         elif selected_plan and selected_plan.name == 'lifetime':
             sub.expiry_date = timezone.now() + timedelta(days=36500) # 100 years
+        elif selected_plan and selected_plan.name == 'basic':
+            sub.expiry_date = timezone.now() + timedelta(days=90) # 3 months
         else:
             sub.expiry_date = timezone.now() + timedelta(days=30)
             

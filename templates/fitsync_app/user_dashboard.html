@@ -942,35 +942,17 @@
                 <div class="step-circle">{% if has_subscription %}<i class="fa-solid fa-check"></i>{% else %}1{% endif %}</div>
                 <span class="step-label">Subscription</span>
             </div>
-            <div class="step-item {% if has_profile_data %}done{% elif setup_step == 2 %}current{% endif %}">
-                <div class="step-circle">{% if has_profile_data %}<i class="fa-solid fa-check"></i>{% else %}2{% endif %}</div>
-                <span class="step-label">Profile</span>
-            </div>
-            <div class="step-item {% if has_bmi %}done{% elif setup_step == 3 %}current{% endif %}">
-                <div class="step-circle">{% if has_bmi %}<i class="fa-solid fa-check"></i>{% else %}3{% endif %}</div>
-                <span class="step-label">BMI</span>
-            </div>
-            <div class="step-item {% if has_assessment %}done{% elif setup_step == 4 %}current{% endif %}">
-                <div class="step-circle">{% if has_assessment %}<i class="fa-solid fa-check"></i>{% else %}4{% endif %}</div>
+            <div class="step-item {% if has_assessment %}done{% elif setup_step == 2 %}current{% endif %}">
+                <div class="step-circle">{% if has_assessment %}<i class="fa-solid fa-check"></i>{% else %}2{% endif %}</div>
                 <span class="step-label">Assessment</span>
-            </div>
-            <div class="step-item {% if has_workout %}done{% elif setup_step == 5 %}current{% endif %}">
-                <div class="step-circle">{% if has_workout %}<i class="fa-solid fa-check"></i>{% else %}5{% endif %}</div>
-                <span class="step-label">Workout</span>
             </div>
         </div>
 
         <div class="setup-action">
             {% if setup_step == 1 %}
-                <a href="{% url 'membership' %}" class="btn-setup"><i class="fa-solid fa-crown"></i> Choose a Plan</a>
+                <a href="{% url 'membership' %}" class="btn-setup"><i class="fa-solid fa-crown"></i> Activate 3-Month Plan (₹199)</a>
             {% elif setup_step == 2 %}
-                <a href="{% url 'profile' %}" class="btn-setup"><i class="fa-solid fa-user"></i> Setup Profile</a>
-            {% elif setup_step == 3 %}
-                <a href="{% url 'bmi_calculator' %}" class="btn-setup"><i class="fa-solid fa-heart-pulse"></i> Calculate BMI</a>
-            {% elif setup_step == 4 %}
-                <a href="{% url 'fitness_assessment' %}" class="btn-setup"><i class="fa-solid fa-clipboard-check"></i> Take Assessment</a>
-            {% elif setup_step == 5 %}
-                <a href="{% url 'ai_workout' %}" class="btn-setup"><i class="fa-solid fa-brain"></i> Get AI Workout</a>
+                <a href="{% url 'fitness_assessment' %}" class="btn-setup"><i class="fa-solid fa-clipboard-check"></i> Take Smart Assessment</a>
             {% endif %}
         </div>
     </div>
