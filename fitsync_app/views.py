@@ -758,11 +758,8 @@ def user_dashboard_view(request):
         # First-time setup
         'is_new_user': is_new_user,
         'setup_step': setup_step,
-        'has_profile_data': has_profile_data,
         'has_subscription': has_subscription,
-        'has_bmi': has_bmi,
         'has_assessment': has_assessment,
-        'has_workout': has_workout,
         'attended_today': attended_today,
         'weekly_attendance': weekly_attendance,
     }
