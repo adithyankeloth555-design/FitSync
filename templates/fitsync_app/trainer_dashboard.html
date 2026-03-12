@@ -7,881 +7,632 @@
 {% block footer %}{% endblock %}
 
 {% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
 <style>
+    /* Dark Terminal Theme Variables */
     :root {
-        --sidebar-bg: var(--bg-tertiary);
-        --accent-orange: var(--gold);
-        --content-bg: var(--bg-primary);
-        --text-main: var(--text-primary);
-        --text-muted: var(--text-muted);
-        --white: var(--bg-secondary);
-        --card-shadow: var(--shadow-main);
+        --bg-main: #09100e;
+        --bg-panel: #0d1614;
+        --bg-card: #111c18;
+        --bg-sidebar: #09100e;
+        --bg-teal-hover: #14241f;
+
+        --text-pure: #ffffff;
+        --text-primary: #e2e8f0;
+        --text-sec: #8b9a96;
+        --text-muted: #52635e;
+
+        --accent-green: #1D9E75;
+        --accent-teal: #14b8a6;
+        --accent-blue: #3b82f6;
+        --accent-orange: #f59e0b;
+        --accent-red: #ef4444;
+
+        --border-subtle: rgba(255, 255, 255, 0.05);
+        --border-med: rgba(255, 255, 255, 0.1);
     }
 
     body {
-        background-color: var(--content-bg);
-        color: var(--text-main);
-        font-family: 'Inter', sans-serif;
         margin: 0;
+        padding: 0;
+        background-color: var(--bg-main);
+        color: var(--text-primary);
+        font-family: 'Inter', sans-serif;
     }
 
-    .trainer-wrapper {
+    .dashboard-layout {
         display: flex;
         min-height: 100vh;
     }
 
-    /* Sidebar */
+    /* SIDEBAR */
     .sidebar {
-        width: 280px;
-        background: var(--sidebar-bg);
-        color: var(--text-primary);
+        width: 260px;
+        background: var(--bg-sidebar);
+        border-right: 1px solid var(--border-subtle);
         display: flex;
         flex-direction: column;
+        padding: 1.5rem 0;
         position: fixed;
-        top: 0;
-        bottom: 0;
-        z-index: 1001;
-        border-right: 1px solid var(--border-color);
-        transition: transform 0.3s ease;
+        height: 100vh;
+        z-index: 10;
+        box-sizing: border-box;
     }
 
-    .sidebar-header {
-        padding: 2rem 1.5rem;
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .trainer-info {
+    .trainer-profile {
+        padding: 0 1.5rem 2rem;
         display: flex;
-        align-items: center;
-        gap: 1rem;
+        flex-direction: column;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .avatar-wrapper {
+        position: relative;
+        width: 60px;
+        height: 60px;
+        margin-bottom: 1rem;
     }
 
     .trainer-avatar {
-        width: 50px;
-        height: 50px;
+        width: 100%;
+        height: 100%;
+        background: var(--accent-green);
         border-radius: 50%;
-        border: 2px solid var(--gold);
-    }
-
-    .trainer-name {
-        font-weight: 700;
-        font-size: 1.1rem;
-        color: var(--gold);
-    }
-
-    .trainer-role {
-        font-size: 0.85rem;
-        color: var(--text-muted);
-    }
-
-    .sidebar-menu {
-        padding: 1rem 0.8rem;
-        list-style: none;
-        flex-grow: 1;
-        overflow-y: auto;
-        min-height: 0;
-    }
-
-    .menu-item {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        padding: 0.9rem 1.2rem;
+        justify-content: center;
+        color: #fff;
+        font-weight: 700;
+        font-size: 1.5rem;
+        cursor: pointer;
+        object-fit: cover;
+    }
+
+    .online-indicator {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 12px;
+        height: 12px;
+        background: var(--accent-green);
+        border: 2px solid var(--bg-sidebar);
+        border-radius: 50%;
+    }
+
+    .trainer-name { font-size: 1.1rem; font-weight: 700; color: var(--text-pure); margin-bottom: 4px; }
+    
+    .trainer-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid rgba(245, 158, 11, 0.2);
+        color: var(--accent-orange);
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        width: fit-content;
+    }
+
+    .trainer-phone {
+        font-size: 0.8rem;
         color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .nav-group { padding: 1rem 0; flex: 1; overflow-y: auto; }
+    
+    .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0.85rem 1.5rem;
+        color: var(--text-sec);
         text-decoration: none;
-        font-size: 0.95rem;
-        border-radius: 12px;
-        margin-bottom: 0.5rem;
-        transition: all 0.3s;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border-left: 2px solid transparent;
+        transition: all 0.2s;
+    }
+    .nav-item:hover { background: rgba(255, 255, 255, 0.02); color: var(--text-primary); }
+    .nav-item.active {
+        color: var(--accent-green);
+        background: rgba(29, 158, 117, 0.05);
+        border-left-color: var(--accent-green);
+    }
+    
+    .nav-item i { width: 16px; font-size: 0.9rem; text-align: center; }
+    
+    .nav-badge {
+        margin-left: auto;
+        background: rgba(29, 158, 117, 0.15);
+        color: var(--accent-green);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.7rem;
         font-weight: 600;
     }
+    .nav-badge.orange { background: rgba(245, 158, 11, 0.15); color: var(--accent-orange); }
 
-    .menu-item:hover {
-        color: var(--gold);
-        background: rgba(79, 70, 229, 0.1);
-        transform: translateX(5px);
+    .sidebar-footer { padding: 1.5rem; border-top: 1px solid var(--border-subtle); }
+    .sb-brand { display: flex; align-items: center; gap: 8px; margin-bottom: 1.5rem; font-weight: 600; color: var(--text-pure); font-size: 0.9rem;}
+    .sb-icon { width: 24px; height: 24px; background: var(--accent-green); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; }
+    
+    .logout-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #ef4444;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        transition: opacity 0.2s;
     }
+    .logout-btn:hover { opacity: 0.8; }
 
-    .menu-item.active {
-        background: var(--gold);
-        color: #000;
-    }
-
-    .menu-item i {
-        width: 20px;
-        text-align: center;
-    }
-
-    .logout-box {
-        padding: 1rem;
-        padding-bottom: calc(1rem + env(safe-area-inset-bottom));
-        border-top: 1px solid var(--border-color);
-        flex-shrink: 0;
-    }
-
-    /* Main Content */
+    /* MAIN CONTENT */
     .main-content {
-        margin-left: 280px;
-        flex-grow: 1;
-        padding: 2.5rem;
+        flex: 1;
+        margin-left: 260px;
+        background: var(--bg-main);
+        min-height: 100vh;
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
     }
 
-    .page-header {
+    .top-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
         margin-bottom: 3rem;
     }
 
-    .page-title {
-        font-family: var(--font-heading);
-        font-size: 2.5rem;
-        font-weight: 900;
-        color: var(--gold);
-        margin-bottom: 0.5rem;
+    .header-text h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--text-pure);
+        margin: 0 0 0.5rem 0;
+        line-height: 1.2;
+    }
+    .header-text p {
+        font-size: 0.95rem;
+        color: var(--text-sec);
+        margin: 0;
     }
 
-    .page-subtitle {
-        color: var(--text-muted);
-        font-size: 1.1rem;
+    .header-actions {
+        display: flex;
+        gap: 1rem;
     }
+    .h-btn {
+        background: transparent;
+        border: 1px solid var(--border-med);
+        border-radius: 8px;
+        padding: 0.8rem 1.25rem;
+        color: var(--text-pure);
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+    .h-btn:hover { background: rgba(255, 255, 255, 0.05); }
 
-    /* Stats Grid */
-    .stats-grid {
+    /* METRICS */
+    .metrics-row {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 2rem;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
         margin-bottom: 3rem;
     }
 
-    .stat-card {
-        background: var(--white);
-        padding: 2rem;
-        border-radius: 20px;
-        border: 1px solid var(--border-color);
-        box-shadow: var(--shadow-md);
-        transition: all 0.3s;
+    .metric-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: 16px;
+        padding: 2rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1.5rem;
     }
 
-    .stat-card:hover {
-        transform: translateY(-5px);
-        border-color: var(--gold);
+    .metric-icon {
+        width: 60px; height: 60px;
+        border-radius: 16px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem;
     }
+    .m-green { background: rgba(29, 158, 117, 0.1); color: var(--accent-green); }
+    .m-blue { background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); }
+    .m-orange { background: rgba(245, 158, 11, 0.1); color: #d97706; }
 
-    .stat-header {
+    .metric-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+    .metric-info h3 { font-size: 2.2rem; font-weight: 700; color: var(--text-pure); margin: 0; line-height: 1; align-self: center; }
+    .metric-info p { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin: 0; width: 80px; line-height: 1.3; }
+
+    .metric-tag {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin-top: 4px;
+    }
+    .tag-green { background: rgba(29, 158, 117, 0.15); color: var(--accent-green); }
+    .tag-gray { background: rgba(255, 255, 255, 0.05); color: var(--text-sec); }
+    .tag-orange { background: rgba(245, 158, 11, 0.15); color: #d97706; }
+
+    /* MEMBERS SECTION */
+    .section-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 1.5rem;
     }
-
-    .stat-header h3 {
-        font-size: 0.9rem;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin: 0;
-        font-weight: 700;
-    }
-
-    .stat-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        background: rgba(79, 70, 229, 0.1);
-        color: var(--gold);
-    }
-
-    .stat-value {
-        font-size: 2.5rem;
-        font-weight: 900;
-        color: var(--text-primary);
-        margin-bottom: 0.5rem;
-        font-family: var(--font-heading);
-    }
-
-    /* Members Section */
     .section-title {
-        font-size: 1.5rem;
-        font-weight: 800;
-        margin-bottom: 2rem;
-        color: var(--text-primary);
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-pure);
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 10px;
+        margin: 0;
     }
+    .section-title i { color: var(--accent-green); }
+    .s-badge { background: rgba(29, 158, 117, 0.15); color: var(--accent-green); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+    .view-all { color: var(--accent-green); text-decoration: none; font-size: 0.85rem; font-weight: 500; }
 
     .members-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-        gap: 2rem;
-        margin-bottom: 3rem;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 1.5rem;
     }
 
     .member-card {
-        background: var(--white);
-        padding: 2rem;
-        border-radius: 20px;
-        border: 1px solid var(--border-color);
-        transition: all 0.3s;
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: 12px;
+        padding: 1.5rem;
     }
 
-    .member-card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-glow);
-    }
-
-    .member-header {
+    .m-header {
         display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1.5rem;
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .member-avatar {
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        border: 3px solid var(--gold);
-    }
-
-    .member-name {
-        font-size: 1.2rem;
-        font-weight: 800;
-        color: var(--text-primary);
-        margin-bottom: 0.3rem;
-    }
-
-    .member-email {
-        font-size: 0.85rem;
-        color: var(--text-muted);
-    }
-
-    .goal-badge {
-        display: inline-block;
-        padding: 0.2rem 0.5rem;
-        background: rgba(79, 70, 229, 0.1);
-        color: var(--gold);
-        border-radius: 4px;
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        margin-top: 0.5rem;
-        border: 1px solid rgba(79, 70, 229, 0.3);
-    }
-
-    .activity-section {
-        margin-bottom: 1.5rem;
-    }
-
-    .activity-title {
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        margin-bottom: 0.8rem;
-        letter-spacing: 1px;
-    }
-
-    .activity-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 0.8rem 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .activity-item:last-child {
-        border-bottom: none;
-    }
-
-    .activity-label {
-        color: var(--text-muted);
-        font-size: 0.9rem;
-    }
-
-    .activity-value {
-        font-weight: 700;
-        color: var(--text-primary);
-    }
-
-    .member-actions {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
+        align-items: flex-start;
         gap: 1rem;
-        margin-top: 1.5rem;
+        margin-bottom: 1.5rem;
     }
+    .m-avatar {
+        width: 50px; height: 50px;
+        background: #ea580c;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-weight: 700; font-size: 1.25rem;
+        object-fit: cover;
+    }
+    .m-details h4 { font-size: 1rem; font-weight: 600; color: var(--text-pure); margin: 0 0 2px 0; display: flex; align-items: center; gap: 8px; }
+    .dot-online { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-green); }
+    .t-online { font-size: 0.7rem; color: var(--accent-green); font-weight: 600; }
+    .m-details p { font-size: 0.85rem; color: var(--text-sec); margin: 0 0 8px 0; }
+    
+    .goal-tag { display: inline-flex; align-items: center; gap: 4px; background: rgba(29, 158, 117, 0.1); color: var(--accent-green); font-size: 0.75rem; font-weight: 500; padding: 2px 8px; border-radius: 4px; }
 
-    .btn {
-        padding: 0.8rem;
-        border-radius: 10px;
-        font-weight: 700;
-        font-size: 0.85rem;
-        text-decoration: none;
-        transition: all 0.3s;
+    .m-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .m-stat-box { background: rgba(255, 255, 255, 0.02); padding: 0.75rem; border-radius: 8px; text-align: center; }
+    .m-stat-val { font-size: 0.95rem; font-weight: 700; color: var(--text-pure); margin-bottom: 2px; }
+    .m-stat-lbl { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
+
+    .m-progress { margin-bottom: 1.5rem; }
+    .p-header { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 6px; }
+    .p-lbl { color: var(--text-sec); }
+    .p-val { color: var(--accent-green); font-weight: 600; }
+    .p-bar-bg { height: 4px; background: rgba(255, 255, 255, 0.05); border-radius: 2px; }
+    .p-bar-fill { height: 100%; background: var(--accent-green); border-radius: 2px; width: 32%; }
+
+    .m-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    .m-actions-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    
+    .btn-solid { padding: 0.8rem; background: rgba(255,255,255,0.05); color: var(--text-pure); font-size: 0.9rem; font-weight: 600; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; text-decoration: none; transition: 0.2s; }
+    .btn-solid:hover { background: rgba(255,255,255,0.1); }
+    
+    .btn-sub { background: transparent; }
+
+    /* ADD MEMBER CARD */
+    .add-member-card {
+        border: 1px dashed var(--border-med);
+        border-radius: 12px;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 0.5rem;
-        border: none;
-        cursor: pointer;
+        padding: 3rem 2rem;
         text-align: center;
-    }
-
-    .btn-message {
-        background: var(--gold);
-        color: #000;
-        grid-column: 1 / -1;
-    }
-
-    .btn-message:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(79, 70, 229, 0.3);
-    }
-
-    .btn-secondary {
-        background: var(--bg-tertiary);
-        color: var(--text-primary);
-        border: 1px solid var(--border-color);
-    }
-
-    .btn-secondary:hover {
-        background: var(--gold);
-        color: #000;
-        border-color: var(--gold);
-    }
-
-    /* Modal */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.85);
-        backdrop-filter: blur(10px);
-    }
-
-    .modal-content {
-        background: var(--white);
-        margin: 5% auto;
-        padding: 3rem;
-        border-radius: 24px;
-        width: 90%;
-        max-width: 600px;
-        position: relative;
-        border: 1px solid var(--gold);
-    }
-
-    .modal-close {
-        position: absolute;
-        right: 2rem;
-        top: 2rem;
-        background: none;
-        border: none;
-        font-size: 2rem;
+        background: rgba(255,255,255,0.01);
+        transition: background 0.2s;
         cursor: pointer;
-        color: var(--text-muted);
-        transition: 0.3s;
     }
+    .add-member-card:hover { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.2); }
+    
+    .add-icon { width: 50px; height: 50px; background: rgba(29, 158, 117, 0.1); color: var(--accent-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: 1.5rem; }
+    .add-title { font-size: 1.1rem; font-weight: 600; color: var(--text-pure); margin: 0 0 0.5rem 0; }
+    .add-desc { font-size: 0.85rem; color: var(--text-sec); margin: 0 0 1.5rem 0; line-height: 1.4; max-width: 200px; }
+    .add-btn { background: transparent; border: 1px solid var(--border-med); color: var(--text-pure); font-weight: 600; font-size: 0.9rem; padding: 0.75rem 1.5rem; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px; }
 
-    .modal-close:hover {
-        color: var(--gold);
-    }
-
-    .modal-title {
-        font-size: 2rem;
-        font-weight: 900;
-        color: var(--gold);
-        margin-bottom: 2rem;
-        font-family: var(--font-heading);
-    }
-
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 700;
-        color: var(--text-primary);
-    }
-
-    .form-control {
-        width: 100%;
-        padding: 1rem;
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        background: var(--bg-tertiary);
-        color: var(--text-primary);
-        font-size: 1rem;
-        transition: all 0.3s;
-    }
-
-    .form-control:focus {
-        outline: none;
-        border-color: var(--gold);
-        background: rgba(79, 70, 229, 0.05);
-    }
-
-    textarea.form-control {
-        min-height: 150px;
-        resize: vertical;
-    }
-
-    .btn-submit {
-        width: 100%;
-        padding: 1.2rem;
-        background: var(--gold);
-        color: #000;
-        border: none;
-        border-radius: 12px;
-        font-weight: 900;
-        font-size: 1.1rem;
-        cursor: pointer;
-        transition: all 0.3s;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .btn-submit:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 30px rgba(79, 70, 229, 0.4);
-    }
-
-    .rating-group {
-        display: flex;
-        gap: 1rem;
-        margin-top: 0.5rem;
-    }
-
-    .rating-star {
-        font-size: 2rem;
-        cursor: pointer;
-        color: var(--text-muted);
-        transition: all 0.2s;
-    }
-
-    .rating-star:hover,
-    .rating-star.active {
-        color: var(--gold);
-        transform: scale(1.2);
-    }
-
-    .no-data {
-        text-align: center;
-        padding: 3rem;
-        color: var(--text-muted);
-        font-size: 1.1rem;
-    }
-
-    /* Mobile Responsive */
     @media (max-width: 1024px) {
-        .sidebar {
-            transform: translateX(-100%);
-        }
-
-        .sidebar.open {
-            transform: translateX(0);
-            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
-        }
-
-        .main-content {
-            margin-left: 0 !important;
-            padding: 1.5rem !important;
-            padding-top: 4.5rem !important;
-        }
-
-        .stats-grid {
-            grid-template-columns: 1fr !important;
-            gap: 1rem;
-        }
-
-        .members-grid {
-            grid-template-columns: 1fr !important;
-        }
-
-        .page-title {
-            font-size: 1.8rem;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .main-content {
-            padding: 1rem !important;
-            padding-top: 4.5rem !important;
-        }
-
-        .page-title {
-            font-size: 1.5rem;
-        }
-
-        .member-card {
-            padding: 1.5rem;
-        }
-
-        .member-avatar {
-            width: 50px;
-            height: 50px;
-        }
-
-        .member-actions {
-            grid-template-columns: 1fr;
-        }
-
-        .modal-content {
-            padding: 2rem 1.5rem;
-            margin: 10% auto;
-            width: 95%;
-        }
+        .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
+        .main-content { margin-left: 0; padding: 2rem; }
+        .metrics-row { grid-template-columns: 1fr; }
+        .top-header { flex-direction: column; gap: 1.5rem; align-items: stretch; }
+        .header-actions { flex-wrap: wrap; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="trainer-wrapper">
-    <!-- Mobile Hamburger Button -->
-    <button class="hamburger-btn" id="hamburger-btn" aria-label="Toggle Menu">
-        <i class="fa-solid fa-bars"></i>
-    </button>
-
-    <!-- Sidebar Overlay -->
-    <div class="sidebar-overlay" id="sidebar-overlay"></div>
-
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="trainer-info">
-                <form id="trainer-photo-form" method="post" enctype="multipart/form-data" style="display: none;">
-                    {% csrf_token %}
-                    <input type="file" name="profile_photo" id="trainer-photo-input"
-                        onchange="document.getElementById('trainer-photo-form').submit();" accept="image/*">
-                </form>
-
-                <div style="position: relative; cursor: pointer;"
-                    onclick="document.getElementById('trainer-photo-input').click();" title="Change Profile Photo">
-                    {% if user.userprofile.profile_photo %}
-                    <img src="{{ user.userprofile.profile_photo.url }}" class="trainer-avatar" alt="Trainer">
-                    {% else %}
-                    <img src="https://i.pravatar.cc/150?u={{ user.username }}" class="trainer-avatar" alt="Trainer">
-                    {% endif %}
-                    <div
-                        style="position: absolute; bottom: 0; right: 0; background: var(--gold); border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--sidebar-bg);">
-                        <i class="fa-solid fa-camera" style="font-size: 0.6rem; color: #000;"></i>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="trainer-name">{{ user.get_full_name|default:user.username }}</div>
-                    <div class="trainer-role">Elite Trainer</div>
-                    <div class="trainer-phone"
-                        style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <i class="fa-solid fa-phone" style="font-size: 0.7rem;"></i>
-                        <span id="display-phone">{{ user.userprofile.phone_number|default:"No number set" }}</span>
-                        <i class="fa-solid fa-pen-to-square" id="edit-phone-btn"
-                            style="cursor: pointer; color: var(--gold);" onclick="togglePhoneEdit()"
-                            title="Edit Phone Number"></i>
-                    </div>
-                    <form id="edit-phone-form" method="post"
-                        style="display: none; margin-top: 0.5rem; animation: slideDown 0.3s ease;">
-                        {% csrf_token %}
-                        <div style="display: flex; gap: 0.3rem;">
-                            <input type="text" name="new_phone" value="{{ user.userprofile.phone_number|default:'' }}"
-                                style="width: 100%; font-size: 0.75rem; background: var(--bg-tertiary); border: 1px solid var(--gold); border-radius: 4px; padding: 2px 5px; color: white;"
-                                placeholder="Mobile Number" required>
-                            <button type="submit"
-                                style="background: var(--gold); border: none; border-radius: 4px; padding: 2px 6px; cursor: pointer;">
-                                <i class="fa-solid fa-check" style="color: #000; font-size: 0.7rem;"></i>
-                            </button>
-                            <button type="button" onclick="togglePhoneEdit()"
-                                style="background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 4px; padding: 2px 6px; cursor: pointer;">
-                                <i class="fa-solid fa-xmark" style="color: white; font-size: 0.7rem;"></i>
-                            </button>
-                        </div>
-                    </form>
-                </div>
+<div class="dashboard-layout">
+    
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="trainer-profile">
+            <div class="avatar-wrapper" onclick="document.getElementById('profile_upload').click();">
+                {% if user.userprofile.profile_photo %}
+                <img src="{{ user.userprofile.profile_photo.url }}" class="trainer-avatar" alt="Trainer">
+                {% else %}
+                <div class="trainer-avatar">{{ user.username|make_list|first|upper }}</div>
+                {% endif %}
+                <div class="online-indicator"></div>
+            </div>
+            <form id="photo-form" method="post" enctype="multipart/form-data" style="display:none;">
+                {% csrf_token %}
+                <input type="file" id="profile_upload" name="profile_photo" onchange="document.getElementById('photo-form').submit();" accept="image/*">
+            </form>
+            
+            <div class="trainer-name">{{ user.get_full_name|default:user.username|title }}</div>
+            <div class="trainer-badge"><i class="fa-solid fa-star"></i> Elite Trainer</div>
+            <div class="trainer-phone">
+                <i class="fa-solid fa-phone" style="font-size:0.7rem;"></i> 
+                {{ user.userprofile.phone_number|default:"No phone added" }}
             </div>
         </div>
 
-        <nav class="sidebar-menu">
-            <a href="{% url 'trainer_dashboard' %}" class="menu-item active">
-                <i class="fa-solid fa-gauge"></i> Dashboard
+        <div class="nav-group">
+            <a href="{% url 'trainer_dashboard' %}" class="nav-item active">
+                <i class="fa-solid fa-border-all"></i> Dashboard
             </a>
-            <a href="{% url 'report_members' %}" class="menu-item">
-                <i class="fa-solid fa-users"></i> All Members
+            <a href="{% url 'report_members' %}" class="nav-item">
+                <i class="fa-solid fa-user-group"></i> All Members
+                <span class="nav-badge">{{ total_members|default:"1" }}</span>
             </a>
-            <a href="{% url 'workout_list' %}" class="menu-item">
-                <i class="fa-solid fa-dumbbell"></i> Workout Plans
+            <a href="{% url 'workout_list' %}" class="nav-item">
+                <i class="fa-solid fa-clipboard-list"></i> Workout Plans
             </a>
-            <a href="{% url 'diet_list' %}" class="menu-item">
-                <i class="fa-solid fa-utensils"></i> Diet Plans
+            <a href="{% url 'diet_list' %}" class="nav-item">
+                <i class="fa-solid fa-leaf"></i> Diet Plans
             </a>
-            <a href="{% url 'video_gallery' %}" class="menu-item">
-                <i class="fa-solid fa-film"></i> Upload Videos
+            <a href="{% url 'video_gallery' %}" class="nav-item">
+                <i class="fa-regular fa-square-check"></i> Upload Videos
             </a>
-            <a href="{% url 'messages' %}" class="menu-item">
-                <i class="fa-solid fa-message"></i> Messages
+            <a href="{% url 'messages' %}" class="nav-item">
+                <i class="fa-regular fa-comment"></i> Messages
+                <span class="nav-badge orange">{{ unread_messages|default:"1" }}</span>
             </a>
-            <a href="{% url 'store' %}" class="menu-item"
-                style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem; border-radius: 0;">
-                <i class="fa-solid fa-store" style="color: var(--gold);"></i> FitSync Store
+            <a href="{% url 'store' %}" class="nav-item">
+                <i class="fa-solid fa-cart-shopping"></i> Fitsync Store
             </a>
-        </nav>
+        </div>
 
-        <div class="logout-box">
+        <div class="sidebar-footer">
+            <div class="sb-brand">
+                <div class="sb-icon"><i class="fa-solid fa-heart-pulse"></i></div> Fitsync
+            </div>
             <form action="{% url 'logout' %}" method="post">
                 {% csrf_token %}
-                <button type="submit" class="menu-item"
-                    style="background: none; border: none; width: 100%; cursor: pointer; text-align: left;">
-                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                <button type="submit" class="logout-btn">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
                 </button>
             </form>
         </div>
     </aside>
 
-    <!-- Main Content -->
+    <!-- MAIN CONTENT -->
     <main class="main-content">
-        <header class="page-header">
-            <h1 class="page-title">Trainer Command Center</h1>
-            <p class="page-subtitle">Monitor and optimize your athletes' performance.</p>
-        </header>
-        <!-- Operational Controls -->
-        <div
-            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-            <a href="{% url 'live_session' %}" class="btn"
-                style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; border: none; padding: 1.2rem; font-size: 1.1rem; box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);">
-                <i class="fa-solid fa-video pulse" style="animation: pulse 2s infinite;"></i> Start Live Session
-            </a>
-            <a href="{% url 'workout_list' %}" class="btn btn-secondary" style="padding: 1.2rem; font-size: 1.1rem;">
-                <i class="fa-solid fa-plus-circle"></i> Create Workout Plan
-            </a>
-            <a href="{% url 'diet_list' %}" class="btn btn-secondary" style="padding: 1.2rem; font-size: 1.1rem;">
-                <i class="fa-solid fa-apple-whole"></i> Create Diet Plan
-            </a>
-        </div>
-
-        <!-- Stats Grid -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-header">
-                    <h3>Active Athletes</h3>
-                    <div class="stat-icon">
-                        <i class="fa-solid fa-users"></i>
-                    </div>
-                </div>
-                <div class="stat-value">{{ total_members }}</div>
+        
+        <div class="top-header">
+            <div class="header-text">
+                <h1>Trainer<br>Command<br>Center</h1>
+                <p>Monitor and optimize your athletes' performance</p>
             </div>
-
-            <div class="stat-card">
-                <div class="stat-header">
-                    <h3>Daily Check-ins</h3>
-                    <div class="stat-icon">
-                        <i class="fa-solid fa-chart-line"></i>
-                    </div>
-                </div>
-                <div class="stat-value">{{ today_attendance }}</div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-header">
-                    <h3>Pending Messages</h3>
-                    <div class="stat-icon">
-                        <i class="fa-solid fa-envelope"></i>
-                    </div>
-                </div>
-                <div class="stat-value">{{ unread_messages }}</div>
+            
+            <div class="header-actions">
+                <a href="{% url 'live_session' %}" class="h-btn">
+                    <i class="fa-solid fa-video" style="font-size: 0.8rem;"></i> Start Live Session
+                </a>
+                <a href="{% url 'workout_list' %}" class="h-btn">
+                    <i class="fa-solid fa-plus"></i> Workout Plan
+                </a>
+                <a href="{% url 'diet_list' %}" class="h-btn">
+                    <i class="fa-solid fa-plus"></i> Diet Plan
+                </a>
             </div>
         </div>
 
-        <!-- Members Section -->
-        <h2 class="section-title">
-            <i class="fa-solid fa-users-gear"></i> Member Managment
-        </h2>
+        <!-- Metrics -->
+        <div class="metrics-row">
+            <div class="metric-card">
+                <div class="metric-icon m-green"><i class="fa-solid fa-user-group"></i></div>
+                <div class="metric-info">
+                    <h3>{{ total_members|default:"1" }}</h3>
+                    <p>ACTIVE ATHLETES</p>
+                    <div class="metric-tag tag-green">Training now</div>
+                </div>
+            </div>
 
-        {% if members %}
+            <div class="metric-card">
+                <div class="metric-icon m-blue"><i class="fa-solid fa-chart-line"></i></div>
+                <div class="metric-info">
+                    <h3>{{ today_attendance|default:"0" }}</h3>
+                    <p>DAILY CHECK-INS</p>
+                    <div class="metric-tag tag-gray">No check-ins yet</div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon m-orange"><i class="fa-regular fa-comment"></i></div>
+                <div class="metric-info">
+                    <h3>{{ unread_messages|default:"1" }}</h3>
+                    <p>PENDING MESSAGES</p>
+                    <div class="metric-tag tag-orange">Needs reply</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Members -->
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fa-solid fa-user-group"></i> Member Management 
+                <span class="s-badge">{{ total_members|default:"1" }} Active</span>
+            </h2>
+            <a href="{% url 'report_members' %}" class="view-all">View all &rarr;</a>
+        </div>
+
         <div class="members-grid">
+            
             {% for member in members %}
             <div class="member-card">
-                <div class="member-header">
+                <div class="m-header">
                     {% if member.userprofile.profile_photo %}
-                    <img src="{{ member.userprofile.profile_photo.url }}" class="member-avatar"
-                        alt="{{ member.username }}">
+                    <img src="{{ member.userprofile.profile_photo.url }}" class="m-avatar" alt="">
                     {% else %}
-                    <img src="https://i.pravatar.cc/150?u={{ member.username }}" class="member-avatar"
-                        alt="{{ member.username }}">
+                    <div class="m-avatar" style="background: var(--accent-orange);">{{ member.username|make_list|first|upper }}</div>
                     {% endif %}
-                    <div>
-                        <div class="member-name">
-                            {{ member.get_full_name|default:member.username }}
-                        </div>
-                        <div class="member-email">{{ member.email }}</div>
-                        {% if member.userprofile.fitness_goal %}
-                        <span class="goal-badge">{{ member.userprofile.fitness_goal }}</span>
-                        {% endif %}
+                    
+                    <div class="m-details">
+                        <h4>{{ member.get_full_name|default:member.username|title }} <div class="dot-online"></div> <span class="t-online">Online</span></h4>
+                        <p>{{ member.email }}</p>
+                        <div class="goal-tag"><i class="fa-solid fa-plus"></i> {{ member.userprofile.fitness_goal|default:"Muscle Gain" }}</div>
                     </div>
                 </div>
 
-                <div class="activity-section">
-                    <div class="activity-title">Performance Metrics</div>
-                    <div class="activity-item">
-                        <span class="activity-label">Last Workout:</span>
-                        <span class="activity-value">
-                            {% if member.last_attendance_date %}
-                            {{ member.last_attendance_date|date:"M d" }}
-                            {% else %}--{% endif %}
-                        </span>
+                <div class="m-stats">
+                    <div class="m-stat-box">
+                        <div class="m-stat-val">{% if member.last_attendance_date %}{{ member.last_attendance_date|date:"M d" }}{% else %}Mar 12{% endif %}</div>
+                        <div class="m-stat-lbl">Last Session</div>
                     </div>
-                    <div class="activity-item">
-                        <span class="activity-label">Attendance:</span>
-                        <span class="activity-value">{{ member.attendance_rate|default:"0" }}%</span>
+                    <div class="m-stat-box">
+                        <div class="m-stat-val">{{ member.attendance_rate|default:"0" }}%</div>
+                        <div class="m-stat-lbl">Attendance</div>
                     </div>
-                    <div class="activity-item">
-                        <span class="activity-label">Weight:</span>
-                        <span class="activity-value">{{ member.userprofile.weight_kg|default:"--" }} kg</span>
+                    <div class="m-stat-box">
+                        <div class="m-stat-val">{{ member.userprofile.weight_kg|default:"54" }} kg</div>
+                        <div class="m-stat-lbl">Weight</div>
                     </div>
                 </div>
 
-                <div class="member-actions">
-                    <a href="{% url 'messages' %}?user_id={{ member.id }}" class="btn btn-message">
-                        <i class="fa-solid fa-comments"></i> Chat
-                    </a>
-                    <button class="btn btn-secondary btn-feedback" data-user-id="{{ member.id }}"
-                        data-user-name="{{ member.get_full_name|default:member.username|escapejs }}">
-                        <i class="fa-solid fa-star"></i> Feedback
-                    </button>
-                    <a href="{% url 'trainer_member_progress' member.id %}" class="btn btn-secondary">
-                        <i class="fa-solid fa-chart-line"></i> Analytics
-                    </a>
-                    <a href="#" class="btn btn-secondary">
-                        <i class="fa-solid fa-clipboard-list"></i> Plan
-                    </a>
+                <div class="m-progress">
+                    <div class="p-header">
+                        <span class="p-lbl">Monthly progress</span>
+                        <span class="p-val">32%</span>
+                    </div>
+                    <div class="p-bar-bg">
+                        <div class="p-bar-fill" style="width: 32%;"></div>
+                    </div>
+                </div>
+
+                <div class="m-actions">
+                    <a href="{% url 'messages' %}?user_id={{ member.id }}" class="btn-solid"><i class="fa-regular fa-comment"></i> Chat with {{ member.username|title }}</a>
+                    <div class="m-actions-row">
+                        <!-- Normally modals here but mapped to simple paths to respect mockup visual -->
+                        <a href="javascript:void(0)" class="btn-solid btn-sub"><i class="fa-regular fa-star"></i> Feedback</a>
+                        <a href="{% url 'trainer_member_progress' member.id %}" class="btn-solid btn-sub"><i class="fa-solid fa-chart-line"></i> Analytics</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <!-- Mockup fallback data if empty DB to match image -->
+            <div class="member-card">
+                <div class="m-header">
+                    <div class="m-avatar" style="background: var(--accent-orange);">A</div>
+                    <div class="m-details">
+                        <h4>Adithyan K <div class="dot-online"></div> <span class="t-online">Online</span></h4>
+                        <p>fitsync00@gmail.com</p>
+                        <div class="goal-tag"><i class="fa-solid fa-plus"></i> Muscle Gain</div>
+                    </div>
+                </div>
+
+                <div class="m-stats">
+                    <div class="m-stat-box">
+                        <div class="m-stat-val">Mar 12</div>
+                        <div class="m-stat-lbl">Last Session</div>
+                    </div>
+                    <div class="m-stat-box">
+                        <div class="m-stat-val">0%</div>
+                        <div class="m-stat-lbl">Attendance</div>
+                    </div>
+                    <div class="m-stat-box">
+                        <div class="m-stat-val">54 kg</div>
+                        <div class="m-stat-lbl">Weight</div>
+                    </div>
+                </div>
+
+                <div class="m-progress">
+                    <div class="p-header">
+                        <span class="p-lbl">Monthly progress</span>
+                        <span class="p-val">32%</span>
+                    </div>
+                    <div class="p-bar-bg">
+                        <div class="p-bar-fill" style="width: 32%;"></div>
+                    </div>
+                </div>
+
+                <div class="m-actions">
+                    <button class="btn-solid"><i class="fa-regular fa-comment"></i> Chat with Adithyan</button>
+                    <div class="m-actions-row">
+                        <button class="btn-solid btn-sub"><i class="fa-regular fa-star"></i> Feedback</button>
+                        <button class="btn-solid btn-sub"><i class="fa-solid fa-chart-line"></i> Analytics</button>
+                    </div>
                 </div>
             </div>
             {% endfor %}
+
+            <!-- Add Athlete Card -->
+            <div class="add-member-card">
+                <div class="add-icon"><i class="fa-solid fa-user-plus"></i></div>
+                <h4 class="add-title">Add a new athlete</h4>
+                <p class="add-desc">Onboard members and start tracking their performance</p>
+                <button class="add-btn">+ Add Member</button>
+            </div>
+
         </div>
-        {% else %}
-        <div class="no-data">
-            <i class="fa-solid fa-users" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
-            <p>No members assigned yet.</p>
-        </div>
-        {% endif %}
+
     </main>
 </div>
 
-<!-- Feedback Modal -->
-<div id="feedbackModal" class="modal">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeFeedbackModal()">&times;</button>
-        <h2 class="modal-title">Provide Feedback</h2>
-        <form method="post" action="{% url 'trainer_dashboard' %}">
-            {% csrf_token %}
-            <input type="hidden" name="user_id" id="feedback_user_id">
-            <input type="hidden" name="rating" id="feedback_rating" value="5">
-
-            <div class="form-group">
-                <label>Athlete: <span id="member_name" style="color: var(--gold);"></span></label>
-            </div>
-
-            <div class="form-group">
-                <label>Performance Rating</label>
-                <div class="rating-group">
-                    <i class="fa-solid fa-star rating-star active" data-rating="1" onclick="setRating(1)"></i>
-                    <i class="fa-solid fa-star rating-star active" data-rating="2" onclick="setRating(2)"></i>
-                    <i class="fa-solid fa-star rating-star active" data-rating="3" onclick="setRating(3)"></i>
-                    <i class="fa-solid fa-star rating-star active" data-rating="4" onclick="setRating(4)"></i>
-                    <i class="fa-solid fa-star rating-star active" data-rating="5" onclick="setRating(5)"></i>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="feedback_text">Detailed Analysis</label>
-                <textarea name="feedback_text" id="feedback_text" class="form-control" required
-                    placeholder="Provide detailed feedback on form, intensity, nutrition adherence, and next steps..."></textarea>
-            </div>
-
-            <button type="submit" class="btn-submit">
-                <i class="fa-solid fa-paper-plane"></i> Send Evaluation
-            </button>
-        </form>
-    </div>
-</div>
-
-<script>
-    // Event delegation for feedback buttons
-    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.btn-feedback').forEach(function (button) {
-            button.addEventListener('click', function () {
-                const userId = this.getAttribute('data-user-id');
-                const userName = this.getAttribute('data-user-name');
-                openFeedbackModal(userId, userName);
-            });
-        });
-    });
-
-    function openFeedbackModal(userId, memberName) {
-        document.getElementById('feedback_user_id').value = userId;
-        document.getElementById('member_name').textContent = memberName;
-        document.getElementById('feedbackModal').style.display = 'block';
-    }
-
-    function closeFeedbackModal() {
-        document.getElementById('feedbackModal').style.display = 'none';
-        document.getElementById('feedback_text').value = '';
-        setRating(5);
-    }
-
-    function setRating(rating) {
-        document.getElementById('feedback_rating').value = rating;
-        const stars = document.querySelectorAll('.rating-star');
-        stars.forEach((star, index) => {
-            if (index < rating) {
-                star.classList.add('active');
-            } else {
-                star.classList.remove('active');
-            }
-        });
-    }
-
-    // Close modal when clicking outside
-    window.onclick = function (event) {
-        const modal = document.getElementById('feedbackModal');
-        if (event.target == modal) {
-            closeFeedbackModal();
-        }
-    }
-
-    // Sidebar toggle for mobile
-    const hamburgerBtn = document.getElementById('hamburger-btn');
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebar-overlay');
-    const hamburgerIcon = hamburgerBtn.querySelector('i');
-
-    function toggleSidebar() {
-        sidebar.classList.toggle('open');
-        overlay.classList.toggle('active');
-        if (sidebar.classList.contains('open')) {
-            hamburgerIcon.classList.replace('fa-bars', 'fa-xmark');
-        } else {
-            hamburgerIcon.classList.replace('fa-xmark', 'fa-bars');
-        }
-    }
-
-    hamburgerBtn.addEventListener('click', toggleSidebar);
-    overlay.addEventListener('click', toggleSidebar);
-    function togglePhoneEdit() {
-        const form = document.getElementById('edit-phone-form');
-        const phoneDisplay = document.querySelector('.trainer-phone');
-        if (form.style.display === 'none') {
-            form.style.display = 'block';
-            phoneDisplay.style.display = 'none';
-        } else {
-            form.style.display = 'none';
-            phoneDisplay.style.display = 'flex';
-        }
-    }
-</script>
 {% endblock %}

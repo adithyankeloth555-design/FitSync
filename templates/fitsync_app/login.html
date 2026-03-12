@@ -493,7 +493,7 @@
 
         <div class="divider">or with email</div>
 
-        <form method="post" id="loginForm">
+        <form method="post" action="{% url 'login' %}" id="loginForm">
             {% csrf_token %}
             
             <div class="form-group">

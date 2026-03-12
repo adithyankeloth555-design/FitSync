@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-3v^u4dkv_7*2yj_)%k4qq3pmwqq15g&%k%4d!l24g!8_=l3g2c
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ['https://*.vercel.app', 'https://fit-sync-roan.vercel.app']
+CSRF_TRUSTED_ORIGINS = ['https://*.vercel.app', 'https://fit-sync-roan.vercel.app', 'http://127.0.0.1:8000', 'http://localhost:8000']
 
 
 # Application definition
