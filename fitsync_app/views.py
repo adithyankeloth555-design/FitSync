@@ -1295,9 +1295,17 @@ def community_view(request):
     return render(request, 'fitsync_app/community.html', {'form': form, 'posts': posts})
 
 # Diet
+@login_required
 def diet_list_view(request):
-    diets = DietPlan.objects.all()
-    latest_diet = diets.first()
+    user_profile = getattr(request.user, 'userprofile', None)
+    
+    if user_profile and user_profile.role == 'member' and user_profile.active_diet:
+        diets = [user_profile.active_diet]
+        latest_diet = user_profile.active_diet
+    else:
+        diets = DietPlan.objects.all()
+        latest_diet = diets.first()
+    
     
     context = {'diets': diets}
     
@@ -1420,8 +1428,13 @@ def meal_delete_view(request, meal_id):
 @login_required
 def workout_list_view(request):
     today = timezone.now().date()
-    
-    workouts = WorkoutProgram.objects.all()
+    # Personalize submodule: show only the user's active workout if member
+    user_profile = getattr(request.user, 'userprofile', None)
+    if user_profile and user_profile.role == 'member' and user_profile.active_workout:
+        workouts = [user_profile.active_workout]
+    else:
+        workouts = WorkoutProgram.objects.all()
+        
     already_checked_in = Attendance.objects.filter(user=request.user, logged_at__date=today).exists()
     
     return render(request, 'fitsync_app/workout_list.html', {
@@ -2504,6 +2517,34 @@ def assessment_results_view(request):
         'weight_loss': 'Weight Loss', 'muscle_gain': 'Muscle Gain',
         'general_fitness': 'General Fitness', 'endurance': 'Endurance', 'flexibility': 'Flexibility',
     }
+
+    if not request.user.userprofile.active_workout:
+        new_workout = WorkoutProgram.objects.create(
+            title=f"AI Configured: {goal_labels.get(goal, 'Custom Plan')}",
+            description=f"Generated for {request.user.username} based on {level} activity level.",
+            difficulty=level,
+            frequency_per_week=5
+        )
+        request.user.userprofile.active_workout = new_workout
+        request.user.userprofile.save()
+
+    if not request.user.userprofile.active_diet:
+        new_diet = DietPlan.objects.create(
+            name=f"AI Configured Diet: {goal_labels.get(goal, 'Custom Plan')}",
+            description=f"Caloric goal: {daily_cals} kcal.",
+            daily_calories=daily_cals,
+            protein_g=int(weight * 2.2),
+            carbs_g=int((daily_cals * 0.4)/4),
+            fats_g=int((daily_cals * 0.3)/9)
+        )
+        # Create meals for the diet
+        for d in daily_diet:
+            Meal.objects.create(
+                diet_plan=new_diet, day='monday', name=d.capitalize(), 
+                calories=daily_cals//4, protein=30, carbs=40, fats=10, description=daily_diet[d]
+            )
+        request.user.userprofile.active_diet = new_diet
+        request.user.userprofile.save()
 
     return render(request, 'fitsync_app/assessment_results.html', {
         'assessment': assessment,
