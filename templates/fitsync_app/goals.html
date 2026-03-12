@@ -321,7 +321,7 @@
                                 ∞
                                 {% endif %}
                             </div>
-                            <div class="metric-label">Time Left</div>
+                            <div class="metric-label">{% if goal.is_completed %}Status{% else %}Time Left{% endif %}</div>
                         </div>
                     </div>
 
