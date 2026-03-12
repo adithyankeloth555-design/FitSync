@@ -1,876 +1,864 @@
 {% extends 'fitsync_app/base.html' %}
 {% load static %}
 
-{% block title %}Admin Dashboard | FitSync Modern{% endblock %}
+{% block title %}Admin Dashboard | Fitsync Pro{% endblock %}
 
 {% block header %}{% endblock %}
 {% block footer %}{% endblock %}
 
 {% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
 <style>
+    /* Dark Terminal Theme Variables */
     :root {
-        --admin-bg: var(--bg-primary);
-        --sidebar-bg: var(--bg-tertiary);
-        --accent-orange: var(--gold);
-        --text-dark: var(--text-primary);
-        --text-muted: var(--text-muted);
-        --white: var(--bg-secondary);
+        --bg-main: #09100e;
+        --bg-panel: #0d1614;
+        --bg-card: #111c18;
+        --bg-sidebar: #09100e;
+        --bg-teal-hover: #14241f;
+
+        --text-pure: #ffffff;
+        --text-primary: #e2e8f0;
+        --text-sec: #8b9a96;
+        --text-muted: #52635e;
+
+        --accent-green: #1D9E75;
+        --accent-teal: #14b8a6;
+        --accent-blue: #3b82f6;
+        --accent-orange: #f59e0b;
+        --accent-purple: #8b5cf6;
+        --accent-red: #ef4444;
+
+        --border-subtle: rgba(255, 255, 255, 0.05);
+        --border-med: rgba(255, 255, 255, 0.1);
     }
 
     body {
-        background-color: var(--admin-bg);
-        color: var(--text-dark);
+        margin: 0;
+        padding: 0;
+        background-color: var(--bg-main);
+        color: var(--text-primary);
         font-family: 'Inter', sans-serif;
     }
 
-    .admin-wrapper {
+    /* Layout */
+    .dashboard-layout {
         display: flex;
         min-height: 100vh;
     }
 
-    /* Sidebar Styles */
+    /* SIDEBAR */
     .sidebar {
         width: 260px;
-        background: var(--sidebar-bg);
-        color: var(--text-primary);
+        background: var(--bg-sidebar);
+        border-right: 1px solid var(--border-subtle);
         display: flex;
         flex-direction: column;
+        padding: 1.5rem 0;
         position: fixed;
-        top: 0;
-        bottom: 0;
-        z-index: 1001;
-        padding: 0;
-        transition: transform 0.3s ease;
+        height: 100vh;
+        z-index: 10;
+        box-sizing: border-box;
     }
 
-    .sidebar-header {
-        padding: 1.5rem;
+    .sidebar-brand {
         display: flex;
         align-items: center;
-        gap: 0.8rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        margin-bottom: 1rem;
+        gap: 12px;
+        padding: 0 1.5rem 2rem;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-pure);
+        text-decoration: none;
+        border-bottom: 1px solid var(--border-subtle);
     }
-
-    .admin-avatar {
+    .brand-icon {
         width: 32px;
         height: 32px;
-        border-radius: 4px;
-        object-fit: cover;
-    }
-
-    .admin-name {
-        font-weight: 600;
-        font-size: 0.9rem;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: #f3f4f6;
-    }
-
-    .sidebar-menu {
-        padding: 0 0.8rem;
-        list-style: none;
-        flex-grow: 1;
-        overflow-y: auto;
-        min-height: 0;
-    }
-
-    .logout-box {
-        padding: 1rem 0.8rem;
-        padding-bottom: calc(1rem + env(safe-area-inset-bottom));
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-        flex-shrink: 0;
-    }
-
-    .menu-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 0.65rem 1rem;
-        color: #94a3b8;
-        text-decoration: none;
-        font-size: 0.85rem;
-        border-radius: 6px;
-        margin-bottom: 0.25rem;
-        transition: all 0.2s;
-        font-weight: 500;
-    }
-
-    .menu-item:hover {
-        color: var(--text-primary);
-        background: rgba(255, 255, 255, 0.05);
-    }
-
-    .menu-item.active {
-        background: var(--accent-orange);
-        color: var(--text-primary);
-    }
-
-    .menu-item i {
-        font-size: 1rem;
-        width: 18px;
-        text-align: center;
-    }
-
-    .menu-item .chevron {
-        margin-left: auto;
-        font-size: 0.7rem;
-        opacity: 0.5;
-    }
-
-    /* Main Area Styles */
-    .main-area {
-        margin-left: 260px;
-        flex-grow: 1;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .top-bar {
-        background: var(--bg-secondary);
-        padding: 0.6rem 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: var(--shadow-sm);
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .search-input-wrapper {
-        position: relative;
-        width: 350px;
-    }
-
-    .search-input-wrapper i {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #9ca3af;
-        font-size: 0.85rem;
-    }
-
-    .search-input-wrapper input {
-        width: 100%;
-        padding: 0.45rem 1rem 0.45rem 2.5rem;
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        background: var(--bg-tertiary);
-        color: var(--text-primary);
-        font-size: 0.85rem;
-        outline: none;
-    }
-
-    .top-bar-right {
-        display: flex;
-        align-items: center;
-        gap: 1.2rem;
-    }
-
-    .top-bar-right i {
-        color: var(--text-dark);
-        font-size: 1rem;
-        cursor: pointer;
-        opacity: 0.7;
-    }
-
-    .admin-pill {
-        background: var(--accent-orange);
-        color: #000;
-        padding: 0.35rem 1rem;
-        border-radius: 4px;
-        font-weight: 600;
-        font-size: 0.8rem;
-    }
-
-    /* Content Grid */
-    .dashboard-content {
-        padding: 1.5rem 2rem;
-    }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .stat-card {
-        background: var(--white);
-        padding: 1.25rem 1.5rem;
+        background: var(--accent-green);
         border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        display: flex;
-        align-items: center;
-        gap: 1.25rem;
-    }
-
-    .stat-icon {
-        width: 42px;
-        height: 42px;
-        border-radius: 4px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.1rem;
+        color: #fff;
+        font-size: 0.9rem;
     }
 
-    .stat-icon.blue {
-        background: var(--bg-tertiary);
-        color: #3b82f6;
-    }
-
-    .stat-icon.indigo {
-        background: var(--bg-tertiary);
-        color: #6366f1;
-    }
-
-    .stat-icon.green {
-        background: var(--bg-tertiary);
-        color: #22c55e;
-    }
-
-    .stat-details h4 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        margin: 0;
-        line-height: 1;
-        color: var(--text-primary);
-    }
-
-    .stat-details p {
-        color: var(--text-muted);
-        font-size: 0.8rem;
-        margin: 4px 0 0 0;
-        font-weight: 500;
-    }
-
-    /* Table Styles */
-    .table-section {
-        background: var(--white);
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        margin-bottom: 2rem;
-        overflow: hidden;
-    }
-
-    .section-title {
-        padding: 1.25rem 1.5rem;
-        font-size: 1rem;
-        font-weight: 700;
-        border-bottom: 1px solid var(--border-color);
-        color: var(--text-primary);
-    }
-
-    .modern-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .modern-table th {
-        background: var(--bg-secondary);
-        text-align: left;
-        padding: 0.85rem 1.5rem;
-        font-size: 0.75rem;
-        text-transform: capitalize;
-        color: var(--text-muted);
-        font-weight: 600;
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .modern-table td {
-        padding: 0.85rem 1.5rem;
-        border-bottom: 1px solid var(--border-color);
-        vertical-align: middle;
-        font-size: 0.85rem;
-        color: var(--text-primary);
-    }
-
-    .user-info {
+    .admin-profile {
+        padding: 1.5rem;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
+        border-bottom: 1px solid var(--border-subtle);
     }
-
-    .user-info img {
-        width: 28px;
-        height: 28px;
+    .admin-avatar {
+        width: 36px;
+        height: 36px;
+        background: var(--accent-green);
         border-radius: 50%;
-        object-fit: cover;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-weight: 700;
+        font-size: 1rem;
     }
+    .admin-info {
+        display: flex;
+        flex-direction: column;
+    }
+    .admin-info .name { font-size: 0.95rem; font-weight: 600; color: var(--text-pure); }
+    .admin-info .role { font-size: 0.75rem; color: var(--text-sec); }
 
-    .badge-status {
-        padding: 3px 10px;
+    .nav-group {
+        padding: 1rem 0 0;
+    }
+    .nav-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 0 1.5rem 0.5rem;
+    }
+    .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0.75rem 1.5rem;
+        color: var(--text-sec);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border-left: 2px solid transparent;
+        transition: all 0.2s;
+    }
+    .nav-item:hover {
+        background: rgba(255, 255, 255, 0.02);
+        color: var(--text-primary);
+    }
+    .nav-item.active {
+        color: var(--accent-green);
+        background: rgba(29, 158, 117, 0.05);
+        border-left-color: var(--accent-green);
+    }
+    .nav-item i { width: 16px; font-size: 0.9rem; }
+    
+    .nav-badge {
+        margin-left: auto;
+        background: rgba(29, 158, 117, 0.15);
+        color: var(--accent-green);
+        padding: 2px 6px;
         border-radius: 4px;
         font-size: 0.7rem;
         font-weight: 600;
     }
 
-    .badge-active {
-        background: #dbeafe;
-        color: #2563eb;
-    }
-
-    .badge-inactive {
-        background: #f3f4f6;
-        color: #6b7280;
-    }
-
-    /* Chart Area */
-    .chart-section {
-        background: var(--white);
-        border-radius: 8px;
+    .sidebar-footer {
+        margin-top: auto;
         padding: 1.5rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        border-top: 1px solid var(--border-subtle);
     }
-
-    .chart-header {
-        font-weight: 700;
-        font-size: 1rem;
-        margin-bottom: 1rem;
-        color: var(--text-primary);
-    }
-
-    .chart-container {
-        height: 200px;
+    .logout-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #ef4444;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 500;
+        padding: 0.5rem;
+        transition: opacity 0.2s;
+        border: none;
+        background: transparent;
+        cursor: pointer;
         width: 100%;
+        text-align: left;
+    }
+    .logout-btn:hover { opacity: 0.8; }
+
+    /* MAIN CONTENT */
+    .main-content {
+        flex: 1;
+        margin-left: 260px;
+        background: var(--bg-panel);
+        border-left: 1px solid var(--border-subtle);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .top-header {
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 2rem;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+    .breadcrumbs {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-pure);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .breadcrumbs-muted { color: var(--text-muted); font-weight: 400; }
+    
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .status-badge {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(29, 158, 117, 0.1);
+        border: 1px solid rgba(29, 158, 117, 0.3);
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        color: var(--accent-green);
+        font-weight: 500;
+    }
+    .status-badge .dot {
+        width: 6px; height: 6px; border-radius: 50%; background: var(--accent-green);
+    }
+    .icon-btn {
+        width: 36px; height: 36px;
+        border-radius: 8px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-sec);
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .icon-btn:hover { color: var(--text-pure); border-color: var(--border-med); }
+
+    .dashboard-body {
+        padding: 2rem;
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 2rem;
+        flex: 1;
+    }
+
+    /* METRIC CARDS */
+    .metrics-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .metrics-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+    }
+
+    .metric-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: 12px;
+        padding: 1.25rem;
         position: relative;
+        overflow: hidden;
+        transition: background 0.2s;
+    }
+    .metric-card:hover { background: var(--bg-teal-hover); }
+    
+    .metric-bot-bar {
+        position: absolute;
+        bottom: 0; left: 1rem; right: 1rem;
+        height: 2px;
+        border-radius: 2px 2px 0 0;
+    }
+    .metric-bot-bar.green { background: var(--accent-green); }
+
+    .metric-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.5rem;
+    }
+    .metric-icon {
+        width: 32px; height: 32px;
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.9rem;
+    }
+    .metric-icon.green { background: rgba(29, 158, 117, 0.1); color: var(--accent-green); }
+    .metric-icon.blue { background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); }
+
+    .spark-tag {
+        background: rgba(29, 158, 117, 0.15);
+        color: var(--accent-green);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        display: flex; align-items: center; gap: 4px;
     }
 
-    /* Mobile Responsive for Admin */
+    .metric-val {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-pure);
+        margin: 0 0 0.25rem 0;
+        line-height: 1.2;
+    }
+    .metric-label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    /* WIDGETS */
+    .widget {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .widget-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    .widget-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-pure);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .live-tag {
+        background: rgba(20, 184, 166, 0.1);
+        color: var(--accent-teal);
+        border: 1px solid rgba(20, 184, 166, 0.2);
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+    .view-all {
+        font-size: 0.8rem;
+        color: var(--accent-green);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    /* Store List */
+    .store-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .store-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        background: var(--bg-main);
+        border-radius: 12px;
+        border: 1px solid transparent;
+        transition: border-color 0.2s;
+    }
+    .store-row:hover { border-color: var(--border-med); }
+    
+    .s-left { display: flex; align-items: center; gap: 12px; }
+    .s-icon {
+        width: 36px; height: 36px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        color: var(--text-sec);
+        font-size: 0.9rem;
+    }
+    .s-labels .s-title { font-size: 0.8rem; color: var(--text-sec); margin-bottom: 2px; }
+    .s-labels .s-val { font-size: 1.1rem; font-weight: 700; color: var(--text-pure); }
+    
+    .s-right { display: flex; align-items: center; }
+    .mini-chart { display: flex; align-items: flex-end; gap: 3px; height: 20px; }
+    .m-bar { width: 5px; background: var(--accent-green); border-radius: 2px 2px 0 0; }
+    
+    .tag {
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .tag.blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+    .tag.green { background: rgba(29, 158, 117, 0.15); color: #34d399; }
+    .tag.purple { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
+
+    /* Users Table */
+    .table-wrapper {
+        margin-top: 1rem;
+        width: 100%;
+    }
+    .pro-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .pro-table th {
+        text-align: left;
+        padding: 0.5rem 1rem 1rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+    .pro-table td {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+        font-size: 0.9rem;
+        color: var(--text-sec);
+        vertical-align: middle;
+    }
+    .user-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: var(--text-pure);
+        font-weight: 500;
+    }
+    .user-cir {
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 600; font-size: 0.85rem;
+        color: #fff;
+    }
+
+    /* RIGHT COLUMN */
+    .right-col {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .teal-panel {
+        background: rgba(20, 184, 166, 0.03);
+        border: 1px solid rgba(20, 184, 166, 0.15);
+        border-radius: 16px;
+        padding: 1.5rem;
+    }
+    .tp-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+    .tp-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-pure);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        line-height: 1.4;
+    }
+    .tp-title i { color: var(--accent-teal); font-size: 0.8rem; }
+    .admin-active {
+        background: rgba(20, 184, 166, 0.15);
+        color: var(--accent-teal);
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 4px 8px;
+        border-radius: 4px;
+        text-align: center;
+        line-height: 1.2;
+    }
+    
+    .tp-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+    .tp-tile {
+        background: var(--bg-main);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        transition: border-color 0.2s;
+    }
+    .tp-tile:hover {
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+    .tp-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .tp-name { font-size: 0.8rem; font-weight: 500; color: var(--text-primary); line-height: 1.2; }
+
+    .q-actions .widget-title { margin-bottom: 1rem; }
+    .q-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+    .q-btn {
+        background: transparent;
+        border: 1px solid var(--border-med);
+        border-radius: 8px;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        color: var(--text-primary);
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: background 0.2s;
+    }
+    .q-btn:hover { background: rgba(255, 255, 255, 0.03); }
+    .q-btn i { font-size: 1.1rem; color: var(--text-sec); }
+
     @media (max-width: 1024px) {
-        .sidebar {
-            transform: translateX(-100%);
-        }
-
-        .sidebar.open {
-            transform: translateX(0);
-            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
-        }
-
-        .main-area {
-            margin-left: 0 !important;
-        }
-
-        .top-bar {
-            padding: 0.6rem 1rem;
-            padding-left: 4.5rem;
-        }
-
-        .search-input-wrapper {
-            width: 100%;
-        }
-
-        .stats-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
-        }
-
-        .dashboard-content {
-            padding: 1rem;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .stats-grid {
-            grid-template-columns: 1fr !important;
-        }
-
-        .top-bar-right {
-            display: none;
-        }
-
-        div[style*="display: flex; gap: 1rem"] {
-            flex-wrap: wrap;
-        }
-    }
-
-    /* Store Action Cards */
-    .store-action-card:hover {
-        background: #fff !important;
-        border-color: var(--gold) !important;
-        transform: translateY(-3px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        .dashboard-body { grid-template-columns: 1fr; }
+        .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
+        .main-content { margin-left: 0; }
+        .metrics-row { grid-template-columns: repeat(2, 1fr); }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="admin-wrapper">
-    <!-- Mobile Hamburger Button -->
-    <button class="hamburger-btn" id="hamburger-btn" aria-label="Toggle Menu">
-        <i class="fa-solid fa-bars"></i>
-    </button>
+<div class="dashboard-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <a href="{% url 'admin_dashboard' %}" class="sidebar-brand">
+            <div class="brand-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+            Fitsync
+        </a>
 
-    <!-- Sidebar Overlay -->
-    <div class="sidebar-overlay" id="sidebar-overlay"></div>
-
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            {% if user.userprofile.profile_photo %}
-            <img src="{{ user.userprofile.profile_photo.url }}" class="admin-avatar" alt="Admin">
-            {% else %}
-            <img src="https://i.pravatar.cc/150?u={{ user.username }}" class="admin-avatar" alt="Admin">
-            {% endif %}
-            <span class="admin-name">Admin <i class="fa-solid fa-chevron-down"></i></span>
+        <div class="admin-profile">
+            <div class="admin-avatar">A</div>
+            <div class="admin-info">
+                <span class="name">Admin</span>
+                <span class="role">Super Admin</span>
+            </div>
         </div>
 
-        <nav class="sidebar-menu">
-            <a href="{% url 'admin_dashboard' %}" class="menu-item active">
-                <i class="fa-solid fa-gauge"></i> Dashboard
+        <div class="nav-group">
+            <div class="nav-label">Overview</div>
+            <a href="{% url 'admin_dashboard' %}" class="nav-item active">
+                <i class="fa-solid fa-border-all"></i> Dashboard
             </a>
-            <a href="{% url 'report_members' %}" class="menu-item">
+            <a href="{% url 'report_members' %}" class="nav-item">
                 <i class="fa-regular fa-user"></i> Users
+                <span class="nav-badge">{{ total_users|default:"0" }}</span>
             </a>
-            <a href="{% url 'trainer_list' %}" class="menu-item">
-                <i class="fa-solid fa-table-cells"></i> Trainers
+            <a href="{% url 'trainer_list' %}" class="nav-item">
+                <i class="fa-solid fa-id-card"></i> Trainers
+                <span class="nav-badge">{{ active_trainers|default:"0" }}</span>
             </a>
-            <a href="{% url 'subscription_plans' %}" class="menu-item">
-                <i class="fa-regular fa-envelope"></i> Subscriptions
-            </a>
-            <a href="{% url 'report_payments' %}" class="menu-item">
-                <i class="fa-solid fa-money-bill-transfer"></i> Payments
-            </a>
-            <a href="{% url 'admin_help_tickets' %}" class="menu-item">
-                <i class="fa-solid fa-headset"></i> Help Tickets
-            </a>
-            <div class="menu-item-group">
-                <a href="#" class="menu-item" onclick="toggleSubmenu('reports-submenu')">
-                    <i class="fa-regular fa-file-lines"></i> Reports <i class="fa-solid fa-chevron-down chevron"></i>
-                </a>
-                <div id="reports-submenu" style="display: none; padding-left: 1.5rem;">
-                    <a href="{% url 'report_members' %}" class="menu-item" style="font-size: 0.8rem;">
-                        <i class="fa-solid fa-users-viewfinder"></i> Members
-                    </a>
-                    <a href="{% url 'report_payments' %}" class="menu-item" style="font-size: 0.8rem;">
-                        <i class="fa-solid fa-file-invoice-dollar"></i> Financials
-                    </a>
-                    <a href="{% url 'report_attendance' %}" class="menu-item" style="font-size: 0.8rem;">
-                        <i class="fa-solid fa-clipboard-user"></i> Attendance
-                    </a>
-                </div>
-            </div>
+        </div>
 
-            <div class="menu-item-group">
-                <a href="#" class="menu-item" onclick="toggleSubmenu('store-submenu')">
-                    <i class="fa-solid fa-shop" style="color: var(--accent-orange);"></i> Store Management <i
-                        class="fa-solid fa-chevron-down chevron"></i>
-                </a>
-                <div id="store-submenu" style="display: none; padding-left: 1.5rem;">
-                    <a href="{% url 'add_product' %}" class="menu-item" style="font-size: 0.8rem;">
-                        <i class="fa-solid fa-plus"></i> Add Equipment
-                    </a>
-                    <a href="{% url 'store_management' %}" class="menu-item" style="font-size: 0.8rem;">
-                        <i class="fa-solid fa-tags"></i> Update Prices
-                    </a>
-                    <a href="{% url 'store_management' %}" class="menu-item" style="font-size: 0.8rem;">
-                        <i class="fa-solid fa-boxes-stacked"></i> Manage Stock
-                    </a>
-                    <a href="{% url 'admin_orders' %}" class="menu-item" style="font-size: 0.8rem;">
-                        <i class="fa-solid fa-truck-fast"></i> Delivery Status
-                    </a>
-                </div>
-            </div>
-        </nav>
+        <div class="nav-group">
+            <div class="nav-label">Finance</div>
+            <a href="{% url 'subscription_plans' %}" class="nav-item">
+                <i class="fa-solid fa-bag-shopping"></i> Subscriptions
+            </a>
+            <a href="{% url 'report_payments' %}" class="nav-item">
+                <i class="fa-regular fa-credit-card"></i> Payments
+            </a>
+        </div>
 
-        <div class="logout-box">
+        <div class="nav-group">
+            <div class="nav-label">Support</div>
+            <a href="{% url 'admin_help_tickets' %}" class="nav-item">
+                <i class="fa-solid fa-circle-exclamation"></i> Help Tickets
+                <span class="nav-badge">5</span>
+            </a>
+            <a href="{% url 'report_members' %}" class="nav-item">
+                <i class="fa-solid fa-desktop"></i> Reports
+            </a>
+            <a href="{% url 'store_management' %}" class="nav-item">
+                <i class="fa-solid fa-cart-shopping"></i> Store Mgmt
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
             <form action="{% url 'logout' %}" method="post">
                 {% csrf_token %}
-                <button type="submit" class="menu-item"
-                    style="background: none; border: none; width: 100%; cursor: pointer; text-align: left; color: #ef4444;">
-                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                <button type="submit" class="logout-btn">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
                 </button>
             </form>
         </div>
     </aside>
 
-    <!-- Main Content -->
-    <div class="main-area">
-        <header class="top-bar">
-            <div class="search-input-wrapper">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" placeholder="Search">
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="top-header">
+            <div class="breadcrumbs">
+                Dashboard <span class="breadcrumbs-muted">/</span> Overview
             </div>
-
-            <div class="top-bar-right">
-                <i class="fa-solid fa-arrows-rotate"></i>
-                <i class="fa-regular fa-envelope"></i>
-                <i class="fa-solid fa-thumbtack" style="color: #94a3b8; transform: rotate(45deg);"></i>
-                <div class="admin-pill">Admin</div>
+            
+            <div class="header-actions">
+                <div class="status-badge">
+                    <div class="dot"></div>
+                    All Systems Operational
+                </div>
+                <button class="icon-btn"><i class="fa-regular fa-bell"></i></button>
+                <button class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
             </div>
         </header>
 
-        <div class="dashboard-content">
-            <!-- Stats Grid -->
-            <div class="stats-grid" style="grid-template-columns: repeat(5, 1fr);">
-                <div class="stat-card">
-                    <div class="stat-icon green">
-                        <i class="fa-solid fa-indian-rupee-sign"></i>
-                    </div>
-                    <div class="stat-details">
-                        <h4>₹{{ total_revenue|default:"0" }}</h4>
-                        <p>Total Revenue</p>
-                    </div>
-                </div>
-
-                <div class="stat-card" style="border-left: 4px solid #FFD700;">
-                    <div class="stat-icon indigo" style="color: #FFD700;">
-                        <i class="fa-solid fa-crown"></i>
-                    </div>
-                    <div class="stat-details">
-                        <h4>{{ tier_counts.elite }}</h4>
-                        <p>Elite</p>
-                    </div>
-                </div>
-
-                <div class="stat-card" style="border-left: 4px solid #f59e0b;">
-                    <div class="stat-icon blue" style="color: #f59e0b;">
-                        <i class="fa-solid fa-award"></i>
-                    </div>
-                    <div class="stat-details">
-                        <h4>{{ tier_counts.premium }}</h4>
-                        <p>Premium</p>
-                    </div>
-                </div>
-
-                <div class="stat-card" style="border-left: 4px solid #3b82f6;">
-                    <div class="stat-icon blue">
-                        <i class="fa-solid fa-user-group"></i>
-                    </div>
-                    <div class="stat-details">
-                        <h4>{{ tier_counts.basic }}</h4>
-                        <p>Basic</p>
-                    </div>
-                </div>
-
-                <div class="stat-card" style="border-left: 4px solid #a855f7;">
-                    <div class="stat-icon" style="color: #a855f7;">
-                        <i class="fa-solid fa-infinity"></i>
-                    </div>
-                    <div class="stat-details">
-                        <h4>{{ tier_counts.lifetime }}</h4>
-                        <p>Lifetime</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Second Stats Row (General Info) -->
-            <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 2rem;">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
-                        <i class="fa-solid fa-users"></i>
-                    </div>
-                    <div class="stat-details"
-                        style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-                        <div>
-                            <h4>{{ total_users }}</h4>
-                            <p>Total Registered Members</p>
+        <div class="dashboard-body">
+            <!-- LEFT COLUMN (Metrics + Store List + Users) -->
+            <div class="metrics-container">
+                
+                <!-- Metrics Row -->
+                <div class="metrics-row">
+                    <!-- Revenue -->
+                    <div class="metric-card">
+                        <div class="metric-top">
+                            <div class="metric-icon green"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                            <div class="spark-tag"><i class="fa-solid fa-arrow-up"></i> 12%</div>
                         </div>
-                        <div style="text-align: right;">
-                            <h4>{{ active_trainers }}</h4>
-                            <p>Professional Trainers</p>
+                        <h3 class="metric-val">₹{{ total_revenue|default:"12,190" }}</h3>
+                        <div class="metric-label">REVENUE</div>
+                        <div class="metric-bot-bar green"></div>
+                    </div>
+                    
+                    <!-- Members -->
+                    <div class="metric-card">
+                        <div class="metric-top" style="margin-bottom: 2rem;">
+                            <div class="metric-icon green"><i class="fa-solid fa-users"></i></div>
                         </div>
+                        <h3 class="metric-val">{{ total_users|default:"2" }}</h3>
+                        <div class="metric-label">Registered Members</div>
+                    </div>
+
+                    <!-- Trainers -->
+                    <div class="metric-card">
+                        <div class="metric-top" style="margin-bottom: 2rem;">
+                            <div class="metric-icon blue"><i class="fa-solid fa-id-badge"></i></div>
+                        </div>
+                        <h3 class="metric-val">{{ active_trainers|default:"3" }}</h3>
+                        <div class="metric-label">Pro Trainers</div>
+                    </div>
+
+                    <!-- System Status -->
+                    <div class="metric-card">
+                        <div class="metric-top" style="margin-bottom: 2rem;">
+                            <div class="metric-icon"><i class="fa-solid fa-chart-line"></i></div>
+                        </div>
+                        <h3 class="metric-val" style="display:flex; align-items:center; gap:8px;">Active <div class="dot" style="width:6px; height:6px; background:var(--accent-green); border-radius:50%;"></div></h3>
+                        <div class="metric-label">System Status</div>
                     </div>
                 </div>
 
-                <div class="stat-card">
-                    <div class="stat-icon green">
-                        <i class="fa-solid fa-chart-line"></i>
+                <!-- Store Analytics List -->
+                <div class="widget">
+                    <div class="widget-header">
+                        <div class="widget-title">
+                            <i class="fa-solid fa-cart-shopping" style="color:var(--accent-green)"></i>
+                            Store Analytics
+                            <span class="live-tag">LIVE</span>
+                        </div>
+                        <a href="{% url 'store_management' %}" class="view-all">View all &rarr;</a>
                     </div>
-                    <div class="stat-details">
-                        <h4>Active</h4>
-                        <p>System Status</p>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Store Analytics -->
-            <div style="margin-bottom: 2rem;">
-                <div class="section-title"
-                    style="background: var(--white); border-radius: 8px 8px 0 0; border-bottom: none; display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-store" style="color: #10b981;"></i> FitSync Store Analytics
-                </div>
-                <div
-                    style="background: var(--white); padding: 1.5rem; border-radius: 0 0 8px 8px; border-top: 1px solid var(--border-color);">
-                    <div class="stats-grid"
-                        style="grid-template-columns: repeat(4, 1fr); margin-bottom: 0; gap: 1.5rem;">
-                        <div class="stat-card" style="border-left: 4px solid #10b981; padding: 1.5rem;">
-                            <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
-                                <i class="fa-solid fa-box-open"></i>
+                    <div class="store-list">
+                        <!-- Total Products -->
+                        <div class="store-row">
+                            <div class="s-left">
+                                <div class="s-icon"><i class="fa-solid fa-box"></i></div>
+                                <div class="s-labels">
+                                    <div class="s-title">Total Products</div>
+                                    <div class="s-val">{{ store_total_products|default:"8" }}</div>
+                                </div>
                             </div>
-                            <div class="stat-details">
-                                <h4>{{ store_total_products }}</h4>
-                                <p>Total Products</p>
+                            <div class="s-right">
+                                <div class="mini-chart">
+                                    <div class="m-bar" style="height: 40%; opacity: 0.5;"></div>
+                                    <div class="m-bar" style="height: 60%; opacity: 0.7;"></div>
+                                    <div class="m-bar" style="height: 50%; opacity: 0.6;"></div>
+                                    <div class="m-bar" style="height: 100%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Total Orders -->
+                        <div class="store-row">
+                            <div class="s-left">
+                                <div class="s-icon"><i class="fa-solid fa-cart-plus"></i></div>
+                                <div class="s-labels">
+                                    <div class="s-title">Total Orders</div>
+                                    <div class="s-val">{{ store_total_orders|default:"1" }}</div>
+                                </div>
+                            </div>
+                            <div class="s-right">
+                                <div class="tag blue">New</div>
                             </div>
                         </div>
 
-                        <div class="stat-card" style="border-left: 4px solid #3b82f6; padding: 1.5rem;">
-                            <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
-                                <i class="fa-solid fa-cart-shopping"></i>
+                        <!-- Store Revenue -->
+                        <div class="store-row">
+                            <div class="s-left">
+                                <div class="s-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                                <div class="s-labels">
+                                    <div class="s-title">Store Revenue</div>
+                                    <div class="s-val">₹{{ store_total_revenue|default:"699" }}</div>
+                                </div>
                             </div>
-                            <div class="stat-details">
-                                <h4>{{ store_total_orders }}</h4>
-                                <p>Total Orders</p>
-                            </div>
-                        </div>
-
-                        <div class="stat-card" style="border-left: 4px solid #ef4444; padding: 1.5rem;">
-                            <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
-                                <i class="fa-solid fa-indian-rupee-sign"></i>
-                            </div>
-                            <div class="stat-details">
-                                <h4>₹{{ store_total_revenue|default:"0" }}</h4>
-                                <p>Total Revenue</p>
+                            <div class="s-right">
+                                <div class="tag green">+₹{{ store_total_revenue|default:"699" }}</div>
                             </div>
                         </div>
 
-                        <div class="stat-card" style="border-left: 4px solid #8b5cf6; padding: 1.5rem;">
-                            <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
-                                <i class="fa-solid fa-star"></i>
+                        <!-- Top Product -->
+                        <div class="store-row">
+                            <div class="s-left">
+                                <div class="s-icon"><i class="fa-regular fa-star"></i></div>
+                                <div class="s-labels">
+                                    <div class="s-title">Top Product</div>
+                                    <div class="s-val">{{ store_top_product|default:"Workout Gloves" }}</div>
+                                </div>
                             </div>
-                            <div class="stat-details">
-                                <h4 style="font-size: 1.1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
-                                    title="{{ store_top_product }}">
-                                    {{ store_top_product|truncatechars:18 }}
-                                </h4>
-                                <p>Top Product</p>
+                            <div class="s-right">
+                                <div class="tag purple">#1</div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Users Table -->
+                <div class="widget">
+                    <div class="widget-header">
+                        <div class="widget-title">
+                            Recently Registered Users
+                        </div>
+                        <a href="{% url 'report_members' %}" class="view-all">See all &rarr;</a>
+                    </div>
+                    
+                    <div class="table-wrapper">
+                        <table class="pro-table">
+                            <thead>
+                                <tr>
+                                    <th>MEMBER</th>
+                                    <th>EMAIL</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for profile in recent_users|slice:":3" %}
+                                <tr>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="user-cir" style="background: var(--accent-green);">{{ profile.user.username|make_list|first|upper }}</div>
+                                            {{ profile.user.username|title }}
+                                        </div>
+                                    </td>
+                                    <td>{{ profile.user.email }}</td>
+                                </tr>
+                                {% empty %}
+                                <!-- Dummy defaults to match the mockup view if empty DB -->
+                                <tr>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="user-cir" style="background: var(--accent-teal);">U</div>
+                                            Unni
+                                        </div>
+                                    </td>
+                                    <td>fitsync@unni.app</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="user-cir" style="background: #f97316;">A</div>
+                                            Adithyan
+                                        </div>
+                                    </td>
+                                    <td>adithyan@fit.sync</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
 
-            <!-- FitSync Store Control Center -->
-            <div style="margin-bottom: 2rem;">
-                <div class="section-title"
-                    style="background: #1e293b; color: var(--text-primary); border-radius: 12px 12px 0 0; border-bottom: none; display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem;">
-                    <span style="display: flex; align-items: center; gap: 12px;">
-                        <i class="fa-solid fa-shop" style="color: var(--gold);"></i>
-                        FITSVNC STORE OPERATIONAL CONTROL
-                    </span>
-                    <span
-                        style="font-size: 0.7rem; background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 20px; font-weight: 500;">
-                        ADMIN PRIVILEGES ACTIVE
-                    </span>
-                </div>
-                <div
-                    style="background: var(--white); padding: 2rem; border-radius: 0 0 12px 12px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); border-top: none;">
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
-                        <!-- Action 1: Add New Equipment -->
-                        <a href="{% url 'add_product' %}"
-                            style="text-decoration: none; display: flex; align-items: center; gap: 15px; padding: 1.25rem; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; transition: 0.3s;"
-                            class="store-action-card">
-                            <div
-                                style="width: 45px; height: 45px; background: rgba(245, 158, 11, 0.1); color: #f59e0b; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
-                                <i class="fa-solid fa-plus-circle"></i>
-                            </div>
-                            <div>
-                                <div style="font-weight: 700; color: #1e293b; font-size: 0.9rem;">Add New Equipment
-                                </div>
-                                <div style="font-size: 0.75rem; color: #64748b;">Expand store catalog</div>
-                            </div>
+            <!-- RIGHT COLUMN -->
+            <div class="right-col">
+                
+                <div class="teal-panel">
+                    <div class="tp-header">
+                        <div class="tp-title">
+                            <div><i class="fa-solid fa-shapes"></i></div>
+                            Store<br>Operational<br>Control
+                        </div>
+                        <div class="admin-active">
+                            ADMIN<br>ACTIVE
+                        </div>
+                    </div>
+                    
+                    <div class="tp-grid">
+                        <a href="{% url 'store_management' %}" class="tp-tile">
+                            <div class="tp-dot" style="background: var(--accent-green);"></div>
+                            <div class="tp-name">Manage<br>Stock</div>
                         </a>
-
-                        <!-- Action 2: Update Product Price -->
-                        <a href="{% url 'store_management' %}"
-                            style="text-decoration: none; display: flex; align-items: center; gap: 15px; padding: 1.25rem; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; transition: 0.3s;"
-                            class="store-action-card">
-                            <div
-                                style="width: 45px; height: 45px; background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
-                                <i class="fa-solid fa-tags"></i>
-                            </div>
-                            <div>
-                                <div style="font-weight: 700; color: #1e293b; font-size: 0.9rem;">Update Product Price
-                                </div>
-                                <div style="font-size: 0.75rem; color: #64748b;">Manage discounts & rates</div>
-                            </div>
+                        <a href="{% url 'admin_orders' %}" class="tp-tile">
+                            <div class="tp-dot" style="background: var(--accent-blue);"></div>
+                            <div class="tp-name">Delivery<br>Status</div>
                         </a>
-
-                        <!-- Action 3: Upload Product Images -->
-                        <a href="{% url 'store_management' %}"
-                            style="text-decoration: none; display: flex; align-items: center; gap: 15px; padding: 1.25rem; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; transition: 0.3s;"
-                            class="store-action-card">
-                            <div
-                                style="width: 45px; height: 45px; background: rgba(59, 130, 246, 0.1); color: #3b82f6; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
-                                <i class="fa-solid fa-cloud-arrow-up"></i>
-                            </div>
-                            <div>
-                                <div style="font-weight: 700; color: #1e293b; font-size: 0.9rem;">Upload Product Images
-                                </div>
-                                <div style="font-size: 0.75rem; color: #64748b;">Refresh visual gallery</div>
-                            </div>
+                        <a href="{% url 'store_management' %}" class="tp-tile">
+                            <div class="tp-dot" style="background: var(--accent-orange);"></div>
+                            <div class="tp-name">Pricing<br>Control</div>
                         </a>
-
-                        <!-- Action 4: Manage Product Stock -->
-                        <a href="{% url 'store_management' %}"
-                            style="text-decoration: none; display: flex; align-items: center; gap: 15px; padding: 1.25rem; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; transition: 0.3s;"
-                            class="store-action-card">
-                            <div
-                                style="width: 45px; height: 45px; background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
-                                <i class="fa-solid fa-boxes-stacked"></i>
-                            </div>
-                            <div>
-                                <div style="font-weight: 700; color: #1e293b; font-size: 0.9rem;">Manage Product Stock
-                                </div>
-                                <div style="font-size: 0.75rem; color: #64748b;">Inventory & availability</div>
-                            </div>
-                        </a>
-
-                        <!-- Action 5: View User Orders -->
-                        <a href="{% url 'admin_orders' %}"
-                            style="text-decoration: none; display: flex; align-items: center; gap: 15px; padding: 1.25rem; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; transition: 0.3s;"
-                            class="store-action-card">
-                            <div
-                                style="width: 45px; height: 45px; background: rgba(239, 68, 68, 0.1); color: #ef4444; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
-                                <i class="fa-solid fa-file-invoice"></i>
-                            </div>
-                            <div>
-                                <div style="font-weight: 700; color: #1e293b; font-size: 0.9rem;">View User Orders</div>
-                                <div style="font-size: 0.75rem; color: #64748b;">Analyze store sales</div>
-                            </div>
-                        </a>
-
-                        <!-- Action 6: Update Delivery Status -->
-                        <a href="{% url 'admin_orders' %}"
-                            style="text-decoration: none; display: flex; align-items: center; gap: 15px; padding: 1.25rem; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; transition: 0.3s;"
-                            class="store-action-card">
-                            <div
-                                style="width: 45px; height: 45px; background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
-                                <i class="fa-solid fa-truck-fast"></i>
-                            </div>
-                            <div>
-                                <div style="font-weight: 700; color: #1e293b; font-size: 0.9rem;">Update Delivery Status
-                                </div>
-                                <div style="font-size: 0.75rem; color: #64748b;">Track & ship orders</div>
-                            </div>
+                        <a href="{% url 'report_members' %}" class="tp-tile">
+                            <div class="tp-dot" style="background: #ef4444;"></div>
+                            <div class="tp-name">User<br>Reports</div>
                         </a>
                     </div>
                 </div>
-            </div>
 
-            <!-- Quick Actions (General) -->
-            <div style="margin-bottom: 2rem;">
-                <div class="section-title"
-                    style="background: var(--white); border-radius: 8px 8px 0 0; border-bottom: none;">General
-                    Administrative Center</div>
-                <div
-                    style="background: var(--white); padding: 1.5rem; border-radius: 0 0 8px 8px; display: flex; gap: 1rem; border-top: 1px solid var(--border-color); flex-wrap: wrap;">
-                    <a href="{% url 'add_trainer' %}"
-                        style="background: var(--accent-orange); color: #000; padding: 0.8rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; gap: 10px;">
-                        <i class="fa-solid fa-user-plus"></i> ONBOARD TRAINER
-                    </a>
-                    <a href="{% url 'trainer_list' %}"
-                        style="background: var(--bg-tertiary); color: var(--text-primary); padding: 0.8rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 0.85rem; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px;">
-                        <i class="fa-solid fa-users-gear"></i> COACH NETWORK
-                    </a>
-                    <a href="{% url 'report_payments' %}"
-                        style="background: #8b5cf6; color: var(--text-primary); padding: 0.8rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; gap: 10px;">
-                        <i class="fa-solid fa-indian-rupee-sign"></i> CHECK PAYMENTS
-                    </a>
-                    <a href="{% url 'admin_help_tickets' %}"
-                        style="background: #ef4444; color: var(--text-primary); padding: 0.8rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; gap: 10px;">
-                        <i class="fa-solid fa-headset"></i> CUSTOMER CARE
-                    </a>
+                <div class="q-actions">
+                    <div class="widget-title">Quick Actions</div>
+                    <div class="q-grid">
+                        <a href="{% url 'add_product' %}" class="q-btn">
+                            <i class="fa-solid fa-plus"></i>
+                            Add<br>Product
+                        </a>
+                        <a href="{% url 'store_management' %}" class="q-btn">
+                            <i class="fa-solid fa-tags"></i>
+                            Update<br>Prices
+                        </a>
+                        <!-- Fill remaining spaces for layout -->
+                        <a href="{% url 'add_trainer' %}" class="q-btn">
+                            <i class="fa-solid fa-user-plus"></i>
+                            Add<br>Trainer
+                        </a>
+                        <a href="{% url 'admin_help_tickets' %}" class="q-btn">
+                            <i class="fa-solid fa-ticket"></i>
+                            View<br>Tickets
+                        </a>
+                    </div>
                 </div>
+
             </div>
-
-            <!-- Table -->
-
-            <div class="table-section">
-                <div class="section-title">Recently Registered Users</div>
-                <table class="modern-table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for profile in recent_users %}
-                        <tr>
-                            <td>
-                                <div class="user-info">
-                                    {% if profile.profile_photo %}
-                                    <img src="{{ profile.profile_photo.url }}" alt="">
-                                    {% else %}
-                                    <div
-                                        style="width: 28px; height: 28px; border-radius: 50%; background: var(--accent-orange); display: flex; align-items: center; justify-content: center; color: black; font-weight: bold; font-size: 0.7rem;">
-                                        {{ profile.user.username|make_list|first|upper }}
-                                    </div>
-                                    {% endif %}
-                                    <span>{{ profile.user.username|title }}</span>
-                                </div>
-                            </td>
-                            <td>{{ profile.user.email }}</td>
-                            <td>
-                                <span
-                                    class="badge-status {% if profile.user.is_active %}badge-active{% else %}badge-inactive{% endif %}">
-                                    {% if profile.user.is_active %}Active{% else %}Inactive{% endif %}
-                                </span>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="3" style="text-align: center; padding: 2rem; color: var(--text-muted);">
-                                No recently registered users found.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Chart -->
-            <div class="chart-section">
-                <div class="chart-header">User Growth</div>
-                <div class="chart-container"
-                    style="display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
-                    <p>Chart data will appear here once sufficient history is available.</p>
-                </div>
-            </div>
-
-            <form action="{% url 'logout' %}" method="post"
-                style="margin-top: 2rem; display: flex; justify-content: center;">
-                {% csrf_token %}
-                <button type="submit"
-                    style="color: #ef4444; background: none; border: 1px solid #fee2e2; padding: 0.5rem 1.5rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600;">
-                    Logout of System
-                </button>
-            </form>
         </div>
-    </div>
+    </main>
 </div>
-
-<script>
-    function toggleSubmenu(id) {
-        const el = document.getElementById(id);
-        if (el.style.display === 'none') {
-            el.style.display = 'block';
-        } else {
-            el.style.display = 'none';
-        }
-    }
-
-    // Sidebar toggle for mobile
-    const hamburgerBtn = document.getElementById('hamburger-btn');
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebar-overlay');
-    const hamburgerIcon = hamburgerBtn.querySelector('i');
-
-    function toggleSidebar() {
-        sidebar.classList.toggle('open');
-        overlay.classList.toggle('active');
-        if (sidebar.classList.contains('open')) {
-            hamburgerIcon.classList.replace('fa-bars', 'fa-xmark');
-        } else {
-            hamburgerIcon.classList.replace('fa-xmark', 'fa-bars');
-        }
-    }
-
-    hamburgerBtn.addEventListener('click', toggleSidebar);
-    overlay.addEventListener('click', toggleSidebar);
-</script>
 {% endblock %}

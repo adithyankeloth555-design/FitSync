@@ -39,7 +39,7 @@ class MealForm(forms.ModelForm):
 class GoalForm(forms.ModelForm):
     class Meta:
         model = Goal
-        fields = ['title', 'category', 'current_value', 'target_value', 'unit', 'target_date', 'description']
+        fields = ['title', 'category', 'start_value', 'current_value', 'target_value', 'unit', 'target_date', 'description']
         widgets = {
             'target_date': forms.DateInput(attrs={'type': 'date'}),
             'description': forms.Textarea(attrs={'rows': 3}),

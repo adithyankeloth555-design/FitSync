@@ -24,7 +24,8 @@ from .models import (
     DietPlan, WorkoutProgram, BMIHistory, Attendance, UserProfile, Payment, Goal,
     NutritionLog, Message, CommunityPost, CommunityComment, Notification, WaterLog,
     TrainerFeedback, ExerciseVideo, EmailOTP, LiveSession, Product, Cart, CartItem,
-    Order, OrderItem, Meal, HelpTicket, FitnessAssessment
+    Order, OrderItem, Meal, HelpTicket, FitnessAssessment,
+    TrainerReview, Badge, UserBadge
 ) # pyre-ignore[21]
 from .forms import (
     DietPlanForm, WorkoutProgramForm, BMIHistoryForm, AttendanceForm, MealForm,
@@ -571,7 +572,7 @@ def trainer_dashboard_view(request):
                 pass
         return redirect('trainer_dashboard')
     
-    today = timezone.now().date()
+    today = timezone.localdate()
     thirty_days_ago = today - timedelta(days=30)
     
     # Optimized Query
@@ -666,13 +667,13 @@ def user_dashboard_view(request):
 
     # Subscription check for trainer section visibility
     sub = UserSubscription.objects.filter(user=request.user, is_active=True).first()
-    is_basic = sub and sub.plan and sub.plan.name == 'basic'
+    is_basic = False
     
     # Get upcoming live sessions
-    upcoming_sessions = LiveSession.objects.filter(date__gte=timezone.now().date()).order_by('date', 'time')[:3]
+    upcoming_sessions = LiveSession.objects.filter(date__gte=timezone.localdate()).order_by('date', 'time')[:3]
     
     # Performance Dashboard Connectivity
-    today = timezone.now().date()
+    today = timezone.localdate()
     calories_today = NutritionLog.objects.filter(user=request.user, date=today).aggregate(Sum('calories'))['calories__sum'] or 0
     water_today = WaterLog.objects.filter(user=request.user, date=today).first()
     water_ml = water_today.amount_ml if water_today else 0
@@ -774,8 +775,8 @@ def trainer_list_view(request):
     is_admin = hasattr(request.user, 'userprofile') and request.user.userprofile.role == 'admin'
     
     sub = UserSubscription.objects.filter(user=request.user, is_active=True).first()
-    if not is_admin and (not sub or not sub.plan or sub.plan.name == 'basic'):
-        messages.warning(request, "Access to elite personal trainers requires a Premium or Elite membership.")
+    if not is_admin and not sub:
+        messages.warning(request, "Access to elite personal trainers requires an active membership.")
         return redirect('membership')
 
     trainers = UserProfile.objects.filter(role='trainer')
@@ -1058,7 +1059,7 @@ def membership_view(request):
 
 @login_required
 def nutrition_view(request):
-    today = timezone.now().date()
+    today = timezone.localdate()
     
     if request.method == 'POST':
         form = NutritionLogForm(request.POST)
@@ -1117,7 +1118,7 @@ def add_water(request):
         data = json.loads(request.body)
         amount = int(data.get('amount', 0))
         
-        today = timezone.now().date()
+        today = timezone.localdate()
         
         water_log, created = WaterLog.objects.get_or_create(user=request.user, date=today)
         water_log.amount_ml += amount
@@ -1414,7 +1415,7 @@ def meal_delete_view(request, meal_id):
 # Workout
 @login_required
 def workout_list_view(request):
-    today = timezone.now().date()
+    today = timezone.localdate()
     # Personalize submodule: show only the user's active workout if member
     user_profile = getattr(request.user, 'userprofile', None)
     if user_profile and user_profile.role == 'member' and user_profile.active_workout:
@@ -1432,7 +1433,7 @@ def workout_list_view(request):
 @login_required
 def workout_session_view(request, pk):
     workout = get_object_or_404(WorkoutProgram, pk=pk)
-    today = timezone.now().date()
+    today = timezone.localdate()
     already_checked_in = Attendance.objects.filter(user=request.user, logged_at__date=today).exists()
     
     return render(request, 'fitsync_app/workout_session.html', {
@@ -1510,7 +1511,7 @@ def mark_attendance_api(request):
         workout_type = data.get('workout_type', "Gym Session")
         notes = data.get('notes', "Daily check-in from dashboard")
         
-        today = timezone.now().date()
+        today = timezone.localdate()
         
         Attendance.objects.create(
             user=request.user,
@@ -1678,8 +1679,8 @@ def payment_success_view(request):
 def chatbot_view(request):
     # Subscription Check: Nova AI is a Premium Feature
     sub = UserSubscription.objects.filter(user=request.user, is_active=True).first()
-    if not sub or not sub.plan or sub.plan.name == 'basic':
-        messages.warning(request, "Nova AI Coaching is reserved for Premium and Elite members.")
+    if not sub:
+        messages.warning(request, "Nova AI Coaching requires an active membership.")
         return redirect('membership')
         
     return render(request, 'fitsync_app/chatbot.html')
@@ -1688,7 +1689,7 @@ def chatbot_view(request):
 def ai_hub_view(request):
     # Subscription Check
     sub = UserSubscription.objects.filter(user=request.user, is_active=True).first()
-    is_premium = sub and sub.plan and sub.plan.name != 'basic'
+    is_premium = bool(sub)
     
     return render(request, 'fitsync_app/ai_hub.html', {
         'is_premium': is_premium
@@ -1822,7 +1823,7 @@ def exercise_detection_view(request):
 @login_required
 def fitness_score_view(request):
     user = request.user
-    today = timezone.now().date()
+    today = timezone.localdate()
     seven_days_ago = today - timedelta(days=7)
     
     # BMI Factor (25 pts)
@@ -1974,7 +1975,7 @@ def meal_scanner_view(request):
 @login_required
 def habit_streak_view(request):
     user = request.user
-    today = timezone.now().date()
+    today = timezone.localdate()
     
     # Calculate streak from Attendance
     streak = 0
@@ -2108,8 +2109,8 @@ def habit_streak_view(request):
 def ai_workout_view(request):
     # Subscription Check: AI Tools are Premium Features
     sub = UserSubscription.objects.filter(user=request.user, is_active=True).first()
-    if not sub or not sub.plan or sub.plan.name == 'basic':
-        messages.warning(request, "Neural Workout Generation is reserved for Premium and Elite members.")
+    if not sub:
+        messages.warning(request, "Neural Workout Generation requires an active membership.")
         return redirect('membership')
         
     return render(request, 'fitsync_app/ai_workout.html')
@@ -2118,8 +2119,8 @@ def ai_workout_view(request):
 def ai_diet_view(request):
     # Subscription Check: AI Tools are Premium Features
     sub = UserSubscription.objects.filter(user=request.user, is_active=True).first()
-    if not sub or not sub.plan or sub.plan.name == 'basic':
-        messages.warning(request, "AI Metabolic Fueling Protocols are reserved for Premium and Elite members.")
+    if not sub:
+        messages.warning(request, "AI Metabolic Fueling Protocols require an active membership.")
         return redirect('membership')
         
     return render(request, 'fitsync_app/ai_diet.html')
@@ -2133,7 +2134,7 @@ def report_attendance_view(request):
 
     try:
         # Calculate real statistics from database
-        today = timezone.now().date()
+        today = timezone.localdate()
         last_30_days = today - timedelta(days=30)
 
         # Get all attendance records from last 30 days
@@ -2589,7 +2590,7 @@ def live_session_view(request):
 
     # Get upcoming sessions (date >= today), ordered by soonest first
     upcoming_sessions = LiveSession.objects.filter(
-        date__gte=timezone.now().date()
+        date__gte=timezone.localdate()
     ).order_by('date', 'time')
 
     return render(request, 'fitsync_app/live_session.html', {
@@ -2950,3 +2951,411 @@ def migrate_db_view(request):
         except Exception as e:
             return HttpResponse(f"❌ Error: {str(e)}")
     return HttpResponse("Unauthorized", status=401)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# FEATURE 1: Goal Deadline Email Reminders
+# (Actual sending is done by management command: send_goal_reminders)
+# This view just shows the user a preview / lets admin trigger it manually.
+# ─────────────────────────────────────────────────────────────────────────────
+
+@login_required
+def trigger_goal_reminders_view(request):
+    """Admin-only: manually trigger goal reminder emails."""
+    if not (hasattr(request.user, 'userprofile') and request.user.userprofile.role == 'admin'):
+        messages.error(request, "Access denied.")
+        return redirect('home')
+
+    from django.core.management import call_command
+    from io import StringIO
+    out = StringIO()
+    call_command('send_goal_reminders', stdout=out)
+    output = out.getvalue()
+    messages.success(request, f"Goal reminders sent! Output: {output}")
+    return redirect('admin_dashboard')
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# FEATURE 2: Trainer Rating & Review System
+# ─────────────────────────────────────────────────────────────────────────────
+
+@login_required
+def trainer_reviews_view(request, trainer_id):
+    """Show all reviews for a trainer + allow current user to submit one."""
+    trainer = get_object_or_404(User, id=trainer_id, userprofile__role='trainer')
+    trainer_profile = trainer.userprofile
+
+    # Check if this member has paid to hire this trainer
+    has_paid = Payment.objects.filter(
+        user=request.user, trainer=trainer, status='success'
+    ).exists()
+
+    # Existing review by this user
+    existing_review = TrainerReview.objects.filter(
+        trainer=trainer, member=request.user
+    ).first()
+
+    if request.method == 'POST' and has_paid:
+        rating = int(request.POST.get('rating', 0))
+        comment = request.POST.get('comment', '').strip()
+
+        if 1 <= rating <= 5:
+            if existing_review:
+                existing_review.rating = rating
+                existing_review.comment = comment
+                existing_review.save()
+                messages.success(request, "Your review has been updated!")
+            else:
+                TrainerReview.objects.create(
+                    trainer=trainer,
+                    member=request.user,
+                    rating=rating,
+                    comment=comment,
+                )
+                messages.success(request, "Review submitted successfully!")
+        else:
+            messages.error(request, "Please select a rating between 1 and 5.")
+        return redirect('trainer_reviews', trainer_id=trainer_id)
+
+    # Compute average rating
+    all_reviews = TrainerReview.objects.filter(trainer=trainer)
+    avg_rating = all_reviews.aggregate(avg=Avg('rating'))['avg'] or 0
+    star_range = range(1, 6)
+
+    context = {
+        'trainer': trainer,
+        'trainer_profile': trainer_profile,
+        'reviews': all_reviews,
+        'avg_rating': round(avg_rating, 1),
+        'avg_rating_int': int(round(avg_rating)),
+        'total_reviews': all_reviews.count(),
+        'has_paid': has_paid,
+        'existing_review': existing_review,
+        'star_range': star_range,
+    }
+    return render(request, 'fitsync_app/trainer_reviews.html', context)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# FEATURE 3: Workout Streak & Badges / Achievements
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _calculate_streak(user):
+    """Return the current consecutive-day attendance streak for a user."""
+    logs = Attendance.objects.filter(user=user).order_by('-logged_at')
+    if not logs.exists():
+        return 0
+
+    # Collect unique attendance dates (local time)
+    unique_dates = sorted(
+        {timezone.localtime(log.logged_at).date() for log in logs},
+        reverse=True
+    )
+
+    today = timezone.localtime(timezone.now()).date()
+    streak = 0
+    expected = today
+
+    for d in unique_dates:
+        if d == expected:
+            streak += 1
+            expected -= timedelta(days=1)
+        elif d < expected:
+            # Allow today to be missing if we haven't checked in yet
+            if streak == 0 and d == today - timedelta(days=1):
+                streak += 1
+                expected = d - timedelta(days=1)
+            else:
+                break
+    return streak
+
+
+def _award_badges(user):
+    """Check milestones and award any new badges. Returns list of newly awarded Badge objects."""
+    newly_awarded = []
+
+    def _award(code):
+        badge = Badge.objects.filter(code=code).first()
+        if badge:
+            _, created = UserBadge.objects.get_or_create(user=user, badge=badge)
+            if created:
+                newly_awarded.append(badge)
+
+    # 1. First BMI log
+    if BMIHistory.objects.filter(user=user).exists():
+        _award('first_bmi')
+
+    # 2. 7-day streak
+    streak = _calculate_streak(user)
+    if streak >= 7:
+        _award('streak_7')
+
+    # 3. 30-day streak
+    if streak >= 30:
+        _award('streak_30')
+
+    # 4. 100 total sessions
+    if Attendance.objects.filter(user=user).count() >= 100:
+        _award('sessions_100')
+
+    # 5. First goal created
+    if Goal.objects.filter(user=user).exists():
+        _award('first_goal')
+
+    # 6. Goal crusher — 3+ completed goals
+    if Goal.objects.filter(user=user, is_completed=True).count() >= 3:
+        _award('goal_crusher')
+
+    # 7. Hydration hero — water logged 7 consecutive days
+    water_dates = set(
+        WaterLog.objects.filter(user=user, amount_ml__gt=0).values_list('date', flat=True)
+    )
+    today = timezone.localtime(timezone.now()).date()
+    water_streak = 0
+    for i in range(7):
+        if (today - timedelta(days=i)) in water_dates:
+            water_streak += 1
+        else:
+            break
+    if water_streak >= 7:
+        _award('hydration_hero')
+
+    # 8. Community star — 5+ posts
+    if CommunityPost.objects.filter(author=user).count() >= 5:
+        _award('community_star')
+
+    return newly_awarded
+
+
+@login_required
+def achievements_view(request):
+    """Show badges, current streak, and session milestones."""
+    # Re-evaluate and award on every visit
+    newly_awarded = _award_badges(request.user)
+
+    streak = _calculate_streak(request.user)
+    total_sessions = Attendance.objects.filter(user=request.user).count()
+    completed_goals = Goal.objects.filter(user=request.user, is_completed=True).count()
+
+    # All badges and which ones the user has earned
+    all_badges = Badge.objects.all()
+    earned_codes = set(
+        UserBadge.objects.filter(user=request.user).values_list('badge__code', flat=True)
+    )
+    earned_badges = UserBadge.objects.filter(user=request.user).select_related('badge')
+
+    # Next milestones
+    milestones = [
+        {'label': '7-Day Streak', 'current': streak, 'target': 7, 'badge': 'streak_7'},
+        {'label': '30-Day Streak', 'current': streak, 'target': 30, 'badge': 'streak_30'},
+        {'label': '100 Sessions', 'current': total_sessions, 'target': 100, 'badge': 'sessions_100'},
+        {'label': '3 Goals Completed', 'current': completed_goals, 'target': 3, 'badge': 'goal_crusher'},
+    ]
+    for m in milestones:
+        pct = min(100, int((m['current'] / m['target']) * 100)) if m['target'] > 0 else 0
+        m['pct'] = pct
+        m['earned'] = m['badge'] in earned_codes
+
+    context = {
+        'streak': streak,
+        'total_sessions': total_sessions,
+        'completed_goals': completed_goals,
+        'all_badges': all_badges,
+        'earned_codes': earned_codes,
+        'earned_badges': earned_badges,
+        'milestones': milestones,
+        'newly_awarded': newly_awarded,
+    }
+    return render(request, 'fitsync_app/achievements.html', context)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# FEATURE 4: Export Progress as PDF / CSV
+# ─────────────────────────────────────────────────────────────────────────────
+
+import csv
+
+@login_required
+def export_progress_csv(request):
+    """Download user's full progress data as a CSV file."""
+    user = request.user
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="fitsync_progress_{user.username}.csv"'
+
+    writer = csv.writer(response)
+
+    # --- BMI History ---
+    writer.writerow(['=== BMI HISTORY ==='  ])
+    writer.writerow(['Date', 'Weight (kg)', 'Height (cm)', 'BMI Score'])
+    for rec in BMIHistory.objects.filter(user=user).order_by('recorded_at'):
+        writer.writerow([
+            rec.recorded_at.strftime('%Y-%m-%d'),
+            rec.weight_kg,
+            rec.height_cm,
+            rec.bmi_score,
+        ])
+
+    writer.writerow([])
+
+    # --- Attendance ---
+    writer.writerow(['=== ATTENDANCE LOG ==='])
+    writer.writerow(['Date', 'Workout Type', 'Notes'])
+    for log in Attendance.objects.filter(user=user).order_by('-logged_at'):
+        writer.writerow([
+            timezone.localtime(log.logged_at).strftime('%Y-%m-%d %H:%M'),
+            log.workout_type,
+            log.notes or '',
+        ])
+
+    writer.writerow([])
+
+    # --- Goals ---
+    writer.writerow(['=== GOALS ==='])
+    writer.writerow(['Title', 'Category', 'Start', 'Current', 'Target', 'Unit', 'Target Date', 'Completed'])
+    for goal in Goal.objects.filter(user=user).order_by('-created_at'):
+        writer.writerow([
+            goal.title,
+            goal.get_category_display(),
+            goal.start_value,
+            goal.current_value,
+            goal.target_value,
+            goal.unit,
+            goal.target_date or 'N/A',
+            'Yes' if goal.is_completed else 'No',
+        ])
+
+    writer.writerow([])
+
+    # --- Nutrition Logs (last 30 days) ---
+    thirty_days_ago = timezone.localdate() - timedelta(days=30)
+    writer.writerow(['=== NUTRITION LOG (Last 30 Days) ==='])
+    writer.writerow(['Date', 'Meal Type', 'Food Item', 'Calories', 'Protein (g)', 'Carbs (g)', 'Fats (g)'])
+    for log in NutritionLog.objects.filter(user=user, date__gte=thirty_days_ago).order_by('-date'):
+        writer.writerow([
+            log.date,
+            log.meal_type,
+            log.food_item,
+            log.calories,
+            log.protein,
+            log.carbs,
+            log.fats,
+        ])
+
+    return response
+
+
+@login_required
+def export_progress_pdf(request):
+    """Download user's progress summary as a PDF using ReportLab."""
+    try:
+        from reportlab.lib.pagesizes import A4  # pyre-ignore[21]
+        from reportlab.lib import colors  # pyre-ignore[21]
+        from reportlab.lib.units import cm  # pyre-ignore[21]
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle  # pyre-ignore[21]
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable  # pyre-ignore[21]
+    except ImportError:
+        messages.error(request, "PDF export requires ReportLab. Run: pip install reportlab")
+        return redirect('progress')
+
+    user = request.user
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="fitsync_progress_{user.username}.pdf"'
+
+    doc = SimpleDocTemplate(response, pagesize=A4, topMargin=1.5*cm, bottomMargin=1.5*cm)
+    styles = getSampleStyleSheet()
+    story = []
+
+    # Styles
+    title_style = ParagraphStyle('Title', parent=styles['Title'], fontSize=22, textColor=colors.HexColor('#4F46E5'), spaceAfter=6)
+    h2_style = ParagraphStyle('H2', parent=styles['Heading2'], fontSize=14, textColor=colors.HexColor('#4F46E5'), spaceBefore=14, spaceAfter=4)
+    normal = styles['Normal']
+    small = ParagraphStyle('small', parent=normal, fontSize=9, textColor=colors.grey)
+    table_header_color = colors.HexColor('#4F46E5')
+
+    # Title
+    story.append(Paragraph('FitSync Elite — Progress Report', title_style))
+    story.append(Paragraph(f'User: {user.get_full_name() or user.username} &nbsp;|&nbsp; Generated: {timezone.localtime(timezone.now()).strftime("%B %d, %Y %H:%M")}', small))
+    story.append(HRFlowable(width='100%', thickness=1, color=colors.HexColor('#4F46E5')))
+    story.append(Spacer(1, 10))
+
+    # --- Summary Stats ---
+    story.append(Paragraph('Summary Statistics', h2_style))
+    total_sessions = Attendance.objects.filter(user=user).count()
+    streak = _calculate_streak(user)
+    completed_goals = Goal.objects.filter(user=user, is_completed=True).count()
+    total_goals = Goal.objects.filter(user=user).count()
+    last_bmi = BMIHistory.objects.filter(user=user).order_by('-recorded_at').first()
+
+    summary_data = [
+        ['Metric', 'Value'],
+        ['Total Workout Sessions', str(total_sessions)],
+        ['Current Attendance Streak', f'{streak} days'],
+        ['Goals Completed', f'{completed_goals} / {total_goals}'],
+        ['Estimated Calories Burned', f'{total_sessions * 400:,} kcal'],
+        ['Estimated Training Time', f'{total_sessions * 60:,} minutes'],
+        ['Latest BMI', str(last_bmi.bmi_score) if last_bmi else 'N/A'],
+        ['Latest Weight', f'{last_bmi.weight_kg} kg' if last_bmi else 'N/A'],
+    ]
+    t = Table(summary_data, colWidths=[10*cm, 7*cm])
+    t.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), table_header_color),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('FONTSIZE', (0, 0), (-1, 0), 11),
+        ('FONTSIZE', (0, 1), (-1, -1), 10),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.lightgrey),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f5f3ff')]),
+        ('PADDING', (0, 0), (-1, -1), 6),
+    ]))
+    story.append(t)
+    story.append(Spacer(1, 12))
+
+    # --- BMI History ---
+    bmi_records = BMIHistory.objects.filter(user=user).order_by('-recorded_at')[:10]
+    if bmi_records.exists():
+        story.append(Paragraph('BMI History (Last 10 Records)', h2_style))
+        bmi_data = [['Date', 'Weight (kg)', 'Height (cm)', 'BMI Score']]
+        for rec in bmi_records:
+            bmi_data.append([
+                rec.recorded_at.strftime('%b %d, %Y'),
+                str(rec.weight_kg),
+                str(rec.height_cm),
+                str(rec.bmi_score),
+            ])
+        t2 = Table(bmi_data, colWidths=[4.5*cm, 4*cm, 4*cm, 4*cm])
+        t2.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), table_header_color),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.lightgrey),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f5f3ff')]),
+            ('PADDING', (0, 0), (-1, -1), 5),
+        ]))
+        story.append(t2)
+        story.append(Spacer(1, 12))
+
+    # --- Goals Summary ---
+    goals = Goal.objects.filter(user=user).order_by('is_completed', '-created_at')
+    if goals.exists():
+        story.append(Paragraph('Goals Summary', h2_style))
+        goal_data = [['Goal', 'Category', 'Progress', 'Target Date', 'Status']]
+        for g in goals:
+            goal_data.append([
+                g.title[:30],
+                g.get_category_display(),
+                f'{g.get_progress_percent():.0f}%',
+                str(g.target_date) if g.target_date else '—',
+                '✓ Done' if g.is_completed else 'Active',
+            ])
+        t3 = Table(goal_data, colWidths=[5.5*cm, 3.5*cm, 2.5*cm, 3*cm, 2.5*cm])
+        t3.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), table_header_color),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.lightgrey),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f5f3ff')]),
+            ('PADDING', (0, 0), (-1, -1), 5),
+        ]))
+        story.append(t3)
+
+    doc.build(story)
+    return response

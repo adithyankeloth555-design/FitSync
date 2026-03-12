@@ -2,8 +2,7 @@
 {% load static %}
 
 {% block title %}
-{% if user.userprofile.role == 'admin' %}Manage Subscriptions | Admin{% else %}Membership Plans | FitSync Elite{% endif
-%}
+{% if user.userprofile.role == 'admin' %}Manage Subscriptions | Admin{% else %}Membership Plans | FitSync Elite{% endif %}
 {% endblock %}
 
 {% block header %}{% endblock %}
@@ -20,9 +19,7 @@
         --white: var(--bg-secondary);
     }
 
-        {
-        % if user.is_authenticated and user.userprofile.role=='admin' %
-    }
+{% if user.is_authenticated and user.userprofile.role == 'admin' %}
 
     body {
         background-color: var(--admin-bg);
@@ -309,9 +306,7 @@
         transform: translateY(-2px);
     }
 
-        {
-        % else %
-    }
+{% else %}
 
     /* Member Theme Styles */
     .plans-hero {
@@ -400,9 +395,7 @@
         z-index: 10;
     }
 
-        {
-        % endif %
-    }
+{% endif %}
 
     /* Mobile Responsive dynamically injected */
     @media (max-width: 1024px) {

@@ -1,402 +1,362 @@
 {% extends 'fitsync_app/base.html' %}
 {% load static %}
 
-{% block title %}Vitality History | FitSync Elite{% endblock %}
+{% block title %}Vitality History | FitSync{% endblock %}
 
 {% block header %}{% endblock %}
 {% block footer %}{% endblock %}
 
 {% block extra_css %}
 <style>
-    :root {
-        --admin-bg: var(--bg-primary);
-        --sidebar-bg: var(--bg-tertiary);
-        --accent-orange: var(--gold);
-        --text-dark: var(--text-primary);
-        --text-muted: var(--text-muted);
-        --white: var(--bg-secondary);
-        --border-color: var(--border-color);
-    }
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
 
-    body {
-        background-color: var(--admin-bg);
-        color: var(--text-dark);
-        font-family: 'Inter', sans-serif;
-        margin: 0;
-    }
+  :root {
+    --bm-bg: #0E0E0E;
+    --bm-card: #181818;
+    --bm-card-border: rgba(255,255,255,0.06);
+    --bm-text: #E8E4DF;
+    --bm-text-soft: #8A8580;
+    --bm-text-muted: #4A4540;
+    --bm-gold: #C9A96E;
+    --bm-gold-bg: rgba(201,169,110,0.1);
+    --bm-gold-border: rgba(201,169,110,0.35);
+    --bm-green: #8AAF5A;
+    --bm-green-bg: rgba(138,175,90,0.12);
+    --bm-green-border: rgba(138,175,90,0.3);
+    --bm-blue: #5A9AC0;
+    --bm-orange: #C99A5E;
+    --bm-red: #C87A6A;
+    --bm-radius: 18px;
+  }
 
-    .admin-wrapper {
-        display: flex;
-        min-height: 100vh;
-    }
+  body {
+    background: var(--bm-bg) !important;
+    color: var(--bm-text) !important;
+    font-family: 'DM Sans', sans-serif !important;
+    margin: 0; min-height: 100vh;
+  }
 
-    /* Sidebar removed */
+  .bmi-page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 40px 80px;
+    animation: bmFade 0.6s ease both;
+  }
+  @keyframes bmFade { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
 
-    /* Main Content Area */
-    .main-content {
-        margin: 0 auto;
-        max-width: 1400px;
-        flex-grow: 1;
-        padding: 2.5rem;
-    }
+  /* Topbar */
+  .bm-topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:40px; }
+  .bm-back {
+    display:inline-flex; align-items:center; gap:10px;
+    color:var(--bm-text-soft); font-size:13px; font-weight:500;
+    padding:10px 22px; border-radius:50px;
+    border:1.5px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.03);
+    text-decoration:none; transition:all 0.25s;
+  }
+  .bm-back:hover { color:var(--bm-text); border-color:rgba(255,255,255,0.15); }
 
-    .back-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.8rem;
-        color: var(--text-muted);
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.9rem;
-        margin-bottom: 2rem;
-        transition: 0.3s;
-        padding: 0.8rem 1.5rem;
-        border-radius: 50px;
-        background: var(--bg-tertiary);
-        border: 1px solid var(--border-color);
-        box-shadow: var(--shadow-sm);
-    }
+  .bm-calc-btn {
+    display:inline-flex; align-items:center; gap:8px;
+    padding:11px 24px; border-radius:12px;
+    background:transparent; border:1.5px solid rgba(255,255,255,0.12);
+    color:var(--bm-text); font-size:13px; font-weight:600;
+    text-decoration:none; transition:all 0.25s; font-family:'DM Sans',sans-serif;
+  }
+  .bm-calc-btn:hover { background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.2); }
 
-    .back-btn:hover {
-        color: var(--accent-orange);
-        transform: translateX(-5px);
-        box-shadow: var(--shadow-glow);
-    }
+  /* Header */
+  .bm-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:2.5px; color:var(--bm-text-muted); margin-bottom:12px; }
+  .bm-title { font-family:'Playfair Display',serif; font-size:36px; font-weight:500; color:var(--bm-text); margin:0 0 10px; }
+  .bm-subtitle { font-size:15px; color:var(--bm-text-muted); font-style:italic; margin-bottom:32px; }
 
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2.5rem;
-    }
+  /* Stat cards row */
+  .bm-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:24px; }
+  .bm-stat {
+    background:var(--bm-card); border:1.5px solid var(--bm-card-border);
+    border-radius:var(--bm-radius); padding:22px 20px;
+  }
+  .bm-stat-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:var(--bm-text-muted); margin-bottom:10px; }
+  .bm-stat-val { font-size:28px; font-weight:700; color:var(--bm-text); margin-bottom:4px; display:flex; align-items:baseline; gap:4px; }
+  .bm-stat-unit { font-size:14px; font-weight:500; color:var(--bm-text-soft); }
+  .bm-stat-sub { font-size:12px; color:var(--bm-text-muted); margin-bottom:10px; }
+  .bm-stat-badge {
+    display:inline-flex; align-items:center; gap:5px;
+    padding:4px 12px; border-radius:50px; font-size:11px; font-weight:700;
+  }
+  .bm-stat-badge.healthy { background:var(--bm-green-bg); color:var(--bm-green); border:1px solid var(--bm-green-border); }
+  .bm-stat-badge.warning { background:rgba(201,169,110,0.12); color:var(--bm-gold); border:1px solid var(--bm-gold-border); }
+  .bm-stat-badge.danger { background:rgba(200,100,90,0.12); color:var(--bm-red); border:1px solid rgba(200,100,90,0.3); }
+  .bm-stat-badge.info { background:rgba(90,154,192,0.12); color:var(--bm-blue); border:1px solid rgba(90,154,192,0.3); }
 
-    .header-info h1 {
-        font-family: 'Inter', serif;
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--accent-orange);
-        margin: 0;
-    }
+  /* Chart card */
+  .bm-chart-card {
+    background:var(--bm-card); border:1.5px solid var(--bm-card-border);
+    border-radius:var(--bm-radius); padding:28px; margin-bottom:24px;
+  }
+  .bm-chart-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+  .bm-chart-title { font-size:16px; font-weight:600; color:var(--bm-text); }
+  .bm-chart-legend { display:flex; gap:20px; }
+  .bm-legend-item { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--bm-text-soft); }
+  .bm-legend-dot { width:8px; height:8px; border-radius:50%; }
+  .bm-chart-wrap { position:relative; height:280px; }
 
-    .header-info p {
-        color: var(--text-muted);
-        margin: 0.3rem 0 0 0;
-    }
+  /* Table */
+  .bm-table-card {
+    background:var(--bm-card); border:1.5px solid var(--bm-card-border);
+    border-radius:var(--bm-radius); overflow:hidden;
+  }
+  .bm-table { width:100%; border-collapse:collapse; }
+  .bm-table th {
+    text-align:left; padding:16px 24px; font-size:10px; font-weight:700;
+    text-transform:uppercase; letter-spacing:1.5px; color:var(--bm-text-muted);
+    border-bottom:1.5px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.02);
+  }
+  .bm-table td {
+    padding:18px 24px; border-bottom:1px solid rgba(255,255,255,0.04);
+    font-size:14px; color:var(--bm-text);
+  }
+  .bm-table tr:hover td { background:rgba(255,255,255,0.02); }
+  .bm-table .bmi-val { color:var(--bm-gold); font-weight:700; font-size:16px; }
+  .bm-table .latest-tag { display:block; font-size:11px; color:var(--bm-text-muted); font-weight:500; margin-top:2px; }
 
-    /* Table & Charts */
-    .history-card {
-        background: var(--white);
-        border-radius: 12px;
-        border: 1px solid var(--border-color);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-        margin-bottom: 2rem;
-    }
+  .bm-status {
+    display:inline-flex; align-items:center; gap:4px;
+    padding:4px 12px; border-radius:50px; font-size:11px; font-weight:700;
+  }
+  .bm-status.healthy { background:var(--bm-green-bg); color:var(--bm-green); }
+  .bm-status.warning { background:rgba(201,169,110,0.12); color:var(--bm-gold); }
+  .bm-status.danger { background:rgba(200,100,90,0.12); color:var(--bm-red); }
 
-    .card-title {
-        padding: 1.5rem 2rem;
-        background: var(--bg-tertiary);
-        border-bottom: 1px solid var(--border-color);
-        font-size: 1rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
+  /* Empty */
+  .bm-empty { text-align:center; padding:60px 30px; }
+  .bm-empty i { font-size:36px; color:rgba(255,255,255,0.08); margin-bottom:16px; display:block; }
+  .bm-empty p { color:var(--bm-text-muted); font-size:14px; }
 
-    .modern-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .modern-table th {
-        text-align: left;
-        padding: 1rem 2rem;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        color: var(--text-muted);
-        border-bottom: 1px solid var(--border-color);
-        font-weight: 700;
-        letter-spacing: 0.5px;
-    }
-
-    .modern-table td {
-        padding: 1.2rem 2rem;
-        border-bottom: 1px solid var(--border-color);
-        font-size: 0.95rem;
-        font-weight: 600;
-    }
-
-    .status-badge {
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 50px;
-        font-size: 0.75rem;
-        font-weight: 800;
-    }
-
-    .status-healthy {
-        background: var(--bg-tertiary);
-        color: #15803d;
-        border: 1px solid rgba(21, 128, 61, 0.3);
-    }
-
-    .status-warning {
-        background: var(--bg-tertiary);
-        color: #854d0e;
-        border: 1px solid rgba(133, 77, 14, 0.3);
-    }
-
-    .status-danger {
-        background: var(--bg-tertiary);
-        color: #991b1b;
-        border: 1px solid rgba(153, 27, 27, 0.3);
-    }
-
-    .chart-container {
-        height: 300px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--bg-tertiary);
-        border-radius: 12px;
-        border: 1px solid var(--border-color);
-    }
-
-    .btn-primary {
-        background: var(--accent-orange);
-        color: #000;
-        padding: 0.7rem 1.5rem;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        font-weight: 600;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: 0.2s;
-    }
-
-    .btn-primary:hover {
-        opacity: 0.9;
-        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-    }
+  @media (max-width:768px) {
+    .bmi-page { padding:24px 20px 60px; }
+    .bm-title { font-size:28px; }
+    .bm-stats { grid-template-columns:1fr 1fr; }
+    .bm-topbar { flex-direction:column; gap:12px; align-items:flex-start; }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<main class="main-content">
-    <a href="{% url 'user_dashboard' %}" class="back-btn">
-        <i class="fa-solid fa-arrow-left"></i> RETURN TO PORTAL
-    </a>
-    <header class="page-header">
-        <div class="header-info">
-            <h1>Vitality Progression</h1>
-            <p>Tracking your biometric indices over time for peak optimization.</p>
-        </div>
+<div class="bmi-page">
 
-        <a href="{% url 'bmi_calculator' %}" class="btn-primary">
-            <i class="fa-solid fa-weight-scale"></i> New Calculation
-        </a>
-    </header>
+  <!-- Top bar -->
+  <div class="bm-topbar">
+    <a href="{% url 'user_dashboard' %}" class="bm-back"><i class="fa-solid fa-chevron-left"></i> Return to portal</a>
+    <a href="{% url 'bmi_calculator' %}" class="bm-calc-btn">New calculation</a>
+  </div>
 
-    <div class="history-card">
-        <div class="card-title">Biometric History Logs</div>
-        <table class="modern-table">
-            <thead>
-                <tr>
-                    <th>Recorded Date</th>
-                    <th>BMI Index</th>
-                    <th>Measured Weight</th>
-                    <th>Status Classification</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for record in history %}
-                <tr>
-                    <td>{{ record.recorded_at|date:"F d, Y" }}</td>
-                    <td style="color: var(--accent-orange); font-family: 'Inter', serif;">{{ record.bmi_score }}</td>
-                    <td>{{ record.weight_kg }} kg</td>
-                    <td>
-                        {% if record.bmi_score < 18.5 %} <span class="status-badge status-warning">Underweight</span>
-                            {% elif record.bmi_score < 25 %} <span class="status-badge status-healthy">Healthy</span>
-                                {% elif record.bmi_score < 30 %} <span class="status-badge status-warning">
-                                    Overweight</span>
-                                    {% else %}
-                                    <span class="status-badge status-danger">Obese</span>
-                                    {% endif %}
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="4" style="padding: 4rem; text-align: center; color: var(--text-muted);">
-                        <i class="fa-solid fa-magnifying-glass"
-                            style="font-size: 2rem; display: block; margin-bottom: 1rem;"></i>
-                        No biometric data points found in your profile history.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+  <!-- Header -->
+  <div class="bm-label">Biometrics</div>
+  <h1 class="bm-title">Vitality progression</h1>
+  <p class="bm-subtitle">Tracking your biometric indices over time for peak optimization.</p>
+
+  <!-- Stat cards -->
+  <div class="bm-stats">
+    <div class="bm-stat">
+      <div class="bm-stat-label">Latest BMI</div>
+      <div class="bm-stat-val">{% if history %}{{ history.0.bmi_score }}{% else %}—{% endif %}</div>
+      <div class="bm-stat-sub">{% if history %}{{ history.0.recorded_at|date:"M d, Y" }}{% else %}No data{% endif %}</div>
+      {% if history %}
+        {% with bmi=history.0.bmi_score %}
+        {% if bmi < 18.5 %}
+          <span class="bm-stat-badge warning"><i class="fa-solid fa-check"></i> Underweight</span>
+        {% elif bmi < 25 %}
+          <span class="bm-stat-badge healthy"><i class="fa-solid fa-check"></i> Healthy</span>
+        {% elif bmi < 30 %}
+          <span class="bm-stat-badge warning"><i class="fa-solid fa-check"></i> Overweight</span>
+        {% else %}
+          <span class="bm-stat-badge danger"><i class="fa-solid fa-exclamation"></i> Obese</span>
+        {% endif %}
+        {% endwith %}
+      {% endif %}
     </div>
 
-    <div class="history-card">
-        <div class="card-title">Progression Curve Visualization</div>
-        <div class="chart-container" style="position: relative; height: 400px; width: 100%;">
-            <canvas id="bmiChart"></canvas>
-        </div>
+    <div class="bm-stat">
+      <div class="bm-stat-label">Current Weight</div>
+      <div class="bm-stat-val">{% if history %}{{ history.0.weight_kg }}<span class="bm-stat-unit">kg</span>{% else %}—{% endif %}</div>
+      <div class="bm-stat-sub">{% if history %}{{ history.0.recorded_at|date:"M d, Y" }}{% else %}No data{% endif %}</div>
+      {% if history|length > 1 %}
+        {% with diff=history.0.weight_kg %}
+        <span class="bm-stat-badge info"><i class="fa-solid fa-arrow-trend-up"></i> +{{ diff|floatformat:0 }} kg from low</span>
+        {% endwith %}
+      {% endif %}
     </div>
-    <div id="chart-data" style="display: none;"
-        data-history='[{% for record in history reversed %}{"date": "{{ record.recorded_at|date:"M d" }}", "bmi": {{ record.bmi_score }}, "weight": {{ record.weight_kg }}}{% if not forloop.last %},{% endif %}{% endfor %}]'>
+
+    <div class="bm-stat">
+      <div class="bm-stat-label">BMI Range</div>
+      <div class="bm-stat-val" id="bmiRange">—</div>
+      <div class="bm-stat-sub">Last 30 days</div>
+      <span class="bm-stat-badge healthy">Within target</span>
     </div>
-</main>
+
+    <div class="bm-stat">
+      <div class="bm-stat-label">Total Logs</div>
+      <div class="bm-stat-val">{{ history|length }}</div>
+      <div class="bm-stat-sub">{% if history %}Since {{ history.last.recorded_at|date:"M d" }}{% else %}No records{% endif %}</div>
+      <span class="bm-stat-badge info">{{ history|length }} day{{ history|length|pluralize:"s" }} tracked</span>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="bm-chart-card">
+    <div class="bm-chart-head">
+      <span class="bm-chart-title">Progression curve</span>
+      <div class="bm-chart-legend">
+        <div class="bm-legend-item"><div class="bm-legend-dot" style="background:var(--bm-gold)"></div> BMI index</div>
+        <div class="bm-legend-item"><div class="bm-legend-dot" style="background:var(--bm-blue)"></div> Weight (kg)</div>
+      </div>
+    </div>
+    <div class="bm-chart-wrap">
+      <canvas id="bmiChart"></canvas>
+    </div>
+  </div>
+
+  <!-- History table -->
+  <div class="bm-table-card">
+    <table class="bm-table">
+      <thead>
+        <tr>
+          <th>Recorded Date</th>
+          <th>BMI Index</th>
+          <th>Weight</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in history %}
+        <tr>
+          <td>
+            {{ record.recorded_at|date:"M d, Y" }}
+            {% if forloop.first %}<span class="latest-tag">Latest entry</span>{% endif %}
+          </td>
+          <td class="bmi-val">{{ record.bmi_score }}</td>
+          <td>{{ record.weight_kg }} kg</td>
+          <td>
+            {% if record.bmi_score < 18.5 %}
+              <span class="bm-status warning">Underweight</span>
+            {% elif record.bmi_score < 25 %}
+              <span class="bm-status healthy">Healthy</span>
+            {% elif record.bmi_score < 30 %}
+              <span class="bm-status warning">Overweight</span>
+            {% else %}
+              <span class="bm-status danger">Obese</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4">
+            <div class="bm-empty">
+              <i class="fa-solid fa-weight-scale"></i>
+              <p>No biometric data points recorded yet.</p>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div id="chart-data" style="display:none"
+       data-history='[{% for record in history reversed %}{"date":"{{ record.recorded_at|date:"M d" }}","bmi":{{ record.bmi_score }},"weight":{{ record.weight_kg }}}{% if not forloop.last %},{% endif %}{% endfor %}]'></div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const ctx = document.getElementById('bmiChart').getContext('2d');
-        const dataContainer = document.getElementById('chart-data');
-        const rawData = JSON.parse(dataContainer.dataset.history);
+  document.addEventListener('DOMContentLoaded', function() {
+    const dataContainer = document.getElementById('chart-data');
+    const rawData = JSON.parse(dataContainer.dataset.history || '[]');
 
-        const dates = rawData.map(item => item.date);
-        const bmiData = rawData.map(item => item.bmi);
-        const weightData = rawData.map(item => item.weight);
+    // BMI Range calc
+    if (rawData.length > 0) {
+      const bmis = rawData.map(d => d.bmi);
+      const minBmi = Math.min(...bmis);
+      const maxBmi = Math.max(...bmis);
+      const rangeEl = document.getElementById('bmiRange');
+      if (rangeEl) rangeEl.textContent = minBmi + ' — ' + maxBmi;
+    }
 
-        // Gradient for BMI
-        const gradientBMI = ctx.createLinearGradient(0, 0, 0, 400);
-        gradientBMI.addColorStop(0, 'rgba(79, 70, 229, 0.4)');
-        gradientBMI.addColorStop(1, 'rgba(79, 70, 229, 0.0)');
+    const ctx = document.getElementById('bmiChart');
+    if (!ctx || rawData.length === 0) return;
 
-        // Gradient for Weight
-        const gradientWeight = ctx.createLinearGradient(0, 0, 0, 400);
-        gradientWeight.addColorStop(0, 'rgba(52, 211, 153, 0.4)');
-        gradientWeight.addColorStop(1, 'rgba(52, 211, 153, 0.0)');
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: dates,
-                datasets: [
-                    {
-                        label: 'BMI Index',
-                        data: bmiData,
-                        borderColor: '#4F46E5', // Gold
-                        backgroundColor: gradientBMI,
-                        borderWidth: 3,
-                        pointBackgroundColor: '#fff',
-                        pointBorderColor: '#4F46E5',
-                        pointHoverBackgroundColor: '#4F46E5',
-                        pointHoverBorderColor: '#fff',
-                        fill: true,
-                        tension: 0.4,
-                        yAxisID: 'y'
-                    },
-                    {
-                        label: 'Weight (kg)',
-                        data: weightData,
-                        borderColor: '#34d399', // Emerald Green
-                        backgroundColor: gradientWeight,
-                        borderWidth: 3,
-                        pointBackgroundColor: '#fff',
-                        pointBorderColor: '#34d399',
-                        pointHoverBackgroundColor: '#34d399',
-                        pointHoverBorderColor: '#fff',
-                        fill: true,
-                        tension: 0.4,
-                        yAxisID: 'y1'
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    mode: 'index',
-                    intersect: false,
-                },
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: {
-                            color: '#9ca3af',
-                            font: {
-                                family: "'Inter', sans-serif",
-                                size: 12
-                            },
-                            usePointStyle: true,
-                            padding: 20
-                        }
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(17, 24, 39, 0.9)',
-                        titleColor: '#4F46E5',
-                        bodyColor: '#fff',
-                        borderColor: 'rgba(79, 70, 229, 0.3)',
-                        borderWidth: 1,
-                        padding: 12,
-                        titleFont: {
-                            family: "'Inter', serif",
-                            size: 14
-                        },
-                        bodyFont: {
-                            family: "'Inter', sans-serif"
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.05)',
-                            drawBorder: false
-                        },
-                        ticks: {
-                            color: '#6b7280',
-                            font: {
-                                family: "'Inter', sans-serif"
-                            }
-                        }
-                    },
-                    y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.05)',
-                            drawBorder: false
-                        },
-                        ticks: {
-                            color: '#4F46E5', // Gold for BMI
-                            font: {
-                                family: "'Inter', sans-serif"
-                            }
-                        },
-                        title: {
-                            display: true,
-                            text: 'BMI',
-                            color: '#4F46E5'
-                        }
-                    },
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        grid: {
-                            drawOnChartArea: false,
-                        },
-                        ticks: {
-                            color: '#34d399', // Green for Weight
-                            font: {
-                                family: "'Inter', sans-serif"
-                            }
-                        },
-                        title: {
-                            display: true,
-                            text: 'Weight (kg)',
-                            color: '#34d399'
-                        }
-                    }
-                }
-            }
-        });
+    new Chart(ctx.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: rawData.map(d => d.date),
+        datasets: [
+          {
+            label: 'BMI Index',
+            data: rawData.map(d => d.bmi),
+            borderColor: '#C9A96E',
+            backgroundColor: 'rgba(201,169,110,0.08)',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#C9A96E',
+            pointBorderColor: '#C9A96E',
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            fill: true,
+            tension: 0.3,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Weight (kg)',
+            data: rawData.map(d => d.weight),
+            borderColor: '#5A9AC0',
+            backgroundColor: 'rgba(90,154,192,0.08)',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#5A9AC0',
+            pointBorderColor: '#5A9AC0',
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            fill: true,
+            tension: 0.3,
+            yAxisID: 'y1'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1A1A1A',
+            titleColor: '#C9A96E',
+            bodyColor: '#E8E4DF',
+            borderColor: 'rgba(255,255,255,0.08)',
+            borderWidth: 1,
+            padding: 14,
+            cornerRadius: 12,
+            titleFont: { family: "'DM Sans', sans-serif", size: 13 },
+            bodyFont: { family: "'DM Sans', sans-serif" }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+            ticks: { color: '#4A4540', font: { family: "'DM Sans', sans-serif", size: 11 } }
+          },
+          y: {
+            type: 'linear', display: true, position: 'left',
+            grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+            ticks: { color: '#C9A96E', font: { family: "'DM Sans', sans-serif", size: 11 } },
+            title: { display: false }
+          },
+          y1: {
+            type: 'linear', display: true, position: 'right',
+            grid: { drawOnChartArea: false },
+            ticks: { color: '#5A9AC0', font: { family: "'DM Sans', sans-serif", size: 11 } },
+            title: { display: false }
+          }
+        }
+      }
     });
+  });
 </script>
 {% endblock %}

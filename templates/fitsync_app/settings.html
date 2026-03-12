@@ -1,476 +1,340 @@
 {% extends 'fitsync_app/base.html' %}
 {% load static %}
 
-{% block title %}Settings | FitSync Elite{% endblock %}
+{% block title %}Settings | FitSync{% endblock %}
 
 {% block header %}{% endblock %}
 {% block footer %}{% endblock %}
 
 {% block extra_css %}
 <style>
-    :root {
-        --sidebar-bg: var(--bg-tertiary);
-        --accent-orange: var(--gold);
-        --content-bg: var(--bg-primary);
-        --text-main: var(--text-primary);
-        --text-muted: var(--text-muted);
-        --white: var(--bg-secondary);
-        --card-shadow: var(--shadow-main);
-    }
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
 
-    body {
-        background-color: var(--content-bg);
-        color: var(--text-main);
-        font-family: 'Inter', sans-serif;
-        margin: 0;
-        min-height: 100vh;
-    }
+  :root {
+    --st-bg: #0E0E0E;
+    --st-card: #1A1A1A;
+    --st-card-border: rgba(255,255,255,0.09);
+    --st-text: #F0ECE8;
+    --st-text-soft: #A8A29E;
+    --st-text-muted: #7A756F;
+    --st-gold: #D4B37A;
+    --st-gold-bg: rgba(212,179,122,0.12);
+    --st-gold-border: rgba(212,179,122,0.4);
+    --st-green: #96BF64;
+    --st-green-bg: rgba(150,191,100,0.14);
+    --st-green-border: rgba(150,191,100,0.35);
+    --st-blue: #6AAAD0;
+    --st-purple: #AA90D0;
+    --st-red: #D88A7A;
+    --st-radius: 18px;
+  }
 
-    /* Sidebar removed */
+  body { background:var(--st-bg)!important; color:var(--st-text)!important; font-family:'DM Sans',sans-serif!important; margin:0; min-height:100vh; }
 
-    .main-wrapper {
-        margin: 0 auto;
-        max-width: 1400px;
-        flex-grow: 1;
-        padding: 3rem 4rem;
-    }
+  .settings-page { max-width:580px; margin:0 auto; padding:44px 28px 80px; animation:stFade 0.6s ease both; }
+  @keyframes stFade { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
 
-    .back-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.8rem;
-        color: var(--text-muted);
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.9rem;
-        margin-bottom: 2rem;
-        transition: 0.3s;
-        padding: 0.8rem 1.5rem;
-        border-radius: 50px;
-        background: var(--bg-tertiary);
-        border: 1px solid var(--border-color);
-        box-shadow: var(--shadow-sm);
-    }
+  .st-topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; }
+  .st-back { display:inline-flex; align-items:center; gap:10px; color:var(--st-text-soft); font-size:13px; font-weight:500; padding:10px 22px; border-radius:50px; border:1.5px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.03); text-decoration:none; transition:all 0.25s; }
+  .st-back:hover { color:var(--st-text); border-color:rgba(255,255,255,0.15); }
+  .st-email { font-size:12px; color:var(--st-text-soft); }
 
-    .back-btn:hover {
-        color: var(--accent-orange);
-        transform: translateX(-5px);
-        box-shadow: 0 6px 15px rgba(249, 115, 22, 0.15);
-    }
+  .st-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:2.5px; color:var(--st-text-soft); margin-bottom:10px; }
+  .st-title { font-family:'Playfair Display',serif; font-size:30px; font-weight:500; color:var(--st-text); margin:0 0 6px; }
+  .st-subtitle { font-size:13px; color:var(--st-text-soft); margin-bottom:24px; }
 
-    .page-title {
-        font-family: 'Inter', serif;
-        font-size: 2.2rem;
-        font-weight: 700;
-        color: var(--accent-orange);
-        text-transform: uppercase;
-        margin: 0 0 0.5rem 0;
-        text-align: center;
-    }
+  /* Tabs */
+  .st-tabs { display:flex; gap:0; margin-bottom:24px; border-radius:12px; overflow:hidden; border:1.5px solid rgba(255,255,255,0.06); }
+  .st-tab { flex:1; padding:10px; text-align:center; font-size:12px; font-weight:600; color:var(--st-text-soft); cursor:pointer; transition:all 0.2s; background:transparent; border:none; font-family:'DM Sans',sans-serif; }
+  .st-tab.active { background:rgba(255,255,255,0.08); color:var(--st-text); }
+  .st-tab:hover:not(.active) { color:var(--st-text-soft); }
 
-    .page-subtitle {
-        color: var(--text-muted);
-        font-size: 1rem;
-        margin-top: 0.5rem;
-        text-align: center;
-        margin-bottom: 3.5rem;
-    }
+  /* Sections */
+  .st-section { background:var(--st-card); border:1.5px solid var(--st-card-border); border-radius:var(--st-radius); padding:22px; margin-bottom:14px; }
 
-    .settings-container {
-        max-width: 900px;
-        margin: 0 auto;
-    }
+  .st-sec-title { display:flex; align-items:center; gap:10px; margin-bottom:18px; }
+  .st-sec-icon { width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:13px; }
+  .st-sec-icon.gold { background:var(--st-gold-bg); color:var(--st-gold); }
+  .st-sec-icon.red { background:rgba(200,122,106,0.12); color:var(--st-red); }
+  .st-sec-icon.blue { background:rgba(90,154,192,0.12); color:var(--st-blue); }
+  .st-sec-icon.purple { background:rgba(154,128,192,0.12); color:var(--st-purple); }
+  .st-sec-icon.green { background:var(--st-green-bg); color:var(--st-green); }
+  .st-sec-name { font-size:14px; font-weight:600; color:var(--st-text); }
 
-    .settings-section {
-        background: var(--white);
-        padding: 2rem;
-        border-radius: 16px;
-        box-shadow: var(--card-shadow);
-        margin-bottom: 2rem;
-        border: 1px solid var(--border-color);
-    }
+  /* Profile avatar */
+  .st-avatar-row { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+  .st-avatar { width:52px; height:52px; border-radius:50%; object-fit:cover; border:2px solid var(--st-gold-border); }
+  .st-avatar-placeholder { width:52px; height:52px; border-radius:50%; background:var(--st-gold-bg); border:2px solid var(--st-gold-border); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; color:var(--st-gold); }
+  .st-avatar-info {}
+  .st-avatar-name { font-size:14px; font-weight:600; color:var(--st-text); }
+  .st-avatar-email { font-size:12px; color:var(--st-text-soft); }
+  .st-change-photo { display:inline-flex; align-items:center; gap:5px; margin-top:4px; padding:4px 10px; border-radius:6px; font-size:10px; font-weight:700; color:var(--st-text-soft); border:1px solid rgba(255,255,255,0.1); background:transparent; cursor:pointer; }
 
-    .section-title {
-        font-size: 1.3rem;
-        font-weight: 800;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-    }
+  /* Form */
+  .st-form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+  .st-form-full { margin-bottom:10px; }
+  .st-form-lbl { display:block; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--st-text-soft); margin-bottom:5px; }
+  .st-form-input {
+    width:100%; padding:11px 14px; border-radius:10px; box-sizing:border-box;
+    border:1.5px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05);
+    color:var(--st-text); font-family:'DM Sans',sans-serif; font-size:14px; transition:all 0.2s;
+  }
+  .st-form-input:focus { outline:none; border-color:var(--st-gold-border); background:rgba(255,255,255,0.05); }
 
-    .section-icon {
-        width: 40px;
-        height: 40px;
-        background: var(--bg-tertiary);
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--gold);
-    }
+  .st-form-actions { display:flex; gap:8px; margin-top:4px; }
+  .st-btn-save {
+    padding:9px 20px; border-radius:10px; font-size:12px; font-weight:700;
+    background:rgba(255,255,255,0.06); border:1.5px solid rgba(255,255,255,0.08);
+    color:var(--st-text); cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s;
+  }
+  .st-btn-save:hover { background:rgba(255,255,255,0.1); }
+  .st-btn-cancel {
+    padding:9px 20px; border-radius:10px; font-size:12px; font-weight:600;
+    background:transparent; border:1.5px solid rgba(255,255,255,0.06);
+    color:var(--st-text-muted); cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s;
+  }
 
-    .setting-item {
-        padding: 1.5rem 0;
-        border-bottom: 1px solid var(--border-color);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
+  .st-btn-change {
+    padding:9px 20px; border-radius:10px; font-size:12px; font-weight:700;
+    background:rgba(255,255,255,0.06); border:1.5px solid rgba(255,255,255,0.08);
+    color:var(--st-text); cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s;
+  }
 
-    .setting-item:last-child {
-        border-bottom: none;
-    }
+  /* Toggle items */
+  .st-toggle-item { display:flex; align-items:center; justify-content:space-between; padding:14px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+  .st-toggle-item:last-child { border-bottom:none; }
+  .st-toggle-label { font-size:13px; font-weight:600; color:var(--st-text); margin-bottom:2px; }
+  .st-toggle-desc { font-size:11px; color:var(--st-text-soft); }
 
-    .setting-label {
-        font-weight: 700;
-        margin-bottom: 0.3rem;
-    }
+  .st-notif-count { margin-left:auto; margin-right:12px; font-size:10px; font-weight:700; padding:3px 10px; border-radius:50px; background:var(--st-green-bg); color:var(--st-green); border:1px solid var(--st-green-border); }
 
-    .setting-description {
-        color: var(--text-muted);
-        font-size: 0.85rem;
-    }
+  /* Toggle switch */
+  .st-toggle { width:42px; height:22px; border-radius:20px; cursor:pointer; transition:all 0.3s; position:relative; flex-shrink:0; border:none; }
+  .st-toggle.on { background:var(--st-gold); }
+  .st-toggle.off { background:rgba(255,255,255,0.08); }
+  .st-toggle::after { content:''; position:absolute; width:16px; height:16px; border-radius:50%; top:3px; transition:all 0.3s; }
+  .st-toggle.on::after { left:23px; background:#1a1a1a; }
+  .st-toggle.off::after { left:3px; background:var(--st-text-muted); }
 
-    .toggle-switch {
-        position: relative;
-        width: 50px;
-        height: 26px;
-        background: var(--bg-tertiary);
-        border-radius: 20px;
-        cursor: pointer;
-        transition: 0.3s;
-        border: 1px solid var(--border-color);
-    }
+  /* Danger zone */
+  .st-danger-label { font-size:12px; font-weight:700; color:var(--st-red); display:flex; align-items:center; gap:6px; margin-bottom:14px; }
+  .st-danger-item { display:flex; align-items:center; justify-content:space-between; }
+  .st-danger-text { font-size:13px; font-weight:600; color:var(--st-text); margin-bottom:2px; }
+  .st-danger-desc { font-size:11px; color:var(--st-text-soft); }
+  .st-btn-delete {
+    padding:9px 18px; border-radius:10px; font-size:12px; font-weight:700;
+    background:transparent; border:1.5px solid rgba(200,122,106,0.3);
+    color:var(--st-red); cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s;
+    display:inline-flex; align-items:center; gap:6px; flex-shrink:0;
+  }
+  .st-btn-delete:hover { background:rgba(200,122,106,0.1); }
 
-    .toggle-switch.active {
-        background: var(--accent-orange);
-        border-color: var(--accent-orange);
-    }
-
-    .toggle-switch::after {
-        content: '';
-        position: absolute;
-        width: 18px;
-        height: 18px;
-        background: #000;
-        border-radius: 50%;
-        top: 3px;
-        left: 3px;
-        transition: 0.3s;
-    }
-
-    .toggle-switch.active::after {
-        left: 27px;
-        background: #000;
-    }
-
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-
-    .form-label {
-        display: block;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-    }
-
-    .form-input {
-        width: 100%;
-        padding: 0.8rem 1rem;
-        background: var(--bg-tertiary);
-        border: 1px solid var(--border-color);
-        border-radius: 10px;
-        font-size: 0.95rem;
-        color: var(--text-primary);
-    }
-
-    .btn-primary {
-        padding: 0.8rem 2rem;
-        background: var(--accent-orange);
-        color: #000;
-        border: none;
-        border-radius: 10px;
-        font-weight: 800;
-        cursor: pointer;
-        transition: 0.3s;
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(249, 115, 22, 0.3);
-    }
-
-    .btn-danger {
-        padding: 0.8rem 2rem;
-        background: #dc2626;
-        color: white;
-        border: none;
-        border-radius: 10px;
-        font-weight: 800;
-        cursor: pointer;
-        transition: 0.3s;
-    }
-
-    .btn-danger:hover {
-        background: #b91c1c;
-    }
+  @media(max-width:500px) {
+    .settings-page { padding:24px 18px 60px; }
+    .st-title { font-size:24px; }
+    .st-form-row { grid-template-columns:1fr; }
+    .st-tabs { flex-wrap:wrap; }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<main class="main-wrapper">
+<div class="settings-page">
+
+  <div class="st-topbar">
     {% if user.is_authenticated and user.userprofile.role == 'admin' %}
-    <a href="{% url 'admin_dashboard' %}" class="back-btn">
-        {% elif user.is_authenticated and user.userprofile.role == 'trainer' %}
-        <a href="{% url 'trainer_dashboard' %}" class="back-btn">
-            {% else %}
-            <a href="{% url 'user_dashboard' %}" class="back-btn">
-                {% endif %}
-                <i class="fa-solid fa-arrow-left"></i> RETURN TO PORTAL
-            </a>
-            <header class="page-header" style="text-align: center;">
-                <h1 class="page-title">Settings</h1>
-                <p class="page-subtitle">Manage your account preferences and privacy settings.</p>
-            </header>
+    <a href="{% url 'admin_dashboard' %}" class="st-back"><i class="fa-solid fa-chevron-left"></i> Return to portal</a>
+    {% elif user.is_authenticated and user.userprofile.role == 'trainer' %}
+    <a href="{% url 'trainer_dashboard' %}" class="st-back"><i class="fa-solid fa-chevron-left"></i> Return to portal</a>
+    {% else %}
+    <a href="{% url 'user_dashboard' %}" class="st-back"><i class="fa-solid fa-chevron-left"></i> Return to portal</a>
+    {% endif %}
+    <span class="st-email">{{ user.email }}</span>
+  </div>
 
-            <div class="settings-container">
-                <div class="settings-section">
-                    <h2 class="section-title">
-                        <div class="section-icon"><i class="fa-solid fa-user"></i></div>
-                        Profile Information
-                    </h2>
-                    <form method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
+  <div class="st-label">Account</div>
+  <h1 class="st-title">Settings</h1>
+  <p class="st-subtitle">Manage your account preferences and privacy settings.</p>
 
-                        <!-- Profile Photo Upload -->
-                        <div class="form-group" style="text-align: center; margin-bottom: 2rem;">
-                            <label class="form-label" style="text-align: center;">Profile Photo</label>
-                            <div style="margin: 1rem 0;">
-                                {% if user.userprofile.profile_photo %}
-                                <img src="{{ user.userprofile.profile_photo.url }}" alt="Profile"
-                                    style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid var(--gold);">
-                                {% else %}
-                                <img src="https://i.pravatar.cc/150?u={{ user.username }}" alt="Profile"
-                                    style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid var(--border-color);">
-                                {% endif %}
-                            </div>
-                            <input type="file" name="profile_photo" accept="image/*" class="form-input"
-                                style="padding: 0.5rem;">
-                            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">Upload a
-                                professional photo (JPG, PNG)</p>
-                        </div>
+  <!-- Tabs -->
+  <div class="st-tabs">
+    <button class="st-tab active" onclick="showTab('profile')">Profile</button>
+    <button class="st-tab" onclick="showTab('security')">Security</button>
+    <button class="st-tab" onclick="showTab('notifications')">Notifications</button>
+    <button class="st-tab" onclick="showTab('privacy')">Privacy</button>
+  </div>
 
-                        <div class="form-group" style="display: flex; gap: 10px;">
-                            <div style="flex: 1;">
-                                <label class="form-label">First Name</label>
-                                <input type="text" name="first_name" class="form-input" value="{{ user.first_name }}"
-                                    placeholder="First Name">
-                            </div>
-                            <div style="flex: 1;">
-                                <label class="form-label">Last Name</label>
-                                <input type="text" name="last_name" class="form-input" value="{{ user.last_name }}"
-                                    placeholder="Last Name">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Email Address</label>
-                            <input type="email" name="email" class="form-input" value="{{ user.email }}"
-                                placeholder="Enter your email">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Phone Number</label>
-                            <input type="tel" name="phone_number" class="form-input"
-                                value="{{ user.userprofile.phone_number }}" placeholder="+91 XXXXX XXXXX">
-                        </div>
-                        <button type="submit" class="btn-primary">Save Changes</button>
-                    </form>
-                </div>
+  <!-- Profile Section -->
+  <div id="tab-profile">
+    <div class="st-section">
+      <div class="st-sec-title">
+        <div class="st-sec-icon gold"><i class="fa-solid fa-user"></i></div>
+        <span class="st-sec-name">Profile Information</span>
+      </div>
 
-                <div class="settings-section">
-                    <h2 class="section-title">
-                        <div class="section-icon"><i class="fa-solid fa-lock"></i></div>
-                        Security
-                    </h2>
-                    <form>
-                        <div class="form-group">
-                            <label class="form-label">Current Password</label>
-                            <input type="password" class="form-input" placeholder="Enter current password">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">New Password</label>
-                            <input type="password" class="form-input" placeholder="Enter new password">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Confirm New Password</label>
-                            <input type="password" class="form-input" placeholder="Confirm new password">
-                        </div>
-                        <button type="button" class="btn-primary"
-                            onclick="alert('Password changed successfully!')">Change
-                            Password</button>
-                    </form>
-                </div>
+      <div class="st-avatar-row">
+        {% if user.userprofile.profile_photo %}
+        <img src="{{ user.userprofile.profile_photo.url }}" class="st-avatar" alt="Profile">
+        {% else %}
+        <div class="st-avatar-placeholder">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
+        {% endif %}
+        <div class="st-avatar-info">
+          <div class="st-avatar-name">{{ user.get_full_name|default:user.username }}</div>
+          <div class="st-avatar-email">{{ user.email }}</div>
+          <label class="st-change-photo"><i class="fa-solid fa-camera"></i> Change photo
+            <input type="file" name="profile_photo_js" accept="image/*" style="display:none" onchange="document.getElementById('settingsForm').querySelector('[name=profile_photo]').files = this.files;">
+          </label>
+        </div>
+      </div>
 
-                <div class="settings-section">
-                    <h2 class="section-title">
-                        <div class="section-icon"><i class="fa-solid fa-bell"></i></div>
-                        Notifications
-                    </h2>
-                    <div class="setting-item">
-                        <div>
-                            <div class="setting-label">Workout Reminders</div>
-                            <div class="setting-description">Get notified about upcoming workout sessions</div>
-                        </div>
-                        <div class="toggle-switch active"></div>
-                    </div>
-                    <div class="setting-item">
-                        <div>
-                            <div class="setting-label">Nutrition Alerts</div>
-                            <div class="setting-description">Reminders to log meals and track water intake</div>
-                        </div>
-                        <div class="toggle-switch active"></div>
-                    </div>
-                    <div class="setting-item">
-                        <div>
-                            <div class="setting-label">Progress Updates</div>
-                            <div class="setting-description">Weekly summaries of your fitness progress</div>
-                        </div>
-                        <div class="toggle-switch"></div>
-                    </div>
-                    <div class="setting-item">
-                        <div>
-                            <div class="setting-label">Trainer Messages</div>
-                            <div class="setting-description">Notifications when your trainer sends a message</div>
-                        </div>
-                        <div class="toggle-switch active"></div>
-                    </div>
-                </div>
+      <form method="post" enctype="multipart/form-data" id="settingsForm">
+        {% csrf_token %}
+        <input type="file" name="profile_photo" accept="image/*" style="display:none">
+        <div class="st-form-row">
+          <div>
+            <label class="st-form-lbl">First Name</label>
+            <input type="text" name="first_name" class="st-form-input" value="{{ user.first_name }}">
+          </div>
+          <div>
+            <label class="st-form-lbl">Last Name</label>
+            <input type="text" name="last_name" class="st-form-input" value="{{ user.last_name }}">
+          </div>
+        </div>
+        <div class="st-form-full">
+          <label class="st-form-lbl">Email Address</label>
+          <input type="email" name="email" class="st-form-input" value="{{ user.email }}">
+        </div>
+        <div class="st-form-full">
+          <label class="st-form-lbl">Phone Number</label>
+          <input type="tel" name="phone_number" class="st-form-input" value="{{ user.userprofile.phone_number }}">
+        </div>
+        <div class="st-form-actions">
+          <button type="submit" class="st-btn-save">Save changes</button>
+          <button type="reset" class="st-btn-cancel">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-                <div class="settings-section">
-                    <h2 class="section-title">
-                        <div class="section-icon"><i class="fa-solid fa-palette"></i></div>
-                        Appearance
-                    </h2>
-                    <div class="setting-item">
-                        <div>
-                            <div class="setting-label">Dark Mode</div>
-                            <div class="setting-description">Switch to dark theme for better viewing at night</div>
-                        </div>
-                        <div class="toggle-switch"></div>
-                    </div>
-                    <div class="setting-item">
-                        <div>
-                            <div class="setting-label">Compact View</div>
-                            <div class="setting-description">Show more content on screen</div>
-                        </div>
-                        <div class="toggle-switch"></div>
-                    </div>
-                </div>
+  <!-- Security Section -->
+  <div id="tab-security" style="display:none;">
+    <div class="st-section">
+      <div class="st-sec-title">
+        <div class="st-sec-icon red"><i class="fa-solid fa-lock"></i></div>
+        <span class="st-sec-name">Security</span>
+      </div>
+      <form>
+        <div class="st-form-full">
+          <label class="st-form-lbl">Current Password</label>
+          <input type="password" class="st-form-input" placeholder="Enter current password">
+        </div>
+        <div class="st-form-row">
+          <div>
+            <label class="st-form-lbl">New Password</label>
+            <input type="password" class="st-form-input" placeholder="New password">
+          </div>
+          <div>
+            <label class="st-form-lbl">Confirm Password</label>
+            <input type="password" class="st-form-input" placeholder="Confirm password">
+          </div>
+        </div>
+        <button type="button" class="st-btn-change" onclick="alert('Password changed!')">Change password</button>
+      </form>
+    </div>
+  </div>
 
-                <div class="settings-section">
-                    <h2 class="section-title">
-                        <div class="section-icon"><i class="fa-solid fa-shield"></i></div>
-                        Privacy
-                    </h2>
-                    <div class="setting-item">
-                        <div>
-                            <div class="setting-label">Profile Visibility</div>
-                            <div class="setting-description">Allow other members to view your profile</div>
-                        </div>
-                        <div class="toggle-switch active"></div>
-                    </div>
-                    <div class="setting-item">
-                        <div>
-                            <div class="setting-label">Activity Sharing</div>
-                            <div class="setting-description">Share your workouts with the community</div>
-                        </div>
-                        <div class="toggle-switch"></div>
-                    </div>
-                    <div class="setting-item">
-                        <div>
-                            <div class="setting-label">Data Analytics</div>
-                            <div class="setting-description">Help improve FitSync by sharing usage data</div>
-                        </div>
-                        <div class="toggle-switch active"></div>
-                    </div>
-                </div>
+  <!-- Notifications Section -->
+  <div id="tab-notifications" style="display:none;">
+    <div class="st-section">
+      <div class="st-sec-title">
+        <div class="st-sec-icon blue"><i class="fa-solid fa-bell"></i></div>
+        <span class="st-sec-name">Notifications</span>
+        <span class="st-notif-count">3 active</span>
+      </div>
 
-                <div class="settings-section">
-                    <h2 class="section-title">
-                        <div class="section-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                        Danger Zone
-                    </h2>
-                    <div class="setting-item">
-                        <div>
-                            <div class="setting-label">Delete Account</div>
-                            <div class="setting-description">Permanently delete your account and all data</div>
-                        </div>
-                        <form method="post" action="{% url 'delete_account' %}"
-                            onsubmit="return confirm('Are you absolutely sure? This action cannot be undone. All your data, workouts, nutrition logs, and progress will be permanently deleted.');">
-                            {% csrf_token %}
-                            <button type="submit" class="btn-danger">Delete Account</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-</main>
+      <div class="st-toggle-item">
+        <div><div class="st-toggle-label">Workout reminders</div><div class="st-toggle-desc">Get notified about upcoming workout sessions</div></div>
+        <div class="st-toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div>
+      </div>
+      <div class="st-toggle-item">
+        <div><div class="st-toggle-label">Nutrition alerts</div><div class="st-toggle-desc">Reminders to log meals and track water intake</div></div>
+        <div class="st-toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div>
+      </div>
+      <div class="st-toggle-item">
+        <div><div class="st-toggle-label">Progress updates</div><div class="st-toggle-desc">Weekly summaries of your fitness progress</div></div>
+        <div class="st-toggle off" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div>
+      </div>
+      <div class="st-toggle-item">
+        <div><div class="st-toggle-label">Trainer messages</div><div class="st-toggle-desc">Notifications when your trainer sends a message</div></div>
+        <div class="st-toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div>
+      </div>
+    </div>
+
+    <!-- Appearance -->
+    <div class="st-section">
+      <div class="st-sec-title">
+        <div class="st-sec-icon green"><i class="fa-solid fa-palette"></i></div>
+        <span class="st-sec-name">Appearance</span>
+      </div>
+      <div class="st-toggle-item">
+        <div><div class="st-toggle-label">Dark mode</div><div class="st-toggle-desc">Switch to dark theme for better viewing at night</div></div>
+        <div class="st-toggle on" id="darkModeToggle" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div>
+      </div>
+      <div class="st-toggle-item">
+        <div><div class="st-toggle-label">Compact view</div><div class="st-toggle-desc">Show more content on screen</div></div>
+        <div class="st-toggle off" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Privacy Section -->
+  <div id="tab-privacy" style="display:none;">
+    <div class="st-section">
+      <div class="st-sec-title">
+        <div class="st-sec-icon purple"><i class="fa-solid fa-shield-halved"></i></div>
+        <span class="st-sec-name">Privacy</span>
+      </div>
+      <div class="st-toggle-item">
+        <div><div class="st-toggle-label">Profile visibility</div><div class="st-toggle-desc">Allow other members to view your profile</div></div>
+        <div class="st-toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div>
+      </div>
+      <div class="st-toggle-item">
+        <div><div class="st-toggle-label">Activity sharing</div><div class="st-toggle-desc">Share your workouts with the community</div></div>
+        <div class="st-toggle off" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div>
+      </div>
+      <div class="st-toggle-item">
+        <div><div class="st-toggle-label">Data analytics</div><div class="st-toggle-desc">Help improve FitSync by sharing usage data</div></div>
+        <div class="st-toggle on" onclick="this.classList.toggle('on');this.classList.toggle('off')"></div>
+      </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="st-danger-label"><i class="fa-solid fa-triangle-exclamation"></i> Danger zone</div>
+    <div class="st-section" style="border-color:rgba(200,122,106,0.15);">
+      <div class="st-danger-item">
+        <div>
+          <div class="st-danger-text">Delete account</div>
+          <div class="st-danger-desc">Permanently delete your account and all data. This cannot be undone.</div>
+        </div>
+        <form method="post" action="{% url 'delete_account' %}" onsubmit="return confirm('Are you absolutely sure? All data will be permanently deleted.');">
+          {% csrf_token %}
+          <button type="submit" class="st-btn-delete"><i class="fa-solid fa-trash"></i> Delete account</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const toggles = document.querySelectorAll('.toggle-switch');
-        const body = document.body;
-
-        // Find the Dark Mode toggle specifically
-        const darkModeToggle = Array.from(document.querySelectorAll('.setting-label'))
-            .find(el => el.textContent.trim() === 'Dark Mode')
-            ?.closest('.setting-item')
-            ?.querySelector('.toggle-switch');
-
-        // Initial state: If body is dark-mode (default), set Dark Mode toggle to active
-        if (darkModeToggle && !body.classList.contains('light-mode')) {
-            darkModeToggle.classList.add('active');
-        }
-
-        toggles.forEach(toggle => {
-            toggle.addEventListener('click', function () {
-                this.classList.toggle('active');
-
-                // If this is the Dark Mode toggle, trigger the global theme change
-                if (this === darkModeToggle) {
-                    const themeBtn = document.getElementById('theme-toggle');
-                    if (themeBtn) {
-                        themeBtn.click(); // Reuse existing base.html logic
-                    } else {
-                        // Fallback manual toggle if button not found
-                        if (body.classList.contains('light-mode')) {
-                            body.classList.replace('light-mode', 'dark-mode');
-                            localStorage.setItem('theme', 'dark');
-                        } else {
-                            if (body.classList.contains('dark-mode')) {
-                                body.classList.replace('dark-mode', 'light-mode');
-                            } else {
-                                body.classList.add('light-mode');
-                            }
-                            localStorage.setItem('theme', 'light');
-                        }
-                    }
-                }
-            });
-        });
-
-        // Sync settings toggle if theme is changed via navbar button
-        const themeBtn = document.getElementById('theme-toggle');
-        if (themeBtn && darkModeToggle) {
-            themeBtn.addEventListener('click', () => {
-                setTimeout(() => {
-                    if (body.classList.contains('light-mode')) {
-                        darkModeToggle.classList.remove('active');
-                    } else {
-                        darkModeToggle.classList.add('active');
-                    }
-                }, 10);
-            });
-        }
+  function showTab(name) {
+    ['profile','security','notifications','privacy'].forEach(t => {
+      document.getElementById('tab-' + t).style.display = t === name ? 'block' : 'none';
     });
+    document.querySelectorAll('.st-tab').forEach((tab, i) => {
+      const names = ['profile','security','notifications','privacy'];
+      tab.classList.toggle('active', names[i] === name);
+    });
+  }
 </script>
 {% endblock %}

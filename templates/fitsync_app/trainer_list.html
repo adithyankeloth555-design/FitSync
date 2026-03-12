@@ -1,354 +1,610 @@
 {% extends 'fitsync_app/base.html' %}
 {% load static %}
 
-{% block title %}Elite Coaches | FitSync Elite{% endblock %}
+{% block title %}Elite Coaches | FitSync{% endblock %}
 
 {% block header %}{% endblock %}
 {% block footer %}{% endblock %}
 
 {% block extra_css %}
 <style>
-    :root {
-        --sidebar-bg: var(--bg-tertiary);
-        --sidebar-hover: var(--hover-color);
-        --accent-orange: var(--gold);
-        --content-bg: var(--bg-primary);
-        --text-main: var(--text-primary);
-        --text-muted: var(--text-muted);
-        --white: var(--bg-secondary);
-        --card-shadow: var(--shadow-main);
-        --border-color: rgba(79, 70, 229, 0.2);
-    }
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
 
-    body {
-        background-color: var(--content-bg);
-        color: var(--text-main);
-        font-family: 'Inter', sans-serif;
-        margin: 0;
-        min-height: 100vh;
-    }
+  :root {
+    --tr-bg: #0E0E0E;
+    --tr-card: #181818;
+    --tr-card-border: rgba(255,255,255,0.06);
+    --tr-text: #E8E4DF;
+    --tr-text-soft: #8A8580;
+    --tr-text-muted: #4A4540;
+    --tr-gold: #C9A96E;
+    --tr-gold-bg: rgba(201,169,110,0.1);
+    --tr-gold-border: rgba(201,169,110,0.35);
+    --tr-green: #5EAA5E;
+    --tr-green-bg: rgba(94,170,94,0.1);
+    --tr-green-border: rgba(94,170,94,0.35);
+    --tr-purple: #9A80C0;
+    --tr-purple-bg: rgba(154,128,192,0.1);
+    --tr-purple-border: rgba(154,128,192,0.25);
+    --tr-radius: 18px;
+  }
 
-    .main-wrapper {
-        margin: 0 auto;
-        max-width: 1400px;
-        padding: 3rem 4rem;
-    }
+  body {
+    background: var(--tr-bg) !important;
+    color: var(--tr-text) !important;
+    font-family: 'DM Sans', sans-serif !important;
+    margin: 0;
+    min-height: 100vh;
+  }
 
-    .back-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.8rem;
-        color: var(--text-muted);
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.9rem;
-        margin-bottom: 2rem;
-        transition: 0.3s;
-        padding: 0.8rem 1.5rem;
-        border-radius: 50px;
-        background: var(--bg-tertiary);
-        border: 1px solid var(--border-color);
-    }
+  .trainer-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 40px 80px;
+    animation: trFadeIn 0.6s ease both;
+  }
 
-    .back-btn:hover {
-        color: var(--accent-orange);
-        transform: translateX(-5px);
-    }
+  @keyframes trFadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
-    .page-header {
-        margin-bottom: 4rem;
-        text-align: center;
-    }
+  /* Top bar */
+  .tr-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 40px;
+  }
 
-    .page-title {
-        font-family: 'Inter', serif;
-        font-size: 2.8rem;
-        font-weight: 900;
-        color: var(--accent-orange);
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        margin: 0;
-    }
+  .tr-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--tr-text-soft);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 22px;
+    border-radius: 50px;
+    border: 1.5px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+    text-decoration: none;
+    transition: all 0.25s ease;
+  }
+  .tr-back:hover {
+    color: var(--tr-text);
+    border-color: rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.06);
+  }
 
-    .page-subtitle {
-        color: var(--text-muted);
-        font-size: 1.1rem;
-        margin-top: 0.5rem;
-        font-weight: 300;
-    }
+  .tr-count-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--tr-text-soft);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 18px;
+    border-radius: 50px;
+    border: 1.5px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+  }
 
-    .trainer-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-        gap: 3rem;
-    }
+  /* Header */
+  .tr-header {
+    margin-bottom: 32px;
+  }
 
-    .trainer-card {
-        background: var(--white);
-        border-radius: 30px;
-        overflow: hidden;
-        border: 1px solid var(--border-color);
-        transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        display: flex;
-        flex-direction: column;
-        position: relative;
-    }
+  .tr-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 500;
+    color: var(--tr-text);
+    margin: 0 0 10px;
+    letter-spacing: -0.5px;
+  }
 
-    .trainer-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
-        border-color: var(--accent-orange);
-    }
+  .tr-subtitle {
+    font-size: 15px;
+    color: var(--tr-text-muted);
+    font-style: italic;
+    font-weight: 400;
+  }
 
-    .trainer-image-container {
-        height: 350px;
-        position: relative;
-    }
+  /* Filter pills */
+  .tr-filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+  }
 
-    .trainer-image-container img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
+  .tr-pill {
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1.5px solid rgba(255,255,255,0.08);
+    background: transparent;
+    color: var(--tr-text-soft);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .tr-pill:hover { border-color: rgba(255,255,255,0.15); color: var(--tr-text); }
+  .tr-pill.active {
+    background: var(--tr-gold-bg);
+    border-color: var(--tr-gold-border);
+    color: var(--tr-gold);
+  }
 
-    .trainer-overlay {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
-        padding: 2rem;
-        color: var(--text-primary);
-    }
+  /* Admin action */
+  .tr-admin-bar {
+    margin-bottom: 30px;
+  }
 
-    .badge-status {
-        position: absolute;
-        top: 1.5rem;
-        right: 1.5rem;
-        padding: 6px 16px;
-        border-radius: 50px;
-        font-size: 0.75rem;
-        font-weight: 900;
-        text-transform: uppercase;
-        z-index: 2;
-    }
+  .tr-add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 24px;
+    border-radius: 12px;
+    background: var(--tr-gold-bg);
+    border: 1.5px solid var(--tr-gold-border);
+    color: var(--tr-gold);
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.25s ease;
+  }
+  .tr-add-btn:hover {
+    background: rgba(201,169,110,0.2);
+    transform: translateY(-1px);
+  }
 
-    .badge-elite {
-        background: var(--accent-orange);
-        color: #000;
-    }
+  /* Cards grid */
+  .tr-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 22px;
+  }
 
-    .badge-hired {
-        background: #10b981;
-        color: var(--text-primary);
-        box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
-    }
+  /* Trainer card */
+  .tr-card {
+    background: var(--tr-card);
+    border: 1.5px solid var(--tr-card-border);
+    border-radius: var(--tr-radius);
+    padding: 28px 26px 24px;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    position: relative;
+  }
 
-    .trainer-name {
-        font-family: 'Inter', serif;
-        font-size: 1.8rem;
-        margin: 0;
-    }
+  .tr-card:hover {
+    border-color: rgba(255,255,255,0.12);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+  }
 
-    .trainer-specialty {
-        font-size: 0.9rem;
-        color: var(--accent-orange);
-        font-weight: 600;
-    }
+  /* Your coach highlight */
+  .tr-card.your-coach {
+    border-color: var(--tr-gold-border);
+    box-shadow: 0 0 30px rgba(201,169,110,0.06);
+  }
 
-    .card-content {
-        padding: 2rem;
-        flex-grow: 1;
-    }
+  /* Card badge */
+  .tr-card-badge {
+    display: inline-flex;
+    align-self: flex-start;
+    padding: 5px 14px;
+    border-radius: 50px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 2;
+  }
 
-    .trainer-bio {
-        color: var(--text-muted);
-        font-size: 0.95rem;
-        line-height: 1.6;
-        margin-bottom: 1.5rem;
-    }
+  .tr-card-badge.coach-yours {
+    background: var(--tr-gold-bg);
+    color: var(--tr-gold);
+    border: 1px solid var(--tr-gold-border);
+  }
+  .tr-card-badge.coach-elite {
+    background: var(--tr-green-bg);
+    color: var(--tr-green);
+    border: 1px solid var(--tr-green-border);
+  }
+  .tr-card-badge.coach-pro {
+    background: var(--tr-purple-bg);
+    color: var(--tr-purple);
+    border: 1px solid var(--tr-purple-border);
+  }
 
-    .detail-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1rem;
-        font-size: 0.9rem;
-    }
+  /* Avatar area */
+  .tr-avatar-area {
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 100%);
+  }
 
-    .detail-item i {
-        width: 20px;
-        color: var(--accent-orange);
-    }
+  .tr-avatar-area::before {
+    content: '';
+    position: absolute;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.08;
+  }
+  .tr-card.your-coach .tr-avatar-area::before { background: var(--tr-gold); }
+  .tr-card:not(.your-coach) .tr-avatar-area::before { background: var(--tr-green); }
 
-    .price-tag {
-        font-size: 1.5rem;
-        font-weight: 900;
-        color: var(--text-main);
-        margin: 1.5rem 0;
-        display: flex;
-        align-items: baseline;
-        gap: 0.5rem;
-    }
+  .tr-avatar {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(255,255,255,0.1);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    position: relative;
+    z-index: 2;
+  }
 
-    .price-tag span {
-        font-size: 0.9rem;
-        color: var(--text-muted);
-        font-weight: 400;
-    }
+  .tr-avatar-placeholder {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.3);
+    border: 3px solid rgba(255,255,255,0.08);
+    position: relative;
+    z-index: 2;
+  }
+  .tr-card.your-coach .tr-avatar-placeholder { background: rgba(201,169,110,0.12); color: var(--tr-gold); }
+  .tr-card:not(.your-coach) .tr-avatar-placeholder { background: rgba(94,170,94,0.08); color: var(--tr-green); }
 
-    .card-footer {
-        padding: 0 2rem 2rem;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-    }
+  /* Name & specialty */
+  .tr-name {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--tr-text);
+    margin-bottom: 4px;
+  }
 
-    .btn-hire {
-        grid-column: 1 / -1;
-        background: var(--accent-orange);
-        color: #000;
-        text-align: center;
-        padding: 1rem;
-        border-radius: 15px;
-        font-weight: 800;
-        text-decoration: none;
-        transition: 0.3s;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
+  .tr-specialty {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin-bottom: 16px;
+  }
+  .tr-card.your-coach .tr-specialty { color: var(--tr-gold); }
+  .tr-card:not(.your-coach) .tr-specialty { color: var(--tr-green); }
 
-    .btn-hire:hover {
-        transform: scale(1.02);
-        box-shadow: 0 5px 20px rgba(79, 70, 229, 0.4);
-    }
+  /* Bio */
+  .tr-bio {
+    font-size: 13.5px;
+    color: var(--tr-text-muted);
+    line-height: 1.6;
+    flex: 1;
+    margin-bottom: 24px;
+  }
 
-    .btn-secondary {
-        background: var(--bg-tertiary);
-        color: var(--text-main);
-        text-align: center;
-        padding: 0.8rem;
-        border-radius: 12px;
-        font-weight: 600;
-        text-decoration: none;
-        border: 1px solid var(--border-color);
-    }
+  /* Stats row */
+  .tr-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+    border: 1.5px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
 
-    .btn-hired {
-        background: rgba(16, 185, 129, 0.1);
-        color: #10b981;
-        border: 1px solid #10b981;
-        pointer-events: none;
-    }
+  .tr-stat {
+    text-align: center;
+    padding: 12px 8px;
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+  .tr-stat:last-child { border-right: none; }
+
+  .tr-stat-val {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--tr-text);
+    margin-bottom: 2px;
+  }
+
+  .tr-stat-lbl {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--tr-text-muted);
+  }
+
+  /* Card footer */
+  .tr-card-footer {
+    display: flex;
+    gap: 10px;
+  }
+
+  .tr-action-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 12px;
+    background: transparent;
+    border: 1.5px solid rgba(255,255,255,0.1);
+    color: var(--tr-text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.25s ease;
+  }
+  .tr-action-btn:hover {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.2);
+  }
+
+  .tr-msg-btn {
+    width: 46px;
+    flex: 0 0 46px;
+    padding: 12px;
+    border-radius: 12px;
+    background: transparent;
+    border: 1.5px solid rgba(255,255,255,0.1);
+    color: var(--tr-text-soft);
+    font-size: 15px;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+  }
+  .tr-msg-btn:hover {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.2);
+    color: var(--tr-text);
+  }
+
+  .tr-delete-btn {
+    width: 46px;
+    flex: 0 0 46px;
+    padding: 12px;
+    border-radius: 12px;
+    background: rgba(239,68,68,0.06);
+    border: 1.5px solid rgba(239,68,68,0.2);
+    color: #C85A4A;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s;
+  }
+  .tr-delete-btn:hover { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); }
+
+  /* Price tag for admin */
+  .tr-price-admin {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .tr-price-admin span {
+    font-size: 13px;
+    color: var(--tr-text-soft);
+    font-weight: 600;
+  }
+  .tr-price-input {
+    width: 80px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: var(--tr-text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .tr-price-save {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--tr-green-border);
+    background: var(--tr-green-bg);
+    color: var(--tr-green);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* Empty state */
+  .tr-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 80px 40px;
+    border: 2px dashed rgba(255,255,255,0.06);
+    border-radius: var(--tr-radius);
+  }
+  .tr-empty i { font-size: 48px; color: var(--tr-text-muted); margin-bottom: 20px; display: block; opacity: 0.4; }
+  .tr-empty h2 { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--tr-text-soft); margin-bottom: 8px; }
+  .tr-empty p { color: var(--tr-text-muted); font-size: 14px; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .trainer-page { padding: 24px 20px 60px; }
+    .tr-title { font-size: 28px; }
+    .tr-grid { grid-template-columns: 1fr; }
+    .tr-topbar { flex-direction: column; gap: 12px; align-items: flex-start; }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<main class="main-wrapper">
-    <a href="javascript:history.back()" class="back-btn">
-        <i class="fa-solid fa-arrow-left"></i> RETURN TO PORTAL
+<div class="trainer-page">
+
+  <!-- Top bar -->
+  <div class="tr-topbar">
+    <a href="{% url 'user_dashboard' %}" class="tr-back">
+      <i class="fa-solid fa-chevron-left"></i> Return to portal
     </a>
+    <div class="tr-count-badge">
+      {{ trainers|length }} coach{{ trainers|length|pluralize:"es" }} available
+    </div>
+  </div>
 
-    <header class="page-header">
-        <h1 class="page-title">Elite Performance Coaches</h1>
-        <p class="page-subtitle">Select your master mentor and architect your transformation.</p>
+  <!-- Header -->
+  <div class="tr-header">
+    <h1 class="tr-title">Elite performance coaches</h1>
+    <p class="tr-subtitle">Select your mentor and architect your transformation.</p>
+  </div>
 
-        {% if is_admin %}
-        <div style="margin-top: 2rem;">
-            <a href="{% url 'add_trainer' %}" class="btn-hire"
-                style="padding: 1rem 3rem; display: inline-block; width: auto;">
-                <i class="fa-solid fa-plus"></i> ONBOARD NEW COACH
-            </a>
+  <!-- Filter pills -->
+  <div class="tr-filters">
+    <button class="tr-pill active" onclick="filterTrainers('all', this)">All</button>
+    <button class="tr-pill" onclick="filterTrainers('strength', this)">Strength</button>
+    <button class="tr-pill" onclick="filterTrainers('cardio', this)">Cardio</button>
+    <button class="tr-pill" onclick="filterTrainers('mobility', this)">Mobility</button>
+  </div>
+
+  {% if is_admin %}
+  <div class="tr-admin-bar">
+    <a href="{% url 'add_trainer' %}" class="tr-add-btn">
+      <i class="fa-solid fa-plus"></i> Onboard New Coach
+    </a>
+  </div>
+  {% endif %}
+
+  <!-- Cards -->
+  <div class="tr-grid">
+    {% for profile in trainers %}
+    <div class="tr-card {% if current_trainer == profile.user %}your-coach{% endif %}" 
+         data-specialty="{{ profile.specialty|default:'strength'|lower }}">
+
+      <!-- Badge -->
+      {% if current_trainer == profile.user %}
+      <span class="tr-card-badge coach-yours">Your Coach</span>
+      {% elif forloop.counter|divisibleby:3 %}
+      <span class="tr-card-badge coach-pro">Pro Coach</span>
+      {% else %}
+      <span class="tr-card-badge coach-elite">Elite Coach</span>
+      {% endif %}
+
+      <!-- Avatar area -->
+      <div class="tr-avatar-area">
+        {% if profile.profile_photo %}
+        <img src="{{ profile.profile_photo.url }}" alt="{{ profile.user.username }}" class="tr-avatar">
+        {% else %}
+        <div class="tr-avatar-placeholder">
+          <i class="fa-solid fa-user"></i>
         </div>
         {% endif %}
-    </header>
+      </div>
 
-    <div class="trainer-grid">
-        {% for profile in trainers %}
-        <article class="trainer-card">
-            {% if current_trainer == profile.user %}
-            <span class="badge-status badge-hired">Your Coach</span>
-            {% else %}
-            <span class="badge-status badge-elite">Elite Coach</span>
-            {% endif %}
+      <!-- Name & specialty -->
+      <div class="tr-name">{{ profile.user.get_full_name|default:profile.user.username|title }}</div>
+      <div class="tr-specialty">
+        {% if profile.specialty %}{{ profile.specialty }}{% else %}Functional Strength{% endif %}
+      </div>
 
-            <div class="trainer-image-container">
-                {% if profile.profile_photo %}
-                <img src="{{ profile.profile_photo.url }}" alt="{{ profile.user.username }}">
-                {% else %}
-                <img src="https://i.pravatar.cc/600?u={{ profile.user.username }}" alt="{{ profile.user.username }}">
-                {% endif %}
-                <div class="trainer-overlay">
-                    <h3 class="trainer-name">{{ profile.user.get_full_name|default:profile.user.username|title }}</h3>
-                    <span class="trainer-specialty">{% if profile.specialty %}{{ profile.specialty }}{% else %}Master
-                        Strength & Conditioning{% endif %}</span>
-                </div>
-            </div>
+      <!-- Bio -->
+      <div class="tr-bio">
+        {% if profile.bio %}{{ profile.bio|truncatewords:20 }}{% else %}Specialized in high-performance metabolic conditioning and biomechanical optimization for elite athletes.{% endif %}
+      </div>
 
-            <div class="card-content">
-                <p class="trainer-bio">{% if profile.bio %}{{ profile.bio }}{% else %}Specialized in high-performance
-                    metabolic conditioning and biomechanical optimization for elite athletes.{% endif %}</p>
-
-                <div class="detail-item">
-                    <i class="fa-solid fa-phone"></i>
-                    <span>{{ profile.phone_number|default:"+1 (555) 000-0000" }}</span>
-                </div>
-
-                <div class="detail-item">
-                    <i class="fa-solid fa-location-dot"></i>
-                    <span>{{ profile.address|default:"FitSync Elite HQ, Iron District" }}</span>
-                </div>
-
-                <div class="price-tag">
-                    {% if is_admin %}
-                    <form method="POST" action="{% url 'trainer_list' %}"
-                        style="display: flex; align-items: center; gap: 0.5rem;">
-                        {% csrf_token %}
-                        <input type="hidden" name="trainer_id" value="{{ profile.id }}">
-                        <span style="font-size: 1.5rem; font-weight: 900; color: var(--text-main);">₹</span>
-                        <input type="number" name="new_price" value="{{ profile.price|floatformat:0 }}"
-                            style="width: 100px; padding: 0.2rem; border-radius: 5px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-main); font-weight: bold;">
-                        <button type="submit" class="btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">
-                            <i class="fa-solid fa-check"></i>
-                        </button>
-                    </form>
-                    {% else %}
-                    ₹{% if profile.price %}{{ profile.price }}{% else %}4,999{% endif %} <span>/ month</span>
-                    {% endif %}
-                </div>
-            </div>
-
-            <div class="card-footer">
-                {% if current_trainer == profile.user %}
-                <a href="#" class="btn-hire btn-hired">Active Subscription</a>
-                <a href="{% url 'messages' %}?user_id={{ profile.user.id }}" class="btn-secondary"
-                    style="grid-column: 1 / -1;">Message Coach</a>
-                {% else %}
-                {% if not is_admin %}
-                <a href="{% url 'trainer_payment' profile.user.id %}" class="btn-hire">Hire This Coach</a>
-                {% endif %}
-                <a href="{% url 'workout_list' %}" class="btn-secondary">View Workouts</a>
-                {% if not is_admin %}
-                <a href="{% url 'chatbot' %}" class="btn-secondary">Inquire</a>
-                {% else %}
-                <a href="{% url 'delete_trainer' profile.id %}" class="btn-secondary"
-                    style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05);"
-                    onclick="return confirm('WARNING: Are you sure you want to terminate this trainer protocol? All associated data will be purged.')">
-                    <i class="fa-solid fa-trash-can"></i> Terminate
-                </a>
-                {% endif %}
-                {% endif %}
-
-            </div>
-        </article>
-        {% empty %}
-        <div style="grid-column: 1/-1; text-align: center; padding: 5rem;">
-            <i class="fa-solid fa-user-ninja"
-                style="font-size: 4rem; color: var(--gold); opacity: 0.3; margin-bottom: 2rem;"></i>
-            <h2 style="font-family: 'Inter', serif;">Coaching Academy Empty</h2>
-            <p>New elite coaches are currently being vetted.</p>
+      <!-- Stats -->
+      <div class="tr-stats">
+        <div class="tr-stat">
+          <div class="tr-stat-val">{{ profile.experience_years|default:"5" }} yr</div>
+          <div class="tr-stat-lbl">Exp.</div>
         </div>
-        {% endfor %}
+        <div class="tr-stat">
+          <div class="tr-stat-val">{{ profile.client_count|default:"120" }}</div>
+          <div class="tr-stat-lbl">Clients</div>
+        </div>
+        <div class="tr-stat">
+          <div class="tr-stat-val">{{ profile.rating|default:"4.9" }}</div>
+          <div class="tr-stat-lbl">Rating</div>
+        </div>
+      </div>
+
+      <!-- Admin price editor -->
+      {% if is_admin %}
+      <form method="POST" action="{% url 'trainer_list' %}" class="tr-price-admin">
+        {% csrf_token %}
+        <input type="hidden" name="trainer_id" value="{{ profile.id }}">
+        <span>₹</span>
+        <input type="number" name="new_price" value="{{ profile.price|floatformat:0 }}" class="tr-price-input">
+        <button type="submit" class="tr-price-save"><i class="fa-solid fa-check"></i></button>
+      </form>
+      {% endif %}
+
+      <!-- Footer actions -->
+      <div class="tr-card-footer">
+        {% if current_trainer == profile.user %}
+          <a href="{% url 'workout_list' %}" class="tr-action-btn">View program</a>
+          <a href="{% url 'messages' %}?user_id={{ profile.user.id }}" class="tr-msg-btn">
+            <i class="fa-regular fa-comment"></i>
+          </a>
+        {% else %}
+          {% if is_admin %}
+            <a href="{% url 'workout_list' %}" class="tr-action-btn">View workouts</a>
+            <a href="{% url 'delete_trainer' profile.id %}" class="tr-delete-btn"
+               onclick="return confirm('Are you sure you want to remove this coach?')">
+              <i class="fa-solid fa-trash-can"></i>
+            </a>
+          {% else %}
+            <a href="{% url 'trainer_payment' profile.user.id %}" class="tr-action-btn">Select coach</a>
+            <a href="{% url 'messages' %}?user_id={{ profile.user.id }}" class="tr-msg-btn">
+              <i class="fa-regular fa-comment"></i>
+            </a>
+          {% endif %}
+        {% endif %}
+      </div>
     </div>
-</main>
+
+    {% empty %}
+    <div class="tr-empty">
+      <i class="fa-solid fa-user-tie"></i>
+      <h2>Coaching Academy Empty</h2>
+      <p>New elite coaches are currently being vetted.</p>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+<script>
+  function filterTrainers(category, btn) {
+    document.querySelectorAll('.tr-pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    
+    document.querySelectorAll('.tr-card').forEach(card => {
+      if (category === 'all') {
+        card.style.display = '';
+      } else {
+        const spec = (card.dataset.specialty || '').toLowerCase();
+        card.style.display = spec.includes(category) ? '' : 'none';
+      }
+    });
+  }
+</script>
 {% endblock %}

@@ -1,517 +1,346 @@
 {% extends 'fitsync_app/base.html' %}
 {% load static %}
 
-{% block title %}Attendance | FitSync Elite{% endblock %}
+{% block title %}Attendance | FitSync{% endblock %}
 
 {% block header %}{% endblock %}
 {% block footer %}{% endblock %}
 
 {% block extra_css %}
 <style>
-    :root {
-        --card-bg: var(--bg-secondary);
-        --card-border: var(--border-color);
-        --item-bg: var(--bg-tertiary);
-        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
 
-    .main-wrapper {
-        margin: 0 auto;
-        max-width: 1400px;
-        flex-grow: 1;
-        padding: 3rem 4rem;
-        animation: fadeIn 0.8s ease-out;
-    }
+  :root {
+    --at-bg: #0E0E0E;
+    --at-card: #181818;
+    --at-card-border: rgba(255,255,255,0.06);
+    --at-text: #E8E4DF;
+    --at-text-soft: #8A8580;
+    --at-text-muted: #4A4540;
+    --at-gold: #C9A96E;
+    --at-gold-bg: rgba(201,169,110,0.10);
+    --at-gold-border: rgba(201,169,110,0.35);
+    --at-green: #8AAF5A;
+    --at-green-bg: rgba(138,175,90,0.12);
+    --at-green-border: rgba(138,175,90,0.3);
+    --at-red: #C87A6A;
+    --at-red-bg: rgba(200,122,106,0.12);
+    --at-red-border: rgba(200,122,106,0.28);
+    --at-blue: #5A9AC0;
+    --at-radius: 18px;
+  }
 
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
+  body { background:var(--at-bg)!important; color:var(--at-text)!important; font-family:'DM Sans',sans-serif!important; margin:0; min-height:100vh; }
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
+  .att-page { max-width:640px; margin:0 auto; padding:48px 32px 80px; animation:atFade 0.6s ease both; }
+  @keyframes atFade { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
 
-    .back-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.8rem;
-        color: var(--text-muted);
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.9rem;
-        margin-bottom: 2rem;
-        transition: var(--transition);
-        padding: 0.8rem 1.5rem;
-        border-radius: 50px;
-        background: var(--bg-tertiary);
-        border: 1px solid var(--border-color);
-        box-shadow: var(--shadow-sm);
-    }
+  .at-topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:36px; }
+  .at-back { display:inline-flex; align-items:center; gap:10px; color:var(--at-text-soft); font-size:13px; font-weight:500; padding:10px 22px; border-radius:50px; border:1.5px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.03); text-decoration:none; transition:all 0.25s; }
+  .at-back:hover { color:var(--at-text); border-color:rgba(255,255,255,0.15); }
+  .at-date-badge { color:#1a1a1a; font-size:11px; font-weight:700; padding:8px 16px; border-radius:50px; background:var(--at-gold); }
 
-    .back-btn:hover {
-        color: var(--gold);
-        transform: translateX(-5px);
-        border-color: var(--gold);
-        box-shadow: var(--shadow-glow);
-    }
+  .at-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:2.5px; color:var(--at-text-muted); margin-bottom:12px; }
+  .at-title { font-family:'Playfair Display',serif; font-size:32px; font-weight:500; color:var(--at-text); margin:0 0 8px; }
+  .at-subtitle { font-size:14px; color:var(--at-text-muted); font-style:italic; margin-bottom:28px; }
 
-    .page-header {
-        text-align: center;
-        margin-bottom: 4rem;
-    }
+  /* Check-in banner */
+  .at-checkin {
+    background:var(--at-card); border:1.5px solid var(--at-card-border);
+    border-radius:var(--at-radius); padding:22px 24px;
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:16px;
+  }
+  .at-checkin-label { font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; color:var(--at-gold); margin-bottom:6px; }
+  .at-checkin-title { font-size:16px; font-weight:600; color:var(--at-text); margin-bottom:4px; }
+  .at-checkin-sub { font-size:12px; color:var(--at-text-muted); }
 
-    .page-title {
-        font-family: var(--font-heading);
-        font-size: 3rem;
-        font-weight: 900;
-        color: var(--gold);
-        text-transform: uppercase;
-        margin: 0;
-        letter-spacing: 4px;
-        text-shadow: 0 0 20px rgba(79, 70, 229, 0.3);
-    }
+  .at-checkin-btn {
+    padding:10px 22px; border-radius:10px; font-size:12px; font-weight:700;
+    font-family:'DM Sans',sans-serif; cursor:pointer; transition:all 0.25s; white-space:nowrap;
+    background:transparent; border:1.5px solid rgba(255,255,255,0.12); color:var(--at-text);
+  }
+  .at-checkin-btn:hover { background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.2); }
+  .at-checkin-btn:disabled { opacity:0.4; cursor:not-allowed; }
+  .at-checkin-btn.done { background:var(--at-green-bg); border-color:var(--at-green-border); color:var(--at-green); }
 
-    .page-subtitle {
-        color: var(--text-muted);
-        font-size: 1.1rem;
-        margin-top: 1rem;
-        letter-spacing: 1px;
-    }
+  /* Stats row */
+  .at-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px; }
+  .at-stat { background:var(--at-card); border:1.5px solid var(--at-card-border); border-radius:var(--at-radius); padding:20px; }
+  .at-stat-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .at-stat-lbl { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:var(--at-text-muted); line-height:1.4; }
+  .at-stat-icon { width:26px; height:26px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:11px; }
+  .at-stat-icon.gold { background:var(--at-gold-bg); color:var(--at-gold); }
+  .at-stat-icon.blue { background:rgba(90,154,192,0.12); color:var(--at-blue); }
+  .at-stat-icon.green { background:var(--at-green-bg); color:var(--at-green); }
+  .at-stat-val { font-size:28px; font-weight:700; color:var(--at-text); margin-bottom:2px; }
+  .at-stat-sub { font-size:11px; color:var(--at-text-muted); }
 
-    .checkin-card {
-        background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-        padding: 4rem;
-        border-radius: 24px;
-        color: #000;
-        text-align: center;
-        margin-bottom: 4rem;
-        box-shadow: 0 15px 50px rgba(79, 70, 229, 0.3);
-        position: relative;
-        overflow: hidden;
-    }
+  /* Streak bar */
+  .at-streak {
+    background:var(--at-card); border:1.5px solid var(--at-card-border);
+    border-radius:var(--at-radius); padding:20px 24px;
+    display:flex; align-items:center; gap:16px; margin-bottom:16px;
+  }
+  .at-streak-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; background:var(--at-gold-bg); color:var(--at-gold); flex-shrink:0; }
+  .at-streak-body { flex:1; }
+  .at-streak-title { font-size:14px; font-weight:600; color:var(--at-text); margin-bottom:3px; }
+  .at-streak-sub { font-size:12px; color:var(--at-text-muted); margin-bottom:8px; }
+  .at-streak-bar { height:4px; background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden; }
+  .at-streak-fill { height:100%; background:var(--at-blue); border-radius:4px; transition:width 1s ease; }
+  .at-streak-days { text-align:right; flex-shrink:0; }
+  .at-streak-num { font-size:24px; font-weight:700; color:var(--at-text); }
+  .at-streak-dlbl { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:var(--at-text-muted); }
 
-    .checkin-card::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-        animation: rotation 15s linear infinite;
-    }
+  /* Calendar */
+  .at-cal { background:var(--at-card); border:1.5px solid var(--at-card-border); border-radius:var(--at-radius); padding:26px; margin-bottom:16px; }
+  .at-cal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:22px; }
+  .at-cal-title { font-size:16px; font-weight:600; color:var(--at-text); }
+  .at-cal-nav { display:flex; gap:6px; }
+  .at-cal-btn { width:32px; height:32px; border-radius:8px; border:1.5px solid rgba(255,255,255,0.08); background:transparent; color:var(--at-text-soft); font-size:11px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
+  .at-cal-btn:hover { border-color:rgba(255,255,255,0.15); color:var(--at-text); }
 
-    @keyframes rotation {
-        from {
-            transform: rotate(0deg);
-        }
+  .at-cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+  .at-cal-hdr { text-align:center; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--at-text-muted); padding:6px 0; }
+  .at-cal-day {
+    aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+    border-radius:10px; font-size:13px; font-weight:600; transition:all 0.2s;
+  }
+  .at-cal-day.empty { background:transparent; }
+  .at-cal-day.future { color:rgba(255,255,255,0.12); }
+  .at-cal-day.present { background:var(--at-green-bg); color:var(--at-green); border:1px solid var(--at-green-border); }
+  .at-cal-day.absent { background:var(--at-red-bg); color:var(--at-red); border:1px solid var(--at-red-border); }
+  .at-cal-day.today { background:var(--at-gold); color:#1a1a1a; font-weight:800; }
 
-        to {
-            transform: rotate(360deg);
-        }
-    }
+  .at-cal-legend { display:flex; gap:18px; margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.04); }
+  .at-legend-item { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--at-text-muted); }
+  .at-legend-dot { width:10px; height:10px; border-radius:3px; }
+  .at-legend-dot.present { background:var(--at-green-bg); border:1px solid var(--at-green-border); }
+  .at-legend-dot.absent { background:var(--at-red-bg); border:1px solid var(--at-red-border); }
+  .at-legend-dot.today { background:var(--at-gold); }
+  .at-legend-dot.future { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); }
 
-    .checkin-btn {
-        background: #000;
-        color: var(--gold);
-        border: 1px solid var(--gold);
-        padding: 1.2rem 3.5rem;
-        border-radius: 15px;
-        font-size: 1.2rem;
-        font-weight: 900;
-        cursor: pointer;
-        transition: var(--transition);
-        margin-top: 1.5rem;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        font-family: var(--font-heading);
-        position: relative;
-        z-index: 2;
-    }
+  /* Recent history */
+  .at-history { background:var(--at-card); border:1.5px solid var(--at-card-border); border-radius:var(--at-radius); padding:26px; }
+  .at-hist-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+  .at-hist-title { font-size:16px; font-weight:600; color:var(--at-text); }
+  .at-hist-count { font-size:12px; color:var(--at-text-muted); }
 
-    .checkin-btn:hover {
-        transform: translateY(-5px) scale(1.05);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        background: var(--bg-tertiary);
-    }
+  .at-hist-item { display:flex; align-items:center; gap:16px; padding:16px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+  .at-hist-item:last-child { border-bottom:none; }
 
-    .checkin-btn:active {
-        transform: translateY(-2px);
-    }
+  .at-hist-date { text-align:center; flex-shrink:0; width:40px; }
+  .at-hist-day-num { font-size:20px; font-weight:700; color:var(--at-text); }
+  .at-hist-day-name { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--at-text-muted); }
 
-    .checkin-btn:disabled {
-        background: #333;
-        color: #666;
-        border-color: #444;
-        cursor: not-allowed;
-        transform: none;
-        box-shadow: none;
-    }
+  .at-hist-body { flex:1; }
+  .at-hist-name { font-size:14px; font-weight:600; color:var(--at-text); margin-bottom:3px; }
+  .at-hist-meta { font-size:12px; color:var(--at-text-muted); }
 
-    .stats-row {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 2.5rem;
-        margin-bottom: 4rem;
-    }
+  .at-hist-badge { padding:4px 12px; border-radius:50px; font-size:10px; font-weight:800; flex-shrink:0; display:inline-flex; align-items:center; gap:4px; }
+  .at-hist-badge.present { background:var(--at-green-bg); color:var(--at-green); border:1px solid var(--at-green-border); }
 
-    .stat-card {
-        background: var(--card-bg);
-        backdrop-filter: blur(12px);
-        padding: 2.5rem;
-        border-radius: 24px;
-        border: 1px solid var(--card-border);
-        text-align: center;
-        transition: var(--transition);
-    }
+  .at-hist-empty { text-align:center; padding:40px; }
+  .at-hist-empty i { font-size:32px; color:rgba(255,255,255,0.08); margin-bottom:14px; display:block; }
+  .at-hist-empty p { font-size:13px; color:var(--at-text-muted); }
 
-    .stat-card:hover {
-        border-color: var(--gold);
-        transform: translateY(-8px);
-        box-shadow: var(--shadow-glow);
-    }
-
-    .stat-icon {
-        width: 70px;
-        height: 70px;
-        background: rgba(79, 70, 229, 0.1);
-        border-radius: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1.5rem;
-        color: var(--gold);
-        font-size: 2.2rem;
-        transition: var(--transition);
-    }
-
-    .stat-card:hover .stat-icon {
-        background: var(--gold);
-        color: #000;
-        transform: rotateY(180deg);
-    }
-
-    .stat-value {
-        font-size: 3rem;
-        font-weight: 900;
-        color: var(--text-primary);
-        margin-bottom: 0.5rem;
-        font-family: var(--font-heading);
-    }
-
-    .stat-label {
-        color: var(--text-muted);
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        font-weight: 700;
-    }
-
-    .calendar-container {
-        background: var(--card-bg);
-        backdrop-filter: blur(12px);
-        padding: 3rem;
-        border-radius: 30px;
-        border: 1px solid var(--card-border);
-        margin-bottom: 3rem;
-    }
-
-    .calendar-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 3rem;
-    }
-
-    .calendar-title {
-        font-family: var(--font-heading);
-        font-size: 1.8rem;
-        font-weight: 800;
-        color: var(--gold);
-    }
-
-    .nav-btn {
-        padding: 0.8rem 1.2rem;
-        border: 1px solid var(--border-color);
-        background: var(--bg-tertiary);
-        color: var(--gold);
-        border-radius: 12px;
-        cursor: pointer;
-        transition: var(--transition);
-    }
-
-    .nav-btn:hover {
-        background: var(--gold);
-        color: #000;
-    }
-
-    .calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 1.2rem;
-    }
-
-    .calendar-day {
-        aspect-ratio: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 15px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: var(--transition);
-        background: var(--bg-tertiary);
-        border: 1px solid var(--border-color);
-        color: var(--text-muted);
-    }
-
-    .calendar-day.header {
-        background: transparent;
-        border: none;
-        color: var(--gold);
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .calendar-day.present {
-        background: var(--success);
-        color: var(--text-primary);
-        border-color: var(--success);
-        box-shadow: 0 4px 10px rgba(0, 204, 102, 0.3);
-    }
-
-    .calendar-day.present:hover {
-        background: #00b359;
-        transform: scale(1.1);
-    }
-
-    .calendar-day.absent {
-        background: var(--danger);
-        color: var(--text-primary);
-        border-color: var(--danger);
-        box-shadow: 0 4px 10px rgba(255, 77, 77, 0.3);
-    }
-
-    .calendar-day.absent:hover {
-        background: #ff3333;
-        transform: scale(1.1);
-    }
-
-    .calendar-day.today {
-        border: 2px solid var(--gold);
-        box-shadow: var(--shadow-glow);
-        color: var(--text-primary);
-    }
-
-
-
-    .history-list {
-        background: var(--card-bg);
-        backdrop-filter: blur(12px);
-        padding: 3rem;
-        border-radius: 30px;
-        border: 1px solid var(--card-border);
-    }
-
-    .history-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1.5rem 0;
-        border-bottom: 1px solid var(--border-color);
-        transition: var(--transition);
-    }
-
-    .history-item:hover {
-        transform: translateX(10px);
-    }
-
-    .history-item:last-child {
-        border-bottom: none;
-    }
-
-    .history-date {
-        font-weight: 800;
-        color: var(--text-primary);
-        font-size: 1.1rem;
-        margin-bottom: 0.3rem;
-    }
-
-    .history-status {
-        padding: 0.6rem 1.5rem;
-        border-radius: 50px;
-        font-size: 0.8rem;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .history-status.present {
-        background: rgba(0, 204, 102, 0.1);
-        color: var(--success);
-        border: 1px solid rgba(0, 204, 102, 0.2);
-    }
-
-    .history-status.absent {
-        background: rgba(255, 77, 77, 0.1);
-        color: var(--danger);
-        border: 1px solid rgba(255, 77, 77, 0.2);
-    }
+  @media(max-width:640px) {
+    .att-page { padding:24px 20px 60px; }
+    .at-title { font-size:26px; }
+    .at-stats { grid-template-columns:1fr; }
+    .at-checkin { flex-direction:column; gap:14px; align-items:flex-start; }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<main class="main-wrapper">
+<div class="att-page">
+
+  <!-- Top bar -->
+  <div class="at-topbar">
     {% if user.is_authenticated and user.userprofile.role == 'admin' %}
-    <a href="{% url 'admin_dashboard' %}" class="back-btn">
-        {% elif user.is_authenticated and user.userprofile.role == 'trainer' %}
-        <a href="{% url 'trainer_dashboard' %}" class="back-btn">
-            {% else %}
-            <a href="{% url 'user_dashboard' %}" class="back-btn">
-                {% endif %}
-                <i class="fa-solid fa-arrow-left"></i> RETURN TO PORTAL
-            </a>
-            <header class="page-header">
-                <h1 class="page-title">Attendance Elite</h1>
-                <p class="page-subtitle">Track your gym visits and maintain your superior physical streak.</p>
-            </header>
+    <a href="{% url 'admin_dashboard' %}" class="at-back"><i class="fa-solid fa-chevron-left"></i> Return to portal</a>
+    {% elif user.is_authenticated and user.userprofile.role == 'trainer' %}
+    <a href="{% url 'trainer_dashboard' %}" class="at-back"><i class="fa-solid fa-chevron-left"></i> Return to portal</a>
+    {% else %}
+    <a href="{% url 'user_dashboard' %}" class="at-back"><i class="fa-solid fa-chevron-left"></i> Return to portal</a>
+    {% endif %}
+    <div class="at-date-badge">{% now "D, M d · Y" %}</div>
+  </div>
 
-            <div class="checkin-card">
-                <h2 style="font-family: var(--font-heading); font-size: 2.5rem; margin: 0 0 1rem 0; font-weight: 900;">
-                    Daily Check-In</h2>
-                <p style="font-size: 1.2rem; opacity: 0.9; margin-bottom: 2rem; font-weight: 600;">
-                    {% if already_checked_in %}
-                    Session logged successfully! See you tomorrow.
-                    {% else %}
-                    Log your presence for today's elite performance session
-                    {% endif %}
-                </p>
-                <button id="checkInBtn" class="checkin-btn" {% if already_checked_in %}disabled{% endif %}>
-                    {% if already_checked_in %}
-                    <i class="fa-solid fa-circle-check"></i> Already Checked In
-                    {% else %}
-                    <i class="fa-solid fa-check-circle"></i> Check In Now
-                    {% endif %}
-                </button>
-            </div>
+  <!-- Header -->
+  <div class="at-label">Attendance</div>
+  <h1 class="at-title">Attendance Elite</h1>
+  <p class="at-subtitle">Track your gym visits and maintain your superior physical streak.</p>
 
-            <div class="stats-row">
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fa-solid fa-fire"></i></div>
-                    <div class="stat-value">{{ check_ins_today }}</div>
-                    <div class="stat-label">Today's Sessions</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fa-solid fa-calendar-days"></i></div>
-                    <div class="stat-value">{{ logs.count }}</div>
-                    <div class="stat-label">Total Logs</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fa-solid fa-trophy"></i></div>
-                    <div class="stat-value">{{ attendance_rate }}%</div>
-                    <div class="stat-label">Attendance Rate</div>
-                </div>
-            </div>
+  <!-- Check-in Banner -->
+  <div class="at-checkin">
+    <div>
+      <div class="at-checkin-label">Daily Check-in</div>
+      {% if already_checked_in %}
+      <div class="at-checkin-title">Session logged ✓</div>
+      <div class="at-checkin-sub">Great work! See you tomorrow.</div>
+      {% else %}
+      <div class="at-checkin-title">Log today's session</div>
+      <div class="at-checkin-sub">Log your presence for today's elite performance session</div>
+      {% endif %}
+    </div>
+    <button id="checkInBtn" class="at-checkin-btn {% if already_checked_in %}done{% endif %}" {% if already_checked_in %}disabled{% endif %}>
+      {% if already_checked_in %}
+      <i class="fa-solid fa-check"></i> Checked in
+      {% else %}
+      Check in now
+      {% endif %}
+    </button>
+  </div>
 
+  <!-- Stats Row -->
+  <div class="at-stats">
+    <div class="at-stat">
+      <div class="at-stat-head">
+        <span class="at-stat-lbl">Today's<br>Sessions</span>
+        <div class="at-stat-icon gold"><i class="fa-solid fa-location-dot"></i></div>
+      </div>
+      <div class="at-stat-val">{{ check_ins_today }}</div>
+      <div class="at-stat-sub">{% if check_ins_today > 0 %}Logged{% else %}No session yet{% endif %}</div>
+    </div>
+    <div class="at-stat">
+      <div class="at-stat-head">
+        <span class="at-stat-lbl">Total<br>Logs</span>
+        <div class="at-stat-icon blue"><i class="fa-solid fa-calendar-check"></i></div>
+      </div>
+      <div class="at-stat-val">{{ logs.count }}</div>
+      <div class="at-stat-sub">This month</div>
+    </div>
+    <div class="at-stat">
+      <div class="at-stat-head">
+        <span class="at-stat-lbl">Attendance<br>Rate</span>
+        <div class="at-stat-icon green"><i class="fa-solid fa-arrow-trend-up"></i></div>
+      </div>
+      <div class="at-stat-val">{{ attendance_rate }}%</div>
+      <div class="at-stat-sub">Of possible days</div>
+    </div>
+  </div>
 
+  <!-- Streak -->
+  <div class="at-streak">
+    <div class="at-streak-icon"><i class="fa-solid fa-location-dot"></i></div>
+    <div class="at-streak-body">
+      <div class="at-streak-title">Current streak</div>
+      <div class="at-streak-sub">Keep going — {{ attendance_rate }}% attendance rate this month</div>
+      <div class="at-streak-bar"><div class="at-streak-fill" id="streakBar" style="width:0%"></div></div>
+    </div>
+    <div class="at-streak-days">
+      <div class="at-streak-num">{{ logs.count }}</div>
+      <div class="at-streak-dlbl">Days</div>
+    </div>
+  </div>
 
-            <div class="calendar-container">
-                <div class="calendar-header">
-                    <h2 class="calendar-title">{{ current_month }}</h2>
-                    <div style="display: flex; gap: 1rem;">
-                        <button class="nav-btn"><i class="fa-solid fa-chevron-left"></i></button>
-                        <button class="nav-btn"><i class="fa-solid fa-chevron-right"></i></button>
-                    </div>
-                </div>
-                <div class="calendar-grid">
-                    <div class="calendar-day header">Sun</div>
-                    <div class="calendar-day header">Mon</div>
-                    <div class="calendar-day header">Tue</div>
-                    <div class="calendar-day header">Wed</div>
-                    <div class="calendar-day header">Thu</div>
-                    <div class="calendar-day header">Fri</div>
-                    <div class="calendar-day header">Sat</div>
+  <!-- Calendar -->
+  <div class="at-cal">
+    <div class="at-cal-head">
+      <span class="at-cal-title">{{ current_month }}</span>
+      <div class="at-cal-nav">
+        <button class="at-cal-btn"><i class="fa-solid fa-chevron-left"></i></button>
+        <button class="at-cal-btn"><i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+    </div>
 
-                    {% for day_info in calendar_days %}
-                    {% if day_info.day == 0 %}
-                    <div class="calendar-day" style="background: transparent; border: none; cursor: default;"></div>
-                    {% else %}
-                    <div class="calendar-day 
-                        {% if day_info.is_present %}present{% elif day_info.is_past %}absent{% endif %} 
-                        {% if day_info.is_today %}today{% endif %}">
-                        {{ day_info.day }}
-                    </div>
-                    {% endif %}
-                    {% endfor %}
-                </div>
-            </div>
+    <div class="at-cal-grid">
+      <div class="at-cal-hdr">Sun</div>
+      <div class="at-cal-hdr">Mon</div>
+      <div class="at-cal-hdr">Tue</div>
+      <div class="at-cal-hdr">Wed</div>
+      <div class="at-cal-hdr">Thu</div>
+      <div class="at-cal-hdr">Fri</div>
+      <div class="at-cal-hdr">Sat</div>
 
-            <div class="history-list">
-                <h2 class="calendar-title" style="margin-bottom: 2.5rem;"><i class="fa-solid fa-clock-rotate-left"></i>
-                    Recent
-                    History</h2>
-                {% for log in logs %}
-                <div class="history-item">
-                    <div>
-                        <div class="history-date">{{ log.logged_at|date:"l, M j, Y" }}</div>
-                        <div style="color: var(--text-muted); font-size: 0.9rem;">
-                            {{ log.logged_at|date:"g:i A" }} - {{ log.workout_type }}
-                        </div>
-                    </div>
-                    <span class="history-status present"><i class="fa-solid fa-check"></i> Present</span>
-                </div>
-                {% empty %}
-                <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
-                    No attendance records found.
-                </div>
-                {% endfor %}
-            </div>
-</main>
+      {% for day_info in calendar_days %}
+        {% if day_info.day == 0 %}
+        <div class="at-cal-day empty"></div>
+        {% else %}
+        <div class="at-cal-day {% if day_info.is_today %}today{% elif day_info.is_present %}present{% elif day_info.is_past %}absent{% else %}future{% endif %}">
+          {{ day_info.day }}
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="at-cal-legend">
+      <div class="at-legend-item"><div class="at-legend-dot present"></div> Present</div>
+      <div class="at-legend-item"><div class="at-legend-dot absent"></div> Absent</div>
+      <div class="at-legend-item"><div class="at-legend-dot today"></div> Today</div>
+      <div class="at-legend-item"><div class="at-legend-dot future"></div> Upcoming</div>
+    </div>
+  </div>
+
+  <!-- Recent History -->
+  <div class="at-history">
+    <div class="at-hist-head">
+      <span class="at-hist-title">Recent history</span>
+      <span class="at-hist-count">{{ logs.count }} session{{ logs.count|pluralize:"s" }} logged</span>
+    </div>
+
+    {% for log in logs %}
+    <div class="at-hist-item">
+      <div class="at-hist-date">
+        <div class="at-hist-day-num">{{ log.logged_at|date:"d" }}</div>
+        <div class="at-hist-day-name">{{ log.logged_at|date:"D" }}</div>
+      </div>
+      <div class="at-hist-body">
+        <div class="at-hist-name">{{ log.workout_type }}</div>
+        <div class="at-hist-meta">{{ log.logged_at|date:"g:i A" }} · {{ log.logged_at|date:"M d, Y" }}</div>
+      </div>
+      <span class="at-hist-badge present"><i class="fa-solid fa-check"></i> Present</span>
+    </div>
+    {% empty %}
+    <div class="at-hist-empty">
+      <i class="fa-solid fa-calendar-xmark"></i>
+      <p>No attendance records found.</p>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
 
 <script>
-    document.getElementById('checkInBtn').addEventListener('click', function () {
-        const btn = this;
-        const originalHtml = btn.innerHTML;
+  // Streak bar animation
+  document.addEventListener('DOMContentLoaded', () => {
+    const rate = parseInt('{{ attendance_rate }}') || 0;
+    const bar = document.getElementById('streakBar');
+    if (bar) setTimeout(() => { bar.style.width = rate + '%'; }, 300);
+  });
 
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> SYNCING...';
+  // Check-in handler
+  document.getElementById('checkInBtn').addEventListener('click', function() {
+    const btn = this;
+    if (btn.disabled) return;
+    const originalHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Syncing...';
 
-        fetch("{% url 'mark_attendance_api' %}", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": "{{ csrf_token }}"
-            },
-            body: JSON.stringify({})
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    btn.innerHTML = '<i class="fa-solid fa-check"></i> SYNCED';
-                    btn.style.background = 'var(--success)';
-                    btn.style.color = '#fff';
-                    btn.style.borderColor = 'var(--success)';
-
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
-                } else {
-                    alert("Error: " + data.message);
-                    btn.disabled = false;
-                    btn.innerHTML = originalHtml;
-                }
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                alert("Verification failed. Please check your neural link.");
-                btn.disabled = false;
-                btn.innerHTML = originalHtml;
-            });
+    fetch("{% url 'mark_attendance_api' %}", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-CSRFToken": "{{ csrf_token }}" },
+      body: JSON.stringify({})
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === 'success') {
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Checked in';
+        btn.classList.add('done');
+        setTimeout(() => window.location.reload(), 800);
+      } else {
+        alert("Error: " + data.message);
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+      }
+    })
+    .catch(err => {
+      console.error("Error:", err);
+      btn.disabled = false;
+      btn.innerHTML = originalHtml;
     });
+  });
 </script>
 {% endblock %}

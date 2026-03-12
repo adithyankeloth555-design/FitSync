@@ -134,4 +134,17 @@ urlpatterns = [
     # Brand Details
     path('why-fitsync/', views.why_fitsync_view, name='why_fitsync'),
     path('migrate/', views.migrate_db_view, name='migrate_db'),
+
+    # ── Feature: Trainer Rating & Reviews ────────────────────────────────────
+    path('trainers/<int:trainer_id>/reviews/', views.trainer_reviews_view, name='trainer_reviews'),
+
+    # ── Feature: Achievements & Badges ───────────────────────────────────────
+    path('achievements/', views.achievements_view, name='achievements'),
+
+    # ── Feature: Export Progress ─────────────────────────────────────────────
+    path('progress/export/csv/', views.export_progress_csv, name='export_progress_csv'),
+    path('progress/export/pdf/', views.export_progress_pdf, name='export_progress_pdf'),
+
+    # ── Feature: Admin Goal Reminder Trigger ─────────────────────────────────
+    path('admin/trigger-goal-reminders/', views.trigger_goal_reminders_view, name='trigger_goal_reminders'),
 ]

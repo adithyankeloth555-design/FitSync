@@ -1,1135 +1,348 @@
-{% extends 'fitsync_app/base.html' %}
+{% extends 'fitsync_app/user_dashboard_base.html' %}
 {% load static %}
 
 {% block title %}Dashboard | FitSync{% endblock %}
 
-{% block header %}{% endblock %}
-{% block footer %}{% endblock %}
-
-{% block extra_css %}
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-    /* ── Clean Minimal Fitness UI ── */
-    :root {
-        --fs-bg: #F7F8FA;
-        --fs-card: #FFFFFF;
-        --fs-text: #1A1D26;
-        --fs-text-secondary: #6B7280;
-        --fs-text-muted: #9CA3AF;
-        --fs-border: #E5E7EB;
-        --fs-primary: #4F46E5;
-        --fs-primary-light: #EEF2FF;
-        --fs-success: #10B981;
-        --fs-success-light: #ECFDF5;
-        --fs-warning: #F59E0B;
-        --fs-warning-light: #FFFBEB;
-        --fs-danger: #EF4444;
-        --fs-danger-light: #FEF2F2;
-        --fs-radius: 16px;
-        --fs-radius-sm: 12px;
-        --fs-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
-        --fs-shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
-        --fs-shadow-lg: 0 10px 25px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.04);
-        --sidebar-width: 260px;
-    }
-
-    body {
-        background: var(--fs-bg) !important;
-        color: var(--fs-text) !important;
-        font-family: 'Inter', -apple-system, sans-serif !important;
-        margin: 0;
-        display: flex;
-        min-height: 100vh;
-    }
-
-    body.dark-mode {
-        --fs-bg: #111118;
-        --fs-card: #1A1A24;
-        --fs-text: #F1F1F4;
-        --fs-text-secondary: #9CA3AF;
-        --fs-text-muted: #6B7280;
-        --fs-border: #2A2A36;
-        --fs-primary-light: #1E1B4B;
-        --fs-success-light: #064E3B;
-        --fs-warning-light: #451A03;
-        --fs-danger-light: #450A0A;
-        --fs-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        --fs-shadow-md: 0 4px 6px rgba(0,0,0,0.2);
-        --fs-shadow-lg: 0 10px 25px rgba(0,0,0,0.3);
-    }
-
-    * { box-sizing: border-box; }
-
-    /* ── Sidebar ── */
-    .sidebar {
-        width: var(--sidebar-width);
-        background: var(--fs-card);
-        border-right: 1px solid var(--fs-border);
-        display: flex;
-        flex-direction: column;
-        position: fixed;
-        top: 0; bottom: 0;
-        z-index: 1000;
-        overflow: hidden;
-    }
-
-    .sidebar-brand {
-        padding: 1.75rem 1.5rem;
-        border-bottom: 1px solid var(--fs-border);
-    }
-
-    .sidebar-brand h1 {
-        font-family: 'Inter', sans-serif !important;
-        font-size: 1.35rem;
-        font-weight: 800;
-        color: var(--fs-primary) !important;
-        letter-spacing: -0.5px;
-        margin: 0;
-    }
-
-    .sidebar-brand span {
-        font-size: 0.7rem;
-        color: var(--fs-text-muted);
-        font-weight: 500;
-        letter-spacing: 0.3px;
-    }
-
-    .sidebar-profile {
-        padding: 1.25rem 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        border-bottom: 1px solid var(--fs-border);
-    }
-
-    .profile-avatar {
-        width: 40px; height: 40px;
-        border-radius: 50%;
-        object-fit: cover;
-        cursor: pointer;
-        border: 2px solid var(--fs-border);
-        transition: 0.2s;
-    }
-
-    .profile-avatar:hover { border-color: var(--fs-primary); }
-
-    .profile-info h3 {
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: var(--fs-text) !important;
-        margin: 0;
-        font-family: 'Inter', sans-serif !important;
-    }
-
-    .profile-info p {
-        font-size: 0.7rem;
-        color: var(--fs-text-muted);
-        margin: 0;
-    }
-
-    .sidebar-nav {
-        flex: 1;
-        overflow-y: auto;
-        padding: 0.75rem 0;
-    }
-
-    .sidebar-nav::-webkit-scrollbar { width: 3px; }
-    .sidebar-nav::-webkit-scrollbar-thumb { background: var(--fs-border); border-radius: 10px; }
-
-    .nav-group { margin-bottom: 0.5rem; }
-
-    .nav-group-label {
-        font-size: 0.6rem;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        color: var(--fs-text-muted);
-        font-weight: 700;
-        padding: 0.5rem 1.5rem;
-    }
-
-    .nav-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.6rem 1.5rem;
-        color: var(--fs-text-secondary);
-        text-decoration: none;
-        font-size: 0.82rem;
-        font-weight: 500;
-        transition: 0.15s;
-        border-left: 3px solid transparent;
-    }
-
-    .nav-item:hover {
-        background: var(--fs-primary-light);
-        color: var(--fs-primary);
-        border-left-color: var(--fs-primary);
-    }
-
-    .nav-item.active {
-        background: var(--fs-primary-light);
-        color: var(--fs-primary);
-        font-weight: 700;
-        border-left-color: var(--fs-primary);
-    }
-
-    .nav-item i { width: 18px; text-align: center; font-size: 0.9rem; }
-
-    .nav-badge {
-        margin-left: auto;
-        background: var(--fs-primary);
-        color: white;
-        font-size: 0.6rem;
-        font-weight: 700;
-        padding: 2px 6px;
-        border-radius: 10px;
-        min-width: 18px;
-        text-align: center;
-    }
-
-    .sidebar-footer {
-        padding: 1rem 1.5rem;
-        border-top: 1px solid var(--fs-border);
-    }
-
-    .logout-btn {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        color: var(--fs-text-muted);
-        background: none;
-        border: none;
-        font-size: 0.82rem;
-        font-weight: 500;
-        cursor: pointer;
-        padding: 0.5rem 0;
-        width: 100%;
-        font-family: 'Inter', sans-serif;
-        transition: 0.15s;
-    }
-
-    .logout-btn:hover { color: var(--fs-danger); }
-
-    /* ── Main Content ── */
-    .main-wrapper {
-        margin-left: var(--sidebar-width);
-        flex: 1;
-        padding: 2rem 2.5rem;
-        max-width: 1200px;
-    }
-
-    /* ── Page Header ── */
-    .dash-header {
-        margin-bottom: 2rem;
-    }
-
-    .dash-header h1 {
-        font-family: 'Inter', sans-serif !important;
-        font-size: 1.75rem;
-        font-weight: 800;
-        color: var(--fs-text) !important;
-        letter-spacing: -0.5px;
-        margin: 0 0 0.25rem 0;
-    }
-
-    .dash-header p {
-        color: var(--fs-text-muted);
-        font-size: 0.9rem;
-        margin: 0;
-    }
-
-    /* ── Setup Wizard ── */
-    .setup-wizard {
-        background: var(--fs-card);
-        border: 2px solid var(--fs-primary);
-        border-radius: var(--fs-radius);
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: var(--fs-shadow-lg);
-    }
-
-    .setup-title {
-        font-family: 'Inter', sans-serif !important;
-        font-size: 1.2rem;
-        font-weight: 800;
-        color: var(--fs-primary) !important;
-        margin: 0 0 0.5rem 0;
-    }
-
-    .setup-subtitle {
-        color: var(--fs-text-muted);
-        font-size: 0.85rem;
-        margin: 0 0 1.5rem 0;
-    }
-
-    .setup-steps {
-        display: flex;
-        gap: 0;
-        margin-bottom: 1.5rem;
-    }
-
-    .step-item {
-        flex: 1;
-        text-align: center;
-        position: relative;
-    }
-
-    .step-circle {
-        width: 36px; height: 36px;
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.8rem;
-        font-weight: 700;
-        border: 2px solid var(--fs-border);
-        color: var(--fs-text-muted);
-        background: var(--fs-bg);
-        margin-bottom: 0.5rem;
-        position: relative;
-        z-index: 1;
-    }
-
-    .step-item.done .step-circle {
-        background: var(--fs-success);
-        border-color: var(--fs-success);
-        color: white;
-    }
-
-    .step-item.current .step-circle {
-        background: var(--fs-primary);
-        border-color: var(--fs-primary);
-        color: white;
-        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
-    }
-
-    .step-label {
-        font-size: 0.65rem;
-        font-weight: 600;
-        color: var(--fs-text-muted);
-        display: block;
-    }
-
-    .step-item.current .step-label { color: var(--fs-primary); font-weight: 700; }
-    .step-item.done .step-label { color: var(--fs-success); }
-
-    .setup-action {
-        text-align: center;
-    }
-
-    .btn-setup {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: var(--fs-primary);
-        color: white;
-        padding: 0.85rem 2rem;
-        border-radius: var(--fs-radius-sm);
-        font-size: 0.9rem;
-        font-weight: 700;
-        text-decoration: none;
-        border: none;
-        cursor: pointer;
-        transition: 0.2s;
-        font-family: 'Inter', sans-serif;
-    }
-
-    .btn-setup:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
-    }
-
-    /* ── Fitness Status Card ── */
-    .status-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .status-card {
-        background: var(--fs-card);
-        border: 1px solid var(--fs-border);
-        border-radius: var(--fs-radius);
-        padding: 1.25rem;
-        box-shadow: var(--fs-shadow);
-        transition: 0.2s;
-    }
-
-    .status-card:hover {
-        box-shadow: var(--fs-shadow-md);
-        transform: translateY(-2px);
-    }
-
-    .status-card .label {
-        font-size: 0.7rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-        color: var(--fs-text-muted);
-        margin-bottom: 0.5rem;
-    }
-
-    .status-card .value {
-        font-size: 1.75rem;
-        font-weight: 800;
-        color: var(--fs-text);
-        line-height: 1;
-        margin-bottom: 0.4rem;
-    }
-
-    .status-card .value span { font-size: 0.8rem; color: var(--fs-text-muted); font-weight: 500; }
-
-    .status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.3rem;
-        padding: 3px 10px;
-        border-radius: 50px;
-        font-size: 0.65rem;
-        font-weight: 700;
-    }
-
-    .badge-success { background: var(--fs-success-light); color: var(--fs-success); }
-    .badge-warning { background: var(--fs-warning-light); color: var(--fs-warning); }
-    .badge-danger { background: var(--fs-danger-light); color: var(--fs-danger); }
-    .badge-primary { background: var(--fs-primary-light); color: var(--fs-primary); }
-
-    /* ── Workout CTA (Hero Card) ── */
-    .workout-hero {
-        background: var(--fs-card);
-        border: 1px solid var(--fs-border);
-        border-radius: var(--fs-radius);
-        padding: 2rem;
-        margin-bottom: 1.5rem;
-        box-shadow: var(--fs-shadow);
-        display: flex;
-        align-items: center;
-        gap: 2rem;
-    }
-
-    .workout-hero-content { flex: 1; }
-
-    .workout-hero-content .overline {
-        font-size: 0.65rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        color: var(--fs-primary);
-        margin-bottom: 0.5rem;
-    }
-
-    .workout-hero-content h2 {
-        font-family: 'Inter', sans-serif !important;
-        font-size: 1.3rem;
-        font-weight: 800;
-        color: var(--fs-text) !important;
-        margin: 0 0 0.4rem 0;
-    }
-
-    .workout-hero-content p {
-        color: var(--fs-text-muted);
-        font-size: 0.85rem;
-        margin: 0 0 1.25rem 0;
-    }
-
-    .btn-start {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: var(--fs-primary);
-        color: white;
-        padding: 0.85rem 2rem;
-        border-radius: var(--fs-radius-sm);
-        font-size: 0.9rem;
-        font-weight: 700;
-        text-decoration: none;
-        transition: 0.2s;
-        border: none;
-        cursor: pointer;
-        font-family: 'Inter', sans-serif;
-    }
-
-    .btn-start:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
-    }
-
-    .btn-secondary {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: var(--fs-bg);
-        color: var(--fs-text);
-        padding: 0.85rem 1.5rem;
-        border-radius: var(--fs-radius-sm);
-        font-size: 0.85rem;
-        font-weight: 600;
-        text-decoration: none;
-        transition: 0.2s;
-        border: 1px solid var(--fs-border);
-        margin-left: 0.75rem;
-    }
-
-    .btn-secondary:hover { border-color: var(--fs-primary); color: var(--fs-primary); }
-
-    .workout-hero-icon {
-        width: 100px; height: 100px;
-        background: var(--fs-primary-light);
-        border-radius: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2.5rem;
-        color: var(--fs-primary);
-        flex-shrink: 0;
-    }
-
-    /* ── Progress Summary ── */
-    .progress-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .progress-card {
-        background: var(--fs-card);
-        border: 1px solid var(--fs-border);
-        border-radius: var(--fs-radius);
-        padding: 1.25rem;
-        box-shadow: var(--fs-shadow);
-    }
-
-    .progress-card .card-title {
-        font-family: 'Inter', sans-serif !important;
-        font-size: 0.8rem;
-        font-weight: 700;
-        color: var(--fs-text) !important;
-        margin: 0 0 1rem 0;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .progress-card .card-title i { color: var(--fs-primary); font-size: 0.85rem; }
-
-    .progress-bar-track {
-        height: 8px;
-        background: var(--fs-bg);
-        border-radius: 4px;
-        overflow: hidden;
-        margin-bottom: 0.5rem;
-    }
-
-    .progress-bar-fill {
-        height: 100%;
-        border-radius: 4px;
-        background: var(--fs-primary);
-        transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .progress-bar-fill.green { background: var(--fs-success); }
-    .progress-bar-fill.yellow { background: var(--fs-warning); }
-
-    .progress-meta {
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.7rem;
-        color: var(--fs-text-muted);
-        font-weight: 600;
-    }
-
-    /* ── Quick Tools ── */
-    .tools-section { margin-bottom: 1.5rem; }
-
-    .section-title {
-        font-family: 'Inter', sans-serif !important;
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: var(--fs-text) !important;
-        margin: 0 0 1rem 0;
-    }
-
-    .tools-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.75rem;
-    }
-
-    .tool-card {
-        background: var(--fs-card);
-        border: 1px solid var(--fs-border);
-        border-radius: var(--fs-radius);
-        padding: 1.25rem 1rem;
-        text-decoration: none;
-        text-align: center;
-        transition: 0.2s;
-        box-shadow: var(--fs-shadow);
-    }
-
-    .tool-card:hover {
-        box-shadow: var(--fs-shadow-md);
-        transform: translateY(-3px);
-        border-color: var(--fs-primary);
-    }
-
-    .tool-icon {
-        width: 44px; height: 44px;
-        margin: 0 auto 0.75rem;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.1rem;
-    }
-
-    .tool-card h4 {
-        font-family: 'Inter', sans-serif !important;
-        font-size: 0.78rem;
-        font-weight: 700;
-        color: var(--fs-text) !important;
-        margin: 0 0 0.2rem 0;
-    }
-
-    .tool-card p {
-        font-size: 0.65rem;
-        color: var(--fs-text-muted);
-        margin: 0;
-        line-height: 1.3;
-    }
-
-    /* ── Meals & Trainer Widget ── */
-    .widget-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .widget-card {
-        background: var(--fs-card);
-        border: 1px solid var(--fs-border);
-        border-radius: var(--fs-radius);
-        padding: 1.25rem;
-        box-shadow: var(--fs-shadow);
-    }
-
-    .widget-card .card-title {
-        font-family: 'Inter', sans-serif !important;
-        font-size: 0.8rem;
-        font-weight: 700;
-        color: var(--fs-text) !important;
-        margin: 0 0 1rem 0;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .widget-card .card-title i { font-size: 0.85rem; }
-
-    .meal-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.6rem 0;
-        border-bottom: 1px solid var(--fs-border);
-    }
-
-    .meal-item:last-child { border-bottom: none; }
-
-    .meal-time {
-        font-size: 0.65rem;
-        font-weight: 700;
-        color: var(--fs-primary);
-        min-width: 45px;
-    }
-
-    .meal-name {
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: var(--fs-text);
-        flex: 1;
-    }
-
-    .meal-cal {
-        font-size: 0.7rem;
-        color: var(--fs-text-muted);
-        font-weight: 600;
-    }
-
-    .trainer-widget {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 0.75rem 0;
-    }
-
-    .trainer-photo {
-        width: 52px; height: 52px;
-        border-radius: 14px;
-        object-fit: cover;
-        border: 2px solid var(--fs-border);
-    }
-
-    .trainer-info h4 {
-        font-family: 'Inter', sans-serif !important;
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: var(--fs-text) !important;
-        margin: 0 0 0.15rem 0;
-    }
-
-    .trainer-info p {
-        font-size: 0.7rem;
-        color: var(--fs-text-muted);
-        margin: 0;
-    }
-
-    .btn-sm {
-        font-size: 0.7rem;
-        font-weight: 700;
-        padding: 0.4rem 1rem;
-        border-radius: 8px;
-        text-decoration: none;
-        transition: 0.15s;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.3rem;
-    }
-
-    .btn-sm-primary {
-        background: var(--fs-primary);
-        color: white;
-    }
-
-    .btn-sm-primary:hover { background: #4338CA; }
-
-    .btn-sm-outline {
-        background: transparent;
-        color: var(--fs-primary);
-        border: 1px solid var(--fs-primary);
-    }
-
-    .btn-sm-outline:hover { background: var(--fs-primary-light); }
-
-    /* ── Notification Toast ── */
-    .notif-bar {
-        background: var(--fs-primary-light);
-        border: 1px solid rgba(79, 70, 229, 0.2);
-        border-radius: var(--fs-radius-sm);
-        padding: 0.7rem 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 1.5rem;
-        font-size: 0.8rem;
-        color: var(--fs-primary);
-        font-weight: 600;
-    }
-
-    .notif-bar .dot {
-        width: 8px; height: 8px;
-        background: var(--fs-primary);
-        border-radius: 50%;
-        flex-shrink: 0;
-    }
-
-    .notif-bar a {
-        margin-left: auto;
-        color: var(--fs-primary);
-        font-weight: 700;
-        font-size: 0.7rem;
-        text-decoration: none;
-    }
-
-    /* ── Empty State ── */
-    .empty-state {
-        text-align: center;
-        padding: 2rem;
-        color: var(--fs-text-muted);
-        font-size: 0.85rem;
-    }
-
-    /* ── Responsive ── */
-    @media (max-width: 1024px) {
-        .sidebar { transform: translateX(-100%); }
-        .sidebar.open { transform: translateX(0); box-shadow: 10px 0 40px rgba(0,0,0,0.15); }
-        .main-wrapper { margin-left: 0 !important; padding: 1.5rem 1rem !important; padding-top: 4.5rem !important; }
-        .status-grid { grid-template-columns: 1fr 1fr 1fr; }
-        .tools-grid { grid-template-columns: repeat(2, 1fr); }
-        .widget-row { grid-template-columns: 1fr; }
-        .progress-row { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 640px) {
-        .status-grid { grid-template-columns: 1fr; }
-        .tools-grid { grid-template-columns: 1fr 1fr; }
-        .workout-hero { flex-direction: column; text-align: center; gap: 1rem; }
-        .workout-hero-icon { width: 70px; height: 70px; font-size: 1.8rem; }
-        .setup-steps { flex-wrap: wrap; gap: 0.5rem; }
-        .btn-secondary { margin-left: 0; margin-top: 0.5rem; }
-    }
-
-    /* ── Animations ── */
-    @keyframes fadeUp {
-        from { opacity: 0; transform: translateY(12px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .animate-in { animation: fadeUp 0.4s ease-out forwards; }
-    .delay-1 { animation-delay: 0.05s; }
-    .delay-2 { animation-delay: 0.1s; }
-    .delay-3 { animation-delay: 0.15s; }
-    .delay-4 { animation-delay: 0.2s; }
-    .delay-5 { animation-delay: 0.25s; }
-</style>
+{% block user_content %}
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="greeting">
+      <h1>Good <span id="time-greeting">day</span>, {{ user.first_name|title|default:user.username|title }} 🌿</h1>
+      <p>{% now "l, F j, Y" %} &middot; You're on a {{ attendance_streak|default:0 }}-session streak!</p>
+      
+      <script>
+          const hr = new Date().getHours();
+          document.getElementById('time-greeting').innerText = hr < 12 ? 'morning' : (hr < 17 ? 'afternoon' : 'evening');
+      </script>
+    </div>
+    <div class="topbar-right">
+      <div class="search-bar">
+        <i class="fa-solid fa-search" style="color:var(--stone-light)"></i>
+        Search anything…
+      </div>
+      <a href="{% url 'messages' %}" class="icon-btn" style="text-decoration:none;">
+        <i class="fa-regular fa-bell"></i>
+        {% if notifications %}<span class="notif-dot"></span>{% endif %}
+      </a>
+      <div class="icon-btn"><i class="fa-solid fa-expand"></i></div>
+    </div>
+  </div>
+
+  <!-- Streak Banner -->
+  <div class="streak-banner">
+    <div class="streak-left">
+      <div class="streak-flame">🔥</div>
+      <div class="streak-text">
+        <h2>{{ attendance_streak|default:0 }}-Session Streak — Keep it up!</h2>
+        <p>You've been consistent. One more session locks in your next badge.</p>
+      </div>
+    </div>
+    <div class="streak-right">
+      <div class="streak-stat">
+        <div class="streak-stat-val">{% if weekly_attendance %}{% widthratio weekly_attendance 7 100 as w_att %}{{ w_att }}%{% else %}New!{% endif %}</div>
+        <div class="streak-stat-lbl">Attendance Rate</div>
+      </div>
+      <div class="streak-stat">
+        <div class="streak-stat-val">{{ attendance_streak|default:0 }}</div>
+        <div class="streak-stat-lbl">Total Sessions</div>
+      </div>
+      <a href="{% url 'workout_list' %}" class="streak-btn" style="text-decoration:none;">Start Workout →</a>
+    </div>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="stats-row">
+    <a href="{% url 'bmi_history' %}" class="stat-card bmi" style="text-decoration:none;">
+      <div class="stat-icon"><i class="fa-solid fa-weight-scale"></i></div>
+      <div class="stat-value">{{ last_bmi.bmi_score|floatformat:1|default:"--" }}</div>
+      <div class="stat-label">Biometric Index (BMI)</div>
+      {% if last_bmi %}<div class="stat-pill pill-green"><i class="fa-solid fa-circle" style="font-size:6px"></i> {{ last_bmi.get_category_display }}</div>{% else %}<div class="stat-pill pill-gold"><i class="fa-solid fa-triangle-exclamation" style="font-size:9px"></i> Track Now</div>{% endif %}
+    </a>
+    <a href="{% url 'attendance' %}" class="stat-card sessions" style="text-decoration:none;">
+      <div class="stat-icon"><i class="fa-solid fa-dumbbell"></i></div>
+      <div class="stat-value">{{ attendance_streak|default:0 }}</div>
+      <div class="stat-label">Training Sessions</div>
+      <div class="stat-pill pill-gold"><i class="fa-solid fa-bolt" style="font-size:9px"></i> Active Streak</div>
+    </a>
+    <a href="{% url 'nutrition' %}" class="stat-card calories" style="text-decoration:none;">
+      <div class="stat-icon"><i class="fa-solid fa-fire"></i></div>
+      <div class="stat-value">{{ calories_today|default:0 }}</div>
+      <div class="stat-label">Calories Burned</div>
+      <div class="stat-pill pill-rose"><i class="fa-solid fa-fire" style="font-size:9px"></i> Today</div>
+    </a>
+    <a href="{% url 'nutrition' %}" class="stat-card water" style="text-decoration:none;">
+      <div class="stat-icon"><i class="fa-solid fa-droplet"></i></div>
+      <div class="stat-value">{{ water_today|default:0 }}</div>
+      <div class="stat-label">Water Today (ml)</div>
+      <div class="stat-pill pill-blue">{% widthratio water_today|default:0 2000 100 as w_perc %}{{ w_perc|default:0 }}% of goal</div>
+    </a>
+  </div>
+
+  <!-- Mid Row -->
+  <div class="mid-row">
+
+    <!-- Activity Chart -->
+    <div class="card">
+      <div class="card-header">
+        <div class="section-title">Weekly Activity</a>
+        <a href="{% url 'progress' %}" class="card-action" style="text-decoration:none;">Full Report <i class="fa-solid fa-chevron-right" style="font-size:10px"></i></a>
+      </div>
+      <div class="chart-area" id="chart"></div>
+      <div class="chart-legend">
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--sage)"></div> Workout Sessions
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:var(--gold)"></div> Calories (×100)
+        </a>
+      </div>
+    </div>
+
+    <!-- Trainer -->
+    <div class="trainer-card">
+      <div class="card-header" style="margin-bottom:14px">
+        <div class="section-title">Your Trainer</div>
+        {% if assigned_trainer %}
+        <a href="{% url 'trainer_reviews' trainer_profile.id %}" class="card-action" style="text-decoration:none;">Profile →</a>
+        {% endif %}
+      </div>
+      
+      {% if assigned_trainer %}
+          {% if trainer_profile.profile_photo %}
+          <img src="{{ trainer_profile.profile_photo.url }}" class="trainer-photo" style="object-fit:cover;" alt="Trainer">
+          {% else %}
+          <div class="trainer-photo">💪</div>
+          {% endif %}
+          <div class="online-badge"><span class="online-dot"></span> Active Coach</div>
+          <div class="trainer-name">{{ trainer_display_name }}</div>
+          <div class="trainer-specialty">{{ trainer_profile.specialty|default:"Strength & Functional Fitness" }}</div>
+          <div class="trainer-stats">
+            <div class="t-stat">
+              <div class="t-stat-val">4.9 ★</div>
+              <div class="t-stat-lbl">Rating</div>
+            </div>
+            <div class="t-stat">
+              <div class="t-stat-val">Pro</div>
+              <div class="t-stat-lbl">Status</div>
+            </div>
+          </div>
+          <div class="trainer-btns">
+            <a href="{% url 'messages' %}" class="btn btn-primary" style="text-decoration:none;">Message</a>
+            <a href="{% url 'workout_list' %}" class="btn btn-outline" style="text-decoration:none;">Schedule</a>
+          </div>
+      {% else %}
+          <div class="trainer-photo" style="background:linear-gradient(135deg, var(--gold), var(--blush));">👑</div>
+          <div class="trainer-name">No Coach Yet</div>
+          <div class="trainer-specialty" style="margin-bottom:12px;">Unlock your true potential</div>
+          <p style="font-size:13px; color:var(--text-soft); line-height:1.5; margin-bottom:20px; position:relative; z-index:1;">
+              Hire an elite personal trainer to design your comprehensive metabolic transformation.
+          </p>
+          <div class="trainer-btns">
+            <a href="{% url 'trainer_list' %}" class="btn btn-primary" style="width:100%; text-decoration:none;">Browse Elite Coaches</a>
+          </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Bottom Row -->
+  <div class="bottom-row">
+
+    <!-- Goals -->
+    <div class="card">
+      <div class="card-header">
+        <div class="section-title">Active Goals</div>
+        <a href="{% url 'goals' %}" class="card-action" style="text-decoration:none;">+ Add goal</a>
+      </div>
+
+      {% if next_goal %}
+          <div class="goal-item">
+            <div class="goal-check"><i class="fa-solid fa-spinner fa-spin" style="color:var(--sage); font-size:12px;"></i></div>
+            <div class="goal-info">
+              <div class="goal-title">{{ next_goal.title }}</div>
+              <div class="goal-progress"><div class="goal-fill" style="width:{{ next_goal.get_progress_percent }}%"></div></div>
+            </div>
+            <div class="goal-days">{% if next_goal.days_left > 0 %}{{ next_goal.days_left }} days left{% elif next_goal.days_left == 0 %}Due today{% else %}Overdue{% endif %}</div>
+          </div>
+      {% endif %}
+
+      <div class="goal-item">
+        <div class="goal-check done"><i class="fa-solid fa-check"></i></div>
+        <div class="goal-info">
+          <div class="goal-title done">Register your account</div>
+          <div class="goal-progress"><div class="goal-fill" style="width:100%"></div></div>
+        </div>
+        <div class="goal-days" style="color:var(--sage)">✓ Done</div>
+      </div>
+
+      <div class="goal-item" style="border-bottom:none; padding-bottom:0;">
+        <div class="goal-check {% if water_today >= 2000 %}done{% endif %}">{% if water_today >= 2000 %}<i class="fa-solid fa-check"></i>{% endif %}</div>
+        <div class="goal-info">
+          <div class="goal-title {% if water_today >= 2000 %}done{% endif %}">Drink 2L water daily</div>
+          <div style="font-size:11px;color:var(--text-soft);margin-bottom:8px;font-weight:600;">Water today: {{ water_today|default:0 }} / 2000ml</div>
+          <div class="water-tracker" id="water-cups"></div>
+        </div>
+        <div class="goal-days">Ongoing</div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card">
+      <div class="card-header">
+        <div class="section-title">Quick Actions</div>
+      </div>
+      <div class="actions-grid">
+        <a href="{% url 'workout_list' %}" class="action-tile" style="text-decoration:none;">
+          <div class="action-icon" style="background:var(--sage-pale);color:var(--sage)"><i class="fa-solid fa-play"></i></div>
+          <div class="action-label">Start Workout</div>
+          <div class="action-sub">Today's plan ready</div>
+        </div>
+        <a href="{% url 'nutrition' %}" class="action-tile" style="text-decoration:none;">
+          <div class="action-icon" style="background:#FDF4E3;color:var(--gold)"><i class="fa-solid fa-utensils"></i></div>
+          <div class="action-label">Log Meal</div>
+          <div class="action-sub">{{ calories_today|default:0 }} cal today</div>
+        </div>
+        <a href="{% url 'bmi_history' %}" class="action-tile" style="text-decoration:none;">
+          <div class="action-icon" style="background:var(--blush-light);color:#B87060"><i class="fa-solid fa-weight-scale"></i></div>
+          <div class="action-label">Check BMI</div>
+          <div class="action-sub">Last: 3 days ago</div>
+        </div>
+        <a href="{% url 'ai_hub' %}" class="action-tile" style="text-decoration:none;">
+          <div class="action-icon" style="background:#EBF3F8;color:#6090A8"><i class="fa-solid fa-robot"></i></div>
+          <div class="action-label">Ask Nova AI</div>
+          <div class="action-sub">Elite feature</div>
+        </div>
+        <a href="{% url 'community' %}" class="action-tile" style="text-decoration:none;">
+          <div class="action-icon" style="background:#F0EBF8;color:#8070A8"><i class="fa-solid fa-users"></i></div>
+          <div class="action-label">Community</div>
+          <div class="action-sub">4 new posts</div>
+        </div>
+        <a href="{% url 'progress' %}" class="action-tile" style="text-decoration:none;">
+          <div class="action-icon" style="background:#F8F4EB;color:#A89060"><i class="fa-solid fa-download"></i></div>
+          <div class="action-label">Export Report</div>
+          <div class="action-sub">PDF or CSV</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="card">
+      <div class="card-header">
+        <div class="section-title">Recent Activity</div>
+        <a href="{% url 'messages' %}" class="card-action" style="text-decoration:none;">View all</a>
+      </div>
+
+      {% if attended_today %}
+      <div class="activity-item">
+        <div class="activity-dot" style="background:var(--sage-pale);color:var(--sage)"><i class="fa-solid fa-dumbbell"></i></div>
+        <div class="activity-text">
+          <div class="activity-title">Training Logged</div>
+          <div class="activity-sub">Checked into a session</div>
+        </div>
+        <div class="activity-time">Today</div>
+      </div>
+      {% endif %}
+
+      {% if calories_today > 0 %}
+      <div class="activity-item">
+        <div class="activity-dot" style="background:#FDF4E3;color:var(--gold)"><i class="fa-solid fa-apple-whole"></i></div>
+        <div class="activity-text">
+          <div class="activity-title">Nutrition Logged</div>
+          <div class="activity-sub">{{ calories_today }} calories consumed</div>
+        </div>
+        <div class="activity-time">Today</div>
+      </div>
+      {% endif %}
+
+      {% if last_bmi %}
+      <div class="activity-item">
+        <div class="activity-dot" style="background:var(--blush-light);color:#B87060"><i class="fa-solid fa-weight-scale"></i></div>
+        <div class="activity-text">
+          <div class="activity-title">BMI Recorded</div>
+          <div class="activity-sub">{{ last_bmi.bmi_score|floatformat:1 }} — {{ last_bmi.get_category_display }}</div>
+        </div>
+        <div class="activity-time">{{ last_bmi.recorded_at|date:"M d" }}</div>
+      </div>
+      {% endif %}
+
+      <div class="activity-item" style="border-bottom:none; padding-bottom:0;">
+        <div class="activity-dot" style="background:#F0EBF8;color:#8070A8"><i class="fa-solid fa-trophy"></i></div>
+        <div class="activity-text">
+          <div class="activity-title">Badge Earned 🏅</div>
+          <div class="activity-sub">View in achievements</div>
+        </div>
+        <div class="activity-time">Recent</div>
+      </div>
+    </div>
+
+  </div>
 {% endblock %}
 
-{% block content %}
-<!-- Mobile Hamburger Button -->
-<button class="hamburger-btn" id="hamburger-btn" aria-label="Toggle Menu">
-    <i class="fa-solid fa-bars"></i>
-</button>
-
-<!-- Sidebar Overlay -->
-<div class="sidebar-overlay" id="sidebar-overlay"></div>
-
-<!-- ── Sidebar ── -->
-<aside class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-        <h1>FitSync</h1>
-        <span style="display: block; line-height: 1.4; margin-top: 0.2rem;">Your Ultimate Fitness Companion<br>Train Anywhere. No Gym Required.</span>
-    </div>
-
-    <div class="sidebar-profile">
-        <form id="dashboard-photo-form" method="post" enctype="multipart/form-data" style="display:none;">
-            {% csrf_token %}
-            <input type="file" name="profile_photo" id="dashboard-photo-input"
-                onchange="document.getElementById('dashboard-photo-form').submit();" accept="image/*">
-        </form>
-
-        {% if user.userprofile.profile_photo %}
-        <img src="{{ user.userprofile.profile_photo.url }}" class="profile-avatar" alt="Profile"
-            onclick="document.getElementById('dashboard-photo-input').click();">
-        {% else %}
-        <img src="https://api.dicebear.com/7.x/initials/svg?seed={{ user.first_name }}+{{ user.last_name }}&backgroundColor=4F46E5&textColor=ffffff" class="profile-avatar" alt="Profile"
-            onclick="document.getElementById('dashboard-photo-input').click();">
-        {% endif %}
-
-        <div class="profile-info">
-            <h3>{{ user.first_name|default:user.username|title }}</h3>
-            <p>{% if subscription %}{{ subscription.plan.get_name_display }} Member{% else %}Free Member{% endif %}</p>
-        </div>
-    </div>
-
-    <nav class="sidebar-nav">
-        <div class="nav-group">
-            <div class="nav-group-label">Dashboard</div>
-            <a href="{% url 'user_dashboard' %}" class="nav-item active">
-                <i class="fa-solid fa-house"></i> Home
-            </a>
-            <a href="{% url 'progress' %}" class="nav-item">
-                <i class="fa-solid fa-chart-line"></i> Progress
-            </a>
-        </div>
-
-        <div class="nav-group">
-            <div class="nav-group-label">Fitness</div>
-            <a href="{% url 'workout_list' %}" class="nav-item">
-                <i class="fa-solid fa-dumbbell"></i> Workouts
-            </a>
-            <a href="{% url 'diet_list' %}" class="nav-item">
-                <i class="fa-solid fa-utensils"></i> Diet Plans
-            </a>
-            <a href="{% url 'nutrition' %}" class="nav-item">
-                <i class="fa-solid fa-droplet"></i> Nutrition
-            </a>
-            <a href="{% url 'bmi_history' %}" class="nav-item">
-                <i class="fa-solid fa-heart-pulse"></i> BMI & Vitals
-            </a>
-            <a href="{% url 'goals' %}" class="nav-item">
-                <i class="fa-solid fa-bullseye"></i> Goals
-            </a>
-        </div>
-
-        <div class="nav-group">
-            <div class="nav-group-label">Services</div>
-            <a href="{% url 'attendance' %}" class="nav-item">
-                <i class="fa-solid fa-calendar-check"></i> Attendance
-            </a>
-            <a href="{% url 'membership' %}" class="nav-item">
-                <i class="fa-solid fa-crown"></i> Membership
-            </a>
-            <a href="{% url 'ai_hub' %}" class="nav-item">
-                <i class="fa-solid fa-brain"></i> AI Hub
-            </a>
-        </div>
-
-        <div class="nav-group">
-            <div class="nav-group-label">Connect</div>
-            <a href="{% url 'trainer_list' %}" class="nav-item">
-                <i class="fa-solid fa-user-tie"></i> Trainers
-            </a>
-            <a href="{% url 'messages' %}" class="nav-item">
-                <i class="fa-solid fa-comments"></i> Messages
-            </a>
-            <a href="{% url 'community' %}" class="nav-item">
-                <i class="fa-solid fa-users"></i> Community
-            </a>
-        </div>
-
-        <div class="nav-group">
-            <div class="nav-group-label">Shop</div>
-            <a href="{% url 'store' %}" class="nav-item">
-                <i class="fa-solid fa-store"></i> Store
-            </a>
-            <a href="{% url 'cart' %}" class="nav-item">
-                <i class="fa-solid fa-cart-shopping"></i> Cart
-                {% if cart_count > 0 %}<span class="nav-badge">{{ cart_count }}</span>{% endif %}
-            </a>
-        </div>
-
-        <div class="nav-group">
-            <div class="nav-group-label">Account</div>
-            <a href="{% url 'settings' %}" class="nav-item">
-                <i class="fa-solid fa-gear"></i> Settings
-            </a>
-            <a href="{% url 'help' %}" class="nav-item">
-                <i class="fa-solid fa-circle-question"></i> Help
-            </a>
-        </div>
-    </nav>
-
-    <div class="sidebar-footer">
-        <form action="{% url 'logout' %}" method="post">
-            {% csrf_token %}
-            <button type="submit" class="logout-btn">
-                <i class="fa-solid fa-right-from-bracket"></i> Logout
-            </button>
-        </form>
-    </div>
-</aside>
-
-<!-- ── Main Content ── -->
-<main class="main-wrapper">
-
-    <!-- Notification Banner -->
-    {% if notifications %}
-    <div class="notif-bar animate-in">
-        <div class="dot"></div>
-        <span>You have {{ notifications.count }} unread notification{{ notifications.count|pluralize }} — "{{ notifications.0.title }}"</span>
-        <a href="{% url 'messages' %}">VIEW ALL</a>
-    </div>
-    {% endif %}
-
-    <!-- Page Header -->
-    <div class="dash-header animate-in">
-        <h1>Good {% now "H" as current_hour %}{% if current_hour|add:"0" < 12 %}morning{% elif current_hour|add:"0" < 17 %}afternoon{% else %}evening{% endif %}, {{ user.first_name|default:user.username|title }}.</h1>
-        <p>{% if is_new_user %}Complete your setup to get started with personalized fitness.{% else %}Here's your fitness overview for today.{% endif %}</p>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════ -->
-    <!-- SECTION 1: First-Time Setup Wizard (if new user)  -->
-    <!-- ══════════════════════════════════════════════════ -->
-    {% if is_new_user %}
-    <div class="setup-wizard animate-in delay-1">
-        <h3 class="setup-title">🚀 Complete Your Setup</h3>
-        <p class="setup-subtitle">Follow these steps to get personalized workout and diet plans.</p>
-
-        <div class="setup-steps">
-            <div class="step-item {% if has_subscription %}done{% elif setup_step == 1 %}current{% endif %}">
-                <div class="step-circle">{% if has_subscription %}<i class="fa-solid fa-check"></i>{% else %}1{% endif %}</div>
-                <span class="step-label">Subscription</span>
-            </div>
-            <div class="step-item {% if has_assessment %}done{% elif setup_step == 2 %}current{% endif %}">
-                <div class="step-circle">{% if has_assessment %}<i class="fa-solid fa-check"></i>{% else %}2{% endif %}</div>
-                <span class="step-label">Assessment</span>
-            </div>
-        </div>
-
-        <div class="setup-action">
-            {% if setup_step == 1 %}
-                <a href="{% url 'membership' %}" class="btn-setup"><i class="fa-solid fa-crown"></i> Activate 3-Month Plan (₹199)</a>
-            {% elif setup_step == 2 %}
-                <a href="{% url 'fitness_assessment' %}" class="btn-setup"><i class="fa-solid fa-clipboard-check"></i> Take Smart Assessment</a>
-            {% endif %}
-        </div>
-    </div>
-    {% else %}
-
-    <!-- ══════════════════════════════════════════════════ -->
-    <!-- SECTION 2: Fitness Status (BMI + Goal + Streak)   -->
-    <!-- ══════════════════════════════════════════════════ -->
-    <div class="status-grid animate-in delay-2">
-        <!-- BMI Card -->
-        <div class="status-card">
-            <div class="label">BMI Score</div>
-            <div class="value">{{ last_bmi.bmi_score|default:"—" }}</div>
-            {% if last_bmi %}
-                {% with score=last_bmi.bmi_score %}
-                <span class="status-badge {% if score < 18.5 or score >= 30 %}badge-danger{% elif score >= 25 %}badge-warning{% else %}badge-success{% endif %}">
-                    <i class="fa-solid {% if score < 18.5 or score >= 25 %}fa-circle-exclamation{% else %}fa-circle-check{% endif %}"></i>
-                    {% if score < 18.5 %}Underweight{% elif score < 25 %}Normal{% elif score < 30 %}Overweight{% else %}Obese{% endif %}
-                </span>
-                {% endwith %}
-            {% else %}
-                <a href="{% url 'bmi_calculator' %}" style="font-size:0.75rem; color:var(--fs-primary); font-weight:600; text-decoration:none;">Calculate Now →</a>
-            {% endif %}
-        </div>
-
-        <!-- Goals Card -->
-        <div class="status-card">
-            <div class="label">Goals Progress</div>
-            <div class="value">{{ completed_goals }}<span>/{{ total_goals }}</span></div>
-            <span class="status-badge badge-primary">
-                <i class="fa-solid fa-bullseye"></i> {{ goal_progress|floatformat:0 }}% Complete
-            </span>
-        </div>
-
-        <!-- Streak Card -->
-        <div class="status-card">
-            <div class="label">This Week</div>
-            <div class="value">{{ weekly_attendance }}<span>/7 days</span></div>
-            <span class="status-badge {% if attended_today %}badge-success{% else %}badge-warning{% endif %}">
-                <i class="fa-solid {% if attended_today %}fa-check{% else %}fa-clock{% endif %}"></i>
-                {% if attended_today %}Checked in today{% else %}Not checked in{% endif %}
-            </span>
-        </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════ -->
-    <!-- SECTION 3: Today's Workout (Hero Card)            -->
-    <!-- ══════════════════════════════════════════════════ -->
-    <div class="workout-hero animate-in delay-3">
-        <div class="workout-hero-content">
-            <div class="overline">{% if active_workout %}Active Training Protocol{% else %}Start Training{% endif %}</div>
-            <h2>{% if active_workout %}{{ active_workout.title }}{% else %}No Workout Assigned Yet{% endif %}</h2>
-            <p>{% if active_workout %}{{ active_workout.get_difficulty_display }} · {{ active_workout.frequency_per_week }}x per week{% else %}Browse our workout library or get an AI-powered recommendation.{% endif %}</p>
-            {% if active_workout %}
-                <a href="{% url 'workout_session' active_workout.id %}" class="btn-start">
-                    <i class="fa-solid fa-play"></i> Start Today's Workout
-                </a>
-                <a href="{% url 'workout_list' %}" class="btn-secondary">Browse All</a>
-            {% else %}
-                <a href="{% url 'ai_workout' %}" class="btn-start">
-                    <i class="fa-solid fa-brain"></i> Get AI Recommendation
-                </a>
-                <a href="{% url 'workout_list' %}" class="btn-secondary">Browse Workouts</a>
-            {% endif %}
-        </div>
-        <div class="workout-hero-icon">
-            <i class="fa-solid fa-dumbbell"></i>
-        </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════ -->
-    <!-- SECTION 4: Progress Summary                       -->
-    <!-- ══════════════════════════════════════════════════ -->
-    <div class="progress-row animate-in delay-4">
-        <!-- Nutrition Today -->
-        <div class="progress-card">
-            <div class="card-title"><i class="fa-solid fa-fire"></i> Today's Nutrition</div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:0.75rem;">
-                <div>
-                    <div style="font-size:1.5rem; font-weight:800; color:var(--fs-text);">{{ calories_today }}</div>
-                    <div style="font-size:0.7rem; color:var(--fs-text-muted); font-weight:600;">Calories</div>
-                </div>
-                <div style="text-align:right;">
-                    <div style="font-size:1.5rem; font-weight:800; color:#3B82F6;">{{ water_today }}</div>
-                    <div style="font-size:0.7rem; color:var(--fs-text-muted); font-weight:600;">ml Water</div>
-                </div>
-            </div>
-            <div style="display:flex; gap:0.5rem;">
-                <a href="{% url 'nutrition' %}" class="btn-sm btn-sm-outline" style="flex:1; justify-content:center;">
-                    <i class="fa-solid fa-plus"></i> Log Meal
-                </a>
-                <a href="{% url 'nutrition' %}" class="btn-sm btn-sm-outline" style="flex:1; justify-content:center;">
-                    <i class="fa-solid fa-droplet"></i> Add Water
-                </a>
-            </div>
-        </div>
-
-        <!-- Goal Progress -->
-        <div class="progress-card">
-            <div class="card-title"><i class="fa-solid fa-bullseye"></i> Goal Tracker</div>
-            {% if next_goal %}
-                <div style="font-size:0.85rem; font-weight:700; color:var(--fs-text); margin-bottom:0.4rem;">{{ next_goal.title }}</div>
-                <div class="progress-bar-track">
-                    <div class="progress-bar-fill green" style="width:{{ next_goal.get_progress_percent }}%;"></div>
-                </div>
-                <div class="progress-meta">
-                    <span>{{ next_goal.current_value }} / {{ next_goal.target_value }} {{ next_goal.unit }}</span>
-                    <span>{{ next_goal.get_progress_percent|floatformat:0 }}%</span>
-                </div>
-            {% else %}
-                <div class="empty-state" style="padding:1rem;">
-                    <p>No active goals.</p>
-                    <a href="{% url 'goals' %}" class="btn-sm btn-sm-primary" style="margin-top:0.5rem;">Set a Goal</a>
-                </div>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════════ -->
-    <!-- SECTION 5: Quick Tools                            -->
-    <!-- ══════════════════════════════════════════════════ -->
-    <div class="tools-section animate-in delay-5">
-        <h3 class="section-title">Quick Tools</h3>
-        <div class="tools-grid">
-            <a href="{% url 'nutrition' %}" class="tool-card">
-                <div class="tool-icon" style="background:var(--fs-success-light); color:var(--fs-success);">
-                    <i class="fa-solid fa-utensils"></i>
-                </div>
-                <h4>Nutrition</h4>
-                <p>Log meals & water</p>
-            </a>
-
-            <a href="{% url 'trainer_list' %}" class="tool-card">
-                <div class="tool-icon" style="background:var(--fs-primary-light); color:var(--fs-primary);">
-                    <i class="fa-solid fa-user-tie"></i>
-                </div>
-                <h4>Trainers</h4>
-                <p>Find a coach</p>
-            </a>
-
-            <a href="{% url 'store' %}" class="tool-card">
-                <div class="tool-icon" style="background:var(--fs-warning-light); color:var(--fs-warning);">
-                    <i class="fa-solid fa-store"></i>
-                </div>
-                <h4>Store</h4>
-                <p>Gear & supplements</p>
-            </a>
-        </div>
-    </div>
-    {% endif %}
-
-</main>
-
-<!-- Sidebar Toggle Script -->
+{% block user_extra_js %}
 <script>
-    const hamburgerBtn = document.getElementById('hamburger-btn');
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebar-overlay');
-    const hamburgerIcon = hamburgerBtn.querySelector('i');
+  // Build chart
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const workouts = [55, 80, 40, 100, 70, 90, 60];
+  const cals = [40, 70, 30, 85, 60, 80, 50];
+  const chart = document.getElementById('chart');
 
-    function toggleSidebar() {
-        sidebar.classList.toggle('open');
-        overlay.classList.toggle('active');
-        if (sidebar.classList.contains('open')) {
-            hamburgerIcon.classList.replace('fa-bars', 'fa-xmark');
-        } else {
-            hamburgerIcon.classList.replace('fa-xmark', 'fa-bars');
-        }
-    }
+  if(chart) {
+      days.forEach((day, i) => {
+        const grp = document.createElement('div');
+        grp.className = 'bar-group';
 
-    hamburgerBtn.addEventListener('click', toggleSidebar);
-    overlay.addEventListener('click', toggleSidebar);
+        const wrap = document.createElement('div');
+        wrap.className = 'bar-wrap';
 
-    document.querySelectorAll('.sidebar .nav-item').forEach(link => {
-        link.addEventListener('click', () => {
-            if (window.innerWidth <= 1024) toggleSidebar();
-        });
-    });
+        const b1 = document.createElement('div');
+        b1.className = 'bar workout';
+        b1.style.height = '0px';
+        b1.setAttribute('data-val', workouts[i] + 'min');
+        b1.style.transition = `height 0.8s cubic-bezier(0.34,1.56,0.64,1) ${i * 0.07}s`;
+
+        const b2 = document.createElement('div');
+        b2.className = 'bar calories';
+        b2.style.height = '0px';
+        b2.setAttribute('data-val', (cals[i]*10) + 'cal');
+        b2.style.transition = `height 0.8s cubic-bezier(0.34,1.56,0.64,1) ${i * 0.07 + 0.05}s`;
+
+        wrap.appendChild(b1);
+        wrap.appendChild(b2);
+
+        const lbl = document.createElement('div');
+        lbl.className = 'bar-label';
+        lbl.textContent = day;
+
+        grp.appendChild(wrap);
+        grp.appendChild(lbl);
+        chart.appendChild(grp);
+
+        setTimeout(() => {
+          b1.style.height = workouts[i] + 'px';
+          b2.style.height = cals[i] + 'px';
+        }, 100);
+      });
+  }
+
+  // Water cups
+  const cupsEl = document.getElementById('water-cups');
+  if(cupsEl) {
+      let filled = Math.min(8, Math.floor({{ water_today|default:0 }} / 250));
+      for (let i = 0; i < 8; i++) {
+        const cup = document.createElement('div');
+        cup.className = 'water-cup' + (i < filled ? ' filled' : '');
+        const fill = document.createElement('div');
+        fill.className = 'water-fill';
+        fill.style.height = i < filled ? '100%' : '0%';
+        cup.appendChild(fill);
+        cup.onclick = () => {
+          const f = cup.querySelector('.water-fill');
+          const isFilled = cup.classList.contains('filled');
+          cup.classList.toggle('filled', !isFilled);
+          f.style.height = isFilled ? '0%' : '100%';
+        };
+        cupsEl.appendChild(cup);
+      }
+  }
 </script>
 {% endblock %}

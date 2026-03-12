@@ -1,501 +1,364 @@
 {% extends 'fitsync_app/base.html' %}
 {% load static %}
 
-{% block title %}Membership | FitSync Elite{% endblock %}
+{% block title %}Membership | FitSync{% endblock %}
 
 {% block header %}{% endblock %}
 {% block footer %}{% endblock %}
 
 {% block extra_css %}
 <style>
-    :root {
-        --sidebar-bg: var(--bg-tertiary);
-        --accent-orange: var(--gold);
-        --content-bg: var(--bg-primary);
-        --text-main: var(--text-primary);
-        --text-muted: var(--text-muted);
-        --white: var(--bg-secondary);
-        --card-shadow: var(--shadow-main);
-    }
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
 
-    body {
-        background-color: var(--content-bg);
-        color: var(--text-main);
-        font-family: 'Inter', sans-serif;
-        margin: 0;
-        min-height: 100vh;
-    }
+  :root {
+    --mb-bg: #0E0E0E;
+    --mb-card: #181818;
+    --mb-card-border: rgba(255,255,255,0.06);
+    --mb-text: #E8E4DF;
+    --mb-text-soft: #8A8580;
+    --mb-text-muted: #4A4540;
+    --mb-gold: #C9A96E;
+    --mb-gold-bg: rgba(201,169,110,0.1);
+    --mb-gold-border: rgba(201,169,110,0.35);
+    --mb-green: #8AAF5A;
+    --mb-green-bg: rgba(138,175,90,0.12);
+    --mb-green-border: rgba(138,175,90,0.3);
+    --mb-blue: #5A9AC0;
+    --mb-radius: 18px;
+  }
 
-    .main-wrapper {
-        margin: 0 auto;
-        max-width: 1400px;
-        flex-grow: 1;
-        padding: 3rem 4rem;
-    }
+  body { background:var(--mb-bg)!important; color:var(--mb-text)!important; font-family:'DM Sans',sans-serif!important; margin:0; min-height:100vh; }
 
-    .back-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.8rem;
-        color: var(--text-muted);
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.9rem;
-        margin-bottom: 2rem;
-        transition: 0.3s;
-        padding: 0.8rem 1.5rem;
-        border-radius: 50px;
-        background: var(--bg-tertiary);
-        border: 1px solid var(--border-color);
-        box-shadow: var(--shadow-sm);
-    }
+  .membership-page { max-width:640px; margin:0 auto; padding:48px 32px 80px; animation:mbFade 0.6s ease both; }
+  @keyframes mbFade { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
 
-    .back-btn:hover {
-        color: var(--accent-orange);
-        transform: translateX(-5px);
-        box-shadow: 0 6px 15px rgba(249, 115, 22, 0.15);
-    }
+  .mb-topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:36px; }
+  .mb-back { display:inline-flex; align-items:center; gap:10px; color:var(--mb-text-soft); font-size:13px; font-weight:500; padding:10px 22px; border-radius:50px; border:1.5px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.03); text-decoration:none; transition:all 0.25s; }
+  .mb-back:hover { color:var(--mb-text); border-color:rgba(255,255,255,0.15); }
+  .mb-active-badge { color:var(--mb-text-soft); font-size:12px; font-weight:600; padding:8px 18px; border-radius:50px; border:1.5px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.03); }
 
-    .page-title {
-        font-family: 'Inter', serif;
-        font-size: 2.2rem;
-        font-weight: 700;
-        color: var(--accent-orange);
-        text-transform: uppercase;
-        margin: 0 0 0.5rem 0;
-        text-align: center;
-    }
+  .mb-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:2.5px; color:var(--mb-text-muted); margin-bottom:12px; }
+  .mb-title { font-family:'Playfair Display',serif; font-size:32px; font-weight:500; color:var(--mb-text); margin:0 0 8px; }
+  .mb-subtitle { font-size:14px; color:var(--mb-text-muted); font-style:italic; margin-bottom:28px; }
 
-    .page-subtitle {
-        color: var(--text-muted);
-        font-size: 1rem;
-        margin-top: 0.5rem;
-        text-align: center;
-        margin-bottom: 3.5rem;
-    }
+  /* Current plan card */
+  .mb-plan-card {
+    background:var(--mb-card); border:1.5px solid var(--mb-gold-border);
+    border-radius:var(--mb-radius); padding:28px; margin-bottom:16px;
+    position:relative; overflow:hidden;
+  }
+  .mb-plan-card::after {
+    content:''; position:absolute; top:-40px; right:-40px; width:160px; height:160px;
+    background:radial-gradient(circle, rgba(201,169,110,0.08) 0%, transparent 70%); border-radius:50%;
+  }
 
-    .current-plan {
-        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-        padding: 3rem;
-        border-radius: 20px;
-        color: white;
-        margin-bottom: 3rem;
-        position: relative;
-        overflow: hidden;
-    }
+  .mb-plan-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; position:relative; z-index:2; }
+  .mb-plan-badge { display:inline-flex; align-items:center; gap:6px; padding:5px 14px; border-radius:50px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:1.2px; background:var(--mb-gold-bg); color:var(--mb-gold); border:1px solid var(--mb-gold-border); }
+  .mb-active-tag { padding:5px 14px; border-radius:50px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:1px; background:var(--mb-green-bg); color:var(--mb-green); border:1px solid var(--mb-green-border); }
 
-    .current-plan::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -10%;
-        width: 300px;
-        height: 300px;
-        background: radial-gradient(circle, rgba(249, 115, 22, 0.2) 0%, transparent 70%);
-        border-radius: 50%;
-    }
+  .mb-plan-name { font-family:'Playfair Display',serif; font-size:28px; font-weight:500; color:var(--mb-text); margin-bottom:6px; position:relative; z-index:2; }
+  .mb-plan-desc { font-size:13px; color:var(--mb-text-muted); margin-bottom:20px; position:relative; z-index:2; }
 
-    .plan-badge {
-        display: inline-block;
-        background: var(--accent-orange);
-        color: #000;
-        padding: 0.5rem 1.5rem;
-        border-radius: 20px;
-        font-weight: 800;
-        font-size: 0.9rem;
-        margin-bottom: 1rem;
-    }
+  /* Plan details row */
+  .mb-details { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px; position:relative; z-index:2; }
+  .mb-detail { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:12px; padding:14px; }
+  .mb-detail-lbl { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:var(--mb-text-muted); margin-bottom:6px; }
+  .mb-detail-val { font-size:16px; font-weight:700; color:var(--mb-text); }
+  .mb-detail-val.gold { color:var(--mb-gold); }
 
-    .plan-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 2rem;
-        margin-top: 2rem;
-    }
+  /* Progress bar */
+  .mb-progress { position:relative; z-index:2; }
+  .mb-prog-head { display:flex; justify-content:space-between; margin-bottom:8px; font-size:12px; }
+  .mb-prog-label { color:var(--mb-text-soft); font-weight:500; }
+  .mb-prog-val { color:var(--mb-green); font-weight:600; }
+  .mb-prog-bar { height:4px; background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden; }
+  .mb-prog-fill { height:100%; border-radius:4px; background:var(--mb-blue); transition:width 1s ease; }
 
-    .plan-detail {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
+  /* Features card */
+  .mb-features-card {
+    background:var(--mb-card); border:1.5px solid var(--mb-card-border);
+    border-radius:var(--mb-radius); padding:28px; margin-bottom:16px;
+  }
+  .mb-feat-head { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:24px; }
+  .mb-feat-title { font-size:16px; font-weight:600; color:var(--mb-text); }
+  .mb-feat-sub { font-size:12px; color:var(--mb-text-muted); margin-top:2px; }
+  .mb-feat-price { text-align:right; }
+  .mb-feat-amount { font-size:32px; font-weight:700; color:var(--mb-text); }
+  .mb-feat-period { font-size:12px; color:var(--mb-text-muted); }
 
-    .plan-icon {
-        width: 50px;
-        height: 50px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-    }
+  .mb-feat-list { list-style:none; padding:0; margin:0; }
+  .mb-feat-item { display:flex; align-items:center; justify-content:space-between; padding:14px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+  .mb-feat-item:last-child { border-bottom:none; }
+  .mb-feat-left { display:flex; align-items:center; gap:12px; }
+  .mb-feat-check { width:22px; height:22px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; background:var(--mb-green-bg); color:var(--mb-green); border:1px solid var(--mb-green-border); }
+  .mb-feat-name { font-size:14px; font-weight:500; color:var(--mb-text); }
+  .mb-feat-tag { padding:3px 10px; border-radius:6px; font-size:10px; font-weight:700; background:rgba(90,154,192,0.12); color:var(--mb-blue); border:1px solid rgba(90,154,192,0.2); }
 
-    .pricing-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-        margin-bottom: 3rem;
-        max-width: 450px;
-        margin-left: auto;
-        margin-right: auto;
-    }
+  /* Current plan button */
+  .mb-current-btn {
+    width:100%; padding:14px; border-radius:12px; margin-top:20px;
+    background:transparent; border:1.5px solid rgba(255,255,255,0.08);
+    color:var(--mb-text-soft); font-size:13px; font-weight:600;
+    font-family:'DM Sans',sans-serif; cursor:default;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
 
-    .pricing-card {
-        background: var(--bg-secondary);
-        padding: 2.5rem;
-        border-radius: 20px;
-        box-shadow: var(--card-shadow);
-        text-align: center;
-        transition: 0.3s;
-        border: 1px solid var(--border-color);
-    }
+  /* Upgrade button */
+  .mb-upgrade-btn {
+    width:100%; padding:14px; border-radius:12px; margin-top:20px;
+    background:var(--mb-gold-bg); border:1.5px solid var(--mb-gold-border);
+    color:var(--mb-gold); font-size:13px; font-weight:700;
+    font-family:'DM Sans',sans-serif; cursor:pointer;
+    text-decoration:none; display:block; text-align:center; transition:all 0.25s;
+  }
+  .mb-upgrade-btn:hover { background:rgba(201,169,110,0.2); }
 
-    .pricing-card:hover {
-        transform: translateY(-10px);
-        border-color: var(--accent-orange);
-    }
+  /* Payment history */
+  .mb-history {
+    background:var(--mb-card); border:1.5px solid var(--mb-card-border);
+    border-radius:var(--mb-radius); padding:28px;
+  }
+  .mb-hist-head { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:24px; }
+  .mb-hist-title { font-size:16px; font-weight:600; color:var(--mb-text); }
+  .mb-hist-total { text-align:right; }
+  .mb-hist-total-lbl { font-size:11px; color:var(--mb-text-muted); }
+  .mb-hist-total-val { font-size:16px; font-weight:700; color:var(--mb-gold); }
 
-    .pricing-card.featured {
-        background: var(--gold);
-        color: #000;
-        border: none;
-        transform: scale(1.05);
-    }
+  .mb-pay-item { display:flex; align-items:center; gap:14px; padding:16px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+  .mb-pay-item:last-child { border-bottom:none; }
 
-    .pricing-card.featured:hover {
-        transform: scale(1.08) translateY(-10px);
-    }
+  .mb-pay-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+  .mb-pay-icon.fee { background:rgba(138,175,90,0.1); color:var(--mb-green); }
+  .mb-pay-icon.trainer { background:rgba(200,122,106,0.1); color:#C87A6A; }
+  .mb-pay-icon.plan { background:rgba(201,169,110,0.1); color:var(--mb-gold); }
 
-    .pricing-card.elite {
-        border-color: var(--gold);
-        box-shadow: 0 0 15px rgba(79, 70, 229, 0.1);
-    }
+  .mb-pay-body { flex:1; }
+  .mb-pay-name { font-size:14px; font-weight:600; color:var(--mb-text); margin-bottom:3px; }
+  .mb-pay-date { font-size:12px; color:var(--mb-text-muted); }
 
-    .pricing-card.premium {
-        border-color: #f97316;
-    }
+  .mb-pay-right { text-align:right; flex-shrink:0; }
+  .mb-pay-amount { font-size:16px; font-weight:700; color:var(--mb-text); }
+  .mb-pay-status { font-size:11px; font-weight:700; display:flex; align-items:center; gap:4px; justify-content:flex-end; margin-top:2px; }
+  .mb-pay-status.paid { color:var(--mb-green); }
+  .mb-pay-status.pending { color:var(--mb-gold); }
+  .mb-pay-status.failed { color:#C87A6A; }
 
-    .plan-name {
-        font-size: 1.5rem;
-        font-weight: 800;
-        margin-bottom: 1rem;
-    }
+  .mb-pay-empty { text-align:center; padding:40px; }
+  .mb-pay-empty i { font-size:32px; color:rgba(255,255,255,0.08); margin-bottom:12px; display:block; }
+  .mb-pay-empty p { font-size:13px; color:var(--mb-text-muted); }
 
-    .plan-price {
-        font-size: 3rem;
-        font-weight: 800;
-        margin-bottom: 0.5rem;
-    }
-
-    .plan-period {
-        color: var(--text-muted);
-        margin-bottom: 2rem;
-    }
-
-    .pricing-card.featured .plan-period {
-        color: rgba(0, 0, 0, 0.7);
-    }
-
-    .plan-features {
-        list-style: none;
-        padding: 0;
-        margin: 2rem 0;
-        text-align: left;
-    }
-
-    .plan-features li {
-        padding: 0.8rem 0;
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .pricing-card.featured .plan-features li {
-        border-bottom-color: rgba(0, 0, 0, 0.1);
-    }
-
-    .upgrade-btn {
-        width: 100%;
-        padding: 1rem;
-        border: none;
-        border-radius: 12px;
-        font-weight: 800;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: 0.3s;
-        display: block;
-        text-align: center;
-        text-decoration: none;
-    }
-
-    .upgrade-btn.primary {
-        background: var(--accent-orange);
-        color: #000;
-    }
-
-    .upgrade-btn.secondary {
-        background: var(--bg-tertiary);
-        color: var(--text-primary);
-    }
-
-    .pricing-card.featured .upgrade-btn {
-        background: #000;
-        color: var(--gold);
-    }
-
-    .payment-history {
-        background: var(--white);
-        padding: 2rem;
-        border-radius: 16px;
-        box-shadow: var(--card-shadow);
-    }
-
-    .payment-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1.5rem 0;
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .payment-item:last-child {
-        border-bottom: none;
-    }
-
-    .payment-status {
-        padding: 0.4rem 1rem;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 700;
-        background: #dcfce7;
-        color: #15803d;
-    }
-
-    .billing-toggle {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-bottom: 3rem;
-        gap: 1rem;
-    }
-
-    .switch {
-        position: relative;
-        display: inline-block;
-        width: 60px;
-        height: 32px;
-    }
-
-    .switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-
-    .slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: var(--bg-tertiary);
-        transition: .4s;
-        border-radius: 34px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .slider:before {
-        position: absolute;
-        content: "";
-        height: 24px;
-        width: 24px;
-        left: 4px;
-        bottom: 3px;
-        background-color: var(--text-muted);
-        transition: .4s;
-        border-radius: 50%;
-    }
-
-    input:checked+.slider {
-        background-color: var(--accent-orange);
-        border-color: var(--accent-orange);
-    }
-
-    input:checked+.slider:before {
-        transform: translateX(26px);
-        background-color: #000;
-    }
-
-    .toggle-label {
-        font-weight: 700;
-        color: var(--text-muted);
-        transition: 0.3s;
-        font-size: 1.1rem;
-        cursor: pointer;
-    }
-
-    .toggle-label.active {
-        color: var(--text-main);
-    }
-
-    .save-badge {
-        background: var(--gold);
-        color: #000;
-        font-size: 0.75rem;
-        padding: 2px 8px;
-        border-radius: 10px;
-        margin-left: 5px;
-        font-weight: 800;
-        vertical-align: text-top;
-    }
+  @media(max-width:640px) {
+    .membership-page { padding:24px 20px 60px; }
+    .mb-title { font-size:26px; }
+    .mb-details { grid-template-columns:1fr; }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<main class="main-wrapper">
+<div class="membership-page">
+
+  <!-- Top bar -->
+  <div class="mb-topbar">
     {% if user.is_authenticated and user.userprofile.role == 'admin' %}
-    <a href="{% url 'admin_dashboard' %}" class="back-btn">
-        {% elif user.is_authenticated and user.userprofile.role == 'trainer' %}
-        <a href="{% url 'trainer_dashboard' %}" class="back-btn">
-            {% else %}
-            <a href="{% url 'user_dashboard' %}" class="back-btn">
-                {% endif %}
-                <i class="fa-solid fa-arrow-left"></i> RETURN TO PORTAL
-            </a>
+    <a href="{% url 'admin_dashboard' %}" class="mb-back"><i class="fa-solid fa-chevron-left"></i> Return to portal</a>
+    {% elif user.is_authenticated and user.userprofile.role == 'trainer' %}
+    <a href="{% url 'trainer_dashboard' %}" class="mb-back"><i class="fa-solid fa-chevron-left"></i> Return to portal</a>
+    {% else %}
+    <a href="{% url 'user_dashboard' %}" class="mb-back"><i class="fa-solid fa-chevron-left"></i> Return to portal</a>
+    {% endif %}
+    {% if subscription %}
+    <div class="mb-active-badge">Active subscription</div>
+    {% endif %}
+  </div>
 
-            <header class="page-header" style="text-align: center;">
-                <h1 class="page-title">Membership Management</h1>
-                <p class="page-subtitle">Manage your subscription and upgrade your fitness journey.</p>
-            </header>
+  <!-- Header -->
+  <div class="mb-label">Subscription</div>
+  <h1 class="mb-title">Membership management</h1>
+  <p class="mb-subtitle">Manage your subscription and upgrade your fitness journey.</p>
 
-            <div class="current-plan">
-                <span class="plan-badge"><i class="fa-solid fa-crown"></i> {{ display.plan_name }}</span>
-                <h2 style="font-size: 2rem; margin: 0 0 0.5rem 0;">{{ display.plan_name }}</h2>
-                <p style="opacity: 0.9; margin-bottom: 2rem;">{{ display.plan_description }}</p>
+  <!-- Current Plan Card -->
+  <div class="mb-plan-card">
+    <div class="mb-plan-head">
+      <span class="mb-plan-badge"><i class="fa-solid fa-chart-line"></i> {{ display.plan_name }} plan</span>
+      {% if subscription %}
+      <span class="mb-active-tag">Active</span>
+      {% endif %}
+    </div>
 
-                <div class="plan-grid">
-                    <div class="plan-detail">
-                        <div class="plan-icon"><i class="fa-solid fa-calendar"></i></div>
-                        <div>
-                            <div style="opacity: 0.8; font-size: 0.85rem;">Valid Until</div>
-                            <div style="font-weight: 800; font-size: 1.1rem;">{{ display.valid_until_str }}</div>
-                        </div>
-                    </div>
-                    <div class="plan-detail">
-                        <div class="plan-icon"><i class="fa-solid fa-clock"></i></div>
-                        <div>
-                            <div style="opacity: 0.8; font-size: 0.85rem;">Days Remaining</div>
-                            <div style="font-weight: 800; font-size: 1.1rem;">{{ display.days_remaining }}</div>
-                        </div>
-                    </div>
-                    <div class="plan-detail">
-                        <div class="plan-icon"><i class="fa-solid fa-credit-card"></i></div>
-                        <div>
-                            <div style="opacity: 0.8; font-size: 0.85rem;">Next Billing</div>
-                            <div style="font-weight: 800; font-size: 1.1rem;">₹{{ display.next_billing }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="mb-plan-name">{{ display.plan_name }}</div>
+    <p class="mb-plan-desc">{{ display.plan_description|default:"Start your ultimate fitness journey." }}</p>
 
-            <h2
-                style="font-family: 'Inter', serif; font-size: 1.8rem; margin-bottom: 3rem; color: var(--text-main); text-align: center;">
-                Activate Your Membership
-            </h2>
+    <div class="mb-details">
+      <div class="mb-detail">
+        <div class="mb-detail-lbl">Valid Until</div>
+        <div class="mb-detail-val">{{ display.valid_until_str }}</div>
+      </div>
+      <div class="mb-detail">
+        <div class="mb-detail-lbl">Days Remaining</div>
+        <div class="mb-detail-val gold">{{ display.days_remaining }} days</div>
+      </div>
+      <div class="mb-detail">
+        <div class="mb-detail-lbl">Next Billing</div>
+        <div class="mb-detail-val">₹{{ display.next_billing }}</div>
+      </div>
+    </div>
 
-            <div class="pricing-grid">
-                {% for plan in plans %}
-                <div class="pricing-card {{ plan.name }} {% if plan.name == 'lifetime' %}featured{% endif %}">
-                    {% if plan.name == 'gold' or plan.name == 'premium' %}
-                    <div class="plan-badge" style="background:#f97316; color:white;">MOST POPULAR</div>
-                    {% elif plan.name == 'lifetime' %}
-                    <div class="plan-badge"
-                        style="background:#000; color:var(--gold); display:inline-block; padding: 2px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 900; margin-bottom: 1rem;">
-                        <i class="fa-solid fa-infinity"></i> ULTIMATE
-                    </div>
-                    {% endif %}
+    <div class="mb-progress">
+      <div class="mb-prog-head">
+        <span class="mb-prog-label">Plan period used</span>
+        <span class="mb-prog-val" id="remainPct">—</span>
+      </div>
+      <div class="mb-prog-bar">
+        <div class="mb-prog-fill" id="planBar" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
 
-                    <div class="plan-name">{{ plan.get_name_display }}</div>
+  <!-- Features Card -->
+  {% for plan in plans %}
+  {% if subscription and subscription.plan.id == plan.id or not subscription and forloop.first %}
+  <div class="mb-features-card">
+    <div class="mb-feat-head">
+      <div>
+        <div class="mb-feat-title">{{ plan.get_name_display }} plan features</div>
+        <div class="mb-feat-sub">Everything included in your current plan</div>
+      </div>
+      <div class="mb-feat-price">
+        <div class="mb-feat-amount">₹{{ plan.price|floatformat:0 }}</div>
+        <div class="mb-feat-period">per {{ plan.duration_text }}</div>
+      </div>
+    </div>
 
-                    <div class="plan-price">
-                        ₹{{ plan.price|floatformat:0 }}
-                    </div>
+    <ul class="mb-feat-list">
+      {% for feature in plan.get_features_list %}
+      <li class="mb-feat-item">
+        <div class="mb-feat-left">
+          <div class="mb-feat-check"><i class="fa-solid fa-check"></i></div>
+          <span class="mb-feat-name">{{ feature }}</span>
+        </div>
+        {% if 'AI' in feature %}
+        <span class="mb-feat-tag">AI powered</span>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
 
-                    <div class="plan-period">
-                        {{ plan.duration_text }}
-                    </div>
+    {% if subscription and subscription.plan.id == plan.id %}
+    <div class="mb-current-btn">
+      <i class="fa-regular fa-clock"></i> Current plan
+    </div>
+    {% else %}
+    <a href="{% url 'payment' %}?plan={{ plan.name }}" class="mb-upgrade-btn">
+      Activate Plan
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
+  {% endfor %}
 
-                    <ul class="plan-features">
-                        {% for feature in plan.get_features_list %}
-                        <li {% if plan.name == 'lifetime' %}style="border-color: rgba(0,0,0,0.1)" {% endif %}>
-                            <i class="fa-solid fa-check" {% if plan.name == 'lifetime' %}style="color:#000" {%  endif  %}></i>
-                            {{ feature }}
-                        </li>
-                        {% endfor %}
-                    </ul>
+  <!-- Other plans for upgrade -->
+  {% for plan in plans %}
+  {% if not subscription or subscription.plan.id != plan.id %}
+  {% if subscription and subscription.plan.price < plan.price or not subscription and not forloop.first %}
+  <div class="mb-features-card" style="border-color:rgba(255,255,255,0.06);">
+    <div class="mb-feat-head">
+      <div>
+        <div class="mb-feat-title">{{ plan.get_name_display }} plan</div>
+        <div class="mb-feat-sub">Upgrade for more features</div>
+      </div>
+      <div class="mb-feat-price">
+        <div class="mb-feat-amount">₹{{ plan.price|floatformat:0 }}</div>
+        <div class="mb-feat-period">per {{ plan.duration_text }}</div>
+      </div>
+    </div>
+    <a href="{% url 'payment' %}?plan={{ plan.name }}" class="mb-upgrade-btn">Upgrade to {{ plan.get_name_display }}</a>
+  </div>
+  {% endif %}
+  {% endif %}
+  {% endfor %}
 
-                    {% if subscription and subscription.plan.id == plan.id %}
-                    <button class="upgrade-btn active-status" disabled {% if plan.name == 'lifetime' %}style="background:rgba(0,0,0,0.1); color:#000;" {% endif %}>
-                        {% if plan.name == 'lifetime' %}<i class="fa-solid fa-star"></i> Active Lifetime{%  else  %}Current Plan{% endif %}
-                    </button>
-                    {% elif subscription and subscription.plan and subscription.plan.price > plan.price %}
-                    <button class="upgrade-btn included" disabled>Included</button>
-                    {% else %}
-                    <a href="{% url 'payment' %}?plan={{ plan.name }}{% if plan.name == 'lifetime' %}&mode=lifetime{% endif %}"
-                        class="upgrade-btn {% if plan.name == 'lifetime' or plan.name == 'gold' or plan.name == 'premium' %}primary{% else %}secondary{% endif %}"
-                        style="display:block; text-align:center; text-decoration:none;">
-                        {% if plan.name == 'lifetime' %}Unlock Forever{% else %}Upgrade{% endif %}
-                    </a>
-                    {% endif %}
-                </div>
-                {% endfor %}
-            </div>
+  <!-- Payment History -->
+  <div class="mb-history">
+    <div class="mb-hist-head">
+      <span class="mb-hist-title">Payment history</span>
+      {% if payments %}
+      <div class="mb-hist-total">
+        <div class="mb-hist-total-lbl">Total spent</div>
+        <div class="mb-hist-total-val">₹{% widthratio 1 1 0 as zero %}{% for p in payments %}{% endfor %}{{ total_spent|default:"0" }}</div>
+      </div>
+      {% endif %}
+    </div>
 
-            <div class="payment-history">
-                <h2 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 1.5rem;">Payment History</h2>
+    {% if payments %}
+    {% for payment in payments %}
+    <div class="mb-pay-item">
+      <div class="mb-pay-icon {% if payment.trainer %}trainer{% elif payment.amount >= 500 %}plan{% else %}fee{% endif %}">
+        {% if payment.trainer %}
+          <i class="fa-solid fa-user-tie"></i>
+        {% elif payment.amount >= 500 %}
+          <i class="fa-regular fa-star"></i>
+        {% else %}
+          <i class="fa-solid fa-receipt"></i>
+        {% endif %}
+      </div>
 
-                {% if payments %}
-                {% for payment in payments %}
-                <div class="payment-item">
-                    <div>
-                        <div style="font-weight: 700; margin-bottom: 0.3rem;">
-                            {% if payment.trainer %}
-                            Trainer Assignment ({{  payment.trainer.get_full_name|default:payment.trainer.username|title  }})
-                            {% elif payment.amount >= 24000 %}Elite Annual Plan
-                            {% elif payment.amount >= 14000 %}Elite Lifetime Plan
-                            {% elif payment.amount >= 12000 %}Premium Annual Plan
-                            {% elif payment.amount >= 6000 %}Basic Annual Plan
-                            {% elif payment.amount >= 3900 %}Elite Monthly Plan
-                            {% elif payment.amount >= 1900 %}Premium Monthly Plan
-                            {% elif payment.amount >= 900 %}Basic Monthly Plan
-                            {% else %}Service Charge / Fee{% endif %}
-                        </div>
-                        <div style="color: var(--text-muted); font-size: 0.85rem;">
-                            {{ payment.payment_date|date:"M d, Y" }} • Razorpay
-                        </div>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 1rem;">
-                        <div style="font-weight: 800; font-size: 1.1rem;">₹{{ payment.amount|floatformat:0 }}</div>
-                        {% if payment.status == 'success' %}
-                        <span class="payment-status"><i class="fa-solid fa-check"></i> Paid</span>
-                        {% elif payment.status == 'pending' %}
-                        <span class="payment-status" style="background: #fef9c3; color: #854d0e;"><i
-                                class="fa-solid fa-clock"></i> Pending</span>
-                        {% else %}
-                        <span class="payment-status" style="background: #fee2e2; color: #991b1b;"><i
-                                class="fa-solid fa-xmark"></i> Failed</span>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endfor %}
-                {% else %}
-                <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
-                    <i class="fa-solid fa-receipt" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                    <p>No payment history found.</p>
-                </div>
-                {% endif %}
-            </div>
-</main>
+      <div class="mb-pay-body">
+        <div class="mb-pay-name">
+          {% if payment.trainer %}Trainer assignment ({{ payment.trainer.get_full_name|default:payment.trainer.username|title }})
+          {% elif payment.amount >= 24000 %}Elite Annual Plan
+          {% elif payment.amount >= 14000 %}Elite Lifetime Plan
+          {% elif payment.amount >= 12000 %}Premium Annual Plan
+          {% elif payment.amount >= 6000 %}Basic Annual Plan
+          {% elif payment.amount >= 3900 %}Elite Monthly Plan
+          {% elif payment.amount >= 1900 %}Premium monthly plan
+          {% elif payment.amount >= 900 %}Basic Monthly Plan
+          {% else %}Service charge / fee{% endif %}
+        </div>
+        <div class="mb-pay-date">{{ payment.payment_date|date:"M d, Y" }} · Razorpay</div>
+      </div>
 
+      <div class="mb-pay-right">
+        <div class="mb-pay-amount">₹{{ payment.amount|floatformat:0 }}</div>
+        {% if payment.status == 'success' %}
+        <div class="mb-pay-status paid"><i class="fa-solid fa-check"></i> Paid</div>
+        {% elif payment.status == 'pending' %}
+        <div class="mb-pay-status pending"><i class="fa-solid fa-clock"></i> Pending</div>
+        {% else %}
+        <div class="mb-pay-status failed"><i class="fa-solid fa-xmark"></i> Failed</div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="mb-pay-empty">
+      <i class="fa-solid fa-receipt"></i>
+      <p>No payment history found.</p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const daysRemaining = parseInt('{{ display.days_remaining }}') || 0;
+    const totalDays = 90; // 3-month plan
+    const usedPct = Math.max(0, Math.min(100, Math.round(((totalDays - daysRemaining) / totalDays) * 100)));
+    const remainPct = 100 - usedPct;
+
+    const bar = document.getElementById('planBar');
+    const label = document.getElementById('remainPct');
+    if (bar) setTimeout(() => { bar.style.width = usedPct + '%'; }, 200);
+    if (label) label.textContent = remainPct + '% remaining';
+
+    // Calculate total spent
+    let total = 0;
+    document.querySelectorAll('.mb-pay-amount').forEach(el => {
+      total += parseInt(el.textContent.replace(/[₹,]/g, '')) || 0;
+    });
+    const totalEl = document.querySelector('.mb-hist-total-val');
+    if (totalEl) totalEl.textContent = '₹' + total.toLocaleString('en-IN');
+  });
+</script>
 {% endblock %}
-
-

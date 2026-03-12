@@ -1,320 +1,489 @@
 {% extends 'fitsync_app/base.html' %}
 {% load static %}
 
-{% block title %}Training Programs | FitSync Elite{% endblock %}
+{% block title %}Training Programs | FitSync{% endblock %}
 
 {% block header %}{% endblock %}
 {% block footer %}{% endblock %}
 
 {% block extra_css %}
 <style>
-    :root {
-        --sidebar-bg: var(--bg-tertiary);
-        --sidebar-hover: var(--hover-color);
-        --accent-orange: var(--gold);
-        --content-bg: var(--bg-primary);
-        --text-main: var(--text-primary);
-        --text-muted: var(--text-muted);
-        --white: var(--bg-secondary);
-        --card-shadow: var(--shadow-main);
-    }
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
 
-    body {
-        background-color: var(--content-bg);
-        color: var(--text-main);
-        font-family: 'Inter', sans-serif;
-        margin: 0;
-        min-height: 100vh;
-    }
+  :root {
+    --wk-bg: #141414;
+    --wk-card: #1E1E1E;
+    --wk-card-border: rgba(255,255,255,0.06);
+    --wk-text: #E8E4DF;
+    --wk-text-soft: #8A8580;
+    --wk-text-muted: #5A5550;
+    --wk-sage: #8FAF8F;
+    --wk-sage-dark: #6A8A6A;
+    --wk-gold: #C9A96E;
+    --wk-gold-bg: rgba(201,169,110,0.12);
+    --wk-gold-border: rgba(201,169,110,0.35);
+    --wk-green: #7ABF7A;
+    --wk-green-bg: rgba(122,191,122,0.12);
+    --wk-green-border: rgba(122,191,122,0.35);
+    --wk-blue: #6AA8C8;
+    --wk-blue-bg: rgba(106,168,200,0.12);
+    --wk-blue-border: rgba(106,168,200,0.35);
+    --wk-red: #C87A6A;
+    --wk-red-bg: rgba(200,122,106,0.12);
+    --wk-red-border: rgba(200,122,106,0.35);
+    --wk-radius: 18px;
+  }
 
-    /* Main Content */
-    .main-wrapper {
-        margin: 0 auto;
-        max-width: 1400px;
-        flex-grow: 1;
-        padding: 3rem 4rem;
-    }
+  body {
+    background: var(--wk-bg) !important;
+    color: var(--wk-text) !important;
+    font-family: 'DM Sans', sans-serif !important;
+    margin: 0;
+    min-height: 100vh;
+  }
 
-    .back-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.8rem;
-        color: var(--text-muted);
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.9rem;
-        margin-bottom: 2rem;
-        transition: 0.3s;
-        padding: 0.8rem 1.5rem;
-        border-radius: 50px;
-        background: var(--bg-tertiary);
-        border: 1px solid var(--border-color);
-        box-shadow: var(--shadow-sm);
-    }
+  .workout-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 40px 80px;
+    animation: wkFadeIn 0.6s ease both;
+  }
 
-    .back-btn:hover {
-        color: var(--accent-orange);
-        transform: translateX(-5px);
-        box-shadow: 0 6px 15px rgba(249, 115, 22, 0.15);
-    }
+  @keyframes wkFadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        margin-bottom: 3rem;
-    }
+  /* Top navigation */
+  .wk-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 48px;
+  }
 
-    .page-title {
-        font-family: 'Inter', serif;
-        font-size: 2.2rem;
-        font-weight: 700;
-        color: var(--accent-orange);
-        text-transform: uppercase;
-        margin: 0;
-    }
+  .wk-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--wk-text-soft);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 22px;
+    border-radius: 50px;
+    border: 1.5px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+    text-decoration: none;
+    transition: all 0.25s ease;
+    backdrop-filter: blur(4px);
+  }
+  .wk-back:hover {
+    color: var(--wk-text);
+    border-color: rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.06);
+  }
 
-    .page-subtitle {
-        color: var(--text-muted);
-        font-size: 1rem;
-        margin-top: 0.5rem;
-    }
+  .wk-topbar-actions {
+    display: flex;
+    gap: 10px;
+  }
 
-    /* Programs Grid */
-    .programs-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: 2.5rem;
-    }
+  .wk-ai-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--wk-gold);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 22px;
+    border-radius: 50px;
+    border: 1.5px solid var(--wk-gold-border);
+    background: var(--wk-gold-bg);
+    text-decoration: none;
+    transition: all 0.25s ease;
+  }
+  .wk-ai-btn:hover {
+    background: rgba(201,169,110,0.2);
+    border-color: var(--wk-gold);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(201,169,110,0.15);
+  }
 
-    .program-card {
-        background: var(--white);
-        border-radius: 20px;
-        overflow: hidden;
-        box-shadow: var(--card-shadow);
-        border: 1px solid rgba(0, 0, 0, 0.02);
-        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        display: flex;
-        flex-direction: column;
-    }
+  .wk-new-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--wk-green);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 22px;
+    border-radius: 50px;
+    border: 1.5px solid var(--wk-green-border);
+    background: var(--wk-green-bg);
+    text-decoration: none;
+    transition: all 0.25s ease;
+  }
+  .wk-new-btn:hover {
+    background: rgba(122,191,122,0.2);
+    border-color: var(--wk-green);
+    transform: translateY(-1px);
+  }
 
-    .program-card:hover {
-        transform: translateY(-8px);
-        border-color: var(--accent-orange);
-        box-shadow: 0 15px 35px rgba(249, 115, 22, 0.08);
-    }
+  /* Header */
+  .wk-header {
+    margin-bottom: 40px;
+  }
 
-    .card-banner {
-        height: 200px;
-        position: relative;
-    }
+  .wk-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    color: var(--wk-sage);
+    margin-bottom: 12px;
+  }
 
-    .card-banner img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
+  .wk-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 38px;
+    font-weight: 500;
+    color: var(--wk-text);
+    margin: 0 0 10px;
+    letter-spacing: -0.5px;
+  }
 
-    .difficulty-tag {
-        position: absolute;
-        top: 1rem;
-        left: 1rem;
-        background: var(--accent-orange);
-        color: #000;
-        padding: 4px 12px;
-        border-radius: 50px;
-        font-size: 0.65rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
+  .wk-subtitle {
+    font-size: 15px;
+    color: var(--wk-text-muted);
+    font-style: italic;
+    font-weight: 400;
+  }
 
-    .card-body {
-        padding: 1.8rem;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-    }
+  /* Cards grid */
+  .wk-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 22px;
+  }
 
-    .card-body h3 {
-        font-size: 1.3rem;
-        font-weight: 700;
-        margin: 0 0 0.6rem 0;
-    }
+  /* Program card */
+  .wk-card {
+    background: var(--wk-card);
+    border: 1.5px solid var(--wk-card-border);
+    border-radius: var(--wk-radius);
+    padding: 28px 26px 24px;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
 
-    .card-body p {
-        color: var(--text-muted);
-        font-size: 0.95rem;
-        line-height: 1.6;
-        margin-bottom: 1.8rem;
-    }
+  .wk-card:hover {
+    border-color: rgba(255,255,255,0.12);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+  }
 
-    .card-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-top: 1.2rem;
-        border-top: 1px solid var(--border-color);
-        margin-top: auto;
-    }
+  /* Difficulty badge */
+  .wk-badge {
+    display: inline-flex;
+    align-self: flex-start;
+    padding: 5px 14px;
+    border-radius: 50px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 24px;
+  }
 
-    .meta-info {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.85rem;
-        font-weight: 700;
-    }
+  .wk-badge.beginner {
+    background: var(--wk-gold-bg);
+    color: var(--wk-gold);
+    border: 1px solid var(--wk-gold-border);
+  }
+  .wk-badge.intermediate {
+    background: var(--wk-green-bg);
+    color: var(--wk-green);
+    border: 1px solid var(--wk-green-border);
+  }
+  .wk-badge.advanced {
+    background: var(--wk-red-bg);
+    color: var(--wk-red);
+    border: 1px solid var(--wk-red-border);
+  }
 
-    .meta-info i {
-        color: var(--accent-orange);
-    }
+  /* Icon area */
+  .wk-icon-area {
+    height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 28px;
+    position: relative;
+  }
 
-    .btn-action {
-        background: var(--accent-orange);
-        color: #000 !important;
-        text-decoration: none;
-        padding: 0.65rem 1.2rem;
-        border-radius: 10px;
-        font-weight: 700;
-        font-size: 0.85rem;
-        transition: 0.2s;
-        border: none;
-        cursor: pointer;
-        display: inline-block;
-    }
+  .wk-icon-graphic {
+    font-size: 56px;
+    opacity: 0.6;
+    position: relative;
+  }
 
-    .btn-action:hover {
-        background: #ea580c;
-        box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
-    }
+  /* Color variants based on difficulty */
+  .wk-card.beginner .wk-icon-graphic { color: var(--wk-blue); }
+  .wk-card.intermediate .wk-icon-graphic { color: var(--wk-green); }
+  .wk-card.advanced .wk-icon-graphic { color: var(--wk-red); }
 
-    .btn-action:disabled {
-        background: #333;
-        color: #666 !important;
-        cursor: not-allowed;
-        box-shadow: none;
-        transform: none;
-    }
+  .wk-icon-line {
+    width: 100px;
+    height: 3px;
+    border-radius: 3px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.25;
+  }
 
-    /* Header Actions */
-    .header-btns {
-        display: flex;
-        gap: 1rem;
-    }
+  .wk-card.beginner .wk-icon-line { background: var(--wk-blue); }
+  .wk-card.intermediate .wk-icon-line { background: var(--wk-green); }
+  .wk-card.advanced .wk-icon-line { background: var(--wk-red); }
 
-    .btn-secondary {
-        background: var(--bg-tertiary);
-        color: var(--text-main);
-        border: 1px solid var(--border-color);
-        padding: 0.8rem 1.5rem;
-        border-radius: 12px;
-        text-decoration: none;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        font-size: 0.9rem;
-    }
+  /* Card body */
+  .wk-card-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--wk-text);
+    margin-bottom: 10px;
+    line-height: 1.3;
+  }
 
-    .btn-primary {
-        background: var(--accent-orange);
-        color: #000;
-        padding: 0.8rem 1.5rem;
-        border-radius: 12px;
-        text-decoration: none;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        font-size: 0.9rem;
-    }
+  .wk-card-desc {
+    font-size: 13.5px;
+    color: var(--wk-text-muted);
+    line-height: 1.6;
+    flex: 1;
+    margin-bottom: 24px;
+  }
 
-    .empty-card {
-        grid-column: 1 / -1;
-        background: var(--bg-secondary);
-        padding: 5rem;
-        text-align: center;
-        border-radius: 20px;
-        box-shadow: var(--card-shadow);
-    }
+  /* Card footer */
+  .wk-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .wk-freq {
+    font-size: 13px;
+    color: var(--wk-text-muted);
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  .wk-freq strong {
+    display: block;
+    font-size: 16px;
+    color: var(--wk-text-soft);
+    font-weight: 600;
+  }
+
+  .wk-start-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 11px 24px;
+    border-radius: 12px;
+    background: transparent;
+    border: 1.5px solid rgba(255,255,255,0.15);
+    color: var(--wk-text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.25s ease;
+  }
+  .wk-start-btn:hover {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.25);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+
+  .wk-checked {
+    font-size: 10px;
+    color: var(--wk-green);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 8px;
+    text-align: right;
+  }
+
+  /* Empty state */
+  .wk-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 80px 40px;
+    border: 2px dashed rgba(255,255,255,0.06);
+    border-radius: var(--wk-radius);
+  }
+  .wk-empty i {
+    font-size: 48px;
+    color: var(--wk-text-muted);
+    margin-bottom: 20px;
+    display: block;
+    opacity: 0.4;
+  }
+  .wk-empty h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--wk-text-soft);
+    margin-bottom: 8px;
+  }
+  .wk-empty p {
+    color: var(--wk-text-muted);
+    font-size: 14px;
+  }
+
+  /* Banner image card */
+  .wk-card .card-banner {
+    height: 180px;
+    margin: -28px -26px 24px;
+    overflow: hidden;
+    border-radius: var(--wk-radius) var(--wk-radius) 0 0;
+    position: relative;
+  }
+  .wk-card .card-banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+    filter: brightness(0.7);
+  }
+  .wk-card:hover .card-banner img {
+    transform: scale(1.06);
+    filter: brightness(0.8);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .workout-page { padding: 24px 20px 60px; }
+    .wk-title { font-size: 28px; }
+    .wk-grid { grid-template-columns: 1fr; }
+    .wk-topbar { flex-direction: column; gap: 12px; align-items: flex-start; }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<main class="main-wrapper">
+<div class="workout-page">
+
+  <!-- Top bar -->
+  <div class="wk-topbar">
     {% if user.is_authenticated and user.userprofile.role == 'admin' %}
-    <a href="{% url 'admin_dashboard' %}" class="back-btn">
-        {% elif user.is_authenticated and user.userprofile.role == 'trainer' %}
-        <a href="{% url 'trainer_dashboard' %}" class="back-btn">
-            {% else %}
-            <a href="{% url 'user_dashboard' %}" class="back-btn">
-                {% endif %}
-                <i class="fa-solid fa-arrow-left"></i> RETURN TO PORTAL
-            </a>
+    <a href="{% url 'admin_dashboard' %}" class="wk-back">
+      <i class="fa-solid fa-chevron-left"></i> Return to portal
+    </a>
+    {% elif user.is_authenticated and user.userprofile.role == 'trainer' %}
+    <a href="{% url 'trainer_dashboard' %}" class="wk-back">
+      <i class="fa-solid fa-chevron-left"></i> Return to portal
+    </a>
+    {% else %}
+    <a href="{% url 'user_dashboard' %}" class="wk-back">
+      <i class="fa-solid fa-chevron-left"></i> Return to portal
+    </a>
+    {% endif %}
 
-            <header class="page-header">
-                <div>
-                    <h1 class="page-title">Training Programs</h1>
-                    <p class="page-subtitle">Curated workout protocols to help you reach your peak potential.</p>
-                </div>
+    <div class="wk-topbar-actions">
+      {% if user.userprofile.role != 'trainer' %}
+      <a href="{% url 'ai_workout' %}" class="wk-ai-btn">
+        <i class="fa-regular fa-star"></i> AI Generator
+      </a>
+      {% endif %}
+      {% if user.is_staff or user.userprofile.role == 'trainer' %}
+      <a href="{% url 'workout_add' %}" class="wk-new-btn">
+        <i class="fa-solid fa-plus"></i> New Program
+      </a>
+      {% endif %}
+    </div>
+  </div>
 
-                <div class="header-btns">
-                    {% if user.userprofile.role != 'trainer' %}
-                    <a href="{% url 'ai_workout' %}" class="btn-secondary">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> AI Generator
-                    </a>
-                    {% endif %}
-                    {% if user.is_staff or user.userprofile.role == 'trainer' %}
-                    <a href="{% url 'workout_add' %}" class="btn-primary">
-                        <i class="fa-solid fa-plus"></i> New Program
-                    </a>
-                    {% endif %}
-                </div>
-            </header>
+  <!-- Header -->
+  <div class="wk-header">
+    <div class="wk-label">Workout Library</div>
+    <h1 class="wk-title">Training programs</h1>
+    <p class="wk-subtitle">Curated protocols to help you reach your peak potential.</p>
+  </div>
 
-            <div class="programs-grid">
-                {% for workout in workouts %}
-                <article class="program-card">
-                    <div class="card-banner">
-                        <img src="{% if workout.asset_file %}{{ workout.asset_file.url }}{% else %}https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=800&q=80{% endif %}"
-                            alt="{{ workout.title }}">
-                        <span class="difficulty-tag">{{ workout.difficulty|title }}</span>
-                    </div>
+  <!-- Cards -->
+  <div class="wk-grid">
+    {% for workout in workouts %}
+    <div class="wk-card {{ workout.difficulty|lower }}">
 
-                    <div class="card-body">
-                        <h3>{{ workout.title }}</h3>
-                        <p>{{ workout.description|truncatewords:18 }}</p>
+      <!-- Difficulty badge -->
+      <span class="wk-badge {{ workout.difficulty|lower }}">{{ workout.difficulty|title }}</span>
 
-                        <div class="card-footer">
-                            <div class="meta-info">
-                                <i class="fa-solid fa-calendar-week"></i>
-                                {{ workout.frequency_per_week }}x / Week
-                            </div>
-                            {% if user.userprofile.role != 'trainer' %}
-                            <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end;">
-                                {% if already_checked_in %}
-                                <span
-                                    style="font-size: 0.7rem; color: var(--success); font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">
-                                    <i class="fa-solid fa-circle-check"></i> Day Logged
-                                </span>
-                                {% endif %}
-                                <a href="{% url 'workout_session' workout.pk %}" class="btn-action">
-                                    Start Session
-                                </a>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </article>
-                {% empty %}
-                <div class="empty-card">
-                    <i class="fa-solid fa-dumbbell"
-                        style="font-size: 3.5rem; color: #eee; margin-bottom: 1.5rem; display: block;"></i>
-                    <h2 style="font-family: 'Inter', serif; color: #999;">No Workouts Found</h2>
-                    <p style="color: #ccc;">Your primary training protocols are currently being architected.</p>
-                </div>
-                {% endfor %}
-            </div>
-</main>
+      <!-- Icon area -->
+      {% if workout.asset_file %}
+      <div class="card-banner">
+        <img src="{{ workout.asset_file.url }}" alt="{{ workout.title }}">
+      </div>
+      {% else %}
+      <div class="wk-icon-area">
+        <div class="wk-icon-line"></div>
+        <div class="wk-icon-graphic">
+          {% if workout.difficulty|lower == 'beginner' %}
+            <i class="fa-solid fa-wind"></i>
+          {% elif workout.difficulty|lower == 'advanced' %}
+            <i class="fa-solid fa-fire-flame-curved"></i>
+          {% else %}
+            <i class="fa-solid fa-dumbbell"></i>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Card body -->
+      <div class="wk-card-title">{{ workout.title }}</div>
+      <div class="wk-card-desc">{{ workout.description|truncatewords:22 }}</div>
+
+      <!-- Card footer -->
+      <div class="wk-card-footer">
+        <div class="wk-freq">
+          <strong>{{ workout.frequency_per_week }}× /</strong>
+          week
+        </div>
+
+        {% if user.userprofile.role != 'trainer' %}
+        <div style="display:flex; flex-direction:column; align-items:flex-end;">
+          {% if already_checked_in %}
+          <span class="wk-checked">
+            <i class="fa-solid fa-circle-check"></i> Day Logged
+          </span>
+          {% endif %}
+          <a href="{% url 'workout_session' workout.pk %}" class="wk-start-btn">
+            Start session
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    {% empty %}
+    <div class="wk-empty">
+      <i class="fa-solid fa-dumbbell"></i>
+      <h2>No Workouts Found</h2>
+      <p>Your training protocols are currently being architected.</p>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
 {% endblock %}

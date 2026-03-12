@@ -1,655 +1,521 @@
 {% extends 'fitsync_app/base.html' %}
 {% load static %}
 
-{% block title %}Nutrition Tracker | FitSync Elite{% endblock %}
+{% block title %}Nutrition Tracker | FitSync{% endblock %}
 
 {% block header %}{% endblock %}
 {% block footer %}{% endblock %}
 
 {% block extra_css %}
 <style>
-    :root {
-        --card-bg: var(--bg-secondary);
-        --card-border: var(--border-color);
-        --item-bg: var(--bg-tertiary);
-        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
 
-    .main-wrapper {
-        margin: 0 auto;
-        max-width: 1400px;
-        flex-grow: 1;
-        padding: 3rem 4rem;
-        animation: fadeIn 0.8s ease-out;
-    }
+  :root {
+    --nt-bg: #0E0E0E;
+    --nt-card: #181818;
+    --nt-card-border: rgba(255,255,255,0.06);
+    --nt-text: #E8E4DF;
+    --nt-text-soft: #8A8580;
+    --nt-text-muted: #4A4540;
+    --nt-gold: #C9A96E;
+    --nt-gold-bg: rgba(201,169,110,0.1);
+    --nt-gold-border: rgba(201,169,110,0.35);
+    --nt-green: #5EAA5E;
+    --nt-blue: #5A9AC0;
+    --nt-orange: #C99A5E;
+    --nt-red: #C87A6A;
+    --nt-water: #5A8AC8;
+    --nt-radius: 18px;
+  }
 
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
+  body {
+    background: var(--nt-bg) !important;
+    color: var(--nt-text) !important;
+    font-family: 'DM Sans', sans-serif !important;
+    margin: 0;
+    min-height: 100vh;
+  }
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
+  .nut-page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 40px 80px;
+    animation: ntFade 0.6s ease both;
+  }
 
-    .back-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.8rem;
-        color: var(--text-muted);
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.9rem;
-        margin-bottom: 2rem;
-        transition: var(--transition);
-        padding: 0.8rem 1.5rem;
-        border-radius: 50px;
-        background: var(--bg-tertiary);
-        border: 1px solid var(--border-color);
-        box-shadow: var(--shadow-sm);
-    }
+  @keyframes ntFade {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
-    .back-btn:hover {
-        color: var(--gold);
-        transform: translateX(-5px);
-        border-color: var(--gold);
-        box-shadow: var(--shadow-glow);
-    }
+  /* Top bar */
+  .nt-topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 40px; }
+  .nt-back {
+    display: inline-flex; align-items: center; gap: 10px;
+    color: var(--nt-text-soft); font-size: 13px; font-weight: 500;
+    padding: 10px 22px; border-radius: 50px;
+    border: 1.5px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);
+    text-decoration: none; transition: all 0.25s;
+  }
+  .nt-back:hover { color: var(--nt-text); border-color: rgba(255,255,255,0.15); }
+  .nt-date-badge {
+    color: var(--nt-text-soft); font-size: 12px; font-weight: 600;
+    padding: 8px 18px; border-radius: 50px;
+    border: 1.5px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);
+  }
 
-    .page-header {
-        text-align: center;
-        margin-bottom: 4rem;
-    }
+  /* Header */
+  .nt-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2.5px; color: var(--nt-text-muted); margin-bottom: 12px; }
+  .nt-title { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 500; color: var(--nt-text); margin: 0 0 10px; }
+  .nt-subtitle { font-size: 15px; color: var(--nt-text-muted); font-style: italic; margin-bottom: 36px; }
 
-    .page-title {
-        font-family: var(--font-heading);
-        font-size: 3rem;
-        font-weight: 900;
-        color: var(--gold);
-        text-transform: uppercase;
-        margin: 0;
-        letter-spacing: 4px;
-        text-shadow: 0 0 20px rgba(79, 70, 229, 0.3);
-    }
+  /* Top 2-col */
+  .nt-top-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
 
-    .page-subtitle {
-        color: var(--text-muted);
-        font-size: 1.1rem;
-        margin-top: 1rem;
-        letter-spacing: 1px;
-    }
+  .nt-card {
+    background: var(--nt-card); border: 1.5px solid var(--nt-card-border);
+    border-radius: var(--nt-radius); padding: 28px; transition: all 0.25s;
+  }
+  .nt-card:hover { border-color: rgba(255,255,255,0.1); }
 
-    .tracker-grid {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 2.5rem;
-        margin-bottom: 3rem;
-    }
+  /* Calorie ring card */
+  .nt-cal-card { display: flex; align-items: center; gap: 24px; }
 
-    .tracker-card {
-        background: var(--card-bg);
-        backdrop-filter: blur(12px);
-        padding: 2.5rem;
-        border-radius: 20px;
-        border: 1px solid var(--card-border);
-        box-shadow: var(--shadow-md);
-        transition: var(--transition);
-    }
+  .nt-ring-wrap { position: relative; width: 100px; height: 100px; flex-shrink: 0; }
+  .nt-ring-svg { width: 100px; height: 100px; transform: rotate(-90deg); }
+  .nt-ring-bg { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 8; }
+  .nt-ring-fill { fill: none; stroke: var(--nt-gold); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+  .nt-ring-text {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    text-align: center;
+  }
+  .nt-ring-pct { font-size: 20px; font-weight: 700; color: var(--nt-text); display: block; }
+  .nt-ring-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--nt-text-muted); }
 
-    .tracker-card:hover {
-        border-color: rgba(79, 70, 229, 0.4);
-        transform: translateY(-5px);
-    }
+  .nt-cal-info {}
+  .nt-cal-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--nt-text-muted); margin-bottom: 4px; }
+  .nt-cal-row { display: flex; align-items: baseline; gap: 8px; }
+  .nt-cal-big { font-size: 32px; font-weight: 700; color: var(--nt-text); }
+  .nt-cal-of { font-size: 14px; color: var(--nt-text-muted); }
+  .nt-cal-remain { font-size: 13px; color: var(--nt-text-muted); margin-top: 4px; }
 
-    .card-title {
-        font-family: var(--font-heading);
-        font-size: 1.4rem;
-        font-weight: 700;
-        margin-bottom: 2rem;
-        color: var(--gold);
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
+  /* Hydration card */
+  .nt-hydro-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .nt-hydro-title { font-size: 15px; font-weight: 600; color: var(--nt-text); }
+  .nt-hydro-pct {
+    font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 50px;
+    background: rgba(94,170,94,0.12); color: var(--nt-green); border: 1px solid rgba(94,170,94,0.3);
+  }
 
-    .water-tracker {
-        display: flex;
-        align-items: center;
-        gap: 3rem;
-    }
+  .nt-glasses { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .nt-glass {
+    width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    font-size: 16px; transition: all 0.3s;
+  }
+  .nt-glass.filled { background: var(--nt-water); color: white; }
+  .nt-glass.empty { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.06); }
 
-    .water-icon {
-        width: 120px;
-        height: 120px;
-        background: linear-gradient(135deg, #1e3a8a, #3b82f6);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 3.5rem;
-        color: white;
-        box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
-        position: relative;
-    }
+  .nt-hydro-stat { font-size: 13px; color: var(--nt-text-muted); margin-bottom: 14px; }
+  .nt-hydro-stat strong { color: var(--nt-text-soft); }
 
-    .water-icon::after {
-        content: '';
-        position: absolute;
-        inset: -5px;
-        border-radius: 50%;
-        border: 2px solid rgba(59, 130, 246, 0.3);
-        animation: pulse 2s infinite;
-    }
+  .nt-water-btns { display: flex; gap: 8px; }
+  .nt-water-btn {
+    padding: 8px 18px; border-radius: 50px; font-size: 12px; font-weight: 700;
+    cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+    border: 1.5px solid rgba(255,255,255,0.08); background: transparent; color: var(--nt-text-soft);
+  }
+  .nt-water-btn:first-child { background: var(--nt-gold-bg); border-color: var(--nt-gold-border); color: var(--nt-gold); }
+  .nt-water-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--nt-text); }
 
-    @keyframes pulse {
-        0% {
-            transform: scale(1);
-            opacity: 1;
-        }
+  /* Macro cards row */
+  .nt-macro-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
 
-        100% {
-            transform: scale(1.2);
-            opacity: 0;
-        }
-    }
+  .nt-macro { background: var(--nt-card); border: 1.5px solid var(--nt-card-border); border-radius: var(--nt-radius); padding: 24px; }
+  .nt-macro-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .nt-macro-name { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--nt-text-muted); }
+  .nt-macro-pct { font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 50px; }
+  .nt-macro-pct.green { background: rgba(94,170,94,0.12); color: var(--nt-green); }
+  .nt-macro-pct.blue { background: rgba(90,154,192,0.12); color: var(--nt-blue); }
+  .nt-macro-pct.orange { background: rgba(200,154,94,0.12); color: var(--nt-orange); }
 
-    .water-progress {
-        flex-grow: 1;
-    }
+  .nt-macro-val { font-size: 36px; font-weight: 700; color: var(--nt-text); margin-bottom: 2px; }
+  .nt-macro-sub { font-size: 12px; color: var(--nt-text-muted); margin-bottom: 14px; }
 
-    .progress-bar {
-        height: 16px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 20px;
-        overflow: hidden;
-        margin: 1.5rem 0;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
+  .nt-macro-bar { height: 3px; border-radius: 3px; background: rgba(255,255,255,0.06); overflow: hidden; }
+  .nt-macro-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+  .nt-macro-fill.green { background: var(--nt-green); }
+  .nt-macro-fill.blue { background: var(--nt-blue); }
+  .nt-macro-fill.orange { background: var(--nt-orange); }
 
-    .progress-fill {
-        height: 100%;
-        background: linear-gradient(90deg, #3b82f6, #60a5fa);
-        border-radius: 20px;
-        transition: width 1s cubic-bezier(0.17, 0.67, 0.83, 0.67);
-        box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
-    }
+  /* Fuel logs */
+  .nt-logs { background: var(--nt-card); border: 1.5px solid var(--nt-card-border); border-radius: var(--nt-radius); padding: 28px; margin-bottom: 16px; }
+  .nt-logs-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .nt-logs-title { font-size: 16px; font-weight: 600; color: var(--nt-text); }
+  .nt-add-entry {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--nt-gold); font-size: 13px; font-weight: 700;
+    cursor: pointer; background: none; border: none; font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+  .nt-add-entry:hover { opacity: 0.8; }
 
-    .water-buttons {
-        display: flex;
-        gap: 1.2rem;
-        margin-top: 1.5rem;
-    }
+  /* Log items */
+  .nt-log-list { display: flex; flex-direction: column; gap: 12px; }
+  .nt-log-item {
+    background: rgba(255,255,255,0.02); border: 1.5px solid rgba(255,255,255,0.05);
+    border-radius: 14px; padding: 18px 20px; display: flex; align-items: center; gap: 16px;
+    transition: all 0.25s;
+  }
+  .nt-log-item:hover { border-color: rgba(255,255,255,0.1); transform: translateX(4px); }
 
-    .water-btn {
-        padding: 0.8rem 1.5rem;
-        border: 1px solid var(--grey);
-        border-radius: 12px;
-        background: var(--item-bg);
-        color: var(--text-light);
-        font-weight: 700;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: var(--transition);
-    }
+  .nt-log-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+  }
+  .nt-log-icon.breakfast { background: rgba(201,169,110,0.1); color: var(--nt-gold); }
+  .nt-log-icon.lunch { background: rgba(94,170,94,0.1); color: var(--nt-green); }
+  .nt-log-icon.dinner { background: rgba(90,154,192,0.1); color: var(--nt-blue); }
+  .nt-log-icon.snack { background: rgba(200,154,94,0.1); color: var(--nt-orange); }
 
-    .water-btn:hover {
-        background: var(--gold);
-        color: var(--black);
-        border-color: var(--gold);
-        transform: translateY(-2px);
-    }
+  .nt-log-body { flex: 1; }
+  .nt-log-name { font-size: 14px; font-weight: 600; color: var(--nt-text); margin-bottom: 6px; }
+  .nt-log-pills { display: flex; gap: 6px; }
+  .nt-lpill { padding: 2px 8px; border-radius: 5px; font-size: 10px; font-weight: 700; }
+  .nt-lpill.p { background: rgba(94,170,94,0.12); color: var(--nt-green); }
+  .nt-lpill.c { background: rgba(90,154,192,0.12); color: var(--nt-blue); }
+  .nt-lpill.f { background: rgba(200,154,94,0.12); color: var(--nt-orange); }
 
-    .daily-goal-display {
-        text-align: center;
-        padding: 1.5rem 0;
-    }
+  .nt-log-kcal { text-align: right; flex-shrink: 0; }
+  .nt-log-kcal-val { font-size: 20px; font-weight: 700; color: var(--nt-text); }
+  .nt-log-kcal-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--nt-text-muted); }
 
-    .goal-value {
-        font-size: 3.5rem;
-        font-weight: 900;
-        color: var(--gold);
-        margin-bottom: 0.5rem;
-        font-family: var(--font-heading);
-    }
+  /* Empty logs */
+  .nt-logs-empty { text-align: center; padding: 40px 20px; }
+  .nt-logs-empty i { font-size: 36px; color: rgba(255,255,255,0.08); margin-bottom: 16px; display: block; }
+  .nt-logs-empty p { color: var(--nt-text-muted); font-size: 14px; margin: 2px 0; }
 
-    .goal-label {
-        color: var(--text-muted);
-        font-size: 1rem;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        font-weight: 600;
-    }
+  /* Bottom CTA */
+  .nt-log-btn {
+    width: 100%; padding: 16px; border-radius: 14px;
+    background: transparent; border: 1.5px solid rgba(255,255,255,0.1);
+    color: var(--nt-text); font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.25s;
+  }
+  .nt-log-btn:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.2); }
 
-    .goal-divider {
-        margin: 2rem 0;
-        padding-top: 2rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-    }
+  /* Modal */
+  .nt-modal-overlay {
+    display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); overflow-y: auto; padding: 2rem 0;
+  }
+  .nt-modal {
+    width: 520px; margin: 4vh auto; background: #1A1A1A;
+    border: 1.5px solid var(--nt-gold-border); border-radius: var(--nt-radius); padding: 32px; position: relative;
+  }
+  .nt-modal-close {
+    position: absolute; right: 16px; top: 16px; background: none; border: none;
+    font-size: 22px; cursor: pointer; color: var(--nt-text-muted); transition: 0.2s;
+  }
+  .nt-modal-close:hover { color: var(--nt-text); }
+  .nt-modal-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 500; color: var(--nt-text); margin-bottom: 24px; }
+  .nt-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .nt-form-full { grid-column: 1 / -1; }
+  .nt-form-lbl { display: block; font-size: 11px; font-weight: 700; color: var(--nt-text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .nt-form-input {
+    width: 100%; padding: 11px 14px; border-radius: 10px;
+    border: 1.5px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04);
+    color: var(--nt-text); font-family: 'DM Sans', sans-serif; font-size: 14px; transition: all 0.2s;
+    box-sizing: border-box;
+  }
+  .nt-form-input:focus { outline: none; border-color: var(--nt-gold-border); background: rgba(255,255,255,0.06); }
+  .nt-form-submit {
+    width: 100%; padding: 14px; border-radius: 12px; margin-top: 8px;
+    background: var(--nt-gold-bg); border: 1.5px solid var(--nt-gold-border);
+    color: var(--nt-gold); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: all 0.25s;
+  }
+  .nt-form-submit:hover { background: rgba(201,169,110,0.2); }
 
-    .consumed-value {
-        font-size: 2rem;
-        font-weight: 800;
-        color: var(--text-primary);
-        margin-bottom: 0.3rem;
-    }
-
-    .macro-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 2rem;
-        margin-bottom: 3rem;
-    }
-
-    .macro-card {
-        background: var(--card-bg);
-        backdrop-filter: blur(12px);
-        padding: 2.5rem;
-        border-radius: 20px;
-        border: 1px solid var(--card-border);
-        text-align: center;
-        transition: var(--transition);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .macro-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: var(--gold);
-        opacity: 0;
-        transition: var(--transition);
-    }
-
-    .macro-card:hover::before {
-        opacity: 1;
-    }
-
-    .macro-card:hover {
-        border-color: rgba(79, 70, 229, 0.3);
-        transform: translateY(-8px);
-    }
-
-    .macro-icon {
-        width: 80px;
-        height: 80px;
-        border-radius: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1.5rem;
-        font-size: 2.2rem;
-        transition: var(--transition);
-    }
-
-    .macro-icon.calories {
-        background: rgba(79, 70, 229, 0.1);
-        color: var(--gold);
-    }
-
-    .macro-icon.protein {
-        background: rgba(255, 77, 77, 0.1);
-        color: var(--danger);
-    }
-
-    .macro-icon.carbs {
-        background: rgba(0, 204, 102, 0.1);
-        color: var(--success);
-    }
-
-    .macro-value {
-        font-size: 2.5rem;
-        font-weight: 900;
-        margin-bottom: 0.5rem;
-        color: var(--text-primary);
-        font-family: var(--font-heading);
-    }
-
-    .macro-label {
-        color: var(--gold);
-        font-size: 0.9rem;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        font-weight: 800;
-    }
-
-    .remaining-tag {
-        margin-top: 1.5rem;
-        padding: 0.5rem 1rem;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 50px;
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        display: inline-block;
-    }
-
-    .meal-log {
-        background: var(--card-bg);
-        backdrop-filter: blur(12px);
-        padding: 2.5rem;
-        border-radius: 20px;
-        border: 1px solid var(--card-border);
-    }
-
-    .meal-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 2rem;
-        background: var(--item-bg);
-        border-radius: 16px;
-        margin-bottom: 1.5rem;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        transition: var(--transition);
-    }
-
-    .meal-item:hover {
-        border-color: var(--gold);
-        transform: scale(1.01);
-    }
-
-    .meal-info h4 {
-        margin: 0 0 0.8rem 0;
-        font-size: 1.2rem;
-        color: var(--gold);
-        font-family: var(--font-main);
-    }
-
-    .meal-stats {
-        display: flex;
-        gap: 1.5rem;
-        color: var(--text-muted);
-        font-size: 0.9rem;
-    }
-
-    .stat-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .stat-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-    }
-
-    .meal-calories {
-        font-size: 1.8rem;
-        font-weight: 900;
-        color: var(--text-primary);
-        font-family: var(--font-heading);
-    }
-
-    .add-meal-btn {
-        width: 100%;
-        padding: 1.2rem;
-        background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-        color: var(--black);
-        border: none;
-        border-radius: 15px;
-        font-weight: 900;
-        font-size: 1.1rem;
-        cursor: pointer;
-        transition: var(--transition);
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        font-family: var(--font-heading);
-        margin-top: 1rem;
-    }
-
-    .add-meal-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 30px rgba(79, 70, 229, 0.4);
-    }
-
-    /* Modal Styling */
-    .modal-content {
-        background: var(--dark-grey) !important;
-        border: 1px solid var(--gold) !important;
-        box-shadow: 0 0 50px rgba(0, 0, 0, 0.8) !important;
-    }
-
-    .form-input {
-        background: rgba(255, 255, 255, 0.05) !important;
-        border: 1px solid var(--grey) !important;
-        color: var(--white) !important;
-        padding: 1rem !important;
-        border-radius: 10px !important;
-        transition: var(--transition);
-    }
-
-    .form-input:focus {
-        border-color: var(--gold) !important;
-        background: rgba(79, 70, 229, 0.05) !important;
-        outline: none;
-    }
+  @media (max-width: 768px) {
+    .nut-page { padding: 24px 20px 60px; }
+    .nt-title { font-size: 28px; }
+    .nt-top-grid { grid-template-columns: 1fr; }
+    .nt-macro-grid { grid-template-columns: 1fr; }
+    .nt-modal { width: 90%; }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<main class="main-wrapper">
+<div class="nut-page">
+
+  <!-- Top bar -->
+  <div class="nt-topbar">
     {% if user.is_authenticated and user.userprofile.role == 'admin' %}
-    <a href="{% url 'admin_dashboard' %}" class="back-btn">
-        {% elif user.is_authenticated and user.userprofile.role == 'trainer' %}
-        <a href="{% url 'trainer_dashboard' %}" class="back-btn">
-            {% else %}
-            <a href="{% url 'user_dashboard' %}" class="back-btn">
-                {% endif %}
-                <i class="fa-solid fa-arrow-left"></i> RETURN TO PORTAL
-            </a>
-            <header class="page-header">
-                <h1 class="page-title">Elite Nutrition Tracker</h1>
-                <p class="page-subtitle">Precision fuel monitoring for elite performance.</p>
-            </header>
+    <a href="{% url 'admin_dashboard' %}" class="nt-back"><i class="fa-solid fa-chevron-left"></i> Return to portal</a>
+    {% elif user.is_authenticated and user.userprofile.role == 'trainer' %}
+    <a href="{% url 'trainer_dashboard' %}" class="nt-back"><i class="fa-solid fa-chevron-left"></i> Return to portal</a>
+    {% else %}
+    <a href="{% url 'user_dashboard' %}" class="nt-back"><i class="fa-solid fa-chevron-left"></i> Return to portal</a>
+    {% endif %}
+    <div class="nt-date-badge">{% now "l, M d" %}</div>
+  </div>
 
-            <div class="tracker-grid">
-                <div class="tracker-card">
-                    <h2 class="card-title"><i class="fa-solid fa-droplet"></i> Hydration Protocol</h2>
-                    <div class="water-tracker">
-                        <div class="water-icon"><i class="fa-solid fa-droplet"></i></div>
-                        <div class="water-progress">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem;">
-                                <span style="font-weight: 700; color: var(--white); font-size: 1.1rem;" id="waterText">
-                                    {{ nutrition_stats.water_glasses|default:0 }} / 8 glasses
-                                </span>
-                                <span style="color: var(--gold); font-weight: 600;" id="waterPercent">
-                                    {{ nutrition_stats.water|default:0 }}% Complete
-                                </span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" id="waterFill"
-                                    data-percent="{{ nutrition_stats.water|default:0 }}"></div>
-                            </div>
-                            <div class="water-buttons">
-                                <button class="water-btn" onclick="addWater(250)">+ 250ml</button>
-                                <button class="water-btn" onclick="addWater(500)">+ 500ml</button>
-                                <button class="water-btn" onclick="addWater(1000)">+ 1L</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  <!-- Header -->
+  <div class="nt-label">Nutrition</div>
+  <h1 class="nt-title">Elite nutrition tracker</h1>
+  <p class="nt-subtitle">Precision fuel monitoring for elite performance.</p>
 
-                <div class="tracker-card">
-                    <h2 class="card-title"><i class="fa-solid fa-bullseye"></i> Daily Objective</h2>
-                    <div class="daily-goal-display">
-                        <div class="goal-value">2,000</div>
-                        <div class="goal-label">Calories / Day</div>
+  <!-- Top 2-col: Calories + Hydration -->
+  <div class="nt-top-grid">
 
-                        <div class="goal-divider">
-                            <div class="consumed-value">{{ totals.calories|default:0 }}</div>
-                            <div class="goal-label" style="font-size: 0.8rem;">Consumed Today</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- Calorie Ring -->
+    <div class="nt-card nt-cal-card">
+      {% with consumed=totals.calories|default:0 goal=2000 %}
+      <div class="nt-ring-wrap">
+        <svg class="nt-ring-svg" viewBox="0 0 100 100">
+          <circle class="nt-ring-bg" cx="50" cy="50" r="42" />
+          <circle class="nt-ring-fill" cx="50" cy="50" r="42"
+                  stroke-dasharray="264"
+                  stroke-dashoffset="264"
+                  id="calRing" />
+        </svg>
+        <div class="nt-ring-text">
+          <span class="nt-ring-pct" id="calPct">0%</span>
+          <span class="nt-ring-lbl">Done</span>
+        </div>
+      </div>
 
-            <div class="macro-grid">
-                <div class="macro-card">
-                    <div class="macro-icon calories"><i class="fa-solid fa-fire"></i></div>
-                    <div class="macro-value">{{ totals.calories|default:0 }}</div>
-                    <div class="macro-label">Total Calories</div>
-                    <div class="remaining-tag">{{ remaining.calories|default:0 }} kcal remaining</div>
-                </div>
-                <div class="macro-card">
-                    <div class="macro-icon protein"><i class="fa-solid fa-drumstick-bite"></i></div>
-                    <div class="macro-value">{{ totals.protein|default:0 }}g</div>
-                    <div class="macro-label">Protein Intake</div>
-                    <div class="remaining-tag">{{ remaining.protein|default:0 }}g remaining</div>
-                </div>
-                <div class="macro-card">
-                    <div class="macro-icon carbs"><i class="fa-solid fa-bread-slice"></i></div>
-                    <div class="macro-value">{{ totals.carbs|default:0 }}g</div>
-                    <div class="macro-label">Carbohydrates</div>
-                    <div class="remaining-tag">{{ remaining.carbs|default:0 }}g remaining</div>
-                </div>
-            </div>
+      <div class="nt-cal-info">
+        <div class="nt-cal-label">Calories Today</div>
+        <div class="nt-cal-row">
+          <span class="nt-cal-big">{{ consumed }}</span>
+          <span class="nt-cal-of">/ {{ goal }}</span>
+        </div>
+        <div class="nt-cal-remain">{{ remaining.calories|default:0 }} kcal remaining</div>
+      </div>
+      {% endwith %}
+    </div>
 
-            <div class="meal-log">
-                <h2 class="card-title" style="margin-bottom: 2.5rem;"><i class="fa-solid fa-utensils"></i> Physiological
-                    Fuel Logs</h2>
+    <!-- Hydration -->
+    <div class="nt-card">
+      <div class="nt-hydro-head">
+        <div class="nt-hydro-title">Hydration protocol</div>
+        <span class="nt-hydro-pct" id="hydroPct">{{ nutrition_stats.water|default:0 }}%</span>
+      </div>
 
-                {% for log in daily_logs %}
-                <div class="meal-item">
-                    <div class="meal-info">
-                        <h4>{{ log.meal_type }} - {{ log.food_item }}</h4>
-                        {% with p=log.protein c=log.carbs f=log.fats %}
-                        <div class="meal-stats">
-                            <div class="stat-item"><span class="stat-dot" style="background: var(--danger);"></span>
-                                {{ p }}g Protein
-                            </div>
-                            <div class="stat-item"><span class="stat-dot" style="background: var(--success);"></span>
-                                {{ c }}g Carbs
-                            </div>
-                            <div class="stat-item"><span class="stat-dot" style="background: var(--gold);"></span>
-                                {{ f }}g Fats
-                            </div>
-                        </div>
-                        {% endwith %}
-                    </div>
-                    <div class="meal-calories">{{ log.calories }} <span
-                            style="font-size: 0.9rem; color: var(--text-muted);">CAL</span></div>
-                </div>
-                {% empty %}
-                <div
-                    style="text-align: center; padding: 4rem; color: var(--text-muted); border: 2px dashed var(--grey); border-radius: 20px;">
-                    <i class="fa-solid fa-clipboard-list"
-                        style="font-size: 3rem; margin-bottom: 1.5rem; opacity: 0.3;"></i>
-                    <p style="font-size: 1.1rem;">No nutritional data logged for the current cycle.</p>
-                </div>
-                {% endfor %}
+      <div class="nt-glasses" id="glassesRow">
+        {% for i in "12345678" %}
+        <div class="nt-glass {% if forloop.counter <= nutrition_stats.water_glasses|default:0 %}filled{% else %}empty{% endif %}">
+          <i class="fa-solid fa-glass-water"></i>
+        </div>
+        {% endfor %}
+      </div>
 
-                <button class="add-meal-btn" onclick="document.getElementById('mealModal').style.display='block'">
-                    <i class="fa-solid fa-plus"></i> Initialize Logging Sequence
-                </button>
-            </div>
+      <div class="nt-hydro-stat" id="waterStat">
+        <strong>{{ nutrition_stats.water_glasses|default:0 }} / 8</strong> glasses — {% if nutrition_stats.water_glasses|default:0 >= 8 %}target met{% else %}in progress{% endif %}
+      </div>
 
-            <!-- Meal Form Modal -->
-            <div id="mealModal"
-                style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(10px); overflow-y: auto; padding: 2rem 0;">
-                <div class="tracker-card"
-                    style="width:550px; margin:2vh auto; position:relative; border: 1px solid var(--gold); padding: 1.5rem 2rem;">
-                    <button onclick="document.getElementById('mealModal').style.display='none'"
-                        style="position:absolute; right:1rem; top:1rem; background:none; border:none; font-size:1.8rem; cursor:pointer; color:var(--text-muted); transition: 0.3s;"
-                        onmouseover="this.style.color='var(--gold)'"
-                        onmouseout="this.style.color='var(--text-muted)'">&times;</button>
-                    <h2 class="card-title"
-                        style="font-size: 1.6rem; border-bottom: 1px solid var(--grey); padding-bottom: 0.8rem; margin-bottom: 1.5rem;">
-                        New Fuel Log</h2>
-                    <form method="post">
-                        {% csrf_token %}
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-                            <div style="grid-column: 1 / -1;" class="form-group">
-                                <label
-                                    style="display:block; margin-bottom:0.4rem; font-size:0.9rem; color:var(--gold);">Food
-                                    Item Description</label>
-                                <input type="text" name="food_item" required class="form-input" style="width:100%;"
-                                    placeholder="e.g. Grilled Salmon with Asparagus">
-                            </div>
-                            <div class="form-group">
-                                <label
-                                    style="display:block; margin-bottom:0.4rem; font-size:0.9rem; color:var(--gold);">Classification</label>
-                                <select name="meal_type" class="form-input" style="width:100%;">
-                                    <option>Breakfast</option>
-                                    <option>Lunch</option>
-                                    <option>Dinner</option>
-                                    <option>Snack</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label
-                                    style="display:block; margin-bottom:0.4rem; font-size:0.9rem; color:var(--gold);">Energy
-                                    (kcal)</label>
-                                <input type="number" name="calories" required class="form-input" style="width:100%;">
-                            </div>
-                            <div class="form-group">
-                                <label
-                                    style="display:block; margin-bottom:0.4rem; font-size:0.9rem; color:var(--gold);">Protein
-                                    (g)</label>
-                                <input type="number" name="protein" required class="form-input" style="width:100%;">
-                            </div>
-                            <div class="form-group">
-                                <label
-                                    style="display:block; margin-bottom:0.4rem; font-size:0.9rem; color:var(--gold);">Carbohydrates
-                                    (g)</label>
-                                <input type="number" name="carbs" required class="form-input" style="width:100%;">
-                            </div>
-                            <div class="form-group">
-                                <label
-                                    style="display:block; margin-bottom:0.4rem; font-size:0.9rem; color:var(--gold);">Lipids/Fats
-                                    (g)</label>
-                                <input type="number" name="fats" required class="form-input" style="width:100%;">
-                            </div>
-                            <input type="hidden" name="date" value="{% now 'Y-m-d' %}">
-                        </div>
-                        <button type="submit" class="add-meal-btn" style="margin-top: 1.5rem; padding: 0.9rem;">Transmit
-                            to Database</button>
-                    </form>
-                </div>
-            </div>
-</main>
+      <div class="nt-water-btns">
+        <button class="nt-water-btn" onclick="addWater(250)">+ 250ml</button>
+        <button class="nt-water-btn" onclick="addWater(500)">+ 500ml</button>
+        <button class="nt-water-btn" onclick="addWater(1000)">+ 1L</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Macro cards -->
+  <div class="nt-macro-grid">
+    <div class="nt-macro">
+      <div class="nt-macro-head">
+        <span class="nt-macro-name">Protein</span>
+        <span class="nt-macro-pct green" id="protPct">0%</span>
+      </div>
+      <div class="nt-macro-val">{{ totals.protein|default:0 }}g</div>
+      <div class="nt-macro-sub">of 150g daily</div>
+      <div class="nt-macro-bar"><div class="nt-macro-fill green" id="protBar" style="width:0%"></div></div>
+    </div>
+
+    <div class="nt-macro">
+      <div class="nt-macro-head">
+        <span class="nt-macro-name">Carbs</span>
+        <span class="nt-macro-pct blue" id="carbPct">0%</span>
+      </div>
+      <div class="nt-macro-val">{{ totals.carbs|default:0 }}g</div>
+      <div class="nt-macro-sub">of 250g daily</div>
+      <div class="nt-macro-bar"><div class="nt-macro-fill blue" id="carbBar" style="width:0%"></div></div>
+    </div>
+
+    <div class="nt-macro">
+      <div class="nt-macro-head">
+        <span class="nt-macro-name">Fat</span>
+        <span class="nt-macro-pct orange" id="fatPct">0%</span>
+      </div>
+      <div class="nt-macro-val">{{ totals.fats|default:0 }}g</div>
+      <div class="nt-macro-sub">of 65g daily</div>
+      <div class="nt-macro-bar"><div class="nt-macro-fill orange" id="fatBar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- Fuel Logs -->
+  <div class="nt-logs">
+    <div class="nt-logs-head">
+      <span class="nt-logs-title">Fuel logs</span>
+      <button class="nt-add-entry" onclick="document.getElementById('mealModal').style.display='block'">
+        <i class="fa-solid fa-plus"></i> Add entry
+      </button>
+    </div>
+
+    <div class="nt-log-list">
+      {% for log in daily_logs %}
+      <div class="nt-log-item">
+        <div class="nt-log-icon {% if 'breakfast' in log.meal_type|lower %}breakfast{% elif 'lunch' in log.meal_type|lower %}lunch{% elif 'dinner' in log.meal_type|lower %}dinner{% else %}snack{% endif %}">
+          {% if 'breakfast' in log.meal_type|lower %}
+            <i class="fa-solid fa-mug-hot"></i>
+          {% elif 'lunch' in log.meal_type|lower %}
+            <i class="fa-solid fa-bowl-food"></i>
+          {% elif 'dinner' in log.meal_type|lower %}
+            <i class="fa-solid fa-utensils"></i>
+          {% else %}
+            <i class="fa-solid fa-cookie-bite"></i>
+          {% endif %}
+        </div>
+        <div class="nt-log-body">
+          <div class="nt-log-name">{{ log.meal_type }} — {{ log.food_item }}</div>
+          <div class="nt-log-pills">
+            <span class="nt-lpill p">{{ log.protein }}g P</span>
+            <span class="nt-lpill c">{{ log.carbs }}g C</span>
+            <span class="nt-lpill f">{{ log.fats }}g F</span>
+          </div>
+        </div>
+        <div class="nt-log-kcal">
+          <div class="nt-log-kcal-val">{{ log.calories }}</div>
+          <div class="nt-log-kcal-lbl">Kcal</div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="nt-logs-empty">
+        <i class="fa-solid fa-clipboard-list"></i>
+        <p>No entries logged today</p>
+        <p style="font-size:12px;">Tap "Add entry" to log your first meal</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Bottom CTA -->
+  <button class="nt-log-btn" onclick="document.getElementById('mealModal').style.display='block'">
+    Initialize logging sequence
+  </button>
+
+  <!-- Modal -->
+  <div id="mealModal" class="nt-modal-overlay">
+    <div class="nt-modal">
+      <button class="nt-modal-close" onclick="document.getElementById('mealModal').style.display='none'">&times;</button>
+      <div class="nt-modal-title">New Fuel Log</div>
+      <form method="post">
+        {% csrf_token %}
+        <div class="nt-form-grid">
+          <div class="nt-form-full">
+            <label class="nt-form-lbl">Food Item</label>
+            <input type="text" name="food_item" required class="nt-form-input" placeholder="e.g. Grilled Salmon">
+          </div>
+          <div>
+            <label class="nt-form-lbl">Meal Type</label>
+            <select name="meal_type" class="nt-form-input">
+              <option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option>
+            </select>
+          </div>
+          <div>
+            <label class="nt-form-lbl">Calories</label>
+            <input type="number" name="calories" required class="nt-form-input">
+          </div>
+          <div>
+            <label class="nt-form-lbl">Protein (g)</label>
+            <input type="number" name="protein" required class="nt-form-input">
+          </div>
+          <div>
+            <label class="nt-form-lbl">Carbs (g)</label>
+            <input type="number" name="carbs" required class="nt-form-input">
+          </div>
+          <div>
+            <label class="nt-form-lbl">Fat (g)</label>
+            <input type="number" name="fats" required class="nt-form-input">
+          </div>
+          <input type="hidden" name="date" value="{% now 'Y-m-d' %}">
+          <div class="nt-form-full">
+            <button type="submit" class="nt-form-submit">Log Entry</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
 
 <script>
-    async function addWater(amount) {
-        try {
-            const response = await fetch('/api/nutrition/water/add/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: JSON.stringify({ amount: amount })
-            });
-            const data = await response.json();
-            if (data.status === 'success') {
-                const totalMl = data.new_total;
-                const glasses = Math.round(totalMl / 250);
-                const percent = Math.min(Math.round(totalMl / 20), 100);
+  // Calorie ring animation
+  document.addEventListener('DOMContentLoaded', () => {
+    const consumed = {{ totals.calories|default:0 }};
+    const goal = 2000;
+    const pct = Math.min(Math.round((consumed / goal) * 100), 100);
+    const circumference = 264;
+    const offset = circumference - (pct / 100) * circumference;
 
-                document.getElementById('waterText').innerText = `${glasses} / 8 glasses`;
-                document.getElementById('waterPercent').innerText = `${percent}% Complete`;
-                const fill = document.getElementById('waterFill');
-                if (fill) fill.style.width = `${percent}%`;
-            }
-        } catch (error) {
-            console.error('Error adding water:', error);
-            alert('Functional failure in neural uplink. Please retry hydration sequence.');
-        }
+    const ring = document.getElementById('calRing');
+    if (ring) {
+      setTimeout(() => { ring.style.strokeDashoffset = offset; }, 100);
     }
+    const pctEl = document.getElementById('calPct');
+    if (pctEl) pctEl.textContent = pct + '%';
 
-    // Set initial hydration state
-    document.addEventListener('DOMContentLoaded', () => {
-        const fill = document.getElementById('waterFill');
-        if (fill) {
-            const percent = fill.getAttribute('data-percent') || 0;
-            fill.style.width = percent + '%';
-        }
-    });
+    // Macro bars
+    const protein = {{ totals.protein|default:0 }};
+    const carbs = {{ totals.carbs|default:0 }};
+    const fats = {{ totals.fats|default:0 }};
+
+    const protPct = Math.min(Math.round((protein / 150) * 100), 100);
+    const carbPct = Math.min(Math.round((carbs / 250) * 100), 100);
+    const fatPct = Math.min(Math.round((fats / 65) * 100), 100);
+
+    document.getElementById('protPct').textContent = protPct + '%';
+    document.getElementById('carbPct').textContent = carbPct + '%';
+    document.getElementById('fatPct').textContent = fatPct + '%';
+
+    setTimeout(() => {
+      document.getElementById('protBar').style.width = protPct + '%';
+      document.getElementById('carbBar').style.width = carbPct + '%';
+      document.getElementById('fatBar').style.width = fatPct + '%';
+    }, 200);
+  });
+
+  // Hydration
+  async function addWater(amount) {
+    try {
+      const response = await fetch('/api/nutrition/water/add/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+        body: JSON.stringify({ amount: amount })
+      });
+      const data = await response.json();
+      if (data.status === 'success') {
+        const totalMl = data.new_total;
+        const glasses = Math.round(totalMl / 250);
+        const percent = Math.min(Math.round(totalMl / 20), 100);
+
+        document.getElementById('hydroPct').textContent = percent + '%';
+        document.getElementById('waterStat').innerHTML =
+          `<strong>${glasses} / 8</strong> glasses — ${glasses >= 8 ? 'target met' : 'in progress'}`;
+
+        const row = document.getElementById('glassesRow');
+        const glassEls = row.querySelectorAll('.nt-glass');
+        glassEls.forEach((g, i) => {
+          g.className = 'nt-glass ' + (i < glasses ? 'filled' : 'empty');
+        });
+      }
+    } catch (error) {
+      console.error('Error adding water:', error);
+    }
+  }
 </script>
 {% endblock %}

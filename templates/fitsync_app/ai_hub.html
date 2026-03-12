@@ -1,347 +1,258 @@
 {% extends 'fitsync_app/base.html' %}
 {% load static %}
 
-{% block title %}Neural Hub | FitSync Elite{% endblock %}
+{% block title %}Neural Hub | FitSync{% endblock %}
 
 {% block header %}{% endblock %}
 {% block footer %}{% endblock %}
 
 {% block extra_css %}
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@700&display=swap" rel="stylesheet">
 <style>
-    :root {
-        --hub-bg: #0a0a0f;
-        --hub-card: #13131a;
-        --hub-accent: #4F46E5;
-        --hub-purple: #8B5CF6;
-        --hub-emerald: #10B981;
-        --hub-cyan: #00e5ff;
-        --hub-orange: #f97316;
-        --hub-pink: #ec4899;
-    }
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
 
-    body {
-        background-color: var(--hub-bg);
-        color: #e0e0e0;
-        font-family: 'Space Grotesk', sans-serif;
-        margin: 0;
-    }
+  :root {
+    --ai-bg: #0E0E0E;
+    --ai-card: #181818;
+    --ai-card-border: rgba(255,255,255,0.06);
+    --ai-text: #E8E4DF;
+    --ai-text-soft: #8A8580;
+    --ai-text-muted: #4A4540;
+    --ai-gold: #C9A96E;
+    --ai-gold-bg: rgba(201,169,110,0.10);
+    --ai-gold-border: rgba(201,169,110,0.35);
+    --ai-green: #8AAF5A;
+    --ai-green-bg: rgba(138,175,90,0.12);
+    --ai-green-border: rgba(138,175,90,0.3);
+    --ai-purple: #9A80C0;
+    --ai-blue: #5A9AC0;
+    --ai-orange: #C99A5E;
+    --ai-pink: #C07AAA;
+    --ai-red: #C87A6A;
+    --ai-cyan: #5ABAC0;
+    --ai-radius: 18px;
+  }
 
-    .hub-wrapper {
-        margin: 0 auto;
-        max-width: 1300px;
-        padding: 3rem 2rem 5rem;
-    }
+  body { background:var(--ai-bg)!important; color:var(--ai-text)!important; font-family:'DM Sans',sans-serif!important; margin:0; min-height:100vh; }
 
-    .back-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.8rem;
-        color: #666;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.9rem;
-        margin-bottom: 2.5rem;
-        transition: 0.3s;
-    }
+  .ai-page { max-width:960px; margin:0 auto; padding:48px 40px 80px; animation:aiFade 0.6s ease both; }
+  @keyframes aiFade { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
 
-    .back-btn:hover {
-        color: var(--hub-accent);
-        transform: translateX(-5px);
-    }
+  /* Top bar */
+  .ai-topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:36px; }
+  .ai-back { display:inline-flex; align-items:center; gap:10px; color:var(--ai-text-soft); font-size:13px; font-weight:500; padding:10px 22px; border-radius:50px; border:1.5px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.03); text-decoration:none; transition:all 0.25s; }
+  .ai-back:hover { color:var(--ai-text); border-color:rgba(255,255,255,0.15); }
+  .ai-platform-badge { display:inline-flex; align-items:center; gap:8px; color:var(--ai-purple); font-size:12px; font-weight:700; padding:8px 18px; border-radius:50px; border:1.5px solid rgba(154,128,192,0.3); background:rgba(154,128,192,0.08); }
+  .ai-platform-dot { width:6px; height:6px; border-radius:50%; background:var(--ai-green); }
 
-    .hub-header {
-        text-align: center;
-        margin-bottom: 4rem;
-    }
+  /* Header */
+  .ai-header { text-align:center; margin-bottom:42px; }
+  .ai-title { font-family:'Playfair Display',serif; font-size:42px; font-weight:500; color:var(--ai-text); margin:0 0 14px; }
+  .ai-title span { color:var(--ai-purple); }
+  .ai-subtitle { font-size:15px; color:var(--ai-text-muted); font-style:italic; }
 
-    .hub-tag {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.4rem 1rem;
-        border-radius: 50px;
-        background: rgba(79, 70, 229, 0.1);
-        border: 1px solid rgba(79, 70, 229, 0.2);
-        color: var(--hub-accent);
-        font-size: 0.8rem;
-        font-weight: 700;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        margin-bottom: 1.5rem;
-    }
+  /* Section labels */
+  .ai-section-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:2.5px; color:var(--ai-text-muted); margin-bottom:16px; }
 
-    .hub-title {
-        font-family: 'Inter', serif;
-        font-size: clamp(2rem, 5vw, 3.5rem);
-        color: var(--hub-accent);
-        margin: 0 0 0.75rem;
-        letter-spacing: 2px;
-    }
+  /* Core grid - 3 cols */
+  .ai-core-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:36px; }
 
-    .hub-subtitle {
-        color: #555;
-        font-size: 1rem;
-        margin: 0;
-    }
+  /* Core card */
+  .ai-core-card {
+    background:var(--ai-card); border:1.5px solid var(--ai-card-border);
+    border-radius:var(--ai-radius); padding:24px; text-decoration:none; color:inherit;
+    display:flex; flex-direction:column; transition:all 0.3s; position:relative;
+  }
+  .ai-core-card:hover { border-color:rgba(255,255,255,0.12); transform:translateY(-4px); }
+  .ai-core-card.active-card { border-color:rgba(154,128,192,0.4); }
 
-    /* Section Headers */
-    .section-label {
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 3px;
-        color: #444;
-        font-weight: 700;
-        margin-bottom: 1.25rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
+  .ai-core-head { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:18px; }
+  .ai-core-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:18px; }
+  .ai-core-icon.purple { background:rgba(154,128,192,0.1); color:var(--ai-purple); border:1px solid rgba(154,128,192,0.2); }
+  .ai-core-icon.gold { background:var(--ai-gold-bg); color:var(--ai-gold); border:1px solid var(--ai-gold-border); }
+  .ai-core-icon.green { background:var(--ai-green-bg); color:var(--ai-green); border:1px solid var(--ai-green-border); }
 
-    .section-label::after {
-        content: '';
-        flex-grow: 1;
-        height: 1px;
-        background: rgba(255,255,255,0.04);
-    }
+  .ai-badge { padding:4px 12px; border-radius:50px; font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:1px; }
+  .ai-badge.active { background:rgba(154,128,192,0.12); color:var(--ai-purple); border:1px solid rgba(154,128,192,0.25); }
+  .ai-badge.unlocked { background:var(--ai-green-bg); color:var(--ai-green); border:1px solid var(--ai-green-border); }
+  .ai-badge.locked { background:rgba(200,122,106,0.12); color:var(--ai-red); border:1px solid rgba(200,122,106,0.25); }
 
-    /* Card Grid */
-    .hub-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
+  .ai-core-name { font-size:17px; font-weight:700; color:var(--ai-text); margin-bottom:8px; }
+  .ai-core-desc { font-size:13px; color:var(--ai-text-muted); line-height:1.6; flex:1; margin-bottom:18px; }
 
-    .hub-grid-5 {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
+  .ai-core-foot { display:flex; align-items:center; justify-content:space-between; }
+  .ai-core-link { font-size:13px; font-weight:600; transition:all 0.2s; }
+  .ai-core-link.purple { color:var(--ai-purple); }
+  .ai-core-link.gold { color:var(--ai-gold); }
+  .ai-core-link.green { color:var(--ai-green); }
+  .ai-core-arrow { font-size:14px; color:var(--ai-text-muted); }
+  .ai-status-dot { width:10px; height:10px; border-radius:50%; background:var(--ai-green); }
 
-    .hub-card {
-        background: var(--hub-card);
-        border: 1px solid rgba(255,255,255,0.06);
-        border-radius: 24px;
-        padding: 2rem 1.5rem;
-        text-align: center;
-        text-decoration: none;
-        color: inherit;
-        transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        position: relative;
-        overflow: hidden;
-        display: block;
-    }
+  /* Advanced grid - 4 cols */
+  .ai-adv-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
 
-    .hub-card::before {
-        content: '';
-        position: absolute;
-        top: -80px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 200px;
-        height: 200px;
-        border-radius: 50%;
-        opacity: 0;
-        transition: 0.4s;
-        pointer-events: none;
-    }
+  .ai-adv-card {
+    background:var(--ai-card); border:1.5px solid var(--ai-card-border);
+    border-radius:var(--ai-radius); padding:22px; text-decoration:none; color:inherit;
+    display:flex; flex-direction:column; transition:all 0.3s;
+  }
+  .ai-adv-card:hover { border-color:rgba(255,255,255,0.12); transform:translateY(-4px); }
 
-    .hub-card:hover { transform: translateY(-12px); }
-    .hub-card:hover::before { opacity: 0.08; }
+  .ai-adv-head { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:16px; }
+  .ai-adv-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; }
+  .ai-adv-icon.blue { background:rgba(90,154,192,0.1); color:var(--ai-blue); border:1px solid rgba(90,154,192,0.2); }
+  .ai-adv-icon.green { background:var(--ai-green-bg); color:var(--ai-green); border:1px solid var(--ai-green-border); }
+  .ai-adv-icon.orange { background:rgba(201,154,94,0.1); color:var(--ai-orange); border:1px solid rgba(201,154,94,0.2); }
+  .ai-adv-icon.gold { background:var(--ai-gold-bg); color:var(--ai-gold); border:1px solid var(--ai-gold-border); }
+  .ai-adv-icon.pink { background:rgba(192,122,170,0.1); color:var(--ai-pink); border:1px solid rgba(192,122,170,0.2); }
 
-    /* Color per card */
-    .card-purple { --card-color: #8B5CF6; }
-    .card-gold { --card-color: #4F46E5; }
-    .card-emerald { --card-color: #10B981; }
-    .card-cyan { --card-color: #00e5ff; }
-    .card-orange { --card-color: #f97316; }
-    .card-pink { --card-color: #ec4899; }
-    .card-red { --card-color: #ef4444; }
-    .card-blue { --card-color: #3b82f6; }
+  .ai-adv-badge { padding:3px 10px; border-radius:50px; font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:0.8px; }
+  .ai-adv-badge.cv { background:rgba(154,128,192,0.12); color:var(--ai-purple); border:1px solid rgba(154,128,192,0.25); }
+  .ai-adv-badge.live { background:var(--ai-green-bg); color:var(--ai-green); border:1px solid var(--ai-green-border); }
+  .ai-adv-badge.vision { background:rgba(201,154,94,0.12); color:var(--ai-orange); border:1px solid rgba(201,154,94,0.25); }
+  .ai-adv-badge.gamified { background:rgba(192,122,170,0.12); color:var(--ai-pink); border:1px solid rgba(192,122,170,0.25); }
+  .ai-adv-badge.online { background:rgba(90,186,192,0.12); color:var(--ai-cyan); border:1px solid rgba(90,186,192,0.25); }
 
-    .hub-card:hover { border-color: var(--card-color, #4F46E5); box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 30px rgba(0,0,0,0.1); }
-    .hub-card::before { background: var(--card-color, #4F46E5); }
+  .ai-adv-name { font-size:15px; font-weight:700; color:var(--ai-text); margin-bottom:8px; }
+  .ai-adv-desc { font-size:12px; color:var(--ai-text-muted); line-height:1.6; flex:1; }
 
-    .hub-card-icon {
-        width: 64px;
-        height: 64px;
-        border-radius: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.6rem;
-        margin: 0 auto 1.25rem;
-        background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.06);
-        transition: 0.4s;
-        color: var(--card-color, #4F46E5);
-    }
+  .ai-adv-bar { height:3px; border-radius:3px; background:rgba(255,255,255,0.06); margin-top:16px; overflow:hidden; }
+  .ai-adv-fill { height:100%; border-radius:3px; }
+  .ai-adv-fill.blue { background:var(--ai-blue); }
+  .ai-adv-fill.green { background:var(--ai-green); }
+  .ai-adv-fill.orange { background:var(--ai-orange); }
+  .ai-adv-fill.gold { background:var(--ai-gold); }
+  .ai-adv-fill.pink { background:var(--ai-pink); }
 
-    .hub-card:hover .hub-card-icon {
-        background: rgba(255,255,255,0.08);
-        box-shadow: 0 0 30px rgba(0,0,0,0.2);
-        color: var(--card-color, #4F46E5);
-        transform: scale(1.1);
-    }
-
-    .hub-card h2 {
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin: 0 0 0.5rem;
-        color: #ddd;
-    }
-
-    .hub-card p {
-        color: #555;
-        font-size: 0.82rem;
-        line-height: 1.6;
-        margin: 0;
-    }
-
-    /* Badges */
-    .badge {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        padding: 4px 10px;
-        border-radius: 50px;
-        font-size: 0.65rem;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .badge-active {
-        background: rgba(16, 185, 129, 0.1);
-        color: #10b981;
-        border: 1px solid rgba(16, 185, 129, 0.2);
-    }
-
-    .badge-premium {
-        background: rgba(79, 70, 229, 0.1);
-        color: var(--hub-accent);
-        border: 1px solid rgba(79, 70, 229, 0.2);
-    }
-
-    .badge-locked {
-        background: rgba(239, 68, 68, 0.1);
-        color: #ef4444;
-        border: 1px solid rgba(239, 68, 68, 0.2);
-    }
-
-    .badge-new {
-        background: rgba(139, 92, 246, 0.1);
-        color: #8b5cf6;
-        border: 1px solid rgba(139, 92, 246, 0.2);
-    }
-
-    @media (max-width: 1100px) {
-        .hub-grid-5 { grid-template-columns: repeat(3, 1fr); }
-    }
-
-    @media (max-width: 900px) {
-        .hub-grid { grid-template-columns: 1fr; }
-        .hub-grid-5 { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    @media (max-width: 500px) {
-        .hub-grid-5 { grid-template-columns: 1fr; }
-    }
+  @media(max-width:900px) {
+    .ai-core-grid { grid-template-columns:1fr; }
+    .ai-adv-grid { grid-template-columns:repeat(2,1fr); }
+  }
+  @media(max-width:500px) {
+    .ai-page { padding:24px 20px 60px; }
+    .ai-title { font-size:30px; }
+    .ai-adv-grid { grid-template-columns:1fr; }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="hub-wrapper">
-    <a href="{% url 'user_dashboard' %}" class="back-btn">
-        <i class="fa-solid fa-arrow-left"></i> Return to Dashboard
+<div class="ai-page">
+
+  <!-- Top bar -->
+  <div class="ai-topbar">
+    <a href="{% url 'user_dashboard' %}" class="ai-back"><i class="fa-solid fa-chevron-left"></i> Return to dashboard</a>
+    <div class="ai-platform-badge"><div class="ai-platform-dot"></div> AI-powered platform</div>
+  </div>
+
+  <!-- Header -->
+  <div class="ai-header">
+    <h1 class="ai-title">The <span>Neural</span> Hub</h1>
+    <p class="ai-subtitle">High-fidelity algorithmic tools for physiological optimization.</p>
+  </div>
+
+  <!-- Core AI Tools -->
+  <div class="ai-section-label">Core AI Tools</div>
+  <div class="ai-core-grid">
+
+    <!-- AI Coach -->
+    <a href="{% url 'chatbot' %}" class="ai-core-card active-card">
+      <div class="ai-core-head">
+        <div class="ai-core-icon purple"><i class="fa-solid fa-microchip"></i></div>
+        <span class="ai-badge active">Active</span>
+      </div>
+      <div class="ai-core-name">AI Coach</div>
+      <div class="ai-core-desc">Direct interface with your analytical coaching entity. Expert advice on training, nutrition, and recovery.</div>
+      <div class="ai-core-foot">
+        <span class="ai-core-link purple">Open coach →</span>
+        <div class="ai-status-dot"></div>
+      </div>
     </a>
 
-    <header class="hub-header">
-        <div class="hub-tag"><i class="fa-solid fa-microchip"></i> AI-Powered Platform</div>
-        <h1 class="hub-title">The Neural Hub</h1>
-        <p class="hub-subtitle">High-fidelity algorithmic tools for physiological optimization.</p>
-    </header>
+    <!-- Protocol Architect -->
+    <a href="{% url 'ai_workout' %}" class="ai-core-card">
+      <div class="ai-core-head">
+        <div class="ai-core-icon gold"><i class="fa-regular fa-star"></i></div>
+        {% if is_premium %}
+        <span class="ai-badge unlocked">Unlocked</span>
+        {% else %}
+        <span class="ai-badge locked"><i class="fa-solid fa-lock"></i> Locked</span>
+        {% endif %}
+      </div>
+      <div class="ai-core-name">Protocol Architect</div>
+      <div class="ai-core-desc">Synthesize multi-phasic training systems based on your biological vectors and equipment access.</div>
+      <div class="ai-core-foot">
+        <span class="ai-core-link gold">Build protocol →</span>
+        <span class="ai-core-arrow">→</span>
+      </div>
+    </a>
 
-    <!-- Core AI Tools -->
-    <div class="section-label">Core AI Tools</div>
-    <div class="hub-grid">
-        <!-- Chatbot -->
-        <a href="{% url 'chatbot' %}" class="hub-card card-purple">
-            <div class="badge badge-active">Active</div>
-            <div class="hub-card-icon"><i class="fa-solid fa-brain"></i></div>
-            <h2>AI Coach</h2>
-            <p>Direct interface with your analytical coaching entity. Expert advice on training, nutrition, and recovery.</p>
-        </a>
+    <!-- Metabolic Architect -->
+    <a href="{% url 'ai_diet' %}" class="ai-core-card">
+      <div class="ai-core-head">
+        <div class="ai-core-icon green"><i class="fa-solid fa-user"></i></div>
+        {% if is_premium %}
+        <span class="ai-badge unlocked">Unlocked</span>
+        {% else %}
+        <span class="ai-badge locked"><i class="fa-solid fa-lock"></i> Locked</span>
+        {% endif %}
+      </div>
+      <div class="ai-core-name">Metabolic Architect</div>
+      <div class="ai-core-desc">Algorithmic fueling protocols tailored to your metabolic state, goals, and dietary framework.</div>
+      <div class="ai-core-foot">
+        <span class="ai-core-link green">Build plan →</span>
+        <span class="ai-core-arrow">→</span>
+      </div>
+    </a>
+  </div>
 
-        <!-- Workout Generator -->
-        <a href="{% url 'ai_workout' %}" class="hub-card card-gold">
-            {% if is_premium %}
-            <div class="badge badge-premium">Unlocked</div>
-            {% else %}
-            <div class="badge badge-locked"><i class="fa-solid fa-lock"></i> Locked</div>
-            {% endif %}
-            <div class="hub-card-icon"><i class="fa-solid fa-bolt"></i></div>
-            <h2>Protocol Architect</h2>
-            <p>Synthesize multi-phasic training systems based on your biological vectors and equipment access.</p>
-        </a>
+  <!-- Advanced AI Features -->
+  <div class="ai-section-label">Advanced AI Features</div>
+  <div class="ai-adv-grid">
 
-        <!-- Diet Generator -->
-        <a href="{% url 'ai_diet' %}" class="hub-card card-emerald">
-            {% if is_premium %}
-            <div class="badge badge-premium">Unlocked</div>
-            {% else %}
-            <div class="badge badge-locked"><i class="fa-solid fa-lock"></i> Locked</div>
-            {% endif %}
-            <div class="hub-card-icon"><i class="fa-solid fa-leaf"></i></div>
-            <h2>Metabolic Architect</h2>
-            <p>Algorithmic fueling protocols tailored to your metabolic state, goals, and dietary framework.</p>
-        </a>
-    </div>
+    <!-- CV Exercise Detection -->
+    <a href="{% url 'exercise_detection' %}" class="ai-adv-card">
+      <div class="ai-adv-head">
+        <div class="ai-adv-icon blue"><i class="fa-regular fa-eye"></i></div>
+        <span class="ai-adv-badge cv">CV AI</span>
+      </div>
+      <div class="ai-adv-name">CV Exercise Detection</div>
+      <div class="ai-adv-desc">Camera-based pose estimation. Counts reps and analyzes form in real-time using MediaPipe AI.</div>
+      <div class="ai-adv-bar"><div class="ai-adv-fill blue" style="width:60%"></div></div>
+    </a>
 
-    <!-- Advanced AI Features -->
-    <div class="section-label" style="margin-top: 1rem;">Advanced AI Features</div>
-    <div class="hub-grid-5">
-        <!-- Exercise Detection -->
-        <a href="{% url 'exercise_detection' %}" class="hub-card card-cyan">
-            <div class="badge badge-new">CV AI</div>
-            <div class="hub-card-icon"><i class="fa-solid fa-eye"></i></div>
-            <h2>CV Exercise<br>Detection</h2>
-            <p>Camera-based pose estimation. Counts reps & analyzes your form in real-time using MediaPipe AI.</p>
-        </a>
+    <!-- Smart Fitness Score -->
+    <a href="{% url 'fitness_score' %}" class="ai-adv-card">
+      <div class="ai-adv-head">
+        <div class="ai-adv-icon green"><i class="fa-solid fa-circle-check"></i></div>
+        <span class="ai-adv-badge live">Live data</span>
+      </div>
+      <div class="ai-adv-name">Smart Fitness Score</div>
+      <div class="ai-adv-desc">AI health rating calculated from your BMI, workouts, calories, hydration, and goals.</div>
+      <div class="ai-adv-bar"><div class="ai-adv-fill green" style="width:75%"></div></div>
+    </a>
 
-        <!-- Fitness Score -->
-        <a href="{% url 'fitness_score' %}" class="hub-card card-blue">
-            <div class="badge badge-active">Live Data</div>
-            <div class="hub-card-icon"><i class="fa-solid fa-gauge-high"></i></div>
-            <h2>Smart Fitness<br>Score</h2>
-            <p>AI health rating calculated from your BMI, workouts, calories, hydration, and goals.</p>
-        </a>
+    <!-- AI Meal Scanner -->
+    <a href="{% url 'meal_scanner' %}" class="ai-adv-card">
+      <div class="ai-adv-head">
+        <div class="ai-adv-icon orange"><i class="fa-solid fa-camera"></i></div>
+        <span class="ai-adv-badge vision">AI Vision</span>
+      </div>
+      <div class="ai-adv-name">AI Meal Scanner</div>
+      <div class="ai-adv-desc">Upload a food photo. AI detects items, estimates calories, and logs macros to your nutrition tracker.</div>
+      <div class="ai-adv-bar"><div class="ai-adv-fill orange" style="width:50%"></div></div>
+    </a>
 
-        <!-- Meal Scanner -->
-        <a href="{% url 'meal_scanner' %}" class="hub-card card-orange">
-            <div class="badge badge-new">AI Vision</div>
-            <div class="hub-card-icon"><i class="fa-solid fa-camera"></i></div>
-            <h2>AI Meal<br>Scanner</h2>
-            <p>Upload a food photo. AI detects items, estimates calories, and logs macros to your nutrition tracker.</p>
-        </a>
+    <!-- Habit & Streak Engine -->
+    <a href="{% url 'habit_streak' %}" class="ai-adv-card">
+      <div class="ai-adv-head">
+        <div class="ai-adv-icon gold"><i class="fa-regular fa-star"></i></div>
+        <span class="ai-adv-badge gamified">Gamified</span>
+      </div>
+      <div class="ai-adv-name">Habit & Streak Engine</div>
+      <div class="ai-adv-desc">Streak tracking, achievement badges, level system, and community leaderboard to keep you motivated.</div>
+      <div class="ai-adv-bar"><div class="ai-adv-fill gold" style="width:80%"></div></div>
+    </a>
+  </div>
 
-        <!-- Habit & Streak Engine -->
-        <a href="{% url 'habit_streak' %}" class="hub-card card-gold">
-            <div class="badge badge-active">Gamified</div>
-            <div class="hub-card-icon"><i class="fa-solid fa-fire-flame-curved"></i></div>
-            <h2>Habit & Streak<br>Engine</h2>
-            <p>Streak tracking, achievement badges, level system, and community leaderboard to keep you motivated.</p>
-        </a>
-
-        <!-- Fitness Chatbot (linked to main chatbot) -->
-        <a href="{% url 'chatbot' %}" class="hub-card card-pink">
-            <div class="badge badge-active">Online</div>
-            <div class="hub-card-icon"><i class="fa-solid fa-robot"></i></div>
-            <h2>AI Fitness<br>Chatbot Coach</h2>
-            <p>Ask anything — calorie goals, workout tips, diet plans. Powered by Gemini generative AI.</p>
-        </a>
-    </div>
 </div>
 {% endblock %}

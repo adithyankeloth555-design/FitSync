@@ -1,0 +1,315 @@
+{% extends 'fitsync_app/base.html' %}
+{% load static %}
+
+{% block title %}Achievements & Badges | FitSync Elite{% endblock %}
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+
+    :root {
+        --indigo: #4F46E5;
+        --indigo-light: #818cf8;
+        --gold: #f9e295;
+        --card-bg: rgba(12,12,20,0.88);
+        --border: rgba(79,70,229,0.25);
+        --transition: all 0.4s cubic-bezier(0.23,1,0.32,1);
+    }
+
+    body {
+        background: #080810;
+        background-image: radial-gradient(circle at 30% 20%, rgba(79,70,229,0.1) 0%, transparent 55%),
+                          radial-gradient(circle at 80% 80%, rgba(139,92,246,0.06) 0%, transparent 45%);
+        color: #e5e7eb;
+        font-family: 'Inter', sans-serif;
+        min-height: 100vh;
+        margin: 0;
+    }
+
+    .main-wrapper {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 2.5rem 2rem 5rem;
+        animation: fadeUp 0.8s ease;
+    }
+
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(24px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.65rem 1.4rem;
+        border-radius: 50px;
+        background: rgba(30,30,50,0.6);
+        border: 1px solid var(--border);
+        color: #9ca3af;
+        text-decoration: none;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: var(--transition);
+        margin-bottom: 2.5rem;
+    }
+    .back-btn:hover { color: #fff; border-color: var(--indigo); box-shadow: 0 0 16px rgba(79,70,229,0.3); }
+
+    .page-header { text-align: center; margin-bottom: 3rem; }
+    .page-title {
+        font-size: 3.5rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #fff 0%, var(--indigo-light) 60%, var(--indigo) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: 6px;
+        text-transform: uppercase;
+        margin: 0 0 0.5rem;
+    }
+    .page-sub { color: #6b7280; font-size: 1rem; letter-spacing: 2px; text-transform: uppercase; }
+
+    /* Toast for newly awarded badges */
+    .award-toast {
+        position: fixed; top: 1.5rem; right: 1.5rem; z-index: 9999;
+        display: flex; flex-direction: column; gap: 0.8rem;
+    }
+    .toast-item {
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+        border: 1px solid var(--indigo);
+        border-radius: 16px;
+        padding: 1rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 0 30px rgba(79,70,229,0.3);
+        animation: toastIn 0.5s ease;
+        min-width: 280px;
+    }
+    @keyframes toastIn {
+        from { opacity: 0; transform: translateX(60px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+    .toast-icon { font-size: 2rem; }
+    .toast-text { font-weight: 700; font-size: 0.9rem; color: #fff; }
+    .toast-sub  { font-size: 0.78rem; color: var(--indigo-light); }
+
+    /* Stats Row */
+    .stats-trio {
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+    .stat-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        transition: var(--transition);
+    }
+    .stat-card:hover { transform: translateY(-6px); box-shadow: 0 12px 30px rgba(0,0,0,0.5), 0 0 20px rgba(79,70,229,0.15); }
+    .stat-num { font-size: 3.5rem; font-weight: 900; color: var(--indigo-light); line-height: 1; }
+    .stat-label { font-size: 0.75rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 0.5rem; }
+    .streak-fire { color: #f59e0b; }
+
+    /* Milestone Bars */
+    .milestones-section { margin-bottom: 3.5rem; }
+    .section-title {
+        font-size: 1.2rem; font-weight: 800; color: var(--indigo-light);
+        text-transform: uppercase; letter-spacing: 3px;
+        margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.8rem;
+    }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    .milestone-list { display: flex; flex-direction: column; gap: 1rem; }
+    .milestone-item {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.2rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+    .milestone-item.earned { border-color: rgba(79,70,229,0.6); }
+    .milestone-name { font-weight: 700; font-size: 0.95rem; flex: 1; }
+    .milestone-prog { font-size: 0.8rem; color: #6b7280; }
+    .bar-outer { flex: 2; height: 8px; background: rgba(255,255,255,0.06); border-radius: 99px; overflow: hidden; }
+    .bar-inner { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--indigo), var(--indigo-light)); transition: width 1.2s cubic-bezier(0.34,1.56,0.64,1); }
+    .bar-inner.done { background: linear-gradient(90deg, #10b981, #6ee7b7); }
+    .check-icon  { font-size: 1.3rem; color: #10b981; }
+
+    /* Badge Grid */
+    .badge-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+    .badge-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 2rem 1.5rem;
+        text-align: center;
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+    }
+    .badge-card.locked { opacity: 0.35; filter: grayscale(1); }
+    .badge-card.unlocked:hover { transform: translateY(-8px); box-shadow: 0 16px 40px rgba(0,0,0,0.5); }
+    .badge-card.unlocked { border-color: rgba(79,70,229,0.6); }
+    .badge-card.unlocked::before {
+        content: '';
+        position: absolute;
+        top: -50%; left: -50%; width: 200%; height: 200%;
+        background: radial-gradient(circle, rgba(79,70,229,0.08) 0%, transparent 60%);
+        animation: shimmer 3s infinite;
+    }
+    @keyframes shimmer { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+    .badge-icon-wrap {
+        width: 70px; height: 70px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 2rem;
+        margin: 0 auto 1rem;
+        background: rgba(20,20,35,0.8);
+        border: 2px solid var(--border);
+    }
+    .badge-card.unlocked .badge-icon-wrap { box-shadow: 0 0 20px rgba(79,70,229,0.4); }
+    .badge-name { font-weight: 800; font-size: 0.95rem; margin-bottom: 0.4rem; }
+    .badge-desc { font-size: 0.78rem; color: #6b7280; line-height: 1.5; }
+    .badge-awarded { font-size: 0.7rem; color: #10b981; margin-top: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+    .badge-locked-label { font-size: 0.7rem; color: #4b5563; margin-top: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+
+    @media (max-width: 768px) {
+        .page-title { font-size: 2rem; }
+        .stats-trio { grid-template-columns: 1fr; }
+        .milestone-item { flex-wrap: wrap; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="main-wrapper">
+    <!-- Newly awarded toast notifications -->
+    {% if newly_awarded %}
+    <div class="award-toast" id="awardToast">
+        {% for badge in newly_awarded %}
+        <div class="toast-item">
+            <div class="toast-icon"><i class="fa-solid {{ badge.icon }}" style="color: {{ badge.color }};"></i></div>
+            <div>
+                <div class="toast-text">🏆 Badge Unlocked!</div>
+                <div class="toast-sub">{{ badge.name }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <a href="{% url 'user_dashboard' %}" class="back-btn">
+        <i class="fa-solid fa-arrow-left"></i> Return to Portal
+    </a>
+
+    <header class="page-header">
+        <h1 class="page-title">Achievements</h1>
+        <p class="page-sub">Milestones &amp; Badges — {{ earned_badges.count }} / {{ all_badges.count }} unlocked</p>
+    </header>
+
+    <!-- Stats -->
+    <div class="stats-trio">
+        <div class="stat-card">
+            <div class="stat-num streak-fire"><i class="fa-solid fa-fire"></i> {{ streak }}</div>
+            <div class="stat-label">Current Streak (days)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num">{{ total_sessions }}</div>
+            <div class="stat-label">Total Sessions</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num">{{ completed_goals }}</div>
+            <div class="stat-label">Goals Completed</div>
+        </div>
+    </div>
+
+    <!-- Milestones -->
+    <section class="milestones-section">
+        <h2 class="section-title"><i class="fa-solid fa-chart-line"></i> Progress Milestones</h2>
+        <div class="milestone-list">
+            {% for m in milestones %}
+            <div class="milestone-item {% if m.earned %}earned{% endif %}">
+                {% if m.earned %}
+                    <i class="fa-solid fa-circle-check check-icon"></i>
+                {% else %}
+                    <i class="fa-solid fa-lock" style="color:#4b5563; font-size:1.1rem;"></i>
+                {% endif %}
+                <div style="flex:1">
+                    <div class="milestone-name">{{ m.label }}</div>
+                    <div class="milestone-prog">{{ m.current }} / {{ m.target }}</div>
+                </div>
+                <div class="bar-outer" style="flex:2;">
+                    <div class="bar-inner {% if m.earned %}done{% endif %}" 
+                         data-pct="{{ m.pct }}" style="width: 0%;"></div>
+                </div>
+                <div style="font-weight:800; font-size:0.9rem; min-width:40px; text-align:right; color: {% if m.earned %}#10b981{% else %}var(--indigo-light){% endif %};">
+                    {{ m.pct }}%
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Badge Grid -->
+    <section>
+        <h2 class="section-title"><i class="fa-solid fa-medal"></i> All Badges</h2>
+        <div class="badge-grid">
+            {% for badge in all_badges %}
+            {% with is_earned=badge.code|add:'' %}
+            <div class="badge-card {% if badge.code in earned_codes %}unlocked{% else %}locked{% endif %}">
+                <div class="badge-icon-wrap" style="border-color: {% if badge.code in earned_codes %}{{ badge.color }}{% else %}rgba(255,255,255,0.05){% endif %};">
+                    <i class="fa-solid {{ badge.icon }}" style="color: {{ badge.color }};"></i>
+                </div>
+                <div class="badge-name" style="color: {% if badge.code in earned_codes %}#fff{% else %}#6b7280{% endif %};">{{ badge.name }}</div>
+                <div class="badge-desc">{{ badge.description }}</div>
+                {% if badge.code in earned_codes %}
+                    <div class="badge-awarded"><i class="fa-solid fa-check"></i> Earned</div>
+                {% else %}
+                    <div class="badge-locked-label"><i class="fa-solid fa-lock"></i> Locked</div>
+                {% endif %}
+            </div>
+            {% endwith %}
+            {% empty %}
+            <div style="grid-column: span all; text-align:center; color:#4b5563; padding:4rem;">
+                No badges defined yet. Run: <code>python manage.py seed_badges</code>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</main>
+
+<script>
+    // Animate milestone bars
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            document.querySelectorAll('.bar-inner[data-pct]').forEach(el => {
+                el.style.width = el.dataset.pct + '%';
+            });
+        }, 300);
+
+        // Auto-hide toasts after 5s
+        const toast = document.getElementById('awardToast');
+        if (toast) {
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.8s';
+                setTimeout(() => toast.remove(), 800);
+            }, 5000);
+        }
+    });
+</script>
+{% endblock %}

@@ -77,6 +77,12 @@ class BMIHistory(models.Model):
     class Meta:
         ordering = ['-recorded_at']
 
+    def get_category_display(self):
+        if self.bmi_score < 18.5: return "Underweight"
+        if self.bmi_score < 25: return "Normal Weight"
+        if self.bmi_score < 30: return "Overweight"
+        return "Obese"
+
 # 5. Attendance Logs
 class Attendance(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='attendance_logs')
@@ -151,6 +157,7 @@ class Goal(models.Model):
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='other')
     
     # Progress Tracking
+    start_value = models.FloatField(default=0.0)
     current_value = models.FloatField(default=0.0)
     target_value = models.FloatField(default=100.0)
     unit = models.CharField(max_length=20, default='kg') # kg, lbs, km, steps, %
@@ -160,9 +167,23 @@ class Goal(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def get_progress_percent(self):
-        if self.target_value == 0: return 0
-        percent = (self.current_value / self.target_value) * 100
-        return min(100, max(0, percent)) # Clamp between 0-100
+        if self.is_completed:
+            return 100
+            
+        # Calculate real percentage between start and target
+        if self.target_value == self.start_value: 
+            return 100 if self.current_value == self.target_value else 0
+            
+        total_required = abs(self.target_value - self.start_value)
+        current_progress = abs(self.current_value - self.start_value)
+        
+        # If they moved in the wrong direction
+        if (self.target_value > self.start_value and self.current_value < self.start_value) or \
+           (self.target_value < self.start_value and self.current_value > self.start_value):
+            return 0
+            
+        percent = (current_progress / total_required) * 100
+        return min(100, max(0, percent))
 
     def __str__(self):
         return f"{self.user.username} - {self.title}"
@@ -470,3 +491,64 @@ class OrderItem(models.Model):
 
     def subtotal(self):
         return self.price * self.quantity
+
+
+# ─── 20. Trainer Reviews (Member → Trainer) ─────────────────────────────────
+
+class TrainerReview(models.Model):
+    """A star-rating + comment left by a member for a trainer they've hired."""
+    trainer = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='reviews_received'
+    )
+    member = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='reviews_written'
+    )
+    rating = models.IntegerField(choices=[(i, str(i)) for i in range(1, 6)])  # 1–5 stars
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        # One review per member per trainer
+        unique_together = ('trainer', 'member')
+
+    def __str__(self):
+        return f"{self.member.username} → {self.trainer.username}: {self.rating}★"
+
+
+# ─── 21. Badges / Achievements ───────────────────────────────────────────────
+
+class Badge(models.Model):
+    """Definition of an achievement badge."""
+    BADGE_CHOICES = [
+        ('first_bmi', 'First BMI Log'),
+        ('streak_7', '7-Day Streak'),
+        ('streak_30', '30-Day Streak'),
+        ('sessions_100', '100 Sessions'),
+        ('first_goal', 'First Goal Set'),
+        ('goal_crusher', 'Goal Crusher'),
+        ('hydration_hero', 'Hydration Hero'),
+        ('community_star', 'Community Star'),
+    ]
+    code = models.CharField(max_length=30, choices=BADGE_CHOICES, unique=True)
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    icon = models.CharField(max_length=50, default='fa-medal')   # FontAwesome class
+    color = models.CharField(max_length=20, default='#4F46E5')    # Hex color
+
+    def __str__(self):
+        return self.name
+
+
+class UserBadge(models.Model):
+    """Join table: which badges a user has earned."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='earned_badges')
+    badge = models.ForeignKey(Badge, on_delete=models.CASCADE, related_name='awarded_to')
+    awarded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'badge')
+        ordering = ['-awarded_at']
+
+    def __str__(self):
+        return f"{self.user.username} – {self.badge.name}"
