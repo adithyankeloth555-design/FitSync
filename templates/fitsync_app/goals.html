@@ -311,14 +311,12 @@
                         </div>
                         <div class="metric">
                             <div class="metric-value">
-                                {% if goal.target_date %}
-                                    {% if goal.is_completed %}
+                                {% if goal.is_completed %}
                                     <i class="fa-solid fa-check"></i> Done
-                                    {% else %}
+                                {% elif goal.target_date %}
                                     {{ goal.target_date|timeuntil }}
-                                    {% endif %}
                                 {% else %}
-                                ∞
+                                    ∞
                                 {% endif %}
                             </div>
                             <div class="metric-label">{% if goal.is_completed %}Status{% else %}Time Left{% endif %}</div>
