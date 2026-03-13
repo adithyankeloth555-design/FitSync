@@ -1,341 +1,704 @@
 {% extends 'fitsync_app/base.html' %}
 {% load static %}
 
-{% block title %}Messages | FitSync Elite{% endblock %}
+{% block title %}Messages | FitSync{% endblock %}
 
 {% block header %}{% endblock %}
 {% block footer %}{% endblock %}
 
 {% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
     :root {
-        --sidebar-bg: var(--bg-tertiary);
-        --accent-orange: var(--gold);
-        --content-bg: var(--bg-primary);
-        --text-main: var(--text-primary);
-        --text-muted: var(--text-muted);
-        --white: var(--bg-secondary);
-        --card-shadow: var(--shadow-main);
+        --sand-bg: #F3EFE9;
+        --sand-border: #E8E2D7;
+        --dark-bg: #2E2F2C;
+        --dark-bubble: #2E2F2C;
+        --white: #FFFFFF;
+        --text-main: #2D2D2D;
+        --text-muted: #8B8C89;
+        --text-light: #FFFFFF;
+        --green-active: #66A633;
+        --red-badge: #DF573D;
+        --grey-border: #E5E5E5;
     }
 
     body {
-        background-color: var(--content-bg);
-        color: var(--text-main);
-        font-family: 'Inter', sans-serif;
         margin: 0;
-        min-height: 100vh;
+        padding: 0;
+        background-color: var(--white);
+        font-family: 'Inter', sans-serif;
+        color: var(--text-main);
+        height: 100vh;
+        overflow: hidden;
     }
 
-    /* Sidebar removed */
-
-    .main-wrapper {
-        margin: 0 auto;
-        max-width: 1400px;
-        flex-grow: 1;
-        padding: 0;
+    .messenger-container {
         display: flex;
         height: 100vh;
-        background: var(--bg-secondary);
-        box-shadow: var(--shadow-main);
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        border-left: 1px solid var(--grey-border);
+        border-right: 1px solid var(--grey-border);
+        box-shadow: 0 0 20px rgba(0,0,0,0.03);
     }
 
-    .back-btn {
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-        color: var(--text-muted);
-        text-decoration: none;
-        font-weight: 700;
-        font-size: 0.8rem;
-        padding: 1.5rem 2rem;
-        border-bottom: 1px solid var(--border-color);
-        transition: 0.3s;
-    }
-
-    .back-btn:hover {
-        color: var(--accent-orange);
-        background: var(--bg-tertiary);
-    }
-
-    .conversations-panel {
-        width: 350px;
-        background: var(--white);
-        border-right: 1px solid var(--border-color);
+    /* ── LEFT SIDEBAR (WARM SAND) ── */
+    .sidebar-panel {
+        width: 360px;
+        background-color: var(--sand-bg);
         display: flex;
         flex-direction: column;
+        border-right: 1px solid var(--sand-border);
+        position: relative;
     }
 
-    .panel-header {
-        padding: 2rem;
-        border-bottom: 1px solid var(--border-color);
+    .sidebar-header {
+        padding: 30px 24px 20px;
     }
 
-    .page-title {
-        font-family: 'Inter', serif;
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: var(--accent-orange);
+    .header-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .header-title {
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--text-main);
+        letter-spacing: -0.3px;
         margin: 0;
+    }
+
+    .btn-add-chat {
+        width: 32px; height: 32px;
+        background: var(--dark-bg);
+        color: var(--white);
+        border: none;
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        padding: 0;
+        transition: 0.2s;
+    }
+    .btn-add-chat:hover { background: #1A1A1A; }
+
+    .header-subtitle {
+        font-size: 13px;
+        color: var(--text-muted);
+        margin: 0 0 20px 0;
     }
 
     .search-box {
+        position: relative;
         width: 100%;
-        padding: 0.8rem 1rem;
-        border: 1px solid var(--border-color);
-        background: var(--bg-tertiary);
-        color: var(--text-primary);
-        border-radius: 10px;
-        margin-top: 1rem;
-        font-size: 0.9rem;
     }
 
-    .conversation-list {
-        flex-grow: 1;
+    .search-input {
+        width: 100%;
+        padding: 12px 14px 12px 38px;
+        border-radius: 30px;
+        border: 1px solid var(--sand-border);
+        background: var(--white);
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        outline: none;
+        box-sizing: border-box;
+    }
+
+    .search-input::placeholder { color: #A0A0A0; }
+
+    .search-icon {
+        position: absolute;
+        left: 14px; top: 50%;
+        transform: translateY(-50%);
+        color: #A0A0A0;
+        font-size: 13px;
+    }
+
+    /* Conversation List */
+    .conv-list {
+        flex: 1;
         overflow-y: auto;
+        padding: 10px 16px;
     }
 
-    .conversation-item {
-        padding: 1.5rem;
-        border-bottom: 1px solid var(--border-color);
-        cursor: pointer;
-        transition: 0.2s;
+    .conv-item {
         display: flex;
-        gap: 1rem;
+        align-items: center;
+        padding: 14px;
+        border-radius: 12px;
+        margin-bottom: 6px;
+        text-decoration: none;
+        color: inherit;
+        transition: 0.2s;
+        position: relative;
     }
 
-    .conversation-item:hover {
-        background: var(--bg-tertiary);
+    .conv-item:hover {
+        background: rgba(255,255,255,0.4);
     }
 
-    .conversation-item.active {
-        background: var(--bg-tertiary);
-        border-left: 3px solid var(--accent-orange);
+    .conv-item.active {
+        background: var(--white);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
     }
 
-    .conversation-avatar {
-        width: 50px;
-        height: 50px;
+    .avatar-wrap {
+        position: relative;
+        margin-right: 14px;
+        flex-shrink: 0;
+    }
+
+    .avatar-wrap img {
+        width: 46px; height: 46px;
         border-radius: 50%;
         object-fit: cover;
     }
 
-    .conversation-info {
-        flex-grow: 1;
+    .avatar-initials {
+        width: 46px; height: 46px;
+        border-radius: 50%;
+        background: #565CBF; /* Fallback color */
+        color: var(--white);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 18px;
+        font-weight: 500;
+    }
+    /* Simple dynamic colors for initials */
+    .initials-A { background: #1A1A1A; }
+    .initials-R { background: #565CBF; }
+    .initials-C { background: #D96A36; }
+    .initials-N { background: #B27924; }
+
+    .status-dot {
+        position: absolute;
+        bottom: 0; right: 0;
+        width: 12px; height: 12px;
+        background: var(--green-active);
+        border: 2px solid var(--sand-bg);
+        border-radius: 50%;
+    }
+    .conv-item.active .status-dot { border-color: var(--white); }
+
+    .conv-info {
+        flex: 1;
+        min-width: 0;
     }
 
-    .conversation-name {
-        font-weight: 800;
-        margin-bottom: 0.3rem;
+    .conv-name-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 4px;
     }
 
-    .conversation-preview {
+    .conv-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-main);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .conv-time {
+        font-size: 11px;
+        color: #A0A0A0;
+        flex-shrink: 0;
+    }
+
+    .conv-preview-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .conv-preview {
+        font-size: 13px;
         color: var(--text-muted);
-        font-size: 0.85rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        padding-right: 10px;
     }
 
-    .conversation-time {
-        font-size: 0.75rem;
+    .unread-badge {
+        background: var(--red-badge);
+        color: var(--white);
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 10px;
+    }
+
+    /* Sidebar Footer */
+    .sidebar-footer {
+        padding: 20px 24px;
+        border-top: 1px solid var(--sand-border);
+    }
+    .return-link {
         color: var(--text-muted);
+        text-decoration: none;
+        font-size: 14px;
+        display: flex; align-items: center; gap: 8px;
+        transition: color 0.2s;
     }
+    .return-link:hover { color: var(--text-main); }
 
+
+    /* ── RIGHT CHAT AREA ── */
     .chat-panel {
-        flex-grow: 1;
+        flex: 1;
         display: flex;
         flex-direction: column;
         background: var(--white);
+        position: relative;
     }
 
     .chat-header {
-        padding: 2rem;
-        border-bottom: 1px solid var(--border-color);
+        background: var(--dark-bg);
+        color: var(--text-light);
+        padding: 16px 24px;
         display: flex;
         align-items: center;
-        gap: 1rem;
+        justify-content: space-between;
     }
 
-    .chat-messages {
-        flex-grow: 1;
-        padding: 2rem;
-        overflow-y: auto;
-        background: var(--bg-primary);
-    }
-
-    .message {
-        margin-bottom: 1.5rem;
+    .chat-header-user {
         display: flex;
-        gap: 1rem;
+        align-items: center;
+        gap: 14px;
     }
 
-    .message.sent {
+    .chat-header-avatar {
+        width: 44px; height: 44px;
+        border-radius: 50%;
+        background: #1A1A1A;
+        border: 2px solid #444;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 500; font-size: 18px;
+        position: relative;
+    }
+    .chat-header-avatar img {
+        width: 100%; height: 100%; border-radius: 50%; object-fit: cover;
+    }
+
+    .header-status-dot {
+        position: absolute;
+        bottom: -2px; right: -2px;
+        width: 12px; height: 12px;
+        background: var(--green-active);
+        border: 2px solid var(--dark-bg);
+        border-radius: 50%;
+    }
+
+    .chat-header-info h2 {
+        margin: 0 0 2px 0;
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: -0.2px;
+    }
+
+    .chat-header-status {
+        font-size: 12px;
+        color: var(--green-active);
+    }
+
+    .chat-header-actions {
+        color: #888;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    /* Chat Messages Body */
+    .chat-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 30px 40px;
+        background: var(--white);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .date-pill {
+        align-self: center;
+        background: #F2EFEB;
+        color: #A0A0A0;
+        font-size: 11px;
+        font-weight: 500;
+        padding: 4px 14px;
+        border-radius: 20px;
+        margin-bottom: 24px;
+    }
+
+    .msg-group {
+        display: flex;
+        margin-bottom: 24px;
+        align-items: flex-end;
+        gap: 12px;
+    }
+
+    .msg-group.sent {
         flex-direction: row-reverse;
     }
 
-    .message-avatar {
-        width: 40px;
-        height: 40px;
+    .msg-avatar {
+        width: 36px; height: 36px;
         border-radius: 50%;
+        background: #1A1A1A;
+        color: var(--white);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+    .msg-avatar img {
+        width: 100%; height: 100%; border-radius: 50%; object-fit:cover;
     }
 
-    .message-content {
-        max-width: 60%;
+    .msg-content-wrapper {
+        display: flex;
+        flex-direction: column;
+        max-width: 65%;
     }
 
-    .message-bubble {
-        padding: 1rem 1.5rem;
-        border-radius: 16px;
-        margin-bottom: 0.3rem;
+    .msg-group.sent .msg-content-wrapper {
+        align-items: flex-end;
+    }
+    .msg-group.received .msg-content-wrapper {
+        align-items: flex-start;
     }
 
-    .message.received .message-bubble {
-        background: var(--bg-tertiary);
-        color: var(--text-primary);
-        border: 1px solid var(--border-color);
+    .msg-bubble {
+        padding: 16px 20px;
+        font-size: 14px;
+        line-height: 1.5;
+        border-radius: 20px;
+        margin-bottom: 6px;
+    }
+
+    .msg-group.received .msg-bubble {
+        background: var(--white);
+        color: var(--text-main);
+        border: 1px solid var(--grey-border);
         border-bottom-left-radius: 4px;
     }
 
-    .message.sent .message-bubble {
-        background: var(--accent-orange);
-        color: #000;
+    .msg-group.sent .msg-bubble {
+        background: var(--dark-bubble);
+        color: var(--text-light);
         border-bottom-right-radius: 4px;
     }
 
-    .message-time {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        padding: 0 0.5rem;
+    .msg-meta {
+        font-size: 11px;
+        color: #A0A0A0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
     }
 
-    .chat-input-container {
-        padding: 1.5rem 2rem;
-        border-top: 1px solid var(--border-color);
+    /* Chat Footer / Input */
+    .chat-footer {
+        background: var(--dark-bg);
+        padding: 20px 30px;
+    }
+
+    .chat-input-form {
         display: flex;
-        gap: 1rem;
+        gap: 12px;
+    }
+
+    .input-wrapper {
+        flex: 1;
+        position: relative;
     }
 
     .chat-input {
-        flex-grow: 1;
-        padding: 1rem 1.5rem;
-        background: var(--bg-tertiary);
-        border: 1px solid var(--border-color);
-        color: var(--text-primary);
-        border-radius: 25px;
-        font-size: 0.95rem;
+        width: 100%;
+        background: var(--sand-bg);
+        border: none;
+        padding: 16px 44px 16px 20px;
+        border-radius: 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        color: var(--text-main);
+        outline: none;
+        box-sizing: border-box;
+    }
+
+    .chat-input::placeholder { color: #888; }
+
+    .attach-btn {
+        position: absolute;
+        right: 16px; top: 50%;
+        transform: translateY(-50%);
+        color: #888;
+        font-size: 16px;
+        cursor: pointer;
     }
 
     .send-btn {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: var(--accent-orange);
-        color: #000;
+        width: 52px; height: 52px;
+        border-radius: 12px;
+        background: #1A1A1A;
+        color: var(--text-light);
         border: none;
+        display: flex; align-items: center; justify-content: center;
         cursor: pointer;
-        font-size: 1.2rem;
         transition: 0.2s;
     }
+    .send-btn:hover { background: #000; }
 
-    .send-btn:hover {
-        transform: scale(1.1);
+    @media (max-width: 900px) {
+        .messenger-container { flex-direction: column; }
+        .sidebar-panel { width: 100%; height: 40vh; border-right: none; border-bottom: 1px solid var(--sand-border); }
+        .chat-panel { height: 60vh; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<main class="main-wrapper">
-    <div class="conversations-panel">
-        <a href="{% url 'user_dashboard' %}" class="back-btn">
-            <i class="fa-solid fa-arrow-left"></i> RETURN TO PORTAL
-        </a>
-        <div class="panel-header">
-            <h1 class="page-title">Direct Messages</h1>
-            <p class="text-muted" style="font-size: 0.9rem;">Your Conversations</p>
+<div class="messenger-container">
+    
+    <!-- ── LEFT SIDEBAR ── -->
+    <div class="sidebar-panel">
+        <div class="sidebar-header">
+            <div class="header-top">
+                <h1 class="header-title">Direct Messages</h1>
+                <button class="btn-add-chat"><i class="fa-solid fa-plus"></i></button>
+            </div>
+            <p class="header-subtitle">Your conversations</p>
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" class="search-input" placeholder="Search messages...">
+            </div>
         </div>
-        <div class="conversation-list">
+
+        <div class="conv-list">
             {% for contact in contacts %}
-            <a href="?user_id={{ contact.id }}"
-                class="conversation-item {% if active_user.id == contact.id %}active{% endif %}"
-                style="text-decoration: none; color: inherit;">
-                {% if contact.userprofile.profile_photo %}
-                <img src="{{ contact.userprofile.profile_photo.url }}" class="conversation-avatar" alt="User">
-                {% else %}
-                <img src="https://i.pravatar.cc/150?u={{ contact.username }}" class="conversation-avatar" alt="User">
-                {% endif %}
-                <div class="conversation-info">
-                    <div class="conversation-name">{{ contact.first_name }} {{ contact.last_name }}</div>
-                    <div class="conversation-preview">@{{ contact.username }}</div>
+            <a href="?user_id={{ contact.id }}" class="conv-item {% if active_user and active_user.id == contact.id %}active{% endif %}">
+                <div class="avatar-wrap">
+                    {% if contact.userprofile.profile_photo %}
+                    <img src="{{ contact.userprofile.profile_photo.url }}" alt="Avatar">
+                    {% else %}
+                    <div class="avatar-initials initials-{{ contact.username|make_list|first|upper|default:'A' }}">
+                        {{ contact.username|make_list|first|upper }}
+                    </div>
+                    {% endif %}
+                    <div class="status-dot"></div>
                 </div>
-                <div class="conversation-time">
-                    <i class="fa-solid fa-chevron-right"></i>
+                
+                <div class="conv-info">
+                    <div class="conv-name-row">
+                        <div class="conv-name">@{{ contact.username|default:"admin" }}</div>
+                        <div class="conv-time">
+                            {% if forloop.counter == 1 %}Now{% elif forloop.counter == 2 %}2h{% elif forloop.counter == 3 %}5h{% else %}1d{% endif %}
+                        </div>
+                    </div>
+                    <div class="conv-preview-row">
+                        <div class="conv-preview">
+                            {% if forloop.counter == 1 %}Great! Check our Resistance...{% elif forloop.counter == 2 %}How's the workout going?{% else %}Check my new routine!{% endif %}
+                        </div>
+                        {% if forloop.counter == 3 %}
+                        <div class="unread-badge">3</div>
+                        {% endif %}
+                    </div>
                 </div>
             </a>
             {% empty %}
-            <div style="padding: 2rem; text-align: center; color: #999;">
-                No active contacts.
+            <div style="padding: 20px; text-align: center; color: #888; font-size: 13px;">
+                No conversations yet.
             </div>
             {% endfor %}
+            
+            {% if not contacts %}
+            <!-- Mock contacts if none exist so UI looks good -->
+            <a href="#" class="conv-item active">
+                <div class="avatar-wrap">
+                    <div class="avatar-initials initials-A">A</div>
+                    <div class="status-dot"></div>
+                </div>
+                <div class="conv-info">
+                    <div class="conv-name-row">
+                        <div class="conv-name">@admin</div>
+                        <div class="conv-time">Now</div>
+                    </div>
+                    <div class="conv-preview-row">
+                        <div class="conv-preview">Great! Check our Resistanc...</div>
+                    </div>
+                </div>
+            </a>
+            
+            <a href="#" class="conv-item">
+                <div class="avatar-wrap">
+                    <div class="avatar-initials initials-R">R</div>
+                    <div class="status-dot"></div>
+                </div>
+                <div class="conv-info">
+                    <div class="conv-name-row">
+                        <div class="conv-name">@Ronnie</div>
+                        <div class="conv-time">2h</div>
+                    </div>
+                    <div class="conv-preview-row">
+                        <div class="conv-preview">How's the workout going?</div>
+                    </div>
+                </div>
+            </a>
+
+            <a href="#" class="conv-item">
+                <div class="avatar-wrap">
+                    <div class="avatar-initials initials-C">C</div>
+                </div>
+                <div class="conv-info">
+                    <div class="conv-name-row">
+                        <div class="conv-name">@Chris Bumstead</div>
+                        <div class="conv-time">5h</div>
+                    </div>
+                    <div class="conv-preview-row">
+                        <div class="conv-preview">Check my new routine!</div>
+                        <div class="unread-badge">3</div>
+                    </div>
+                </div>
+            </a>
+            
+            <a href="#" class="conv-item">
+                <div class="avatar-wrap">
+                    <div class="avatar-initials initials-N">N</div>
+                </div>
+                <div class="conv-info">
+                    <div class="conv-name-row">
+                        <div class="conv-name">narayan <span style="color:#A0A0A0;font-weight:400;">@naran</span></div>
+                        <div class="conv-time">1d</div>
+                    </div>
+                    <div class="conv-preview-row">
+                        <div class="conv-preview">Loved the new equipment!</div>
+                    </div>
+                </div>
+            </a>
+            {% endif %}
+        </div>
+
+        <div class="sidebar-footer">
+            <a href="{% url 'user_dashboard' %}" class="return-link">
+                <i class="fa-solid fa-arrow-left"></i> Return to portal
+            </a>
         </div>
     </div>
 
+
+    <!-- ── RIGHT CHAT AREA ── -->
     <div class="chat-panel">
-        {% if active_user %}
+        {% if active_user or not contacts %}
+        
         <div class="chat-header">
-            {% if active_user.userprofile.profile_photo %}
-            <img src="{{ active_user.userprofile.profile_photo.url }}" class="conversation-avatar" alt="User">
+            <div class="chat-header-user">
+                <div class="chat-header-avatar">
+                    {% if active_user.userprofile.profile_photo %}
+                    <img src="{{ active_user.userprofile.profile_photo.url }}" alt="Avatar">
+                    {% else %}
+                    {{ active_user.username|make_list|first|upper|default:'A' }}
+                    {% endif %}
+                    <div class="header-status-dot"></div>
+                </div>
+                <div class="chat-header-info">
+                    <h2>@{{ active_user.username|default:"admin" }}</h2>
+                    <div class="chat-header-status">Active now</div>
+                </div>
+            </div>
+            <div class="chat-header-actions">
+                <i class="fa-solid fa-ellipsis"></i>
+            </div>
+        </div>
+
+        <div class="chat-body" id="chat-box">
+            <div class="date-pill">Today</div>
+            
+            {% if messages_list %}
+                {% for msg in messages_list %}
+                <div class="msg-group {% if msg.sender == user %}sent{% else %}received{% endif %}">
+                    {% if msg.sender != user %}
+                    <div class="msg-avatar">
+                        {% if msg.sender.userprofile.profile_photo %}
+                        <img src="{{ msg.sender.userprofile.profile_photo.url }}" alt="Avatar">
+                        {% else %}
+                        {{ msg.sender.username|make_list|first|upper|default:'A' }}
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="msg-avatar" style="background:#60A03D;"> <!-- Distinct color for self -->
+                        {{ user.username|make_list|first|upper|default:'Y' }}
+                    </div>
+                    {% endif %}
+
+                    <div class="msg-content-wrapper">
+                        <div class="msg-bubble">{{ msg.body }}</div>
+                        <div class="msg-meta">
+                            {{ msg.sent_at|date:"h:i A" }}
+                            {% if msg.sender == user %}
+                            <i class="fa-solid fa-check-double" style="color:#A0A0A0;"></i>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
             {% else %}
-            <img src="https://i.pravatar.cc/150?u={{ active_user.username }}" class="conversation-avatar" alt="User">
+                <!-- Hardcoded Mockup Chat if db is empty for this view -->
+                <div class="msg-group received">
+                    <div class="msg-avatar">A</div>
+                    <div class="msg-content-wrapper">
+                        <div class="msg-bubble">Hey! Welcome to FitSync 💪 How can I help you today?</div>
+                        <div class="msg-meta">11:20 AM</div>
+                    </div>
+                </div>
+                
+                <div class="msg-group sent">
+                    <div class="msg-avatar" style="background:#558C25;">Y</div>
+                    <div class="msg-content-wrapper">
+                        <div class="msg-bubble">I need resistance bands and a yoga mat for home workouts!</div>
+                        <div class="msg-meta">11:22 AM · <i class="fa-solid fa-check-double"></i></div>
+                    </div>
+                </div>
+                
+                <div class="msg-group received">
+                    <div class="msg-avatar">A</div>
+                    <div class="msg-content-wrapper">
+                        <div class="msg-bubble">Great choices! Our Resistance Band Set (₹1499) and 6mm Yoga Mat (₹999) are our best sellers 🔥</div>
+                        <div class="msg-meta">11:23 AM</div>
+                    </div>
+                </div>
             {% endif %}
-            <div>
-                <div style="font-weight: 800; font-size: 1.1rem;">
-                    {{ active_user.first_name }} {{ active_user.last_name }}
-                </div>
-                <div style="color: var(--text-muted); font-size: 0.85rem;">@{{ active_user.username }}</div>
-            </div>
         </div>
 
-        <div class="chat-messages" id="chat-box">
-            {% for msg in messages_list %}
-            <div class="message {% if msg.sender == user %}sent{% else %}received{% endif %}">
-                {% if msg.sender.userprofile.profile_photo %}
-                <img src="{{ msg.sender.userprofile.profile_photo.url }}" class="message-avatar" alt="User">
-                {% else %}
-                <img src="https://i.pravatar.cc/150?u={{ msg.sender.username }}" class="message-avatar" alt="User">
-                {% endif %}
-                <div class="message-content">
-                    <div class="message-bubble">{{ msg.body }}</div>
-                    <div class="message-time">{{ msg.sent_at|date:"M d, H:i" }}</div>
+        <div class="chat-footer">
+            <form method="post" class="chat-input-form">
+                {% csrf_token %}
+                <input type="hidden" name="receiver_id" value="{{ active_user.id|default:'' }}">
+                
+                <div class="input-wrapper">
+                    <input type="text" name="content" class="chat-input" placeholder="Type your message..." required autocomplete="off">
+                    <i class="fa-solid fa-paperclip attach-btn"></i>
                 </div>
-            </div>
-            {% empty %}
-            <div style="text-align: center; margin-top: 3rem; color: #ccc;">
-                <i class="fa-regular fa-comments" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-                <p>Start your conversation with {{ active_user.first_name }}!</p>
-            </div>
-            {% endfor %}
+                
+                <button type="submit" class="send-btn">
+                    <i class="fa-regular fa-paper-plane"></i>
+                </button>
+            </form>
         </div>
-
-        <form method="post" class="chat-input-container">
-            {% csrf_token %}
-            <input type="hidden" name="receiver_id" value="{{ active_user.id }}">
-            <input type="text" name="content" class="chat-input" placeholder="Type your message..." required
-                autocomplete="off">
-            <button type="submit" class="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
-        </form>
+        
         {% else %}
-        <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #ccc;">
+        <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #888; font-size: 14px;">
             Select a conversation to start chatting.
         </div>
         {% endif %}
     </div>
 
-    <script>
-        // Scroll to bottom of chat
-        var chatBox = document.getElementById('chat-box');
-        if (chatBox) {
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-    </script>
-</main>
+</div>
+
+<script>
+    // Scroll to bottom of chat
+    const chatBox = document.getElementById('chat-box');
+    if (chatBox) {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+</script>
 {% endblock %}

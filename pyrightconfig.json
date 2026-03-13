@@ -1,12 +1,17 @@
 {
     "pythonVersion": "3.9",
     "pythonPlatform": "Windows",
-    "venv": "",
-    "extraPaths": [
-        "."
-    ],
     "pythonPath": "C:/Users/adith/AppData/Local/Programs/Python/Python39/python.exe",
+    "extraPaths": [
+        ".",
+        "C:/Users/adith/AppData/Local/Programs/Python/Python39/lib/site-packages"
+    ],
     "reportMissingImports": false,
     "reportMissingModuleSource": false,
+    "reportMissingTypeStubs": false,
+    "reportGeneralTypeIssues": false,
+    "reportOperatorIssue": false,
+    "reportIndexIssue": false,
+    "reportAttributeAccessIssue": false,
     "typeCheckingMode": "off"
 }

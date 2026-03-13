@@ -221,7 +221,17 @@
           <div class="action-icon" style="background:#F8F4EB;color:#A89060"><i class="fa-solid fa-download"></i></div>
           <div class="action-label">Export Report</div>
           <div class="action-sub">PDF or CSV</div>
-        </div>
+        </a>
+        <a href="{% url 'video_gallery' %}" class="action-tile" style="text-decoration:none;">
+          <div class="action-icon" style="background:#E8F0E8;color:var(--sage)"><i class="fa-solid fa-play"></i></div>
+          <div class="action-label">Workout Videos</div>
+          <div class="action-sub">On-demand classes</div>
+        </a>
+        <a href="{% url 'live_session' %}" class="action-tile" style="text-decoration:none;">
+          <div class="action-icon" style="background:rgba(239, 68, 68, 0.1);color:#ef4444"><i class="fa-solid fa-video"></i></div>
+          <div class="action-label">Live Sessions</div>
+          <div class="action-sub">Join coach live</div>
+        </a>
       </div>
     </div>
 

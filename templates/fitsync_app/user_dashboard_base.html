@@ -18,9 +18,9 @@
     --warm-white: #FFFCF8;
     --stone: #8A8070;
     --stone-light: #C4BAB0;
-    --charcoal: #2D2D2D;
-    --text-mid: #5C5651;
-    --text-soft: #8A8070;
+    --charcoal: #1A1A1A;
+    --text-mid: #3D3834;
+    --text-soft: #5E5854;
     --gold: #C9A96E;
     --gold-light: #E8D5B0;
     --lavender: #C4B8D8;
@@ -41,6 +41,8 @@
     min-height: 100vh;
     display: flex;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   /* ── SIDEBAR ── */
@@ -102,7 +104,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1.5px;
-    color: var(--stone-light);
+    color: var(--text-soft);
     padding: 0 12px;
     margin-bottom: 8px;
   }
@@ -115,7 +117,7 @@
     border-radius: var(--radius-sm);
     color: var(--text-mid);
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
     margin-bottom: 2px;
@@ -209,7 +211,7 @@
   .greeting h1 {
     font-family: 'Playfair Display', serif;
     font-size: 28px;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--charcoal);
     letter-spacing: -0.5px;
   }
@@ -218,7 +220,7 @@
     font-size: 14px;
     color: var(--text-mid);
     margin-top: 4px;
-    font-weight: 500;
+    font-weight: 600;
   }
 
   .topbar-right {
@@ -320,20 +322,20 @@
   .stat-value {
     font-family: 'Playfair Display', serif;
     font-size: 30px;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--charcoal);
     line-height: 1;
     margin-bottom: 6px;
   }
 
-  .stat-label { font-size: 12px; color: var(--text-mid); font-weight: 600; }
+  .stat-label { font-size: 13px; color: var(--text-mid); font-weight: 700; letter-spacing: -0.1px; }
 
   .stat-pill {
     display: inline-flex;
     align-items: center;
     gap: 4px;
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 700;
     padding: 3px 9px;
     border-radius: 20px;
     margin-top: 10px;
@@ -604,7 +606,7 @@
   .goal-progress { height: 4px; background: var(--sage-pale); border-radius: 4px; overflow: hidden; }
   .goal-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--sage-light), var(--sage)); }
 
-  .goal-days { font-size: 11px; color: var(--text-soft); flex-shrink: 0; }
+  .goal-days { font-size: 11px; color: var(--text-mid); font-weight: 600; flex-shrink: 0; }
 
   /* Quick Actions */
   .actions-grid {
@@ -639,7 +641,7 @@
   }
 
   .action-label { font-size: 12px; font-weight: 600; color: var(--charcoal); }
-  .action-sub { font-size: 10px; color: var(--text-soft); margin-top: 2px; }
+  .action-sub { font-size: 10px; color: var(--text-mid); margin-top: 2px; font-weight: 500; }
 
   /* Recent Activity */
   .activity-item {
@@ -661,8 +663,8 @@
 
   .activity-text { flex: 1; }
   .activity-title { font-size: 13px; font-weight: 500; color: var(--charcoal); }
-  .activity-sub { font-size: 11px; color: var(--text-soft); margin-top: 2px; }
-  .activity-time { font-size: 11px; color: var(--text-soft); }
+  .activity-sub { font-size: 11px; color: var(--text-mid); margin-top: 2px; font-weight: 500; }
+  .activity-time { font-size: 11px; color: var(--text-soft); font-weight: 600; }
 
   /* ── WATER TRACKER ── */
   .water-tracker {
@@ -737,7 +739,7 @@
     font-weight: 500;
   }
 
-  .streak-text p { font-size: 14px; color: rgba(255,255,255,0.85); margin-top: 4px; font-weight: 500; }
+  .streak-text p { font-size: 14px; color: rgba(255,255,255,0.95); margin-top: 4px; font-weight: 600; }
 
   .streak-right {
     display: flex;
@@ -747,7 +749,7 @@
 
   .streak-stat { text-align: center; }
   .streak-stat-val { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--gold); }
-  .streak-stat-lbl { font-size: 11px; color: rgba(255,255,255,0.8); margin-top: 2px; font-weight: 500; }
+  .streak-stat-lbl { font-size: 11px; color: rgba(255,255,255,0.9); margin-top: 2px; font-weight: 600; }
 
   .streak-btn {
     background: var(--gold);
@@ -1466,6 +1468,12 @@ a { text-decoration: none; color: inherit; }
     <a class="nav-item" href="{% url 'workout_list' %}">
       <div class="icon"><i class="fa-solid fa-dumbbell"></i></div> Workouts
     </a>
+    <a class="nav-item" href="{% url 'video_gallery' %}">
+      <div class="icon"><i class="fa-solid fa-play"></i></div> Workout Videos
+    </a>
+    <a class="nav-item" href="{% url 'live_session' %}">
+      <div class="icon"><i class="fa-solid fa-video"></i></div> Live Sessions
+    </a>
     <a class="nav-item" href="{% url 'diet_list' %}">
       <div class="icon"><i class="fa-solid fa-utensils"></i></div> Diet Plan
     </a>
@@ -1491,6 +1499,9 @@ a { text-decoration: none; color: inherit; }
     </a>
     <a class="nav-item" href="{% url 'community' %}">
       <div class="icon"><i class="fa-solid fa-users"></i></div> Community
+    </a>
+    <a class="nav-item" href="{% url 'store' %}">
+      <div class="icon"><i class="fa-solid fa-bag-shopping"></i></div> Store
     </a>
     <a class="nav-item" href="{% url 'messages' %}">
       <div class="icon"><i class="fa-solid fa-message"></i></div> Messages {% if notifications %}<span class="badge">{{ notifications.count }}</span>{% endif %}

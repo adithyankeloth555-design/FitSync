@@ -1,362 +1,887 @@
 {% extends 'fitsync_app/base.html' %}
 {% load static %}
 
-{% block title %}FitSync Store x GNC | Premium Supplements{% endblock %}
+{% block title %}FitSync Store | Home Workout Equipment{% endblock %}
+
+{% block header %}{% endblock %}
 
 {% block extra_css %}
-<link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-    :root {
-        --gnc-red: #e61c24;
-        --gnc-red-hover: #c9171f;
-        --gnc-dark: #121212;
-        --gnc-card: #1e1e1e;
-        --gnc-border: #333333;
-        --gnc-text: #ffffff;
-        --gnc-text-muted: #aaaaaa;
-        --gnc-white-bg: #f8f9fa;
-    }
+  /* ══════════════════════════════════════════
+     FITSYNC STORE — SLATE & LIME THEME
+  ══════════════════════════════════════════ */
+  :root {
+    --bg:        #080a06;
+    --card:      #0e1409;
+    --card2:     #0e1409;
+    --border:    rgba(255, 255, 255, 0.05);
+    --lime:      #B5E443;
+    --lime-dim:  #8AB82F;
+    --lime-glow: rgba(181,228,67,0.18);
+    --text:      #d8d8d8;
+    --muted:     #2a2a28;
+    --olive:     #060804;
+    --footer-bg: #040503;
+    --gold:      #E8B84B;
+    --promo-bg:  #2a4a0e;
+    --sale-badge:#1b3a1a;
+    --blue-badge:#121b33;
+    --red-badge: #3a1111;
+    --best-badge:#2b331c;
+  }
 
-    body { background: var(--gnc-dark); font-family: 'Inter', sans-serif; color: var(--gnc-text); }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* Top Promo Bar */
-    .promo-bar {
-        background: var(--gnc-red);
-        color: white;
-        text-align: center;
-        padding: 0.6rem;
-        font-size: 0.85rem;
-        font-weight: 700;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-    }
+  body {
+    background: var(--bg);
+    font-family: 'Inter', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+  }
 
-    .store-container { max-width: 1400px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
+  /* ── PROMO BAR ── */
+  .promo-bar {
+    background: var(--promo-bg);
+    color: var(--lime-dim);
+    text-align: center;
+    padding: 9px 20px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+  .promo-bar i { font-size: 14px; }
 
-    /* Main Navigation Override for Store */
-    .store-nav {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-        padding-bottom: 1.5rem;
-        border-bottom: 1px solid var(--gnc-border);
-    }
-    .store-logo { font-family: 'Teko', sans-serif; font-size: 2.8rem; font-weight: 700; color: white; line-height: 1; letter-spacing: 1px; }
-    .store-logo span { color: var(--gnc-red); }
+  /* ── TOP NAV ── */
+  .store-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 40px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    gap: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
 
-    /* Search & Cart Bar */
-    .store-actions { display: flex; align-items: center; gap: 1.5rem; }
-    .search-box {
-        display: flex;
-        background: var(--gnc-card);
-        border: 2px solid var(--gnc-border);
-        border-radius: 4px;
-        overflow: hidden;
-        min-width: 350px;
-    }
-    .search-box input {
-        flex: 1; background: none; border: none; color: white;
-        padding: 0.8rem 1rem; font-family: 'Inter', sans-serif; font-size: 0.95rem; outline: none;
-    }
-    .search-box button {
-        background: var(--gnc-red); border: none; padding: 0 1.5rem; color: white;
-        cursor: pointer; transition: 0.2s;
-    }
-    .search-box button:hover { background: var(--gnc-red-hover); }
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
 
-    .cart-link {
-        display: flex; align-items: center; gap: 0.8rem;
-        color: white; text-decoration: none; font-weight: 700; font-size: 1rem;
-        position: relative;
-    }
-    .cart-link i { font-size: 1.4rem; }
-    .cart-badge {
-        position: absolute; top: -8px; right: -12px;
-        background: var(--gnc-red); color: white;
-        width: 22px; height: 22px; border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 0.75rem; font-weight: 800; border: 2px solid var(--gnc-dark);
-    }
+  .brand-icon {
+    width: 34px; height: 34px;
+    background: var(--lime);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    color: #111;
+  }
 
-    /* Hero Banner */
-    .hero-banner {
-        background: url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80&w=2000') center/cover no-repeat;
-        height: 400px;
-        border-radius: 8px;
-        position: relative;
-        display: flex;
-        align-items: center;
-        padding: 3rem;
-        margin-bottom: 3rem;
-        overflow: hidden;
-    }
-    .hero-banner::after {
-        content: ''; position: absolute; inset: 0;
-        background: linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 50%, transparent 100%);
-    }
-    .hero-content { position: relative; z-index: 2; max-width: 500px; }
-    .hero-subtitle { font-family: 'Teko', sans-serif; color: var(--gnc-red); font-size: 1.8rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: -0.5rem; }
-    .hero-title { font-family: 'Teko', sans-serif; font-size: 5rem; font-weight: 700; line-height: 0.9; margin-bottom: 1rem; text-transform: uppercase; }
-    .hero-btn {
-        display: inline-block; background: var(--gnc-red); color: white; text-transform: uppercase;
-        font-weight: 800; padding: 1rem 2.5rem; border-radius: 4px; text-decoration: none; letter-spacing: 1px;
-        transition: 0.3s; margin-top: 1rem;
-    }
-    .hero-btn:hover { background: white; color: var(--gnc-red); }
+  .brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+  }
 
-    /* Category Circles */
-    .shop-by-goal { margin-bottom: 4rem; }
-    .section-title { font-family: 'Teko', sans-serif; font-size: 2.5rem; text-transform: uppercase; border-bottom: 3px solid var(--gnc-red); padding-bottom: 0.5rem; display: inline-block; margin-bottom: 1.5rem; }
-    
-    .category-grid { display: flex; gap: 2rem; overflow-x: auto; padding-bottom: 1rem; }
-    .category-circ {
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        text-decoration: none; color: white; min-width: 120px;
-    }
-    .circ-img {
-        width: 120px; height: 120px; border-radius: 50%; background: var(--gnc-card);
-        border: 4px solid var(--gnc-border); display: flex; align-items: center; justify-content: center;
-        font-size: 3rem; transition: 0.3s; margin-bottom: 1rem; overflow: hidden;
-    }
-    .category-circ:hover .circ-img { border-color: var(--gnc-red); transform: scale(1.05); }
-    .category-circ.active .circ-img { border-color: var(--gnc-red); }
-    .circ-label { font-weight: 700; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 0.5px; }
+  .brand-name {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
 
-    /* Products Grid */
-    .products-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1.5rem;
-    }
+  .brand-sub {
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
 
-    /* Bold Product Cards */
-    .product-card {
-        background: var(--gnc-card);
-        border: 1px solid var(--gnc-border);
-        border-radius: 6px;
-        overflow: hidden;
-        transition: border-color 0.3s, box-shadow 0.3s;
-        display: flex;
-        flex-direction: column;
-        position: relative;
-    }
-    .product-card:hover {
-        border-color: #555;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
+  /* Search */
+  .nav-search {
+    flex: 1;
+    max-width: 400px;
+    position: relative;
+  }
 
-    /* Badges */
-    .product-badge {
-        position: absolute; top: 1rem; left: 1rem;
-        background: var(--gnc-red); color: white;
-        padding: 0.2rem 0.6rem; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; z-index: 2;
-    }
-    .badge-bestseller { background: #ff9900; color: #000; }
-    .badge-new        { background: #0066cc; }
+  .nav-search input {
+    width: 100%;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 44px 10px 16px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+  }
 
-    /* Image Wrapper - GNC style stark white */
-    .product-img-wrapper {
-        height: 240px;
-        background: var(--gnc-white-bg);
-        display: flex; align-items: center; justify-content: center;
-        position: relative; padding: 1.5rem;
-    }
-    .product-img-wrapper img {
-        max-width: 100%; max-height: 100%; object-fit: contain;
-        transition: transform 0.4s;
-    }
-    .product-card:hover .product-img-wrapper img { transform: scale(1.08); }
-    .product-icon { font-size: 5rem; color: #ccc; }
+  .nav-search input::placeholder { color: var(--muted); }
+  .nav-search input:focus { border-color: var(--lime); }
 
-    .product-body { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
-    .product-brand { font-size: 0.75rem; text-transform: uppercase; color: var(--gnc-text-muted); font-weight: 700; margin-bottom: 0.3rem; letter-spacing: 1px; }
-    .product-name {
-        font-size: 1.1rem; font-weight: 700; color: white; margin-bottom: 0.5rem; line-height: 1.3;
-        display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-    }
-    
-    .product-rating { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 1.5rem; }
-    .stars { color: #facc15; font-size: 0.9rem; }
-    .rating-num { font-size: 0.8rem; color: var(--gnc-text-muted); }
+  .nav-search-btn {
+    position: absolute;
+    right: 12px; top: 50%;
+    transform: translateY(-50%);
+    background: none; border: none;
+    color: var(--muted); cursor: pointer;
+    font-size: 15px;
+    transition: color 0.2s;
+  }
+  .nav-search-btn:hover { color: var(--lime); }
 
-    .price-block { margin-top: auto; margin-bottom: 1.5rem; }
-    .price-current { font-family: 'Teko', sans-serif; font-size: 2.2rem; font-weight: 600; color: var(--gnc-red); line-height: 1; }
-    .price-original { font-size: 0.9rem; color: var(--gnc-text-muted); text-decoration: line-through; margin-left: 0.5rem; }
+  /* Nav actions */
+  .nav-actions { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
 
-    .btn-add-cart {
-        background: transparent; color: white; border: 2px solid var(--gnc-border);
-        border-radius: 4px; padding: 0.8rem; font-weight: 700; font-size: 0.95rem; text-transform: uppercase;
-        cursor: pointer; text-align: center; display: block; text-decoration: none; transition: 0.3s;
-    }
-    .product-card:hover .btn-add-cart { background: var(--gnc-red); border-color: var(--gnc-red); }
-    .btn-add-cart:hover { filter: brightness(1.1); }
-    .btn-add-cart.out-of-stock { background: #333; border-color: #333; color: #777; pointer-events: none; }
+  .nav-cart {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 16px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+  .nav-cart:hover { border-color: var(--lime); color: var(--lime); }
 
-    /* Trust Banners */
-    .trust-strip { display: flex; justify-content: space-between; background: var(--gnc-card); border-top: 1px solid var(--gnc-border); border-bottom: 1px solid var(--gnc-border); padding: 2rem; margin-top: 4rem; }
-    .trust-item { display: flex; align-items: center; gap: 1rem; }
-    .trust-item i { font-size: 2rem; color: var(--gnc-red); }
-    .trust-text h4 { margin: 0 0 0.2rem; font-family: 'Teko', sans-serif; font-size: 1.5rem; text-transform: uppercase; line-height: 1; }
-    .trust-text p { margin: 0; font-size: 0.8rem; color: var(--gnc-text-muted); }
+  .cart-badge {
+    position: absolute;
+    top: -6px; right: -6px;
+    background: var(--lime);
+    color: #111;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    border: 2px solid var(--bg);
+  }
 
-    @media (max-width: 900px) {
-        .store-nav { flex-direction: column; gap: 1rem; align-items: stretch; }
-        .search-box { min-width: 100%; }
-        .trust-strip { flex-direction: column; gap: 2rem; }
-        .hero-banner { height: 300px; padding: 2rem; }
-        .hero-title { font-size: 3.5rem; }
-    }
+  .nav-logout {
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 14px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+  .nav-logout:hover { border-color: #E84B4B; color: #E84B4B; }
+
+  /* ── WRAPPER ── */
+  .store-wrap {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 36px 40px 80px;
+  }
+
+  /* ── HERO BLOCK ── */
+  .hero-block {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 44px 48px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+    margin-bottom: 36px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-block::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: 40%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, var(--lime-glow), transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(181,228,67,0.12);
+    border: 1px solid rgba(181,228,67,0.3);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--lime);
+    margin-bottom: 18px;
+    letter-spacing: 0.3px;
+  }
+
+  .hero-dot {
+    width: 7px; height: 7px;
+    background: var(--lime);
+    border-radius: 50%;
+    animation: pulse-lime 2s ease-in-out infinite;
+  }
+  @keyframes pulse-lime {
+    0%,100% { opacity:1; transform:scale(1); }
+    50%      { opacity:0.4; transform:scale(1.5); }
+  }
+
+  .hero-title {
+    font-size: 44px;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1.05;
+    letter-spacing: -1.5px;
+    margin-bottom: 6px;
+  }
+
+  .hero-title-lime {
+    color: var(--lime);
+  }
+
+  .hero-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 30px;
+    max-width: 340px;
+  }
+
+  .hero-btns {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+
+  .btn-lime {
+    background: var(--lime);
+    color: #111;
+    border: none;
+    border-radius: 10px;
+    padding: 13px 24px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: -0.2px;
+  }
+  .btn-lime:hover { background: #C8F54F; transform: translateY(-1px); }
+
+  .btn-ghost {
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s;
+    cursor: pointer;
+  }
+  .btn-ghost:hover { color: var(--text); }
+
+  /* Hero category mini-cards */
+  .hero-cats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .hero-cat {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+    display: block;
+  }
+
+  .hero-cat:hover {
+    border-color: var(--lime);
+    background: rgba(181,228,67,0.06);
+    transform: translateY(-2px);
+  }
+
+  .hero-cat-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+    display: block;
+    line-height: 1;
+  }
+
+  .hero-cat-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .hero-cat-count {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* ── FILTER PILLS ── */
+  .filter-pills {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+
+  .pill {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 50px;
+    padding: 9px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .pill:hover {
+    border-color: var(--lime);
+    color: var(--lime);
+  }
+
+  .pill.active {
+    background: var(--lime);
+    border-color: var(--lime);
+    color: #111;
+  }
+
+  /* ── SECTION HEADER ── */
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 22px;
+  }
+
+  .section-head-left {}
+
+  .section-label {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.5px;
+    margin-bottom: 2px;
+  }
+
+  .section-sub {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .section-link {
+    font-size: 13px;
+    color: var(--lime);
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: gap 0.2s;
+  }
+
+  .section-link:hover { gap: 8px; }
+
+  /* ── PRODUCTS GRID ── */
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 60px;
+  }
+
+  /* ── PRODUCT CARD ── */
+  .product-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+  }
+
+  .product-card:hover {
+    border-color: #3A4A3C;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 36px rgba(0,0,0,0.4);
+  }
+
+  /* Badge */
+  .prod-badge {
+    position: absolute;
+    top: 10px; left: 10px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    z-index: 3;
+  }
+
+  .badge-sale     { background: var(--sale-badge);  color: #fff; }
+  .badge-new      { background: var(--blue-badge); color: #fff; }
+  .badge-bestseller { background: var(--best-badge); color: #fff; }
+  .badge-limited  { background: var(--red-badge);  color: #fff; }
+
+  /* Product image / icon area */
+  .prod-img {
+    height: 170px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 64px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.2s;
+  }
+
+  .product-card:hover .prod-img { background: #0a0c08; }
+
+  .prod-img img {
+    max-width: 80%;
+    max-height: 80%;
+    object-fit: contain;
+    transition: transform 0.3s;
+  }
+
+  .product-card:hover .prod-img img { transform: scale(1.06); }
+
+  /* Product body */
+  .prod-body {
+    padding: 14px 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .prod-brand {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--lime-dim);
+    margin-bottom: 4px;
+  }
+
+  .prod-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+    margin-bottom: 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .prod-stars {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+
+  .stars-row { color: #F0C040; font-size: 12px; letter-spacing: 1px; }
+  .stars-count { font-size: 11px; color: var(--muted); }
+
+  /* Price row */
+  .prod-price-row {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .price-gutter { display: flex; flex-direction: column; }
+
+  .price-now {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+
+  .price-was {
+    font-size: 11px;
+    color: var(--muted);
+    text-decoration: line-through;
+    margin-top: 2px;
+  }
+
+  /* Add button */
+  .btn-add {
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    border: none;
+    background: var(--lime);
+    color: #111;
+    font-size: 18px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    text-decoration: none;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    line-height: 1;
+  }
+
+  .btn-add:hover {
+    background: #C8F54F;
+    transform: scale(1.1);
+  }
+
+  .btn-add.in-cart {
+    background: var(--lime);
+    color: #111;
+  }
+
+  .btn-add.out-of-stock {
+    background: var(--border);
+    color: var(--muted);
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--muted);
+    grid-column: 1 / -1;
+  }
+  .empty-state i { font-size: 48px; margin-bottom: 16px; color: #3A4A3C; display: block; }
+  .empty-state h3 { font-size: 20px; color: var(--text); margin-bottom: 8px; }
+  .empty-state a  { color: var(--lime); font-weight: 600; text-decoration: none; }
+
+  /* ── TRUST FOOTER ── */
+  .trust-footer {
+    background: var(--olive);
+    border-top: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .trust-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .trust-icon {
+    width: 44px; height: 44px;
+    background: rgba(181,228,67,0.1);
+    border: 1px solid rgba(181,228,67,0.2);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--lime);
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .trust-text h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .trust-text p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  .store-copyright {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--footer-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1100px) {
+    .products-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (max-width: 820px) {
+    .store-nav { padding: 14px 20px; }
+    .nav-search { max-width: 240px; }
+    .store-wrap { padding: 24px 20px 60px; }
+    .hero-block { grid-template-columns: 1fr; gap: 28px; padding: 28px; }
+    .hero-title { font-size: 32px; }
+    .products-grid { grid-template-columns: repeat(2, 1fr); }
+    .trust-footer { flex-direction: column; gap: 20px; padding: 24px; }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
+
+<!-- PROMO BAR -->
 <div class="promo-bar">
-    ⚡ FREE DOMESTIC SHIPPING ON ORDERS OVER ₹1499 | USE CODE 'FITSYNC10' FOR 10% OFF ⚡
+  <i class="fa-solid fa-bolt"></i>
+  Free delivery on orders over ₹1499 · Use <strong>FITSYNC10</strong> for 10% off
+  <i class="fa-solid fa-bolt"></i>
 </div>
 
-<div class="store-container">
+<!-- TOP NAV -->
+<nav class="store-nav">
+  <a href="{% url 'store' %}" class="nav-brand">
+    <div class="brand-icon"><i class="fa-solid fa-dumbbell"></i></div>
+    <div class="brand-text">
+      <span class="brand-name">FitSync Home</span>
+      <span class="brand-sub">Train Anywhere · No Gym Required</span>
+    </div>
+  </a>
 
-    <!-- Store Header -->
-    <div class="store-nav">
-        <div class="store-logo">FITSYNC <span>STORE</span></div>
-        <div class="store-actions">
-            <form method="get" action="{% url 'store' %}" class="search-box">
-                <input type="text" name="q" placeholder="Search brands, goals, ingredients..." value="{{ search_q }}">
-                <button type="submit"><i class="fa-solid fa-search"></i></button>
-            </form>
-            <a href="{% url 'cart' %}" class="cart-link">
-                <i class="fa-solid fa-cart-shopping"></i> My Cart
-                {% if cart_count > 0 %}
-                <span class="cart-badge">{{ cart_count }}</span>
-                {% endif %}
-            </a>
-            <a href="{% url 'order_history' %}" class="cart-link" style="margin-left:1rem; color: var(--gnc-text-muted);"><i class="fa-solid fa-user"></i></a>
-        </div>
+  <form method="get" action="{% url 'store' %}" class="nav-search">
+    <input type="text" name="q" placeholder="Search equipment..." value="{{ search_q }}" autocomplete="off">
+    {% if active_category %}<input type="hidden" name="category" value="{{ active_category }}">{% endif %}
+    <button type="submit" class="nav-search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+  </form>
+
+  <div class="nav-actions">
+    <a href="{% url 'cart' %}" class="nav-cart">
+      <i class="fa-solid fa-bag-shopping"></i>
+      Cart
+      {% if cart_count > 0 %}<span class="cart-badge">{{ cart_count }}</span>{% endif %}
+    </a>
+    <a href="{% url 'user_dashboard' %}" class="nav-logout" style="display:flex; align-items:center; gap:6px;">
+      <i class="fa-solid fa-arrow-left"></i> Return to Portal
+    </a>
+    <a href="{% url 'logout' %}" class="nav-logout" style="border-color: rgba(232,75,75,0.2); color: #E84B4B;">Logout</a>
+  </div>
+</nav>
+
+<div class="store-wrap">
+
+  <!-- ── HERO ── -->
+  {% if not search_q and not active_category %}
+  <div class="hero-block">
+    <div class="hero-left">
+      <div class="hero-badge">
+        <span class="hero-dot"></span>
+        Build Your Home Gym
+      </div>
+      <div class="hero-title">
+        Everything you need.<br>
+        <span class="hero-title-lime">Zero gym required.</span>
+      </div>
+      <p class="hero-desc">
+        Premium home workout equipment — dumbbells, resistance bands, yoga mats, push-up bars and more.
+      </p>
+      <div class="hero-btns">
+        <a href="#products" class="btn-lime">Shop equipment →</a>
+        <a href="{% url 'store' %}" class="btn-ghost">View all</a>
+      </div>
     </div>
 
-    <!-- Hero Banner (Only show if not searching/filtering) -->
-    {% if not search_q and not active_category %}
-    <div class="hero-banner">
-        <div class="hero-content">
-            <div class="hero-subtitle">New Arrival</div>
-            <div class="hero-title">Domin8<br>Pre-Workout</div>
-            <p style="color: #ddd; margin-bottom:1.5rem; font-size: 1.1rem;">High-stimulant energy. Lasered-focus. Intense pumps.</p>
-            <a href="{% url 'store' %}?category=protein" class="hero-btn">Shop Now</a>
-        </div>
+    <div class="hero-cats">
+      <a href="{% url 'store' %}?category=equipment" class="hero-cat">
+        <span class="hero-cat-icon">🏋️</span>
+        <div class="hero-cat-name">Weights</div>
+        <div class="hero-cat-count">12 products</div>
+      </a>
+      <a href="{% url 'store' %}?category=recovery" class="hero-cat">
+        <span class="hero-cat-icon">🧘</span>
+        <div class="hero-cat-name">Yoga &amp; Mat</div>
+        <div class="hero-cat-count">8 products</div>
+      </a>
+      <a href="{% url 'store' %}?category=equipment" class="hero-cat">
+        <span class="hero-cat-icon">💪</span>
+        <div class="hero-cat-name">Resistance</div>
+        <div class="hero-cat-count">10 products</div>
+      </a>
+      <a href="{% url 'store' %}?category=apparel" class="hero-cat">
+        <span class="hero-cat-icon">🔗</span>
+        <div class="hero-cat-name">Accessories</div>
+        <div class="hero-cat-count">6 products</div>
+      </a>
     </div>
-    {% endif %}
+  </div>
+  {% endif %}
 
-    <!-- Shop By Category Circles (GNC Style) -->
-    <div class="shop-by-goal">
-        <div class="section-title">Shop By Goal</div>
-        <div class="category-grid">
-            <a href="{% url 'store' %}" class="category-circ {% if not active_category %}active{% endif %}">
-                <div class="circ-img"><i class="fa-solid fa-border-all"></i></div>
-                <div class="circ-label">All Products</div>
-            </a>
-            {% for cat_key, cat_label in categories %}
-            <a href="{% url 'store' %}?category={{ cat_key }}" class="category-circ {% if active_category == cat_key %}active{% endif %}">
-                <div class="circ-img">
-                    {% if cat_key == 'protein' %}💪
-                    {% elif cat_key == 'equipment' %}🏋️
-                    {% elif cat_key == 'apparel' %}👕
-                    {% elif cat_key == 'recovery' %}🧘
-                    {% else %}💊{% endif %}
-                </div>
-                <div class="circ-label">{{ cat_label }}</div>
-            </a>
-            {% endfor %}
-        </div>
+  <!-- ── FILTER PILLS ── -->
+  <div class="filter-pills">
+    <a href="{% url 'store' %}{% if search_q %}?q={{ search_q }}{% endif %}"
+       class="pill {% if not active_category %}active{% endif %}">All Equipment</a>
+    <a href="{% url 'store' %}?category=equipment{% if search_q %}&q={{ search_q }}{% endif %}"
+       class="pill {% if active_category == 'equipment' %}active{% endif %}">Dumbbells &amp; Weights</a>
+    <a href="{% url 'store' %}?category=apparel{% if search_q %}&q={{ search_q }}{% endif %}"
+       class="pill {% if active_category == 'apparel' %}active{% endif %}">Resistance Bands</a>
+    <a href="{% url 'store' %}?category=recovery{% if search_q %}&q={{ search_q }}{% endif %}"
+       class="pill {% if active_category == 'recovery' %}active{% endif %}">Yoga &amp; Recovery</a>
+    <a href="{% url 'store' %}?category=protein{% if search_q %}&q={{ search_q }}{% endif %}"
+       class="pill {% if active_category == 'protein' %}active{% endif %}">Bars &amp; Handles</a>
+  </div>
+
+  <!-- ── PRODUCTS ── -->
+  <div class="section-head" id="products">
+    <div class="section-head-left">
+      <div class="section-label">
+        {% if search_q %}Results for "{{ search_q }}"{% else %}Trending equipment{% endif %}
+      </div>
+      <div class="section-sub">Top picks for your home gym</div>
     </div>
+    <a href="{% url 'store' %}" class="section-link">View all →</a>
+  </div>
 
-    <!-- Products -->
-    <div class="section-title">{% if search_q %}Search Results{% else %}Trending Now{% endif %}</div>
-    
-    {% if products %}
-    <div class="products-grid">
-        {% for product in products %}
-        <div class="product-card">
+  <div class="products-grid">
+    {% for product in products %}
+    <div class="product-card">
 
-            {% if product.badge %}
-            <div class="product-badge badge-{{ product.badge }}">
-                {% if product.badge == 'bestseller' %}Best Seller
-                {% elif product.badge == 'new' %}New
-                {% elif product.badge == 'sale' %}Sale
-                {% else %}{{ product.badge }}{% endif %}
-            </div>
+      {% if product.badge %}
+      <div class="prod-badge badge-{{ product.badge }}">
+        {% if product.badge == 'bestseller' %}Best Seller
+        {% elif product.badge == 'new' %}New
+        {% elif product.badge == 'sale' %}Sale
+        {% elif product.badge == 'limited' %}Limited
+        {% else %}{{ product.badge|capfirst }}{% endif %}
+      </div>
+      {% endif %}
+
+      <div class="prod-img">
+        {% if product.image %}
+          <img src="{{ product.image.url }}" alt="{{ product.name }}">
+        {% else %}
+          <!-- Category-based emoji icon -->
+          {% if product.category == 'equipment' %}
+            {% if 'dumbbell' in product.name|lower or 'weight' in product.name|lower %}💪
+            {% elif 'band' in product.name|lower or 'resistance' in product.name|lower %}🔗
+            {% elif 'rope' in product.name|lower or 'skip' in product.name|lower %}🎽
+            {% elif 'push' in product.name|lower or 'bar' in product.name|lower %}🏋️
+            {% elif 'roller' in product.name|lower %}🛞
+            {% elif 'ab' in product.name|lower %}⚙️
+            {% else %}🏋️{% endif %}
+          {% elif product.category == 'apparel' %}🧤
+          {% elif product.category == 'recovery' %}
+            {% if 'yoga' in product.name|lower or 'mat' in product.name|lower %}🧘
+            {% else %}🛞{% endif %}
+          {% else %}💪{% endif %}
+        {% endif %}
+      </div>
+
+      <div class="prod-body">
+        <div class="prod-brand">FitSync Pro</div>
+        <a href="{% url 'product_detail' product.pk %}" style="text-decoration:none;">
+          <div class="prod-name">{{ product.name }}</div>
+        </a>
+
+        <div class="prod-stars">
+          <span class="stars-row">
+            {% with rating=product.rating|floatformat:"0" %}
+            {% for i in "12345" %}{% if forloop.counter <= rating|add:"0" %}★{% else %}☆{% endif %}{% endfor %}
+            {% endwith %}
+          </span>
+          <span class="stars-count">({{ product.reviews_count }})</span>
+        </div>
+
+        <div class="prod-price-row">
+          <div class="price-gutter">
+            <span class="price-now">₹{{ product.price }}</span>
+            {% if product.original_price %}
+            <span class="price-was">₹{{ product.original_price }}</span>
             {% endif %}
-
-            <div class="product-img-wrapper">
-                {% if product.image %}
-                <img src="{{ product.image.url }}" alt="{{ product.name }}">
-                {% else %}
-                <div class="product-icon"><i class="fa-solid fa-dumbbell"></i></div>
-                {% endif %}
-            </div>
-
-            <div class="product-body">
-                <div class="product-brand">FitSync Pro</div>
-                <a href="{% url 'product_detail' product.pk %}" style="text-decoration:none;">
-                    <h3 class="product-name">{{ product.name }}</h3>
-                </a>
-
-                <div class="product-rating">
-                    <span class="stars">
-                        {% for i in "12345" %}
-                        {% if forloop.counter <= product.rating|floatformat:0|add:"0" %}★{% else %}☆{% endif %}
-                        {% endfor %}
-                    </span>
-                    <span class="rating-num">({{ product.reviews_count }})</span>
-                </div>
-
-                <div class="price-block">
-                    <span class="price-current">₹{{ product.price }}</span>
-                    {% if product.original_price %}
-                    <span class="price-original">₹{{ product.original_price }}</span>
-                    {% endif %}
-                </div>
-
-                <a href="{% url 'add_to_cart' product.pk %}" class="btn-add-cart {% if product.stock == 0 %}out-of-stock{% endif %}">
-                    {% if product.stock == 0 %}Out of Stock{% else %}Add to Cart{% endif %}
-                </a>
-            </div>
+          </div>
+          <a href="{% url 'add_to_cart' product.pk %}"
+             class="btn-add {% if product.stock == 0 %}out-of-stock{% endif %}"
+             title="{% if product.stock == 0 %}Out of stock{% else %}Add to cart{% endif %}">
+            {% if product.stock == 0 %}✕{% else %}+{% endif %}
+          </a>
         </div>
-        {% endfor %}
+      </div>
+
+    </div><!-- /product-card -->
+    {% empty %}
+    <div class="empty-state">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <h3>No equipment found</h3>
+      <p style="margin-bottom:16px;">Try clearing your filters or exploring a different category.</p>
+      <a href="{% url 'store' %}">Browse all products →</a>
     </div>
-    {% else %}
-    <div style="text-align: center; padding: 4rem 1rem; color: var(--gnc-text-muted);">
-        <i class="fa-solid fa-magnifying-glass" style="font-size: 3rem; margin-bottom: 1rem; color: #444;"></i>
-        <h2>No items match your search</h2>
-        <p>Try clearing your filters or checking a different category.</p>
-        <a href="{% url 'store' %}" style="color: var(--gnc-red); font-weight: 700; text-decoration: none;">View All Products</a>
-    </div>
-    {% endif %}
+    {% endfor %}
+  </div><!-- /products-grid -->
 
-    <!-- Trust Strip -->
-    <div class="trust-strip">
-        <div class="trust-item">
-            <i class="fa-solid fa-award"></i>
-            <div class="trust-text">
-                <h4>Authentic Products</h4>
-                <p>100% genuine supplements globally sourced.</p>
-            </div>
-        </div>
-        <div class="trust-item">
-            <i class="fa-solid fa-truck-fast"></i>
-            <div class="trust-text">
-                <h4>Fast Delivery</h4>
-                <p>Express 2-day shipping on all major pincodes.</p>
-            </div>
-        </div>
-        <div class="trust-item">
-            <i class="fa-solid fa-shield-halved"></i>
-            <div class="trust-text">
-                <h4>Secure Checkout</h4>
-                <p>256-bit AES military-grade encryption.</p>
-            </div>
-        </div>
+  <!-- ── TRUST FOOTER ── -->
+  <div class="trust-footer">
+    <div class="trust-item">
+      <div class="trust-icon"><i class="fa-solid fa-shield-halved"></i></div>
+      <div class="trust-text">
+        <h4>Quality Guaranteed</h4>
+        <p>ISI-certified equipment</p>
+      </div>
     </div>
+    <div class="trust-item">
+      <div class="trust-icon"><i class="fa-solid fa-arrow-right"></i></div>
+      <div class="trust-text">
+        <h4>Fast Delivery</h4>
+        <p>2-day express shipping</p>
+      </div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon"><i class="fa-solid fa-lock"></i></div>
+      <div class="trust-text">
+        <h4>Secure Checkout</h4>
+        <p>256-bit AES encryption</p>
+      </div>
+    </div>
+  </div>
 
-</div>
+  <div class="store-copyright">
+    © 2026 FitSync · Empowering your home fitness journey
+  </div>
+
+</div><!-- /store-wrap -->
 {% endblock %}

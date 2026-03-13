@@ -867,9 +867,20 @@ def progress_view(request):
     if full_history.count() >= 2:
         weight_change = full_history.last().weight_kg - full_history.first().weight_kg
 
+    # Goals for donut chart
+    all_goals      = Goal.objects.filter(user=request.user)
+    completed_goals = all_goals.filter(is_completed=True).count()
+    active_goals    = all_goals.filter(is_completed=False).count()
+    total_goals     = all_goals.count()
+
+    # Week / date info
+    import datetime as _dt
+    week_num = now.isocalendar()[1]
+    month_name = now.strftime("%B %Y")
+
     context = {
         'bmi_history': full_history,
-        'activity_logs': attendance_logs[:5],
+        'activity_logs': attendance_logs[:8],
         'acw': attendance_count_week,
         'total_attendance': total_attendance,
         'calories_burned': f"{calories_burned:,}",
@@ -878,7 +889,12 @@ def progress_view(request):
         'weight_change': weight_change,
         'weekly_stats': weekly_stats,
         'weight_stats': weight_stats,
-        'last_sync': now.strftime("%H:%M")
+        'last_sync': now.strftime("%H:%M"),
+        'week_num': week_num,
+        'month_name': month_name,
+        'completed_goals': completed_goals,
+        'active_goals': active_goals,
+        'total_goals': total_goals,
     }
     return render(request, 'fitsync_app/progress.html', context)
 
@@ -2627,14 +2643,14 @@ def store_view(request):
     # Auto-seed default products if store is empty
     if not Product.objects.exists():
         defaults = [
-            {'name': 'FitSync Whey Protein', 'description': 'Premium whey protein with 25g protein per serving. Chocolate & Vanilla flavours. Supports muscle recovery and growth after intense workouts.', 'price': 2499, 'original_price': 3199, 'category': 'protein', 'stock': 20, 'rating': 4.8, 'reviews_count': 312, 'badge': 'bestseller'},
-            {'name': 'Resistance Band Set', 'description': '5-level resistance bands for home workouts, rehab, and stretching. Durable latex construction, suitable for all fitness levels.', 'price': 699, 'original_price': 999, 'category': 'equipment', 'stock': 50, 'rating': 4.6, 'reviews_count': 187, 'badge': 'sale'},
-            {'name': 'Pro Gym Gloves', 'description': 'Full palm protection with wrist support. Breathable mesh back, anti-slip grip. Perfect for heavy lifting sessions.', 'price': 399, 'original_price': None, 'category': 'apparel', 'stock': 35, 'rating': 4.3, 'reviews_count': 95, 'badge': ''},
-            {'name': 'FitSync Shaker Bottle', 'description': '600ml BPA-free shaker with leak-proof lid. Stainless steel mixing ball for smooth protein shakes. Includes storage compartment.', 'price': 199, 'original_price': 299, 'category': 'equipment', 'stock': 100, 'rating': 4.5, 'reviews_count': 228, 'badge': 'new'},
-            {'name': 'Adjustable Dumbbell Set', 'description': 'Space-saving adjustable dumbbell pair. Adjusts from 2.5kg to 25kg per side. Ideal for home gym setups.', 'price': 4999, 'original_price': 6999, 'category': 'equipment', 'stock': 10, 'rating': 4.9, 'reviews_count': 143, 'badge': 'limited'},
-            {'name': 'Creatine Monohydrate', 'description': 'Pure micronized creatine monohydrate — 3g per serving. Unflavored, mixes instantly. Boosts strength and power output.', 'price': 849, 'original_price': None, 'category': 'protein', 'stock': 40, 'rating': 4.7, 'reviews_count': 204, 'badge': 'bestseller'},
-            {'name': 'Yoga Mat (6mm)', 'description': 'Anti-slip, high-density yoga and exercise mat. 183 x 61cm. Ideal for yoga, pilates, stretching, and bodyweight workouts.', 'price': 599, 'original_price': 799, 'category': 'equipment', 'stock': 60, 'rating': 4.4, 'reviews_count': 76, 'badge': 'sale'},
-            {'name': 'Foam Roller', 'description': 'Deep-tissue self-massage foam roller for muscle recovery and myofascial release. High-density EVA foam, 30cm length.', 'price': 449, 'original_price': None, 'category': 'recovery', 'stock': 25, 'rating': 4.6, 'reviews_count': 119, 'badge': 'new'},
+            {'name': 'Workout Gloves',        'description': 'Full palm protection with wrist support. Breathable mesh back, anti-slip grip. Perfect for heavy lifting and pull-up sessions.', 'price': 699,  'original_price': 900,  'category': 'apparel',   'stock': 35,  'rating': 4.6, 'reviews_count': 24,  'badge': 'sale'},
+            {'name': 'Ab Roller Pro',          'description': 'Extra-wide dual-wheel ab roller with non-slip handles and knee pad. Builds core strength and stability for home workouts.', 'price': 899,  'original_price': 1400, 'category': 'equipment', 'stock': 40,  'rating': 4.5, 'reviews_count': 18,  'badge': 'new'},
+            {'name': 'Resistance Band Set',    'description': '5-level resistance bands for home workouts, rehab, and stretching. Durable latex construction, suitable for all fitness levels.', 'price': 1499, 'original_price': 2499, 'category': 'equipment', 'stock': 50,  'rating': 4.8, 'reviews_count': 61,  'badge': 'bestseller'},
+            {'name': 'Adjustable Dumbbells',   'description': 'Space-saving adjustable dumbbell pair. Adjusts from 2.5 kg to 25 kg per side. Ideal for home gym setups and progressive overload.', 'price': 4999, 'original_price': 6800, 'category': 'equipment', 'stock': 10,  'rating': 4.7, 'reviews_count': 39,  'badge': 'limited'},
+            {'name': 'Yoga Mat (6mm)',          'description': 'Anti-slip, high-density yoga and exercise mat. 183 × 61 cm. Ideal for yoga, pilates, stretching, and bodyweight workouts at home.', 'price': 999,  'original_price': 1500, 'category': 'recovery',  'stock': 60,  'rating': 4.5, 'reviews_count': 47,  'badge': 'sale'},
+            {'name': 'Foam Roller',             'description': 'Deep-tissue self-massage foam roller for muscle recovery and myofascial release. High-density EVA foam, 30 cm length.', 'price': 1299, 'original_price': 1800, 'category': 'recovery',  'stock': 25,  'rating': 4.4, 'reviews_count': 33,  'badge': ''},
+            {'name': 'Skipping Rope',           'description': 'Ball-bearing speed jump rope with adjustable cable and foam-grip handles. Great for cardio, HIIT, and warm-up routines.', 'price': 499,  'original_price': 700,  'category': 'equipment', 'stock': 80,  'rating': 4.6, 'reviews_count': 55,  'badge': ''},
+            {'name': 'Push-up Bars',            'description': 'Ergonomic push-up handles with non-slip base. Increases range of motion, reduces wrist strain, and builds upper-body strength.', 'price': 799,  'original_price': 1200, 'category': 'equipment', 'stock': 45,  'rating': 4.5, 'reviews_count': 42,  'badge': ''},
         ]
         for d in defaults:
             Product.objects.create(**d)

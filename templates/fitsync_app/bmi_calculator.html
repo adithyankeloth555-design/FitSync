@@ -1,375 +1,738 @@
-{% extends 'fitsync_app/base.html' %}
+{% extends 'fitsync_app/user_dashboard_base.html' %}
 {% load static %}
 
 {% block title %}BMI Calculator | FitSync Elite{% endblock %}
 
-{% block header %}{% endblock %}
-{% block footer %}{% endblock %}
-
 {% block extra_css %}
 <style>
-    :root {
-        --admin-bg: var(--bg-primary);
-        --sidebar-bg: var(--bg-tertiary);
-        --accent-orange: var(--gold);
-        --text-dark: var(--text-primary);
-        --text-muted: var(--text-muted);
-        --white: var(--bg-secondary);
-        --border-color: var(--border-color);
-    }
+  /* ── PAGE WRAPPER ── */
+  .bmi-page {
+    min-height: 100vh;
+    padding: 0;
+  }
 
-    body {
-        background-color: var(--admin-bg);
-        color: var(--text-dark);
-        font-family: 'Inter', sans-serif;
-        margin: 0;
-    }
+  .bmi-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-mid);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 28px;
+    padding: 9px 18px;
+    border-radius: 50px;
+    background: white;
+    border: 1.5px solid rgba(143,175,143,0.2);
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .bmi-back:hover {
+    background: var(--sage-pale);
+    border-color: var(--sage-light);
+    color: var(--sage);
+    transform: translateX(-3px);
+  }
 
-    .admin-wrapper {
-        display: flex;
-        min-height: 100vh;
-    }
+  .bmi-page-header {
+    margin-bottom: 32px;
+  }
+  .bmi-page-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 30px;
+    font-weight: 500;
+    color: var(--charcoal);
+    margin-bottom: 4px;
+  }
+  .bmi-page-header p {
+    font-size: 14px;
+    color: var(--text-soft);
+  }
 
-    /* Sidebar removed */
+  /* ── SPLIT PANEL ── */
+  .bmi-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+    min-height: 480px;
+  }
 
-    /* Main Content Area */
-    .main-content {
-        margin: 0 auto;
-        max-width: 1400px;
-        flex-grow: 1;
-        padding: 2.5rem;
-    }
+  /* ── LEFT PANEL ── */
+  .bmi-left {
+    background: #2A2A2A;
+    padding: 40px 44px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
 
-    .back-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.8rem;
-        color: var(--text-muted);
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.9rem;
-        margin-bottom: 2rem;
-        transition: 0.3s;
-        padding: 0.8rem 1.5rem;
-        border-radius: 50px;
-        background: var(--bg-tertiary);
-        border: 1px solid var(--border-color);
-        box-shadow: var(--shadow-sm);
-    }
+  .panel-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: #FFFFFF;
+    margin-bottom: 36px;
+    letter-spacing: -0.3px;
+  }
 
-    .back-btn:hover {
-        color: var(--accent-orange);
-        transform: translateX(-5px);
-        box-shadow: var(--shadow-glow);
-    }
+  .bmi-field {
+    margin-bottom: 22px;
+  }
 
-    .page-header {
-        margin-bottom: 2.5rem;
-        text-align: center;
-    }
+  .bmi-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: #9A9A9A;
+    margin-bottom: 8px;
+    letter-spacing: 0.3px;
+  }
 
-    .header-info h1 {
-        font-family: 'Inter', serif;
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--accent-orange);
-        margin: 0;
-    }
+  .bmi-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
 
-    .calc-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2rem;
-        align-items: start;
-    }
+  .bmi-input {
+    width: 100%;
+    background: #353535;
+    border: none;
+    border-radius: 10px;
+    padding: 16px 50px 16px 16px;
+    font-size: 18px;
+    font-weight: 500;
+    color: #FFFFFF;
+    outline: none;
+    transition: background 0.2s, box-shadow 0.2s;
+    font-family: 'DM Sans', sans-serif;
+    -moz-appearance: textfield;
+  }
+  .bmi-input::-webkit-inner-spin-button,
+  .bmi-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .bmi-input:focus {
+    background: #3D3D3D;
+    box-shadow: 0 0 0 2px rgba(52,199,120,0.3);
+  }
 
-    .calc-card {
-        background: var(--white);
-        padding: 2.5rem;
-        border-radius: 12px;
-        border: 1px solid var(--border-color);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
+  .bmi-unit {
+    position: absolute;
+    right: 16px;
+    font-size: 13px;
+    color: #777;
+    font-weight: 500;
+    pointer-events: none;
+  }
 
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
+  .bmi-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 32px;
+  }
 
-    .form-group label {
-        display: block;
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: var(--text-muted);
-        margin-bottom: 0.6rem;
-    }
+  .bmi-mini-card {
+    background: #E9F4E9;
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
 
-    .form-control {
-        width: 100%;
-        padding: 1rem 1.2rem;
-        background: var(--bg-tertiary);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        font-size: 1rem;
-        color: var(--text-primary);
-        outline: none;
-        transition: 0.2s;
-    }
+  .bmi-mini-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5A9A5A;
+    margin-bottom: 8px;
+  }
 
-    .form-control:focus {
-        border-color: var(--accent-orange);
-        background: var(--bg-tertiary);
-        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
-    }
+  .bmi-mini-val {
+    font-size: 26px;
+    font-weight: 600;
+    color: #2A5A2A;
+    font-family: 'DM Sans', sans-serif;
+  }
 
-    .btn-calc {
-        width: 100%;
-        background: var(--accent-orange);
-        color: #000;
-        border: none;
-        padding: 1.1rem;
-        border-radius: 8px;
-        font-size: 1rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: 0.3s;
-        margin-top: 1rem;
-    }
+  .bmi-gender-card {
+    background: #353535;
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
 
-    .btn-calc:hover {
-        background: #ea580c;
-        transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(234, 88, 12, 0.4);
-    }
+  .bmi-gender-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #7A7A7A;
+    margin-bottom: 8px;
+  }
 
-    /* Result UI */
-    .result-display {
-        text-align: center;
-    }
+  .bmi-gender-select {
+    background: transparent;
+    border: none;
+    color: #FFFFFF;
+    font-size: 18px;
+    font-weight: 500;
+    outline: none;
+    cursor: pointer;
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    -webkit-appearance: none;
+  }
+  .bmi-gender-select option { background: #2A2A2A; }
 
-    #bmiValue {
-        font-family: 'Inter', serif;
-        font-size: 4rem;
-        font-weight: 900;
-        color: var(--accent-orange);
-        line-height: 1;
-        margin-bottom: 0.5rem;
-    }
+  .bmi-gender-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
 
-    #bmiStatus {
-        font-size: 1.5rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-bottom: 2rem;
-    }
+  .gender-chevron {
+    color: #7A7A7A;
+    font-size: 14px;
+  }
 
-    /* Progress Meter */
-    .meter-container {
-        position: relative;
-        height: 12px;
-        background: var(--bg-tertiary);
-        border-radius: 50px;
-        margin: 3rem 0;
-        overflow: visible;
-    }
+  .btn-run {
+    width: 100%;
+    background: linear-gradient(135deg, #34C778, #27A85E);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 18px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.25s;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.2px;
+    box-shadow: 0 8px 24px rgba(52,199,120,0.3);
+  }
+  .btn-run:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 32px rgba(52,199,120,0.4);
+    background: linear-gradient(135deg, #3DD486, #2FC069);
+  }
+  .btn-run:active { transform: translateY(0); }
 
-    .meter-labels {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 1rem;
-        font-size: 0.7rem;
-        font-weight: 700;
-        color: var(--text-muted);
-        text-transform: uppercase;
-    }
+  .btn-run-icon {
+    font-size: 18px;
+    display: flex;
+  }
 
-    .meter-pointer {
-        position: absolute;
-        top: -10px;
-        width: 4px;
-        height: 32px;
-        background: var(--text-primary);
-        border-radius: 2px;
-        transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    }
+  /* ── RIGHT PANEL ── */
+  .bmi-right {
+    background: #323232;
+    padding: 44px 44px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
 
-    .bmi-advice {
-        background: var(--bg-tertiary);
-        padding: 1.5rem;
-        border-radius: 12px;
-        border-left: 4px solid var(--accent-orange);
-        font-size: 0.95rem;
-        line-height: 1.6;
-        color: var(--text-muted);
-        margin-bottom: 2rem;
-    }
+  /* ── GAUGE ── */
+  .gauge-wrap {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 28px;
+  }
 
-    .btn-save {
-        background: var(--text-primary);
-        color: var(--bg-primary);
-        border: none;
-        padding: 0.9rem;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: 0.2s;
-        width: 100%;
-        margin-bottom: 1rem;
-    }
+  .gauge-svg-wrap {
+    position: relative;
+    width: 260px;
+    height: 145px;
+    margin-bottom: 6px;
+  }
 
-    .btn-save:hover {
-        opacity: 0.9;
-    }
+  #gauge-svg {
+    width: 260px;
+    height: 145px;
+    overflow: visible;
+  }
 
-    .btn-outline {
-        display: block;
-        padding: 0.9rem;
-        border: 2px solid var(--border-color);
-        border-radius: 8px;
-        color: var(--text-primary);
-        text-decoration: none;
-        font-weight: 700;
-        font-size: 0.9rem;
-        transition: 0.2s;
-    }
+  .gauge-bmi-text {
+    position: absolute;
+    top: 56%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 32px;
+    font-weight: 700;
+    color: #5BC87A;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: -1px;
+    text-shadow: 0 0 20px rgba(91,200,122,0.4);
+    transition: all 0.4s;
+  }
 
-    .btn-outline:hover {
-        border-color: var(--text-primary);
-        background: var(--bg-tertiary);
-    }
+  .gauge-label {
+    font-size: 13px;
+    color: #9A9A9A;
+    font-weight: 500;
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+  }
 
-    .placeholder-text {
-        color: var(--text-muted);
-        font-style: italic;
+  /* ── STATUS CARD ── */
+  .bmi-status-card {
+    width: 100%;
+    background: #E9F4E9;
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    transition: all 0.4s;
+  }
+
+  .bmi-status-name {
+    font-size: 17px;
+    font-weight: 700;
+    color: #2A6A2A;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .bmi-status-range {
+    font-size: 13px;
+    color: #5A9A5A;
+    font-weight: 600;
+    text-align: right;
+    line-height: 1.3;
+  }
+
+  /* ── METRIC ROW ── */
+  .bmi-metrics {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .bmi-metric {
+    background: #2A2A2A;
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+
+  .bmi-metric-label {
+    font-size: 11px;
+    color: #7A7A7A;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  .bmi-metric-val {
+    font-size: 20px;
+    font-weight: 600;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .bmi-metric-val.risk-low { color: #34C778; }
+  .bmi-metric-val.risk-moderate { color: #F0A830; }
+  .bmi-metric-val.risk-high { color: #E05050; }
+
+  /* Placeholder state */
+  .bmi-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    opacity: 0.4;
+  }
+  .bmi-placeholder i { font-size: 48px; color: #7A7A7A; margin-bottom: 16px; }
+  .bmi-placeholder p { font-size: 14px; color: #9A9A9A; }
+
+  /* ── SAVE SECTION ── */
+  .bmi-save-row {
+    width: 100%;
+    margin-top: 18px;
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn-save-bmi {
+    flex: 1;
+    background: rgba(52,199,120,0.15);
+    border: 1.5px solid rgba(52,199,120,0.4);
+    color: #34C778;
+    border-radius: 10px;
+    padding: 11px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+  }
+  .btn-save-bmi:hover {
+    background: rgba(52,199,120,0.25);
+  }
+
+  .btn-history-bmi {
+    flex: 1;
+    background: transparent;
+    border: 1.5px solid #484848;
+    color: #9A9A9A;
+    border-radius: 10px;
+    padding: 11px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+  }
+  .btn-history-bmi:hover {
+    background: #3A3A3A;
+    color: #CCCCCC;
+    border-color: #5A5A5A;
+  }
+
+  /* ── ANIMATION ── */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-visible { animation: fadeInUp 0.4s ease both; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .bmi-split {
+      grid-template-columns: 1fr;
     }
+    .bmi-right { padding: 36px 32px; }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<main class="main-content">
-    <a href="{% url 'user_dashboard' %}" class="back-btn">
-        <i class="fa-solid fa-arrow-left"></i> RETURN TO PORTAL
-    </a>
-    <header class="page-header">
-        <div class="header-info">
-            <h1>BMI Index Calculator</h1>
-            <p>Establishing your biometric baseline for precision training protocols.</p>
-        </div>
-    </header>
+<div class="main" style="margin-left: var(--sidebar-width);">
+  <a href="{% url 'user_dashboard' %}" class="bmi-back">
+    <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+  </a>
 
-    <div class="calc-container">
-        <div class="calc-card">
-            <form id="bmiForm">
-                <div class="form-group">
-                    <label>Body Weight (kg)</label>
-                    <input type="number" id="weight" class="form-control" step="0.1" placeholder="e.g. 75.0" required>
-                </div>
-                <div class="form-group">
-                    <label>Stature Height (cm)</label>
-                    <input type="number" id="height" class="form-control" step="0.1" placeholder="e.g. 180.0" required>
-                </div>
-                <button type="button" onclick="calculateBMI()" class="btn-calc">
-                    <i class="fa-solid fa-calculator"></i> Execute Analysis
-                </button>
-            </form>
+  <div class="bmi-page-header">
+    <h1>BMI Index Calculator</h1>
+    <p>Analyse your biometric baseline with precision.</p>
+  </div>
+
+  <div class="bmi-split">
+
+    <!-- ── LEFT: INPUTS ── -->
+    <div class="bmi-left">
+      <div>
+        <div class="panel-title">Enter measurements</div>
+
+        <div class="bmi-field">
+          <label>Weight</label>
+          <div class="bmi-input-wrap">
+            <input id="weight" type="number" class="bmi-input" value="{{ user.userprofile.weight_kg|default:'75' }}" step="0.1" min="20" max="300" autocomplete="off">
+            <span class="bmi-unit">kg</span>
+          </div>
         </div>
 
-        <div class="calc-card result-display" id="resultCard" style="display: none;">
-            <div id="bmiValue">--.-</div>
-            <div id="bmiStatus">--</div>
+        <div class="bmi-field">
+          <label>Height</label>
+          <div class="bmi-input-wrap">
+            <input id="height" type="number" class="bmi-input" value="{{ user.userprofile.height_cm|default:'180' }}" step="0.1" min="50" max="280" autocomplete="off">
+            <span class="bmi-unit">cm</span>
+          </div>
+        </div>
 
-            <div class="meter-container">
-                <div class="meter-pointer" id="bmiPointer"></div>
-                <div class="meter-labels">
-                    <span>Low</span>
-                    <span>Ideal</span>
-                    <span>High</span>
-                    <span>Risk</span>
-                </div>
+        <div class="bmi-row">
+          <!-- Age mini card -->
+          <div class="bmi-mini-card">
+            <div class="bmi-mini-label">Age</div>
+            <input id="age" type="number" value="28" min="5" max="120"
+              style="background:transparent;border:none;font-size:26px;font-weight:600;color:#2A5A2A;font-family:'DM Sans',sans-serif;width:100%;outline:none;-moz-appearance:textfield;">
+          </div>
+          <!-- Gender dropdown -->
+          <div class="bmi-gender-card">
+            <div class="bmi-gender-label">Gender</div>
+            <div class="bmi-gender-wrap">
+              <select id="gender" class="bmi-gender-select">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+              <span class="gender-chevron">&#8964;</span>
             </div>
-
-            <div class="bmi-advice" id="bmiAdvice">
-                Analytical results pending parameter input.
-            </div>
-
-            {% if user.is_authenticated %}
-            <form method="post" id="saveBmiForm">
-                {% csrf_token %}
-                <input type="hidden" name="weight" id="saveWeight">
-                <input type="hidden" name="height" id="saveHeight">
-                <input type="hidden" name="bmi" id="saveBmi">
-                <button type="submit" class="btn-save">
-                    <i class="fa-solid fa-cloud-arrow-up"></i> Save Biometrics
-                </button>
-            </form>
-            {% endif %}
-
-            <a href="{% url 'bmi_history' %}" class="btn-outline">
-                <i class="fa-solid fa-clock-rotate-left"></i> View Vitality History
-            </a>
+          </div>
         </div>
+      </div>
 
-        <div class="calc-card result-display" id="placeholderCard">
-            <div style="padding: 2rem; color: var(--text-muted);">
-                <i class="fa-solid fa-magnifying-glass-chart fa-4x" style="opacity: 0.1; margin-bottom: 2rem;"></i>
-                <h3>Baseline Analysis Pending</h3>
-                <p>Enter your physiological parameters on the left to begin the architectural analysis.</p>
-            </div>
-        </div>
+      <button class="btn-run" onclick="runAnalysis()">
+        <span class="btn-run-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+        </span>
+        Run Analysis
+      </button>
     </div>
-</main>
+
+    <!-- ── RIGHT: RESULTS ── -->
+    <div class="bmi-right">
+
+      <!-- Placeholder (before calculation) -->
+      <div id="bmiPlaceholder" class="bmi-placeholder">
+        <i class="fa-solid fa-chart-pie"></i>
+        <p>Enter your measurements<br>and click Run Analysis</p>
+      </div>
+
+      <!-- Results (shown after calculation) -->
+      <div id="bmiResults" style="display:none; width:100%;" class="result-visible">
+
+        <!-- Gauge -->
+        <div class="gauge-wrap">
+          <div class="gauge-svg-wrap">
+            <svg id="gauge-svg" viewBox="0 0 260 145">
+              <!-- Background arc segments -->
+              <!-- Underweight: blue/cyan -->
+              <path id="seg-underweight" d="" stroke="#4FC3C3" stroke-width="14" fill="none" stroke-linecap="round" opacity="0.9"/>
+              <!-- Normal: green -->
+              <path id="seg-normal" d="" stroke="#5BC87A" stroke-width="14" fill="none" stroke-linecap="round" opacity="0.9"/>
+              <!-- Overweight: orange -->
+              <path id="seg-overweight" d="" stroke="#F0A830" stroke-width="14" fill="none" stroke-linecap="round" opacity="0.9"/>
+              <!-- Obese: red -->
+              <path id="seg-obese" d="" stroke="#E05050" stroke-width="14" fill="none" stroke-linecap="round" opacity="0.9"/>
+              <!-- Grey remainder -->
+              <path id="seg-grey" d="" stroke="#4A4A4A" stroke-width="14" fill="none" stroke-linecap="round" opacity="0.6"/>
+              <!-- Needle -->
+              <line id="needle" x1="130" y1="130" x2="130" y2="50" stroke="#34C778" stroke-width="2.5" stroke-linecap="round"
+                    style="transform-origin:130px 130px; transition: transform 0.7s cubic-bezier(0.34,1.25,0.64,1)"/>
+              <!-- Needle centre dot -->
+              <circle cx="130" cy="130" r="6" fill="#34C778"/>
+              <circle cx="130" cy="130" r="3" fill="#2A2A2A"/>
+            </svg>
+            <div class="gauge-bmi-text" id="gaugeBmiNum">—</div>
+          </div>
+          <div class="gauge-label">BMI Index</div>
+        </div>
+
+        <!-- Status chip -->
+        <div class="bmi-status-card" id="statusCard">
+          <span class="bmi-status-name" id="statusName">—</span>
+          <span class="bmi-status-range" id="statusRange">—</span>
+        </div>
+
+        <!-- Metrics row -->
+        <div class="bmi-metrics">
+          <div class="bmi-metric">
+            <div class="bmi-metric-label">Ideal weight</div>
+            <div class="bmi-metric-val" id="idealWeight">—</div>
+          </div>
+          <div class="bmi-metric">
+            <div class="bmi-metric-label">Risk level</div>
+            <div class="bmi-metric-val risk-low" id="riskLevel">—</div>
+          </div>
+        </div>
+
+        <!-- Save / History -->
+        <div class="bmi-save-row">
+          {% if user.is_authenticated %}
+          <form method="post" id="saveBmiForm" style="flex:1; margin:0;">
+            {% csrf_token %}
+            <input type="hidden" name="weight" id="saveWeight">
+            <input type="hidden" name="height" id="saveHeight">
+            <input type="hidden" name="bmi"    id="saveBmi">
+            <button type="submit" class="btn-save-bmi" style="width:100%;">
+              <i class="fa-solid fa-cloud-arrow-up"></i> Save Record
+            </button>
+          </form>
+          {% endif %}
+          <a href="{% url 'bmi_history' %}" class="btn-history-bmi">
+            <i class="fa-solid fa-clock-rotate-left"></i> History
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div><!-- /bmi-split -->
+</div><!-- /main -->
 
 <script>
-    function calculateBMI() {
-        const w = document.getElementById('weight').value;
-        const h = document.getElementById('height').value / 100;
+  /* ─── Arc helpers ─────────────────────────────────────────── */
+  const CX = 130, CY = 130, R = 100;
 
-        if (w && h) {
-            const bmi = (w / (h * h)).toFixed(1);
-            document.getElementById('bmiValue').innerText = bmi;
-            document.getElementById('placeholderCard').style.display = 'none';
-            document.getElementById('resultCard').style.display = 'block';
+  function polarToXY(angleDeg) {
+    const rad = (angleDeg - 180) * Math.PI / 180;
+    return { x: CX + R * Math.cos(rad), y: CY + R * Math.sin(rad) };
+  }
 
-            let status = '';
-            let advice = '';
-            let percent = 0;
-            let statusColor = 'var(--text-dark)';
+  function arcPath(startDeg, endDeg) {
+    if (endDeg <= startDeg) return '';
+    const s = polarToXY(startDeg);
+    const e = polarToXY(endDeg);
+    const large = (endDeg - startDeg) > 180 ? 1 : 0;
+    return `M ${s.x} ${s.y} A ${R} ${R} 0 ${large} 1 ${e.x} ${e.y}`;
+  }
 
-            if (bmi < 18.5) {
-                status = 'Underweight';
-                advice = 'Your biometric index indicates a requirement for caloric surplus and hypertrophy training focus.';
-                percent = Math.max((bmi / 40) * 100, 5);
-                statusColor = '#854d0e';
-            } else if (bmi < 25) {
-                status = 'Healthy Baseline';
-                advice = 'Optimal physiological state detected. Maintain current training volume and macro-nutrient distribution.';
-                percent = (bmi / 40) * 100;
-                statusColor = '#15803d';
-            } else if (bmi < 30) {
-                status = 'Overweight';
-                advice = 'Biometric indices suggest a requirement for increased cardiovascular activation and metabolic optimization.';
-                percent = (bmi / 40) * 100;
-                statusColor = '#b45309';
-            } else {
-                status = 'High Risk (Obese)';
-                advice = 'Critical biometric threshold reached. Immediate implementation of sustained caloric deficit and metabolic conditioning recommended.';
-                percent = Math.min((bmi / 40) * 100, 95);
-                statusColor = '#991b1b';
-            }
+  /*
+    BMI scale mapped to 0°–180° arc:
+    0–15     → 0°
+    15–18.5  → 0°–40°   (underweight)
+    18.5–25  → 40°–100° (normal)
+    25–30    → 100°–140° (overweight)
+    30–40    → 140°–180° (obese)
+    40+      → clamp 180°
+  */
+  function bmiToAngle(bmi) {
+    if (bmi <= 15)  return 0;
+    if (bmi <= 18.5) return ((bmi - 15) / 3.5)  * 40;
+    if (bmi <= 25)   return 40 + ((bmi - 18.5) / 6.5) * 60;
+    if (bmi <= 30)   return 100 + ((bmi - 25)  / 5)   * 40;
+    if (bmi <= 40)   return 140 + ((bmi - 30)  / 10)  * 40;
+    return 180;
+  }
 
-            document.getElementById('bmiStatus').innerText = status;
-            document.getElementById('bmiStatus').style.color = statusColor;
-            document.getElementById('bmiAdvice').innerText = advice;
-            document.getElementById('bmiPointer').style.left = percent + '%';
+  function drawGauge(bmi) {
+    const angle = bmiToAngle(bmi);
 
-            if (document.getElementById('saveWeight')) {
-                document.getElementById('saveWeight').value = w;
-                document.getElementById('saveHeight').value = h * 100;
-                document.getElementById('saveBmi').value = bmi;
-            }
-        }
+    // segment endpoints (fixed colour zones)
+    const zones = [
+      { id: 'seg-underweight', start: 0,   end: 40  },
+      { id: 'seg-normal',      start: 40,  end: 100 },
+      { id: 'seg-overweight',  start: 100, end: 140 },
+      { id: 'seg-obese',       start: 140, end: 180 },
+    ];
+
+    zones.forEach(z => {
+      const el = document.getElementById(z.id);
+      // Only draw the portion up to the needle angle (lit part)
+      const end = Math.min(z.end, angle);
+      el.setAttribute('d', end > z.start ? arcPath(z.start, end) : '');
+    });
+
+    // grey remainder
+    const grey = document.getElementById('seg-grey');
+    grey.setAttribute('d', angle < 180 ? arcPath(angle, 180) : '');
+
+    // needle rotation: angle 0° = pointing left (-90° visual), 180° = pointing right (+90°)
+    const needleRot = angle - 90; // map 0-180 to -90..+90
+    document.getElementById('needle').style.transform = `rotate(${needleRot}deg)`;
+  }
+
+  /* ─── Main calculation ────────────────────────────────────── */
+  function runAnalysis() {
+    const w = parseFloat(document.getElementById('weight').value);
+    const hCm = parseFloat(document.getElementById('height').value);
+    const age = parseInt(document.getElementById('age').value) || 28;
+
+    if (!w || !hCm || hCm <= 0) {
+      alert('Please enter valid weight and height values.');
+      return;
     }
+
+    const h = hCm / 100;
+    const bmi = parseFloat((w / (h * h)).toFixed(1));
+
+    // Ideal weight range (Devine formula ±15%)
+    const baseIdeal = hCm > 152 ? (50 + 2.3 * ((hCm - 152.4) / 2.54)) : 50;
+    const lo = Math.round(baseIdeal * 0.9);
+    const hi = Math.round(baseIdeal * 1.1);
+
+    let statusName, statusRange, riskText, riskClass, cardBg, cardTextColor, cardRangColor;
+
+    if (bmi < 18.5) {
+      statusName = 'Underweight';
+      statusRange = '< 18.5';
+      riskText = 'Moderate';
+      riskClass = 'risk-moderate';
+      cardBg = '#E9F0F4'; cardTextColor = '#2A5A7A'; cardRangColor = '#5A8AAA';
+    } else if (bmi < 25) {
+      statusName = 'Normal weight';
+      statusRange = '18.5–24.9';
+      riskText = 'Low';
+      riskClass = 'risk-low';
+      cardBg = '#E9F4E9'; cardTextColor = '#2A6A2A'; cardRangColor = '#5A9A5A';
+    } else if (bmi < 30) {
+      statusName = 'Overweight';
+      statusRange = '25–29.9';
+      riskText = 'Elevated';
+      riskClass = 'risk-moderate';
+      cardBg = '#FDF4E3'; cardTextColor = '#7A5A1A'; cardRangColor = '#AA8040';
+    } else {
+      statusName = 'Obese';
+      statusRange = '≥ 30';
+      riskText = 'High';
+      riskClass = 'risk-high';
+      cardBg = '#F5EAEA'; cardTextColor = '#7A2A2A'; cardRangColor = '#AA5050';
+    }
+
+    // Update DOM
+    document.getElementById('gaugeBmiNum').textContent = bmi;
+    document.getElementById('statusName').textContent  = statusName;
+    document.getElementById('statusRange').textContent = statusRange;
+    document.getElementById('idealWeight').textContent = `${lo}–${hi} kg`;
+
+    const riskEl = document.getElementById('riskLevel');
+    riskEl.textContent = riskText;
+    riskEl.className = `bmi-metric-val ${riskClass}`;
+
+    const card = document.getElementById('statusCard');
+    card.style.background = cardBg;
+    document.getElementById('statusName').style.color  = cardTextColor;
+    document.getElementById('statusRange').style.color = cardRangColor;
+
+    // Gauge needle colour matches category
+    const needleColors = { 'Underweight':'#4FC3C3', 'Normal weight':'#34C778', 'Overweight':'#F0A830', 'Obese':'#E05050' };
+    const nc = needleColors[statusName] || '#34C778';
+    document.getElementById('needle').style.stroke = nc;
+    document.querySelector('#gauge-svg circle[r="6"]').style.fill = nc;
+    document.getElementById('gaugeBmiNum').style.color = nc;
+
+    // Draw gauge arcs
+    drawGauge(bmi);
+
+    // Hidden save fields
+    if (document.getElementById('saveWeight')) {
+      document.getElementById('saveWeight').value = w;
+      document.getElementById('saveHeight').value = hCm;
+      document.getElementById('saveBmi').value    = bmi;
+    }
+
+    // Show results
+    document.getElementById('bmiPlaceholder').style.display = 'none';
+    const results = document.getElementById('bmiResults');
+    results.style.display = 'block';
+    results.classList.remove('result-visible');
+    void results.offsetWidth; // reflow
+    results.classList.add('result-visible');
+  }
+
+  // Auto-run if values pre-filled from profile
+  window.addEventListener('DOMContentLoaded', () => {
+    const w = document.getElementById('weight').value;
+    const h = document.getElementById('height').value;
+    if (w && h && parseFloat(w) > 0 && parseFloat(h) > 0) {
+      runAnalysis();
+    }
+    // Also allow Enter key
+    ['weight','height','age'].forEach(id => {
+      document.getElementById(id)?.addEventListener('keydown', e => {
+        if (e.key === 'Enter') runAnalysis();
+      });
+    });
+  });
 </script>
 {% endblock %}
