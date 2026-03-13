@@ -1,610 +1,464 @@
 {% extends 'fitsync_app/base.html' %}
 {% load static %}
 
-{% block title %}Elite Coaches | FitSync{% endblock %}
+{% block title %}FitSync — Elite Coaches{% endblock %}
 
 {% block header %}{% endblock %}
 {% block footer %}{% endblock %}
 
 {% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+    /* Force override base template dark-mode */
+    body, body.dark-mode, body.light-mode {
+        --bg-primary: #f3f4f0 !important;
+        --bg-secondary: #ffffff !important;
+        --bg-tertiary: #f3f4f0 !important;
+        --text-primary: #1a1a1a !important;
+        --text-secondary: #6b6b6b !important;
+        --text-muted: #9ca3af !important;
+        --border-color: rgba(0,0,0,0.06) !important;
+    }
+    body > .navbar, body > nav { display: none !important; }
+    body > main { padding: 0 !important; margin: 0 !important; }
+    body > footer { display: none !important; }
 
-  :root {
-    --tr-bg: #0E0E0E;
-    --tr-card: #181818;
-    --tr-card-border: rgba(255,255,255,0.06);
-    --tr-text: #E8E4DF;
-    --tr-text-soft: #8A8580;
-    --tr-text-muted: #4A4540;
-    --tr-gold: #C9A96E;
-    --tr-gold-bg: rgba(201,169,110,0.1);
-    --tr-gold-border: rgba(201,169,110,0.35);
-    --tr-green: #5EAA5E;
-    --tr-green-bg: rgba(94,170,94,0.1);
-    --tr-green-border: rgba(94,170,94,0.35);
-    --tr-purple: #9A80C0;
-    --tr-purple-bg: rgba(154,128,192,0.1);
-    --tr-purple-border: rgba(154,128,192,0.25);
-    --tr-radius: 18px;
-  }
+    :root {
+        --fd-bg: #f3f4f0;
+        --fd-card: #ffffff;
+        --fd-accent: #b5e550;
+        --fd-accent-dark: #8bc34a;
+        --fd-accent-glow: rgba(181, 229, 80, 0.25);
+        --fd-text: #1a1a1a;
+        --fd-text-secondary: #6b6b6b;
+        --fd-text-muted: #9ca3af;
+        --fd-border: rgba(0, 0, 0, 0.06);
+        --fd-border-hover: rgba(0, 0, 0, 0.12);
+        --fd-radius: 16px;
+        --fd-radius-lg: 24px;
+        --fd-radius-sm: 10px;
+        --fd-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+        --fd-shadow-hover: 0 4px 24px rgba(0, 0, 0, 0.08);
+        --fd-font: 'DM Sans', 'Inter', -apple-system, sans-serif;
+    }
 
-  body {
-    background: var(--tr-bg) !important;
-    color: var(--tr-text) !important;
-    font-family: 'DM Sans', sans-serif !important;
-    margin: 0;
-    min-height: 100vh;
-  }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  .trainer-page {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 48px 40px 80px;
-    animation: trFadeIn 0.6s ease both;
-  }
+    body {
+        background: var(--fd-bg) !important;
+        color: var(--fd-text) !important;
+        font-family: var(--fd-font) !important;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+        font-size: 15px; min-height: 100vh;
+    }
 
-  @keyframes trFadeIn {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+    .trainer-page {
+        max-width: 1200px; margin: 0 auto;
+        padding: 2.5rem 2rem 5rem;
+        animation: fadeInUp 0.5s ease both;
+    }
 
-  /* Top bar */
-  .tr-topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 40px;
-  }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
 
-  .tr-back {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--tr-text-soft);
-    font-size: 13px;
-    font-weight: 500;
-    padding: 10px 22px;
-    border-radius: 50px;
-    border: 1.5px solid rgba(255,255,255,0.08);
-    background: rgba(255,255,255,0.03);
-    text-decoration: none;
-    transition: all 0.25s ease;
-  }
-  .tr-back:hover {
-    color: var(--tr-text);
-    border-color: rgba(255,255,255,0.15);
-    background: rgba(255,255,255,0.06);
-  }
+    .tr-topbar {
+        display: flex; align-items: center;
+        justify-content: space-between; margin-bottom: 2rem;
+    }
 
-  .tr-count-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--tr-text-soft);
-    font-size: 12px;
-    font-weight: 600;
-    padding: 8px 18px;
-    border-radius: 50px;
-    border: 1.5px solid rgba(255,255,255,0.08);
-    background: rgba(255,255,255,0.03);
-  }
+    .tr-back {
+        display: inline-flex; align-items: center; gap: 0.6rem;
+        padding: 0.6rem 1.3rem; border-radius: 50px;
+        background: var(--fd-card); border: 1px solid var(--fd-border);
+        color: var(--fd-text-secondary); text-decoration: none;
+        font-size: 0.8rem; font-weight: 700;
+        box-shadow: var(--fd-shadow); transition: all 0.2s;
+        text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .tr-back:hover { border-color: var(--fd-accent); color: var(--fd-text); }
 
-  /* Header */
-  .tr-header {
-    margin-bottom: 32px;
-  }
+    .tr-count-badge {
+        display: inline-flex; align-items: center; gap: 0.5rem;
+        padding: 0.5rem 1.1rem; border-radius: 50px;
+        background: rgba(181, 229, 80, 0.1); border: 1px solid rgba(181, 229, 80, 0.3);
+        color: #6d9b1c; font-size: 0.78rem; font-weight: 800;
+    }
 
-  .tr-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 36px;
-    font-weight: 500;
-    color: var(--tr-text);
-    margin: 0 0 10px;
-    letter-spacing: -0.5px;
-  }
+    .tr-header { margin-bottom: 1.5rem; }
 
-  .tr-subtitle {
-    font-size: 15px;
-    color: var(--tr-text-muted);
-    font-style: italic;
-    font-weight: 400;
-  }
+    .tr-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem; font-weight: 800;
+        color: var(--fd-text); margin: 0 0 0.5rem;
+        letter-spacing: -0.03em;
+    }
 
-  /* Filter pills */
-  .tr-filters {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 36px;
-    flex-wrap: wrap;
-  }
+    .tr-subtitle {
+        font-size: 0.92rem; color: var(--fd-text-muted);
+        font-weight: 400;
+    }
 
-  .tr-pill {
-    padding: 8px 20px;
-    border-radius: 50px;
-    font-size: 13px;
-    font-weight: 600;
-    border: 1.5px solid rgba(255,255,255,0.08);
-    background: transparent;
-    color: var(--tr-text-soft);
-    cursor: pointer;
-    transition: all 0.2s;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .tr-pill:hover { border-color: rgba(255,255,255,0.15); color: var(--tr-text); }
-  .tr-pill.active {
-    background: var(--tr-gold-bg);
-    border-color: var(--tr-gold-border);
-    color: var(--tr-gold);
-  }
+    .tr-filters {
+        display: flex; gap: 0.5rem;
+        margin-bottom: 2rem; flex-wrap: wrap;
+    }
 
-  /* Admin action */
-  .tr-admin-bar {
-    margin-bottom: 30px;
-  }
+    .tr-pill {
+        padding: 0.5rem 1.2rem; border-radius: 50px;
+        font-size: 0.82rem; font-weight: 700;
+        border: 1.5px solid var(--fd-border);
+        background: transparent; color: var(--fd-text-secondary);
+        cursor: pointer; transition: all 0.2s;
+        font-family: var(--fd-font);
+    }
+    .tr-pill:hover { border-color: var(--fd-border-hover); color: var(--fd-text); }
+    .tr-pill.active {
+        background: var(--fd-accent); color: #1a1a1a;
+        border-color: var(--fd-accent);
+    }
 
-  .tr-add-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 11px 24px;
-    border-radius: 12px;
-    background: var(--tr-gold-bg);
-    border: 1.5px solid var(--tr-gold-border);
-    color: var(--tr-gold);
-    font-size: 13px;
-    font-weight: 700;
-    text-decoration: none;
-    transition: all 0.25s ease;
-  }
-  .tr-add-btn:hover {
-    background: rgba(201,169,110,0.2);
-    transform: translateY(-1px);
-  }
+    .tr-admin-bar { margin-bottom: 1.5rem; }
 
-  /* Cards grid */
-  .tr-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-    gap: 22px;
-  }
+    .tr-add-btn {
+        display: inline-flex; align-items: center; gap: 0.5rem;
+        padding: 0.65rem 1.4rem; border-radius: var(--fd-radius-sm);
+        background: var(--fd-accent); border: none;
+        color: #1a1a1a; font-size: 0.82rem; font-weight: 800;
+        text-decoration: none; transition: all 0.2s;
+        font-family: var(--fd-font);
+    }
+    .tr-add-btn:hover { background: var(--fd-accent-dark); transform: translateY(-1px); }
 
-  /* Trainer card */
-  .tr-card {
-    background: var(--tr-card);
-    border: 1.5px solid var(--tr-card-border);
-    border-radius: var(--tr-radius);
-    padding: 28px 26px 24px;
-    display: flex;
-    flex-direction: column;
-    transition: all 0.3s ease;
-    position: relative;
-  }
+    .tr-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.25rem;
+    }
 
-  .tr-card:hover {
-    border-color: rgba(255,255,255,0.12);
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
-  }
+    .tr-card {
+        background: var(--fd-card);
+        border: 1px solid var(--fd-border);
+        border-radius: var(--fd-radius-lg);
+        padding: 1.5rem;
+        display: flex; flex-direction: column;
+        transition: all 0.3s ease;
+        box-shadow: var(--fd-shadow);
+    }
+    .tr-card:hover {
+        border-color: var(--fd-border-hover);
+        transform: translateY(-4px);
+        box-shadow: var(--fd-shadow-hover);
+    }
 
-  /* Your coach highlight */
-  .tr-card.your-coach {
-    border-color: var(--tr-gold-border);
-    box-shadow: 0 0 30px rgba(201,169,110,0.06);
-  }
+    .tr-card.your-coach {
+        border-color: rgba(181, 229, 80, 0.4);
+        box-shadow: 0 0 24px rgba(181, 229, 80, 0.08);
+    }
 
-  /* Card badge */
-  .tr-card-badge {
-    display: inline-flex;
-    align-self: flex-start;
-    padding: 5px 14px;
-    border-radius: 50px;
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin-bottom: 20px;
-    position: relative;
-    z-index: 2;
-  }
+    .tr-card-badge {
+        display: inline-flex; align-self: flex-start;
+        padding: 0.25rem 0.8rem; border-radius: 50px;
+        font-size: 0.62rem; font-weight: 800;
+        text-transform: uppercase; letter-spacing: 1.5px;
+        margin-bottom: 1rem;
+    }
 
-  .tr-card-badge.coach-yours {
-    background: var(--tr-gold-bg);
-    color: var(--tr-gold);
-    border: 1px solid var(--tr-gold-border);
-  }
-  .tr-card-badge.coach-elite {
-    background: var(--tr-green-bg);
-    color: var(--tr-green);
-    border: 1px solid var(--tr-green-border);
-  }
-  .tr-card-badge.coach-pro {
-    background: var(--tr-purple-bg);
-    color: var(--tr-purple);
-    border: 1px solid var(--tr-purple-border);
-  }
+    .tr-card-badge.coach-yours {
+        background: rgba(181, 229, 80, 0.12); color: #6d9b1c;
+        border: 1px solid rgba(181, 229, 80, 0.3);
+    }
+    .tr-card-badge.coach-elite {
+        background: rgba(34, 197, 94, 0.08); color: #16a34a;
+        border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+    .tr-card-badge.coach-pro {
+        background: rgba(139, 92, 246, 0.08); color: #7c3aed;
+        border: 1px solid rgba(139, 92, 246, 0.2);
+    }
 
-  /* Avatar area */
-  .tr-avatar-area {
-    height: 140px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 24px;
-    position: relative;
-    overflow: hidden;
-    border-radius: 14px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 100%);
-  }
+    .tr-avatar-area {
+        height: 130px; display: flex;
+        align-items: center; justify-content: center;
+        margin-bottom: 1.25rem;
+        border-radius: var(--fd-radius-sm);
+        background: var(--fd-bg);
+        border: 1px solid var(--fd-border);
+        position: relative; overflow: hidden;
+    }
 
-  .tr-avatar-area::before {
-    content: '';
-    position: absolute;
-    width: 180px; height: 180px;
-    border-radius: 50%;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    opacity: 0.08;
-  }
-  .tr-card.your-coach .tr-avatar-area::before { background: var(--tr-gold); }
-  .tr-card:not(.your-coach) .tr-avatar-area::before { background: var(--tr-green); }
+    .tr-avatar {
+        width: 80px; height: 80px; border-radius: 50%;
+        object-fit: cover; border: 3px solid var(--fd-accent);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        position: relative; z-index: 2;
+    }
 
-  .tr-avatar {
-    width: 80px; height: 80px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid rgba(255,255,255,0.1);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-    position: relative;
-    z-index: 2;
-  }
+    .tr-avatar-placeholder {
+        width: 80px; height: 80px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.8rem; color: #6d9b1c;
+        background: rgba(181, 229, 80, 0.12);
+        border: 3px solid rgba(181, 229, 80, 0.3);
+        position: relative; z-index: 2;
+    }
 
-  .tr-avatar-placeholder {
-    width: 80px; height: 80px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.3);
-    border: 3px solid rgba(255,255,255,0.08);
-    position: relative;
-    z-index: 2;
-  }
-  .tr-card.your-coach .tr-avatar-placeholder { background: rgba(201,169,110,0.12); color: var(--tr-gold); }
-  .tr-card:not(.your-coach) .tr-avatar-placeholder { background: rgba(94,170,94,0.08); color: var(--tr-green); }
+    .tr-name {
+        font-size: 1.1rem; font-weight: 800;
+        color: var(--fd-text); margin-bottom: 0.2rem;
+        letter-spacing: -0.02em;
+    }
 
-  /* Name & specialty */
-  .tr-name {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--tr-text);
-    margin-bottom: 4px;
-  }
+    .tr-specialty {
+        font-size: 0.68rem; font-weight: 800;
+        text-transform: uppercase; letter-spacing: 1.2px;
+        color: #6d9b1c; margin-bottom: 0.75rem;
+    }
 
-  .tr-specialty {
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    margin-bottom: 16px;
-  }
-  .tr-card.your-coach .tr-specialty { color: var(--tr-gold); }
-  .tr-card:not(.your-coach) .tr-specialty { color: var(--tr-green); }
+    .tr-bio {
+        font-size: 0.85rem; color: var(--fd-text-muted);
+        line-height: 1.6; flex: 1; margin-bottom: 1.25rem;
+    }
 
-  /* Bio */
-  .tr-bio {
-    font-size: 13.5px;
-    color: var(--tr-text-muted);
-    line-height: 1.6;
-    flex: 1;
-    margin-bottom: 24px;
-  }
+    .tr-stats {
+        display: grid; grid-template-columns: 1fr 1fr 1fr;
+        border: 1px solid var(--fd-border);
+        border-radius: var(--fd-radius-sm);
+        overflow: hidden; margin-bottom: 1rem;
+    }
 
-  /* Stats row */
-  .tr-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 0;
-    border: 1.5px solid rgba(255,255,255,0.06);
-    border-radius: 12px;
-    overflow: hidden;
-    margin-bottom: 18px;
-  }
+    .tr-stat {
+        text-align: center; padding: 0.75rem 0.5rem;
+        border-right: 1px solid var(--fd-border);
+    }
+    .tr-stat:last-child { border-right: none; }
 
-  .tr-stat {
-    text-align: center;
-    padding: 12px 8px;
-    border-right: 1px solid rgba(255,255,255,0.06);
-  }
-  .tr-stat:last-child { border-right: none; }
+    .tr-stat-val {
+        font-size: 1rem; font-weight: 800;
+        color: var(--fd-text); letter-spacing: -0.02em;
+    }
 
-  .tr-stat-val {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--tr-text);
-    margin-bottom: 2px;
-  }
+    .tr-stat-lbl {
+        font-size: 0.6rem; font-weight: 800;
+        text-transform: uppercase; letter-spacing: 1px;
+        color: var(--fd-text-muted);
+    }
 
-  .tr-stat-lbl {
-    font-size: 9px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--tr-text-muted);
-  }
+    .tr-card-footer { display: flex; gap: 0.5rem; }
 
-  /* Card footer */
-  .tr-card-footer {
-    display: flex;
-    gap: 10px;
-  }
+    .tr-action-btn {
+        flex: 1; padding: 0.7rem 1rem;
+        border-radius: var(--fd-radius-sm);
+        background: var(--fd-accent); border: none;
+        color: #1a1a1a; font-family: var(--fd-font);
+        font-size: 0.82rem; font-weight: 800;
+        cursor: pointer; text-decoration: none;
+        text-align: center; transition: all 0.2s;
+    }
+    .tr-action-btn:hover { background: var(--fd-accent-dark); transform: translateY(-1px); }
 
-  .tr-action-btn {
-    flex: 1;
-    padding: 12px 20px;
-    border-radius: 12px;
-    background: transparent;
-    border: 1.5px solid rgba(255,255,255,0.1);
-    color: var(--tr-text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    text-align: center;
-    transition: all 0.25s ease;
-  }
-  .tr-action-btn:hover {
-    background: rgba(255,255,255,0.04);
-    border-color: rgba(255,255,255,0.2);
-  }
+    .tr-msg-btn {
+        width: 42px; flex: 0 0 42px;
+        padding: 0.7rem; border-radius: var(--fd-radius-sm);
+        background: var(--fd-bg); border: 1px solid var(--fd-border);
+        color: var(--fd-text-secondary); font-size: 1rem;
+        cursor: pointer; text-decoration: none;
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.2s;
+    }
+    .tr-msg-btn:hover { border-color: var(--fd-accent); color: var(--fd-text); }
 
-  .tr-msg-btn {
-    width: 46px;
-    flex: 0 0 46px;
-    padding: 12px;
-    border-radius: 12px;
-    background: transparent;
-    border: 1.5px solid rgba(255,255,255,0.1);
-    color: var(--tr-text-soft);
-    font-size: 15px;
-    cursor: pointer;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.25s ease;
-  }
-  .tr-msg-btn:hover {
-    background: rgba(255,255,255,0.04);
-    border-color: rgba(255,255,255,0.2);
-    color: var(--tr-text);
-  }
+    .tr-delete-btn {
+        width: 42px; flex: 0 0 42px;
+        padding: 0.7rem; border-radius: var(--fd-radius-sm);
+        background: rgba(239,68,68,0.06);
+        border: 1px solid rgba(239,68,68,0.2);
+        color: #ef4444; font-size: 0.9rem;
+        cursor: pointer; text-decoration: none;
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.2s;
+    }
+    .tr-delete-btn:hover { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); }
 
-  .tr-delete-btn {
-    width: 46px;
-    flex: 0 0 46px;
-    padding: 12px;
-    border-radius: 12px;
-    background: rgba(239,68,68,0.06);
-    border: 1.5px solid rgba(239,68,68,0.2);
-    color: #C85A4A;
-    font-size: 14px;
-    cursor: pointer;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.25s;
-  }
-  .tr-delete-btn:hover { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); }
+    .tr-price-admin {
+        display: flex; align-items: center;
+        gap: 0.5rem; margin-bottom: 0.75rem;
+    }
+    .tr-price-admin span { font-size: 0.85rem; color: var(--fd-text-secondary); font-weight: 700; }
 
-  /* Price tag for admin */
-  .tr-price-admin {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-  .tr-price-admin span {
-    font-size: 13px;
-    color: var(--tr-text-soft);
-    font-weight: 600;
-  }
-  .tr-price-input {
-    width: 80px;
-    padding: 6px 10px;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.1);
-    background: rgba(255,255,255,0.04);
-    color: var(--tr-text);
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 600;
-    font-size: 14px;
-  }
-  .tr-price-save {
-    padding: 6px 12px;
-    border-radius: 8px;
-    border: 1px solid var(--tr-green-border);
-    background: var(--tr-green-bg);
-    color: var(--tr-green);
-    font-size: 12px;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-  }
+    .tr-price-input {
+        width: 75px; padding: 0.4rem 0.6rem;
+        border-radius: 8px; border: 1px solid var(--fd-border);
+        background: var(--fd-bg); color: var(--fd-text);
+        font-family: var(--fd-font); font-weight: 700; font-size: 0.9rem;
+    }
 
-  /* Empty state */
-  .tr-empty {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 80px 40px;
-    border: 2px dashed rgba(255,255,255,0.06);
-    border-radius: var(--tr-radius);
-  }
-  .tr-empty i { font-size: 48px; color: var(--tr-text-muted); margin-bottom: 20px; display: block; opacity: 0.4; }
-  .tr-empty h2 { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--tr-text-soft); margin-bottom: 8px; }
-  .tr-empty p { color: var(--tr-text-muted); font-size: 14px; }
+    .tr-price-save {
+        padding: 0.4rem 0.7rem; border-radius: 8px;
+        border: 1px solid rgba(181, 229, 80, 0.4);
+        background: rgba(181, 229, 80, 0.1);
+        color: #6d9b1c; font-size: 0.8rem; cursor: pointer;
+        font-family: var(--fd-font);
+    }
 
-  /* Responsive */
-  @media (max-width: 768px) {
-    .trainer-page { padding: 24px 20px 60px; }
-    .tr-title { font-size: 28px; }
-    .tr-grid { grid-template-columns: 1fr; }
-    .tr-topbar { flex-direction: column; gap: 12px; align-items: flex-start; }
-  }
+    .tr-empty {
+        grid-column: 1 / -1; text-align: center;
+        padding: 4rem 2rem;
+        border: 2px dashed var(--fd-border-hover);
+        border-radius: var(--fd-radius-lg);
+        background: var(--fd-card);
+    }
+    .tr-empty i { font-size: 3rem; color: var(--fd-text-muted); margin-bottom: 1rem; display: block; opacity: 0.4; }
+    .tr-empty h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--fd-text-secondary); margin-bottom: 0.5rem; }
+    .tr-empty p { color: var(--fd-text-muted); font-size: 0.9rem; }
+
+    @media (max-width: 768px) {
+        .trainer-page { padding: 1.5rem 1rem 3rem; }
+        .tr-title { font-size: 1.6rem; }
+        .tr-grid { grid-template-columns: 1fr; }
+        .tr-topbar { flex-direction: column; gap: 0.75rem; align-items: flex-start; }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="trainer-page">
-
-  <!-- Top bar -->
-  <div class="tr-topbar">
-    <a href="{% url 'user_dashboard' %}" class="tr-back">
-      <i class="fa-solid fa-chevron-left"></i> Return to portal
-    </a>
-    <div class="tr-count-badge">
-      {{ trainers|length }} coach{{ trainers|length|pluralize:"es" }} available
-    </div>
-  </div>
-
-  <!-- Header -->
-  <div class="tr-header">
-    <h1 class="tr-title">Elite performance coaches</h1>
-    <p class="tr-subtitle">Select your mentor and architect your transformation.</p>
-  </div>
-
-  <!-- Filter pills -->
-  <div class="tr-filters">
-    <button class="tr-pill active" onclick="filterTrainers('all', this)">All</button>
-    <button class="tr-pill" onclick="filterTrainers('strength', this)">Strength</button>
-    <button class="tr-pill" onclick="filterTrainers('cardio', this)">Cardio</button>
-    <button class="tr-pill" onclick="filterTrainers('mobility', this)">Mobility</button>
-  </div>
-
-  {% if is_admin %}
-  <div class="tr-admin-bar">
-    <a href="{% url 'add_trainer' %}" class="tr-add-btn">
-      <i class="fa-solid fa-plus"></i> Onboard New Coach
-    </a>
-  </div>
-  {% endif %}
-
-  <!-- Cards -->
-  <div class="tr-grid">
-    {% for profile in trainers %}
-    <div class="tr-card {% if current_trainer == profile.user %}your-coach{% endif %}" 
-         data-specialty="{{ profile.specialty|default:'strength'|lower }}">
-
-      <!-- Badge -->
-      {% if current_trainer == profile.user %}
-      <span class="tr-card-badge coach-yours">Your Coach</span>
-      {% elif forloop.counter|divisibleby:3 %}
-      <span class="tr-card-badge coach-pro">Pro Coach</span>
-      {% else %}
-      <span class="tr-card-badge coach-elite">Elite Coach</span>
-      {% endif %}
-
-      <!-- Avatar area -->
-      <div class="tr-avatar-area">
-        {% if profile.profile_photo %}
-        <img src="{{ profile.profile_photo.url }}" alt="{{ profile.user.username }}" class="tr-avatar">
-        {% else %}
-        <div class="tr-avatar-placeholder">
-          <i class="fa-solid fa-user"></i>
+    <div class="tr-topbar">
+        <a href="{% url 'user_dashboard' %}" class="tr-back">
+            <i class="fa-solid fa-chevron-left"></i> Return to Dashboard
+        </a>
+        <div class="tr-count-badge">
+            <i class="fa-solid fa-users"></i>
+            {{ trainers|length }} coach{{ trainers|length|pluralize:"es" }} available
         </div>
-        {% endif %}
-      </div>
-
-      <!-- Name & specialty -->
-      <div class="tr-name">{{ profile.user.get_full_name|default:profile.user.username|title }}</div>
-      <div class="tr-specialty">
-        {% if profile.specialty %}{{ profile.specialty }}{% else %}Functional Strength{% endif %}
-      </div>
-
-      <!-- Bio -->
-      <div class="tr-bio">
-        {% if profile.bio %}{{ profile.bio|truncatewords:20 }}{% else %}Specialized in high-performance metabolic conditioning and biomechanical optimization for elite athletes.{% endif %}
-      </div>
-
-      <!-- Stats -->
-      <div class="tr-stats">
-        <div class="tr-stat">
-          <div class="tr-stat-val">{{ profile.experience_years|default:"5" }} yr</div>
-          <div class="tr-stat-lbl">Exp.</div>
-        </div>
-        <div class="tr-stat">
-          <div class="tr-stat-val">{{ profile.client_count|default:"120" }}</div>
-          <div class="tr-stat-lbl">Clients</div>
-        </div>
-        <div class="tr-stat">
-          <div class="tr-stat-val">{{ profile.rating|default:"4.9" }}</div>
-          <div class="tr-stat-lbl">Rating</div>
-        </div>
-      </div>
-
-      <!-- Admin price editor -->
-      {% if is_admin %}
-      <form method="POST" action="{% url 'trainer_list' %}" class="tr-price-admin">
-        {% csrf_token %}
-        <input type="hidden" name="trainer_id" value="{{ profile.id }}">
-        <span>₹</span>
-        <input type="number" name="new_price" value="{{ profile.price|floatformat:0 }}" class="tr-price-input">
-        <button type="submit" class="tr-price-save"><i class="fa-solid fa-check"></i></button>
-      </form>
-      {% endif %}
-
-      <!-- Footer actions -->
-      <div class="tr-card-footer">
-        {% if current_trainer == profile.user %}
-          <a href="{% url 'workout_list' %}" class="tr-action-btn">View program</a>
-          <a href="{% url 'messages' %}?user_id={{ profile.user.id }}" class="tr-msg-btn">
-            <i class="fa-regular fa-comment"></i>
-          </a>
-        {% else %}
-          {% if is_admin %}
-            <a href="{% url 'workout_list' %}" class="tr-action-btn">View workouts</a>
-            <a href="{% url 'delete_trainer' profile.id %}" class="tr-delete-btn"
-               onclick="return confirm('Are you sure you want to remove this coach?')">
-              <i class="fa-solid fa-trash-can"></i>
-            </a>
-          {% else %}
-            <a href="{% url 'trainer_payment' profile.user.id %}" class="tr-action-btn">Select coach</a>
-            <a href="{% url 'messages' %}?user_id={{ profile.user.id }}" class="tr-msg-btn">
-              <i class="fa-regular fa-comment"></i>
-            </a>
-          {% endif %}
-        {% endif %}
-      </div>
     </div>
 
-    {% empty %}
-    <div class="tr-empty">
-      <i class="fa-solid fa-user-tie"></i>
-      <h2>Coaching Academy Empty</h2>
-      <p>New elite coaches are currently being vetted.</p>
+    <div class="tr-header">
+        <h1 class="tr-title">Elite Performance Coaches</h1>
+        <p class="tr-subtitle">Select your mentor and architect your transformation.</p>
     </div>
-    {% endfor %}
-  </div>
 
+    <div class="tr-filters">
+        <button class="tr-pill active" onclick="filterTrainers('all', this)">All</button>
+        <button class="tr-pill" onclick="filterTrainers('strength', this)">Strength</button>
+        <button class="tr-pill" onclick="filterTrainers('cardio', this)">Cardio</button>
+        <button class="tr-pill" onclick="filterTrainers('mobility', this)">Mobility</button>
+    </div>
+
+    {% if is_admin %}
+    <div class="tr-admin-bar">
+        <a href="{% url 'add_trainer' %}" class="tr-add-btn">
+            <i class="fa-solid fa-plus"></i> Onboard New Coach
+        </a>
+    </div>
+    {% endif %}
+
+    <div class="tr-grid">
+        {% for profile in trainers %}
+        <div class="tr-card {% if current_trainer == profile.user %}your-coach{% endif %}"
+             data-specialty="{{ profile.specialty|default:'strength'|lower }}">
+
+            {% if current_trainer == profile.user %}
+            <span class="tr-card-badge coach-yours">Your Coach</span>
+            {% elif forloop.counter|divisibleby:3 %}
+            <span class="tr-card-badge coach-pro">Pro Coach</span>
+            {% else %}
+            <span class="tr-card-badge coach-elite">Elite Coach</span>
+            {% endif %}
+
+            <div class="tr-avatar-area">
+                {% if profile.profile_photo %}
+                <img src="{{ profile.profile_photo.url }}" alt="{{ profile.user.username }}" class="tr-avatar">
+                {% else %}
+                <div class="tr-avatar-placeholder">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="tr-name">{{ profile.user.get_full_name|default:profile.user.username|title }}</div>
+            <div class="tr-specialty">
+                {% if profile.specialty %}{{ profile.specialty }}{% else %}Functional Strength{% endif %}
+            </div>
+
+            <div class="tr-bio">
+                {% if profile.bio %}{{ profile.bio|truncatewords:20 }}{% else %}Specialized in high-performance metabolic conditioning and biomechanical optimization for elite athletes.{% endif %}
+            </div>
+
+            <div class="tr-stats">
+                <div class="tr-stat">
+                    <div class="tr-stat-val">{{ profile.experience_years|default:"5" }} yr</div>
+                    <div class="tr-stat-lbl">Exp.</div>
+                </div>
+                <div class="tr-stat">
+                    <div class="tr-stat-val">{{ profile.client_count|default:"120" }}</div>
+                    <div class="tr-stat-lbl">Clients</div>
+                </div>
+                <div class="tr-stat">
+                    <div class="tr-stat-val">{{ profile.rating|default:"4.9" }}</div>
+                    <div class="tr-stat-lbl">Rating</div>
+                </div>
+            </div>
+
+            {% if is_admin %}
+            <form method="POST" action="{% url 'trainer_list' %}" class="tr-price-admin">
+                {% csrf_token %}
+                <input type="hidden" name="trainer_id" value="{{ profile.id }}">
+                <span>₹</span>
+                <input type="number" name="new_price" value="{{ profile.price|floatformat:0 }}" class="tr-price-input">
+                <button type="submit" class="tr-price-save"><i class="fa-solid fa-check"></i></button>
+            </form>
+            {% endif %}
+
+            <div class="tr-card-footer">
+                {% if current_trainer == profile.user %}
+                    <a href="{% url 'workout_list' %}" class="tr-action-btn">View program</a>
+                    <a href="{% url 'messages' %}?user_id={{ profile.user.id }}" class="tr-msg-btn">
+                        <i class="fa-regular fa-comment"></i>
+                    </a>
+                {% else %}
+                    {% if is_admin %}
+                        <a href="{% url 'workout_list' %}" class="tr-action-btn">View workouts</a>
+                        <a href="{% url 'delete_trainer' profile.id %}" class="tr-delete-btn"
+                           onclick="return confirm('Are you sure you want to remove this coach?')">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'trainer_payment' profile.user.id %}" class="tr-action-btn">Select coach</a>
+                        <a href="{% url 'messages' %}?user_id={{ profile.user.id }}" class="tr-msg-btn">
+                            <i class="fa-regular fa-comment"></i>
+                        </a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+
+        {% empty %}
+        <div class="tr-empty">
+            <i class="fa-solid fa-user-tie"></i>
+            <h2>Coaching Academy Empty</h2>
+            <p>New elite coaches are currently being vetted.</p>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 
 <script>
-  function filterTrainers(category, btn) {
-    document.querySelectorAll('.tr-pill').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    
-    document.querySelectorAll('.tr-card').forEach(card => {
-      if (category === 'all') {
-        card.style.display = '';
-      } else {
-        const spec = (card.dataset.specialty || '').toLowerCase();
-        card.style.display = spec.includes(category) ? '' : 'none';
-      }
-    });
-  }
+    function filterTrainers(category, btn) {
+        document.querySelectorAll('.tr-pill').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+
+        document.querySelectorAll('.tr-card').forEach(card => {
+            if (category === 'all') {
+                card.style.display = '';
+            } else {
+                const spec = (card.dataset.specialty || '').toLowerCase();
+                card.style.display = spec.includes(category) ? '' : 'none';
+            }
+        });
+    }
 </script>
 {% endblock %}

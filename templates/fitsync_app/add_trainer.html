@@ -1,227 +1,61 @@
-{% extends 'fitsync_app/base.html' %}
+{% extends 'fitsync_app/admin_base.html' %}
 {% load static %}
 
-{% block title %}Onboard New Coach | FitSync Elite HQ{% endblock %}
+{% block title %}Add Trainer — FitSync{% endblock %}
 
-{% block header %}{% endblock %}
-{% block footer %}{% endblock %}
+{% block admin_content %}
+<div class="fd-page-header fd-animate">
+    <div class="fd-greeting">
+        <h1>Add New Trainer <span style="font-size:1.25rem;">🏋️</span></h1>
+        <p>Onboard a new coach to the team</p>
+    </div>
+</div>
 
-{% block extra_css %}
-<style>
-    :root {
-        --admin-gold: var(--gold);
-        --card-bg: var(--bg-secondary);
-        --text-color: var(--text-primary);
-        --input-bg: var(--bg-tertiary);
-    }
-
-    body {
-        margin: 0;
-        padding: 0;
-        min-height: 100vh;
-        background-color: var(--bg-primary);
-        font-family: 'Inter', sans-serif;
-    }
-
-    .onboard-page {
-        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)),
-            url('https://images.unsplash.com/photo-1593079831268-3381b0db4a77?auto=format&fit=crop&w=1600&q=80');
-        background-size: cover;
-        background-position: center;
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 2rem;
-    }
-
-    .form-card {
-        background: var(--card-bg);
-        width: 100%;
-        max-width: 600px;
-        border-radius: 30px;
-        padding: 4rem;
-        box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
-        border: 1px solid rgba(79, 70, 229, 0.2);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .form-card::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 6px;
-        background: var(--admin-gold);
-    }
-
-    .card-header {
-        margin-bottom: 3rem;
-        text-align: center;
-    }
-
-    .card-title {
-        font-family: 'Inter', serif;
-        font-size: 2.2rem;
-        font-weight: 900;
-        color: var(--text-color);
-        margin: 0;
-        letter-spacing: 2px;
-    }
-
-    .badge-admin {
-        background: rgba(79, 70, 229, 0.1);
-        color: var(--admin-gold);
-        padding: 6px 15px;
-        border-radius: 50px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        margin-bottom: 1rem;
-        display: inline-block;
-        border: 1px solid rgba(79, 70, 229, 0.3);
-    }
-
-    .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2rem;
-    }
-
-    .form-group {
-        margin-bottom: 2rem;
-    }
-
-    .full-width {
-        grid-column: 1 / -1;
-    }
-
-    label {
-        display: block;
-        color: var(--admin-gold);
-        font-size: 0.8rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-bottom: 0.8rem;
-    }
-
-    .form-control {
-        width: 100%;
-        padding: 1.2rem;
-        background: var(--input-bg);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 15px;
-        font-size: 1rem;
-        color: var(--text-color);
-        transition: 0.3s;
-        box-sizing: border-box;
-    }
-
-    .form-control:focus {
-        background: var(--bg-secondary);
-        border-color: var(--admin-gold);
-        outline: none;
-        box-shadow: 0 0 20px rgba(79, 70, 229, 0.1);
-    }
-
-    .btn-submit {
-        width: 100%;
-        padding: 1.5rem;
-        background: var(--admin-gold);
-        color: #000;
-        border: none;
-        border-radius: 15px;
-        font-size: 1.1rem;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        cursor: pointer;
-        transition: 0.4s;
-        margin-top: 1rem;
-    }
-
-    .btn-submit:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 40px rgba(79, 70, 229, 0.3);
-    }
-
-    .back-link {
-        display: block;
-        text-align: center;
-        margin-top: 2.5rem;
-        color: var(--text-muted);
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.9rem;
-        transition: 0.3s;
-    }
-
-    .back-link:hover {
-        color: var(--admin-gold);
-    }
-</style>
-{% endblock %}
-
-{% block content %}
-<div class="onboard-page">
-    <div class="form-card">
-        <div class="card-header">
-            <span class="badge-admin">HQ Authority Required</span>
-            <h1 class="card-title">Onboard Coach</h1>
-            <p style="color: var(--text-muted); margin-top: 1rem;">Deploy a new master mentor to the FitSync Elite
-                network.</p>
-        </div>
-
+<div style="max-width:800px" class="fd-animate fd-delay-1">
+    <div class="fd-card" style="padding:2.5rem">
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
-            <div class="form-grid">
-                <div class="form-group full-width" style="margin-bottom: 0;">
-                    <label>Trainer Full Name</label>
-                    <input type="text" name="trainer_name" class="form-control" placeholder="e.g. Rajan Sharma"
-                        required>
+            <div class="fd-form-item">
+                <label>Full Name</label>
+                <input type="text" name="trainer_name" class="fd-form-input" placeholder="e.g. Vikram Sethi" required>
+            </div>
+            <div class="fd-form-grid">
+                <div class="fd-form-item">
+                    <label>Username</label>
+                    <input type="text" name="username" class="fd-form-input" placeholder="e.g. vikram_s" required>
                 </div>
-
-                <div class="form-group">
-                    <label>Network ID (Username)</label>
-                    <input type="text" name="username" class="form-control" placeholder="e.g. CoachMax" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Communication (Email)</label>
-                    <input type="email" name="email" class="form-control" placeholder="coach@fitsync.com" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Specialty Protocol</label>
-                    <input type="text" name="specialty" class="form-control" placeholder="e.g. Hypertrophy Engineer">
-                </div>
-
-                <div class="form-group">
-                    <label>Market Price (₹)</label>
-                    <input type="number" name="price" class="form-control" value="4999">
-                </div>
-
-                <div class="form-group full-width">
-                    <label>Security Key (Password)</label>
-                    <input type="password" name="password" class="form-control" placeholder="Minimum 8 characters"
-                        required minlength="8">
-                </div>
-
-                <div class="form-group full-width">
-                    <label>Profile Photo</label>
-                    <input type="file" name="profile_photo" class="form-control" accept="image/*">
+                <div class="fd-form-item">
+                    <label>Email</label>
+                    <input type="email" name="email" class="fd-form-input" placeholder="trainer@fitsync.com" required>
                 </div>
             </div>
-
-            <button type="submit" class="btn-submit">AUTHORIZE DEPLOYMENT</button>
+            <div class="fd-form-grid">
+                <div class="fd-form-item">
+                    <label>Specialty</label>
+                    <input type="text" name="specialty" class="fd-form-input" placeholder="e.g. Strength Training">
+                </div>
+                <div class="fd-form-item">
+                    <label>Rate (₹)</label>
+                    <input type="number" name="price" class="fd-form-input" value="4999">
+                </div>
+            </div>
+            <div class="fd-form-item">
+                <label>Password</label>
+                <input type="password" name="password" class="fd-form-input" placeholder="Minimum 8 characters" required minlength="8">
+            </div>
+            <div class="fd-form-item">
+                <label>Profile Photo</label>
+                <input type="file" name="profile_photo" class="fd-form-input" accept="image/*">
+            </div>
+            <div style="display:flex;align-items:center;gap:1.5rem;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--fd-border)">
+                <button type="submit" class="fd-btn fd-btn-primary">
+                    <i class="fa-solid fa-id-card-clip"></i> Add Trainer
+                </button>
+                <a href="{% url 'trainer_list' %}" style="color:var(--fd-text-muted);text-decoration:none;font-weight:600;font-size:.9rem">
+                    <i class="fa-solid fa-arrow-left"></i> Back
+                </a>
+            </div>
         </form>
-
-        <a href="{% url 'trainer_list' %}" class="back-link">
-            <i class="fa-solid fa-arrow-left"></i> RETURN TO NETWORK LIST
-        </a>
     </div>
 </div>
 {% endblock %}

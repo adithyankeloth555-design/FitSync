@@ -1,6 +1,6 @@
-from django.db import models
-from django.contrib.auth.models import User
-from django.utils import timezone
+from django.db import models # type: ignore
+from django.contrib.auth.models import User # type: ignore
+from django.utils import timezone # type: ignore
 
 # 1. User Profile extending default User
 class UserProfile(models.Model):
@@ -36,7 +36,7 @@ class UserProfile(models.Model):
             if self.weight_kg and self.height_cm and self.height_cm > 0:
                 w = float(self.weight_kg)
                 h = float(self.height_cm) / 100
-                return round(w / (h * h), 1)
+                return float(f'{w / (h * h):.1f}')
         except:
             pass
         return None
@@ -573,3 +573,12 @@ class UserBadge(models.Model):
 
     def __str__(self):
         return f"{self.user.username} – {self.badge.name}"
+
+# Signal to auto-create UserProfile for allauth/OAuth signups
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.get_or_create(user=instance, defaults={'role': 'member'})

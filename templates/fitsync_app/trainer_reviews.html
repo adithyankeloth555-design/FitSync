@@ -1,71 +1,95 @@
 {% extends 'fitsync_app/base.html' %}
 {% load static %}
 
-{% block title %}Trainer Reviews — {{ trainer.get_full_name|default:trainer.username }} | FitSync{% endblock %}
+{% block title %}FitSync — {{ trainer.get_full_name|default:trainer.username }} Reviews{% endblock %}
 {% block header %}{% endblock %}
 {% block footer %}{% endblock %}
 
 {% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+    /* Force override base template dark-mode */
+    body, body.dark-mode, body.light-mode {
+        --bg-primary: #f3f4f0 !important;
+        --bg-secondary: #ffffff !important;
+        --bg-tertiary: #f3f4f0 !important;
+        --text-primary: #1a1a1a !important;
+        --text-secondary: #6b6b6b !important;
+        --text-muted: #9ca3af !important;
+        --border-color: rgba(0,0,0,0.06) !important;
+    }
+    body > .navbar, body > nav { display: none !important; }
+    body > main { padding: 0 !important; margin: 0 !important; }
+    body > footer { display: none !important; }
 
     :root {
-        --indigo: #4F46E5;
-        --card-bg: rgba(255,255,255,0.98);
-        --border: #e5e7eb;
-        --text: #111827;
-        --muted: #6b7280;
-        --gold: #f59e0b;
+        --fd-bg: #f3f4f0;
+        --fd-card: #ffffff;
+        --fd-accent: #b5e550;
+        --fd-accent-dark: #8bc34a;
+        --fd-text: #1a1a1a;
+        --fd-text-secondary: #6b6b6b;
+        --fd-text-muted: #9ca3af;
+        --fd-border: rgba(0, 0, 0, 0.06);
+        --fd-radius-lg: 24px;
+        --fd-radius-sm: 10px;
+        --fd-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+        --fd-shadow-hover: 0 4px 24px rgba(0, 0, 0, 0.08);
+        --fd-gold: #f59e0b;
+        --fd-font: 'DM Sans', 'Inter', -apple-system, sans-serif;
     }
 
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-        background: #f3f4f6;
-        color: var(--text);
-        font-family: 'Inter', sans-serif;
-        min-height: 100vh;
-        margin: 0;
+        background: var(--fd-bg) !important;
+        color: var(--fd-text) !important;
+        font-family: var(--fd-font) !important;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+        font-size: 15px; min-height: 100vh;
     }
 
     .main-wrapper {
-        max-width: 900px;
-        margin: 0 auto;
+        max-width: 900px; margin: 0 auto;
         padding: 2.5rem 1.5rem 5rem;
-        animation: fadeUp 0.6s ease;
+        animation: fadeUp 0.5s ease both;
     }
 
     @keyframes fadeUp {
-        from { opacity: 0; transform: translateY(20px); }
+        from { opacity: 0; transform: translateY(12px); }
         to   { opacity: 1; transform: translateY(0); }
     }
 
     .back-btn {
         display: inline-flex; align-items: center; gap: 0.6rem;
-        padding: 0.65rem 1.4rem; border-radius: 50px;
-        background: #fff; border: 1px solid var(--border);
-        color: var(--muted); text-decoration: none;
-        font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
-        letter-spacing: 1px; transition: 0.3s; margin-bottom: 2rem;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        padding: 0.6rem 1.3rem; border-radius: 50px;
+        background: var(--fd-card); border: 1px solid var(--fd-border);
+        color: var(--fd-text-secondary); text-decoration: none;
+        font-size: 0.8rem; font-weight: 700;
+        box-shadow: var(--fd-shadow); transition: all 0.2s;
+        margin-bottom: 2rem; letter-spacing: 0.5px;
+        text-transform: uppercase;
     }
-    .back-btn:hover { color: var(--indigo); border-color: var(--indigo); }
+    .back-btn:hover { border-color: var(--fd-accent); color: var(--fd-text); }
 
-    /* Trainer Header */
+    /* Trainer Hero */
     .trainer-hero {
-        background: linear-gradient(135deg, var(--indigo), #7c3aed);
-        border-radius: 24px;
-        padding: 2.5rem;
-        display: flex;
-        align-items: center;
-        gap: 2rem;
-        margin-bottom: 2rem;
-        color: #fff;
+        background: linear-gradient(135deg, #6d9b1c, var(--fd-accent-dark));
+        border-radius: var(--fd-radius-lg);
+        padding: 2.5rem; display: flex;
+        align-items: center; gap: 2rem;
+        margin-bottom: 2rem; color: #fff;
+        box-shadow: 0 8px 32px rgba(109, 155, 28, 0.2);
     }
+
     .trainer-photo {
         width: 100px; height: 100px; border-radius: 50%;
-        object-fit: cover;
-        border: 3px solid rgba(255,255,255,0.4);
+        object-fit: cover; border: 3px solid rgba(255,255,255,0.4);
         background: rgba(255,255,255,0.2);
     }
+
     .trainer-photo-placeholder {
         width: 100px; height: 100px; border-radius: 50%;
         background: rgba(255,255,255,0.2);
@@ -73,27 +97,39 @@
         font-size: 2.5rem; color: rgba(255,255,255,0.7);
         border: 3px solid rgba(255,255,255,0.3);
     }
-    .trainer-name { font-size: 1.8rem; font-weight: 900; margin: 0 0 0.3rem; }
-    .trainer-specialty { font-size: 0.9rem; opacity: 0.8; margin-bottom: 0.8rem; }
-    .rating-summary {
-        display: flex; align-items: center; gap: 0.8rem;
+
+    .trainer-name {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.8rem; font-weight: 800;
+        margin: 0 0 0.3rem; letter-spacing: -0.03em;
     }
-    .avg-num { font-size: 3rem; font-weight: 900; line-height: 1; }
-    .stars-display { font-size: 1.4rem; color: var(--gold); }
-    .review-count { font-size: 0.85rem; opacity: 0.7; }
+
+    .trainer-specialty { font-size: 0.9rem; opacity: 0.85; margin-bottom: 0.8rem; font-weight: 500; }
+
+    .rating-summary { display: flex; align-items: center; gap: 0.8rem; }
+    .avg-num { font-size: 2.8rem; font-weight: 900; line-height: 1; }
+    .stars-display { font-size: 1.3rem; color: var(--fd-gold); }
+    .review-count { font-size: 0.85rem; opacity: 0.75; }
 
     /* Review Form */
     .review-form-card {
-        background: var(--card-bg);
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        background: var(--fd-card);
+        border: 1px solid var(--fd-border);
+        border-radius: var(--fd-radius-lg);
+        padding: 2rem; margin-bottom: 2rem;
+        box-shadow: var(--fd-shadow);
     }
-    .form-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--indigo); }
 
-    .star-selector { display: flex; gap: 0.5rem; margin-bottom: 1.2rem; flex-direction: row-reverse; justify-content: flex-end; }
+    .form-title {
+        font-size: 1.1rem; font-weight: 800;
+        margin-bottom: 1.5rem; color: #6d9b1c;
+        letter-spacing: -0.02em;
+    }
+
+    .star-selector {
+        display: flex; gap: 0.5rem; margin-bottom: 1.2rem;
+        flex-direction: row-reverse; justify-content: flex-end;
+    }
     .star-selector input { display: none; }
     .star-selector label {
         font-size: 2.2rem; cursor: pointer; color: #d1d5db;
@@ -101,68 +137,75 @@
     }
     .star-selector label:hover,
     .star-selector label:hover ~ label,
-    .star-selector input:checked ~ label { color: var(--gold); transform: scale(1.15); }
+    .star-selector input:checked ~ label { color: var(--fd-gold); transform: scale(1.15); }
 
     .comment-field {
         width: 100%; padding: 0.9rem 1rem;
-        border: 1px solid var(--border); border-radius: 12px;
-        background: #f9fafb; color: var(--text);
-        font-family: 'Inter', sans-serif; font-size: 0.95rem;
+        border: 1.5px solid var(--fd-border); border-radius: var(--fd-radius-sm);
+        background: var(--fd-bg); color: var(--fd-text);
+        font-family: var(--fd-font); font-size: 0.95rem;
         resize: vertical; min-height: 100px; box-sizing: border-box;
-        transition: border-color 0.2s;
-        margin-bottom: 1.2rem;
+        transition: border-color 0.2s; margin-bottom: 1.2rem;
     }
-    .comment-field:focus { outline: none; border-color: var(--indigo); }
+    .comment-field:focus { outline: none; border-color: var(--fd-accent); box-shadow: 0 0 0 3px rgba(181, 229, 80, 0.2); }
 
     .submit-btn {
-        padding: 0.9rem 2rem; background: var(--indigo); color: #fff;
-        border: none; border-radius: 12px; font-weight: 700;
-        font-size: 0.95rem; cursor: pointer; transition: 0.3s;
+        padding: 0.85rem 2rem; background: var(--fd-accent);
+        color: #1a1a1a; border: none; border-radius: var(--fd-radius-sm);
+        font-weight: 800; font-size: 0.9rem; cursor: pointer;
+        font-family: var(--fd-font); transition: all 0.2s;
     }
-    .submit-btn:hover { background: #4338ca; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.35); }
+    .submit-btn:hover { background: var(--fd-accent-dark); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(181, 229, 80, 0.3); }
 
     .locked-notice {
-        background: #fef3c7; border: 1px solid #fcd34d;
-        border-radius: 12px; padding: 1rem 1.5rem;
+        background: #fef9e7; border: 1px solid rgba(245,158,11,0.3);
+        border-radius: var(--fd-radius-sm); padding: 1rem 1.5rem;
         color: #92400e; font-weight: 600; font-size: 0.9rem;
         display: flex; align-items: center; gap: 0.8rem;
     }
 
     /* Reviews List */
-    .reviews-section { }
     .section-label {
-        font-size: 1rem; font-weight: 800; color: var(--muted);
-        text-transform: uppercase; letter-spacing: 2px;
-        margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.8rem;
+        font-size: 0.72rem; font-weight: 800; color: var(--fd-text-muted);
+        text-transform: uppercase; letter-spacing: 1.2px;
+        margin-bottom: 1.2rem; display: flex;
+        align-items: center; gap: 0.8rem;
     }
-    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    .section-label::after {
+        content: ''; flex: 1; height: 1px; background: var(--fd-border);
+    }
 
     .review-card {
-        background: var(--card-bg);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 1px 6px rgba(0,0,0,0.05);
-        transition: 0.3s;
+        background: var(--fd-card);
+        border: 1px solid var(--fd-border);
+        border-radius: var(--fd-radius-lg);
+        padding: 1.5rem; margin-bottom: 1rem;
+        box-shadow: var(--fd-shadow); transition: all 0.3s;
     }
-    .review-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+    .review-card:hover { transform: translateY(-3px); box-shadow: var(--fd-shadow-hover); }
 
     .review-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.8rem; }
+
     .reviewer-avatar {
         width: 42px; height: 42px; border-radius: 50%;
-        background: linear-gradient(135deg, var(--indigo), #7c3aed);
+        background: rgba(181, 229, 80, 0.15);
         display: flex; align-items: center; justify-content: center;
-        color: #fff; font-weight: 800; font-size: 1rem;
+        color: #6d9b1c; font-weight: 800; font-size: 1rem;
+        border: 2px solid rgba(181, 229, 80, 0.3);
     }
-    .reviewer-name { font-weight: 700; font-size: 0.95rem; }
-    .review-date { font-size: 0.78rem; color: var(--muted); }
-    .review-stars { color: var(--gold); font-size: 1rem; margin-left: auto; }
-    .review-comment { color: #374151; line-height: 1.6; font-size: 0.93rem; }
+
+    .reviewer-name { font-weight: 800; font-size: 0.95rem; letter-spacing: -0.01em; }
+    .review-date { font-size: 0.78rem; color: var(--fd-text-muted); font-weight: 500; }
+    .review-stars { color: var(--fd-gold); font-size: 1rem; margin-left: auto; }
+    .review-comment { color: var(--fd-text-secondary); line-height: 1.6; font-size: 0.93rem; }
 
     .no-reviews {
-        text-align: center; padding: 3rem; color: var(--muted);
-        background: var(--card-bg); border-radius: 16px; border: 1px dashed var(--border);
+        text-align: center; padding: 3rem;
+        color: var(--fd-text-muted);
+        background: var(--fd-card);
+        border-radius: var(--fd-radius-lg);
+        border: 2px dashed var(--fd-border);
     }
 
     @media (max-width: 640px) {
@@ -212,9 +255,9 @@
     <div style="margin-bottom:1.5rem;">
         {% for m in messages %}
         <div style="padding:0.9rem 1.2rem; border-radius:12px; margin-bottom:0.5rem;
-                    background:{% if m.tags == 'success' %}#d1fae5{% elif m.tags == 'error' %}#fee2e2{% else %}#e0e7ff{% endif %};
-                    color:{% if m.tags == 'success' %}#065f46{% elif m.tags == 'error' %}#991b1b{% else %}#1e40af{% endif %};
-                    font-weight:600; font-size:0.9rem;">
+                    background:{% if m.tags == 'success' %}rgba(34,197,94,0.1){% elif m.tags == 'error' %}rgba(239,68,68,0.1){% else %}rgba(181,229,80,0.1){% endif %};
+                    color:{% if m.tags == 'success' %}#16a34a{% elif m.tags == 'error' %}#dc2626{% else %}#6d9b1c{% endif %};
+                    font-weight:700; font-size:0.9rem;">
             {{ m }}
         </div>
         {% endfor %}
@@ -229,8 +272,7 @@
             </div>
             <form method="POST">
                 {% csrf_token %}
-                <!-- Star Rating -->
-                <label style="font-size:0.8rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:0.6rem;">
+                <label style="font-size:0.72rem; font-weight:800; color:var(--fd-text-muted); text-transform:uppercase; letter-spacing:1.2px; display:block; margin-bottom:0.6rem;">
                     Your Rating
                 </label>
                 <div class="star-selector">
@@ -241,7 +283,7 @@
                     {% endfor %}
                 </div>
 
-                <label style="font-size:0.8rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:0.5rem;">
+                <label style="font-size:0.72rem; font-weight:800; color:var(--fd-text-muted); text-transform:uppercase; letter-spacing:1.2px; display:block; margin-bottom:0.5rem;">
                     Your Comment
                 </label>
                 <textarea name="comment" class="comment-field"
@@ -255,8 +297,8 @@
         {% else %}
             <div class="locked-notice">
                 <i class="fa-solid fa-lock fa-lg"></i>
-                You can only review trainers you have hired. 
-                <a href="{% url 'payment' %}" style="color:var(--indigo); font-weight:800; margin-left:0.4rem;">
+                You can only review trainers you have hired.
+                <a href="{% url 'payment' %}" style="color:#6d9b1c; font-weight:800; margin-left:0.4rem;">
                     Hire this trainer
                 </a>
             </div>
@@ -264,7 +306,7 @@
     </div>
 
     <!-- Reviews List -->
-    <section class="reviews-section">
+    <section>
         <div class="section-label"><i class="fa-solid fa-comments"></i> All Reviews ({{ total_reviews }})</div>
         {% for review in reviews %}
         <div class="review-card">
@@ -287,7 +329,7 @@
         {% empty %}
         <div class="no-reviews">
             <i class="fa-regular fa-star" style="font-size:3rem; margin-bottom:1rem; display:block; color:#d1d5db;"></i>
-            <div style="font-weight:700; font-size:1.1rem; margin-bottom:0.5rem;">No reviews yet</div>
+            <div style="font-weight:800; font-size:1.1rem; margin-bottom:0.5rem;">No reviews yet</div>
             <div style="font-size:0.9rem;">Be the first to review this trainer!</div>
         </div>
         {% endfor %}

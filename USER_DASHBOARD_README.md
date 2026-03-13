@@ -23,11 +23,13 @@
 15. [Messaging System](#15-messaging-system)
 16. [Community Forum](#16-community-forum)
 17. [AI Neural Hub (AI Features)](#17-ai-neural-hub-ai-features)
-18. [Exercise Video Gallery](#18-exercise-video-gallery)
-19. [Settings Page](#19-settings-page)
-20. [Help & Support Center](#20-help--support-center)
-21. [Sidebar Navigation](#21-sidebar-navigation)
-22. [Mobile Responsive Design](#22-mobile-responsive-design)
+18. [Live Sessions Module](#18-live-sessions-module)
+19. [Exercise Video Gallery](#19-exercise-video-gallery)
+20. [Settings Page](#20-settings-page)
+21. [Help & Support Center](#21-help--support-center)
+22. [Sidebar Navigation](#22-sidebar-navigation)
+23. [Mobile Responsive Design](#23-mobile-responsive-design)
+24. [FitSync Store (User & Admin)](#24-fitsync-store-user--admin)
 
 ---
 
@@ -182,21 +184,19 @@ BMI ≥ 30          → "Obese" (Red alert pill)
 | **Status Pill** | "Active Streak" (always green with fire icon) |
 | **Description** | "Sessions recorded in current cycle" |
 
-### Card 3: Subscription Tier
+### Card 3: Membership Status
 
 | Element | Description |
 |---------|-------------|
 | **Label** | "Subscription Tier" |
-| **Value** | Current plan name (e.g., "Premium", "Elite", "Basic") or "Standard Access" if none |
-| **Status Pill** | Shows tier-specific text in gold |
+| **Value** | "FitSync Elite Access" |
+| **Status Pill** | "Unified Member" (Gold) |
+| **Description** | "Full access to all AI & Training protocols" |
 
-**Conditional Display:**
-```
-Basic plan    → "Basic Active" + "Upgrade for AI coaching tools"
-Premium plan  → "Premium Active" + "All premium features unlocked"
-Elite/Lifetime → "Full Access Active" + "All premium features unlocked"
-No plan       → "Trial Phase"
-```
+**Membership Logic:**
+- The platform follows a **Single Mandatory Plan** strategy.
+- Post-signup, a **₹199 / 3-Month** subscription is required to unlock the dashboard.
+- Users without an active subscription are restricted from all core modules.
 
 ---
 
@@ -226,11 +226,11 @@ trainer_display_name = assigned_trainer.get_full_name() or assigned_trainer.user
 
 ### If User is on Basic Plan (Locked):
 
-Shows a **locked promotional card** with:
+A locked promotional card with:
 - 🔒 Lock icon in gold
-- Title: "Unlock Expert Guidance"
-- Message: "1-on-1 coaching and custom feedback loops are exclusive to Premium & Elite members."
-- "Upgrade Protocol" button → links to Membership page
+- Title: "Unlock Elite Guidance"
+- Message: "1-on-1 coaching and custom feedback loops require an active Elite Membership."
+- "Complete Protocol" button → links to Membership payment gateway
 
 ### If No Trainer Assigned:
 
@@ -586,18 +586,16 @@ This is a rich, interactive attendance tracker with multiple views.
 
 | Display Field | How It's Calculated |
 |---------------|---------------------|
-| **Plan Name** | `subscription.plan.get_name_display().upper()` |
-| **Valid Until** | From `subscription.expiry_date` or calculated from last payment |
+| **Plan Name** | "FitSync Elite Access" |
+| **Price** | "₹199.00" |
+| **Billing Cycle** | "Quarterly (90 Days)" |
+| **Valid Until** | From `subscription.expiry_date` |
 | **Days Remaining** | `(expiry_date - now).days` |
-| **Next Billing** | Plan price (or "0 (Lifetime)" for lifetime plans) |
 
-**Special Lifetime Handling:**
-```python
-if days_remaining > 3650:  # More than 10 years
-    valid_until_str = "Lifetime / Never"
-    days_remaining_str = "Unlimited"
-    next_billing_str = "0 (Lifetime)"
-```
+**Pre-Payment Gating:**
+- New users are redirected here immediately after OTP verification.
+- access to `/dashboard/user/` and all fitness/AI modules is blocked using the `subscription_required` decorator/logic.
+- Includes a secure **Razorpay Integration** for instant activation.
 
 4. **Upgrade Options**: Shows all active plans from `SubscriptionPlan` model for the user to select
 
@@ -789,6 +787,38 @@ is_premium = sub and sub.plan.name != 'basic'
 - Creates AI-powered meal plans based on user preferences
 - Basic members see: *"AI Metabolic Fueling Protocols are reserved for Premium and Elite members."*
 
+#### D. Computer Vision & Advanced AI
+
+| Feature | Description |
+|---------|-------------|
+| **Exercise Detection** | Real-time form correction and rep counting using MediaPipe AI camera feed. |
+| **Meal Scanner** | Photo-based calorie estimation and automated macro logging. |
+| **Fitness Score** | Algorithm-derived performance rating (0-100) based on biological vectors. |
+| **Habit Streaks** | Predictive engagement tracking with gamified badge unlocks. |
+
+---
+
+## 18. Live Sessions Module
+
+| Property | Details |
+|----------|---------|
+| **URL** | `/live-session/` |
+| **Template** | `live_session.html` |
+| **View Function** | `live_session_view()` in `views.py` (Line 2555) |
+| **URL Name** | `live_session` |
+
+#### How It Works:
+
+1. **Scheduling (Trainer Flow)**: Trainers create sessions with a title, date, time, and a secure meeting link (Google Meet/Zoom).
+2. **Access (Member Flow)**: Members view upcoming sessions in a chronological list.
+3. **One-Click Join**: Clicking "Join" redirects directly to the virtual room:
+   ```python
+   # live_session_room_view (Line 2603)
+   session = get_object_or_404(LiveSession, id=session_id)
+   return redirect(session.meeting_link)
+   ```
+4. **Visibility**: Only sessions for today and the future are displayed to keep the dashboard clean.
+
 ---
 
 ## 18. Exercise Video Gallery
@@ -822,18 +852,21 @@ is_premium = sub and sub.plan.name != 'basic'
 
 #### How It Works:
 
-Users can update their profile information:
+Users can update their comprehensive profile information:
 
-| Field | How It's Saved |
-|-------|---------------|
-| **First Name** | `user.first_name = request.POST.get('first_name')` |
-| **Last Name** | `user.last_name = request.POST.get('last_name')` |
-| **Email** | `user.email = request.POST.get('email')` |
-| **Phone Number** | `profile.phone_number = request.POST.get('phone_number')` |
-| **Fitness Goal** | `profile.fitness_goal = request.POST.get('fitness_goal')` |
-| **Weight** | `profile.weight_kg = request.POST.get('weight_kg')` |
-| **Height** | `profile.height_cm = request.POST.get('height_cm')` |
-| **Profile Photo** | `profile.profile_photo = request.FILES['profile_photo']` |
+| Field | Description | Model Mapping |
+|-------|-------------|---------------|
+| **Full Name** | Split into first and last name targets. | `user.first_name`, `user.last_name` |
+| **Email** | Validated @gmail link. | `user.email` |
+| **Phone** | Mobile contact logic. | `profile.phone_number` |
+| **Specialization** | For trainers only (e.g. Strength Coach). | `profile.specialty` |
+| **Bio/Address** | Regional and descriptive data. | `profile.bio`, `profile.address` |
+| **Biometrics** | Base weight and height for BMI calcs. | `profile.weight_kg`, `profile.height_cm` |
+| **Photo** | Profile avatar (Media storage). | `profile.profile_photo` |
+
+**Security Workflow:**
+- Sensitive changes (Email/Password) trigger secondary validation.
+- Profile photos are stored in `media/profile_photos/` with auto-generation of unique filenames.
 
 **Account Deletion** (`/account/delete/`):
 ```python
@@ -983,6 +1016,23 @@ document.querySelectorAll('.sidebar .nav-link').forEach(link => {
 
 ---
 
+## 24. FitSync Store (User & Admin)
+
+The Store is a full-featured e-commerce module integrated into the FitSync ecosystem.
+
+### User Shopping Experience (`/store/`)
+- **Product Hub:** Categorized list of apparel, equipment, and recovery gear.
+- **Cart Interface:** AJAX-powered quantity updates and item removal.
+- **Checkout Protocol:** Delivery information capture and order synthesis.
+- **My Orders:** Portal to view past purchases and fulfillment status.
+
+### Admin Store Panel (`/store/manage/`)
+- **Catalog Control:** Add and edit products with image assets, prices, and stock levels.
+- **Order Command:** Unified dashboard to see all user orders and update status (Pending → Shipped → Delivered).
+- **Stock Tracking:** Automated badges for "Low Stock" and "Sale" items.
+
+---
+
 ## 📋 Complete URL Reference (User-Facing)
 
 | URL | Name | Method | Purpose |
@@ -1028,21 +1078,18 @@ document.querySelectorAll('.sidebar .nav-link').forEach(link => {
 
 ## 🔐 Subscription-Based Feature Access
 
-| Feature | Basic | Premium | Elite | Lifetime |
-|---------|:-----:|:-------:|:-----:|:--------:|
-| Dashboard | ✅ | ✅ | ✅ | ✅ |
-| Workouts | ✅ | ✅ | ✅ | ✅ |
-| Diet Plans | ✅ | ✅ | ✅ | ✅ |
-| Attendance | ✅ | ✅ | ✅ | ✅ |
-| BMI Calculator | ✅ | ✅ | ✅ | ✅ |
-| Goals | ✅ | ✅ | ✅ | ✅ |
-| Community | ✅ | ✅ | ✅ | ✅ |
-| Nutrition Tracker | ✅ | ✅ | ✅ | ✅ |
-| Personal Trainer | ❌ | ✅ | ✅ | ✅ |
-| AI Chatbot (Nova) | ❌ | ✅ | ✅ | ✅ |
-| AI Workout Generator | ❌ | ✅ | ✅ | ✅ |
-| AI Diet Generator | ❌ | ✅ | ✅ | ✅ |
-| Messaging | ❌ | ✅ | ✅ | ✅ |
+| Feature | Unpaid User | Paid Member | Elite Member |
+|---------|:-----:|:-------:|:--------:|
+| Dashboard | ❌ | ✅ | ✅ |
+| Workouts | ❌ | ✅ | ✅ |
+| Diet Plans | ❌ | ✅ | ✅ |
+| Attendance | ❌ | ✅ | ✅ |
+| BMI History | ❌ | ✅ | ✅ |
+| AI Chatbot | ❌ | ✅ | ✅ |
+| Store Access| ✅ | ✅ | ✅ |
+| AI Hub Tools| ❌ | ✅ | ✅ |
+
+**Note:** The system uses a **Single Mandatory Plan** (₹199 / 3-Months). All paid members have equal "Elite" access to all features.
 
 **How Feature Locking Works:**
 ```python

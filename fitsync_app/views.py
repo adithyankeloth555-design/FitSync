@@ -368,6 +368,14 @@ def admin_dashboard_view(request):
         messages.error(request, "Access denied. Admin account required.")
         return redirect('login')
         
+    # Handle Profile Photo Update
+    if request.method == 'POST' and 'profile_photo' in request.FILES:
+        profile = request.user.userprofile
+        profile.profile_photo = request.FILES['profile_photo']
+        profile.save()
+        messages.success(request, "Profile photo updated successfully!")
+        return redirect('admin_dashboard')
+        
     # Real stats for the dashboard
     # Count only members as "Total Users" to avoid confusion with staff/admin accounts
     total_users = UserProfile.objects.filter(role='member').count()
@@ -593,12 +601,14 @@ def trainer_dashboard_view(request):
         pass
     
     # Stats
-    total_members = members.count()
+    # Evaluate members list to prevent huge SQL count query
+    members_list = list(members)
+    total_members = len(members_list)
     today_attendance = Attendance.objects.filter(user__userprofile__assigned_trainer=request.user, logged_at__date=today).count()
     unread_messages = Message.objects.filter(receiver=request.user, is_read=False).count()
     
     context = {
-        'members': members,
+        'members': members_list,
         'total_members': total_members,
         'today_attendance': today_attendance,
         'unread_messages': unread_messages,
@@ -674,15 +684,27 @@ def user_dashboard_view(request):
         today_meals = active_diet.meals.filter(day=day_name).order_by('time')
 
     # Goal Metrics
-    total_goals = Goal.objects.filter(user=request.user).count()
-    completed_goals = Goal.objects.filter(user=request.user, is_completed=True).count()
+    all_goals = list(Goal.objects.filter(user=request.user).order_by('target_date'))
+    total_goals = len(all_goals)
+    completed_goals = sum(1 for g in all_goals if g.is_completed)
     goal_progress = (completed_goals / total_goals * 100) if total_goals > 0 else 0
-    next_goal = Goal.objects.filter(user=request.user, is_completed=False).order_by('target_date').first()
+    next_goal = next((g for g in all_goals if not g.is_completed), None)
     
     # Activity Stats
     total_workouts = WorkoutProgram.objects.count()
     total_diets = DietPlan.objects.count()
-    attendance_streak = Attendance.objects.filter(user=request.user).count()
+    
+    seven_days_ago = today - timedelta(days=7)
+    
+    # Consolidate Attendance queries into a single aggregate
+    att_stats = Attendance.objects.filter(user=request.user).aggregate(
+        total=Count('id'),
+        today=Count('id', filter=Q(logged_at__date=today)),
+        weekly=Count('id', filter=Q(logged_at__date__gte=seven_days_ago))
+    )
+    attendance_streak = att_stats['total']
+    attended_today = att_stats['today'] > 0
+    weekly_attendance = att_stats['weekly']
     
     # Last BMI Record
     last_bmi = request.user.bmi_records.first()
@@ -699,13 +721,6 @@ def user_dashboard_view(request):
     
     # Next Workout
     next_session = upcoming_sessions[0] if upcoming_sessions else None
-
-    # Today's attendance status
-    attended_today = Attendance.objects.filter(user=request.user, logged_at__date=today).exists()
-
-    # Weekly attendance count (last 7 days)
-    seven_days_ago = today - timedelta(days=7)
-    weekly_attendance = Attendance.objects.filter(user=request.user, logged_at__date__gte=seven_days_ago).count()
     
     context = {
         'recent_feedback': recent_feedback,
@@ -792,7 +807,8 @@ def trainer_list_view(request):
         # Redirect to avoid resubmission on refresh
         return redirect('trainer_list')
 
-    return render(request, 'fitsync_app/trainer_list.html', {
+    template_name = 'fitsync_app/admin_trainer_list.html' if is_admin else 'fitsync_app/trainer_list.html'
+    return render(request, template_name, {
         'trainers': trainers,
         'current_trainer': current_trainer,
         'is_admin': is_admin
@@ -812,23 +828,28 @@ def progress_view(request):
     raw_data = []
     max_count = 0
     
-    # Calculate for the last 7 days
+    # Calculate for the last 7 days optimally
+    target_start_date = (now - timedelta(days=6)).date()
+    start_aware_time = timezone.make_aware(datetime.combine(target_start_date, time.min))
+    end_aware_time = timezone.make_aware(datetime.combine(now.date(), time.max))
+    
+    week_attendances = Attendance.objects.filter(
+        user=request.user, 
+        logged_at__range=(start_aware_time, end_aware_time)
+    )
+    from collections import Counter
+    counts = Counter(timezone.localtime(a.logged_at).date() for a in week_attendances)
+    
     for i in range(6, -1, -1):
         target_date = (now - timedelta(days=i)).date()
-        day_start = timezone.make_aware(datetime.combine(target_date, time.min))
-        day_end = timezone.make_aware(datetime.combine(target_date, time.max))
-        
-        count = Attendance.objects.filter(
-            user=request.user, 
-            logged_at__range=(day_start, day_end)
-        ).count()
+        count = counts[target_date]
         
         raw_data.append({'day': target_date.strftime("%a"), 'count': count})
         if count > max_count:
             max_count = count
             
     # Scale heights (0-200px) - Ensure at least 1 for division and visibility
-    scale_max = max(max_count, 1)
+    scale_max = float(max(max_count, 1))
     for item in raw_data:
         # Give a tiny 4px base so even 0-count days are identifiable in the UI
         height_px = (item['count'] / scale_max * 200) if item['count'] > 0 else 0
@@ -863,15 +884,15 @@ def progress_view(request):
     
     # Calculate weight change
     weight_change = 0
-    full_history = BMIHistory.objects.filter(user=request.user).order_by('recorded_at')
-    if full_history.count() >= 2:
-        weight_change = full_history.last().weight_kg - full_history.first().weight_kg
+    full_history_list = list(BMIHistory.objects.filter(user=request.user).order_by('recorded_at'))
+    if len(full_history_list) >= 2:
+        weight_change = full_history_list[-1].weight_kg - full_history_list[0].weight_kg
 
     # Goals for donut chart
-    all_goals      = Goal.objects.filter(user=request.user)
-    completed_goals = all_goals.filter(is_completed=True).count()
-    active_goals    = all_goals.filter(is_completed=False).count()
-    total_goals     = all_goals.count()
+    all_goals = list(Goal.objects.filter(user=request.user))
+    total_goals = len(all_goals)
+    completed_goals = sum(1 for g in all_goals if g.is_completed)
+    active_goals = total_goals - completed_goals
 
     # Week / date info
     import datetime as _dt
@@ -879,7 +900,7 @@ def progress_view(request):
     month_name = now.strftime("%B %Y")
 
     context = {
-        'bmi_history': full_history,
+        'bmi_history': full_history_list,
         'activity_logs': attendance_logs[:8],
         'acw': attendance_count_week,
         'total_attendance': total_attendance,
@@ -1156,8 +1177,10 @@ def messages_view(request):
     # If user is a trainer, they should see their assigned trainees
     # If user is a member, they should see trainers/admins
     if hasattr(request.user, 'userprofile') and request.user.userprofile.role == 'trainer':
-        # Trainers see their trainees
-        contacts = User.objects.filter(userprofile__assigned_trainer=request.user).select_related('userprofile')
+        # Trainers see their trainees AND admin users
+        trainees = User.objects.filter(userprofile__assigned_trainer=request.user).select_related('userprofile')
+        admins = User.objects.filter(userprofile__role='admin').exclude(id=request.user.id).select_related('userprofile')
+        contacts = trainees | admins
     else:
         # Members see trainers and admins
         contacts = User.objects.filter(userprofile__role__in=['trainer', 'admin']).exclude(id=request.user.id).select_related('userprofile')
@@ -1532,12 +1555,21 @@ def attendance_view_view(request):
 # Subscription & Payment
 @login_required
 def subscription_plans_view(request):
-    if request.user.userprofile.role == 'admin':
-        plans = SubscriptionPlan.objects.all().order_by('price')
-    else:
-        plans = SubscriptionPlan.objects.filter(is_active=True).order_by('price')
+    # Only show active plans to regular users
+    plans = SubscriptionPlan.objects.filter(is_active=True).order_by('price')
     
     return render(request, 'fitsync_app/subscription_plans.html', {
+        'plans': plans,
+    })
+
+@login_required
+def admin_subscription_view(request):
+    if not hasattr(request.user, 'userprofile') or request.user.userprofile.role != 'admin':
+        messages.error(request, "Access denied. Admin account required.")
+        return redirect('login')
+        
+    plans = SubscriptionPlan.objects.all().order_by('price')
+    return render(request, 'fitsync_app/admin_subscription.html', {
         'plans': plans,
     })
 
@@ -2967,7 +2999,7 @@ def trigger_goal_reminders_view(request):
         messages.error(request, "Access denied.")
         return redirect('home')
 
-    from django.core.management import call_command
+    from django.core.management import call_command # type: ignore
     from io import StringIO
     out = StringIO()
     call_command('send_goal_reminders', stdout=out)
@@ -3060,7 +3092,7 @@ def _calculate_streak(user):
     for d in unique_dates:
         if d == expected:
             streak += 1
-            expected -= timedelta(days=1)
+            expected = expected - timedelta(days=1) # type: ignore
         elif d < expected:
             # Allow today to be missing if we haven't checked in yet
             if streak == 0 and d == today - timedelta(days=1):
@@ -3147,15 +3179,11 @@ def achievements_view(request):
 
     # Next milestones
     milestones = [
-        {'label': '7-Day Streak', 'current': streak, 'target': 7, 'badge': 'streak_7'},
-        {'label': '30-Day Streak', 'current': streak, 'target': 30, 'badge': 'streak_30'},
-        {'label': '100 Sessions', 'current': total_sessions, 'target': 100, 'badge': 'sessions_100'},
-        {'label': '3 Goals Completed', 'current': completed_goals, 'target': 3, 'badge': 'goal_crusher'},
+        {'label': '7-Day Streak', 'current': streak, 'target': 7, 'badge': 'streak_7', 'pct': min(100, int((streak / 7) * 100)), 'earned': 'streak_7' in earned_codes},
+        {'label': '30-Day Streak', 'current': streak, 'target': 30, 'badge': 'streak_30', 'pct': min(100, int((streak / 30) * 100)), 'earned': 'streak_30' in earned_codes},
+        {'label': '100 Sessions', 'current': total_sessions, 'target': 100, 'badge': 'sessions_100', 'pct': min(100, int((total_sessions / 100) * 100)), 'earned': 'sessions_100' in earned_codes},
+        {'label': '3 Goals Completed', 'current': completed_goals, 'target': 3, 'badge': 'goal_crusher', 'pct': min(100, int((completed_goals / 3) * 100)), 'earned': 'goal_crusher' in earned_codes},
     ]
-    for m in milestones:
-        pct = min(100, int((m['current'] / m['target']) * 100)) if m['target'] > 0 else 0
-        m['pct'] = pct
-        m['earned'] = m['badge'] in earned_codes
 
     context = {
         'streak': streak,

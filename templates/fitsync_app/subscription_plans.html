@@ -458,146 +458,11 @@
 {% endblock %}
 
 {% block content %}
-{% if user.is_authenticated and user.userprofile.role == 'admin' %}
-<div class="admin-wrapper">
-
-    <!-- Mobile Hamburger Button -->
-    <button class="hamburger-btn" id="hamburger-btn" aria-label="Toggle Menu">
-        <i class="fa-solid fa-bars"></i>
-    </button>
-
-    <!-- Sidebar Overlay -->
-    <div class="sidebar-overlay" id="sidebar-overlay"></div>
-
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            {% if user.userprofile.profile_photo %}
-            <img src="{{ user.userprofile.profile_photo.url }}" class="admin-avatar" alt="Admin">
-            {% else %}
-            <img src="https://i.pravatar.cc/150?u={{ user.username }}" class="admin-avatar" alt="Admin">
-            {% endif %}
-            <span class="admin-name">Admin <i class="fa-solid fa-chevron-down"></i></span>
-        </div>
-
-        <nav class="sidebar-menu">
-            <a href="{% url 'admin_dashboard' %}" class="menu-item">
-                <i class="fa-solid fa-gauge"></i> Dashboard
-            </a>
-            <a href="{% url 'report_members' %}" class="menu-item">
-                <i class="fa-regular fa-user"></i> Users
-            </a>
-            <a href="{% url 'trainer_list' %}" class="menu-item">
-                <i class="fa-solid fa-table-cells"></i> Trainers
-            </a>
-            <a href="{% url 'subscription_plans' %}" class="menu-item active">
-                <i class="fa-regular fa-envelope"></i> Subscriptions
-            </a>
-            <a href="{% url 'report_payments' %}" class="menu-item">
-                <i class="fa-solid fa-money-bill-transfer"></i> Payments
-            </a>
-            <a href="{% url 'admin_help_tickets' %}" class="menu-item">
-                <i class="fa-solid fa-headset"></i> Help Tickets
-            </a>
-            <div class="menu-item-group">
-                <a href="#" class="menu-item" onclick="toggleSubmenu('reports-submenu')">
-                    <i class="fa-regular fa-file-lines"></i> Reports <i class="fa-solid fa-chevron-down chevron"></i>
-                </a>
-                <div id="reports-submenu" style="display: none; padding-left: 1.5rem;">
-                    <a href="{% url 'report_members' %}" class="menu-item" style="font-size: 0.8rem;">
-                        <i class="fa-solid fa-users-viewfinder"></i> Members
-                    </a>
-                    <a href="{% url 'report_payments' %}" class="menu-item" style="font-size: 0.8rem;">
-                        <i class="fa-solid fa-file-invoice-dollar"></i> Financials
-                    </a>
-                    <a href="{% url 'report_attendance' %}" class="menu-item" style="font-size: 0.8rem;">
-                        <i class="fa-solid fa-clipboard-user"></i> Attendance
-                    </a>
-                </div>
-            </div>
-        </nav>
-    </aside>
-
-    <div class="main-area">
-        <header class="top-bar">
-            <div class="search-input-wrapper">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" placeholder="Search">
-            </div>
-
-            <div class="top-bar-right">
-                <i class="fa-solid fa-arrows-rotate"></i>
-                <i class="fa-regular fa-envelope"></i>
-                <i class="fa-solid fa-thumbtack" style="color: #94a3b8; transform: rotate(45deg);"></i>
-                <div class="admin-pill">Admin</div>
-            </div>
-        </header>
-
-        <div class="dashboard-content">
-            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
-                <div>
-                    <h1 class="admin-page-title">Membership Protocols</h1>
-                    <p class="admin-page-subtitle" style="margin-bottom: 0;">Configure subscription tiers, internal
-                        pricing, and available product features.</p>
-                </div>
-                <a href="{% url 'add_subscription_plan' %}" class="btn-configure"
-                    style="width: auto; padding: 0.8rem 1.5rem;"><i class="fa-solid fa-plus"></i> Add New Plan</a>
-            </header>
-
-            <div class="plan-management-grid">
-                {% for plan in plans %}
-                <div class="plan-card-admin">
-                    <span class="status-pill {% if plan.is_active %}status-active{% else %}status-inactive{% endif %}">
-                        {% if plan.is_active %}Active{% else %}Inactive{% endif %}
-                    </span>
-                    <h3 class="plan-admin-name">{{ plan.get_name_display }}</h3>
-                    <div class="plan-admin-price">₹{{ plan.price|floatformat:0 }}</div>
-                    <div class="plan-admin-meta">
-                        <span><i class="fa-solid fa-calendar-day"></i> {{ plan.duration_text }}</span>
-                        {% if plan.annual_price %}
-                        <span><i class="fa-solid fa-receipt"></i> Annual: ₹{{ plan.annual_price|floatformat:0 }}</span>
-                        {% endif %}
-                    </div>
-                    <p class="plan-admin-desc">{{ plan.description }}</p>
-                    <div class="admin-feature-list">
-                        {% for feature in plan.get_features_list %}
-                        <span class="admin-feature-tag">{{ feature }}</span>
-                        {% endfor %}
-                    </div>
-                    <a href="{% url 'edit_subscription_plan' plan.id %}" class="btn-configure"><i
-                            class="fa-solid fa-sliders"></i> Modify Protocol</a>
-                </div>
-                {% endfor %}
-            </div>
-
-            <form action="{% url 'logout' %}" method="post"
-                style="margin-top: 2rem; display: flex; justify-content: center;">
-                {% csrf_token %}
-                <button type="submit"
-                    style="color: #ef4444; background: none; border: 1px solid #fee2e2; padding: 0.5rem 1.5rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600;">
-                    Logout of System
-                </button>
-            </form>
-        </div>
-    </div>
-</div>
-
-<script>
-    function toggleSubmenu(id) {
-        const el = document.getElementById(id);
-        if (el.style.display === 'none') {
-            el.style.display = 'block';
-        } else {
-            el.style.display = 'none';
-        }
-    }
-</script>
-{% else %}
 <section class="plans-hero" style="position: relative;">
     <a href="{% url 'user_dashboard' %}" class="back-btn"><i class="fa-solid fa-arrow-left"></i> RETURN TO PORTAL</a>
     <div class="container text-center">
         <h1 class="text-gold">CHOOSE YOUR ELITE PLAN</h1>
-        <p>Elevate your fitness journey with our professional programs designed for peak performance and lasting
-            results.</p>
+        <p>Elevate your fitness journey with our professional programs designed for peak performance and lasting results.</p>
     </div>
 </section>
 
@@ -606,39 +471,29 @@
         {% for plan in plans %}
         <div class="pricing-card {% if plan.name == 'premium' %}popular{% endif %}">
             {% if plan.name == 'premium' %}
-            <div
-                style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 6px 20px; border-radius: 50px; font-weight: 800; font-size: 0.8rem; box-shadow: 0 5px 15px rgba(79, 70, 229, 0.4);">
-                MOST POPULAR</div>
+            <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; padding: 6px 20px; border-radius: 50px; font-weight: 800; font-size: 0.8rem; box-shadow: 0 5px 15px rgba(79, 70, 229, 0.4);">MOST POPULAR</div>
             {% endif %}
             <div style="flex-grow: 1;">
-                <h3
-                    style="font-family: var(--font-heading); font-size: 1.8rem; margin-bottom: 1rem; color: var(--white);">
-                    {{ plan.get_name_display|upper }}</h3>
+                <h3 style="font-family: var(--font-heading); font-size: 1.8rem; margin-bottom: 1rem; color: var(--white);">{{ plan.get_name_display|upper }}</h3>
                 <div class="plan-price">₹{{ plan.price|floatformat:0 }}</div>
-                <div style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2.5rem;">{{ plan.duration_text
-                    }}</div>
-                <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">{{ plan.description }}
-                </p>
+                <div style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2.5rem;">{{ plan.duration_text }}</div>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">{{ plan.description }}</p>
                 <ul style="list-style: none; padding: 0; margin-bottom: 2.5rem; text-align: left;">
                     {% for feature in plan.get_features_list %}
-                    <li
-                        style="margin-bottom: 1rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.8rem; font-size: 0.95rem;">
-                        <i class="fa-solid fa-circle-check" style="color: var(--gold); font-size: 1rem;"></i> {{ feature
-                        }}
+                    <li style="margin-bottom: 1rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.8rem; font-size: 0.95rem;">
+                        <i class="fa-solid fa-circle-check" style="color: var(--gold); font-size: 1rem;"></i> {{ feature }}
                     </li>
                     {% endfor %}
                 </ul>
             </div>
-            <a href="{% url 'payment' %}?plan={{ plan.name }}"
-                class="btn-plan {% if plan.name == 'premium' %}btn-plan-solid{% else %}btn-plan-outline{% endif %}">
-                {% if plan.name == 'basic' %}Select Plan{% elif plan.name == 'lifetime' %}Unlock Forever{% else %}Go
-                Premium{% endif %}
+            <a href="{% url 'payment' %}?plan={{ plan.name }}" class="btn-plan {% if plan.name == 'premium' %}btn-plan-solid{% else %}btn-plan-outline{% endif %}">
+                {% if plan.name == 'basic' %}Select Plan{% elif plan.name == 'lifetime' %}Unlock Forever{% else %}Go Premium{% endif %}
             </a>
         </div>
         {% endfor %}
     </div>
 </div>
-{% endif %}
+{% endblock %}
 
 <script>
     // Sidebar toggle for mobile

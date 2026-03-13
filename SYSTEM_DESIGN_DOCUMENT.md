@@ -23,11 +23,13 @@
 12. [Security Design](#12-security-design)
 13. [Role-Based Access Control](#13-role-based-access-control)
 14. [AI & Chatbot Subsystem](#14-ai--chatbot-subsystem)
-15. [Subscription & Payment Subsystem](#15-subscription--payment-subsystem)
-16. [Reporting Subsystem](#16-reporting-subsystem)
-17. [Deployment Architecture](#17-deployment-architecture)
-18. [Testing Strategy](#18-testing-strategy)
-19. [Future Enhancements](#19-future-enhancements)
+15. [Live Sessions Subsystem](#15-live-sessions-subsystem)
+16. [Store & E-commerce Subsystem](#16-store--e-commerce-subsystem)
+17. [Subscription & Payment Subsystem](#17-subscription--payment-subsystem)
+18. [Reporting Subsystem](#18-reporting-subsystem)
+19. [Deployment Architecture](#19-deployment-architecture)
+20. [Testing Strategy](#20-testing-strategy)
+21. [Future Enhancements](#21-future-enhancements)
 
 ---
 
@@ -51,6 +53,8 @@ FitSync covers the following functional domains:
 | Subscription & Payment | Tiered membership plans (Basic → Elite Lifetime), payment processing |
 | Communication | In-app messaging, trainer feedback, community posts, notifications |
 | Administration | Dashboard analytics, report generation, trainer management, help desk |
+| Store & E-commerce | Product catalog, cart management, checkout, order tracking |
+| Live Sessions | Virtual trainer-led group workouts via Google Meet |
 
 ### 1.3 Definitions and Acronyms
 
@@ -114,6 +118,7 @@ FitSync is a three-tier web application serving three distinct user roles within
 FitSync System
 ├── Authentication Module
 │   ├── Member Login / Signup
+│   ├── Email OTP Verification (Gmail SMTP)
 │   ├── Trainer Login
 │   ├── Admin Login
 │   ├── Password Reset
@@ -138,12 +143,13 @@ FitSync System
 │   ├── Exercise Video Gallery
 │   └── Video Upload (Trainer)
 ├── AI Module
+│   ├── AI Hub (Centralized Portal)
 │   ├── AI Chatbot (Gemini / Local Fallback)
 │   ├── AI Workout Generator
 │   └── AI Diet Planner
 ├── Subscription Module
-│   ├── Plan Management (5 tiers)
-│   ├── Payment Processing
+│   ├── Single Mandatory Plan (3-Month ₹199)
+│   └── Payment Processing
 │   └── Feature Gating
 ├── Communication Module
 │   ├── In-App Messaging
@@ -155,8 +161,15 @@ FitSync System
 │   ├── Payment / Revenue Reports
 │   ├── Member Reports
 │   └── Data Export
-└── Settings & Support Module
-    ├── User Profile & Settings
+├── Live Session Module
+│   ├── Session Scheduling (Trainers)
+│   └── Virtual Room Access
+├── Store Module
+│   ├── Product Catalog
+│   ├── Shopping Cart
+│   └── Order Checkout & Tracking
+    ├── Dashboard Components (Profile Data)
+    ├── General Settings
     ├── Help Center (FAQs, Tickets)
     └── Account Deletion
 ```
@@ -299,6 +312,7 @@ Browser Request
 | `logout_view` | `/logout/` | GET | Session termination and redirect |
 
 **Signup Validation Rules:**
+- OTP Verification: 6-digit OTP sent via Gmail SMTP for email validation
 - Password length: 8–12 characters
 - Email: must be a valid `@gmail.com` address
 - Username: must be unique
@@ -339,17 +353,19 @@ authenticate(username, password)
 #### Trainer Dashboard (`/dashboard/trainer/`)
 - **Assigned Members List:** Users with `assigned_trainer = current_user`
 - **Attendance Rate:** Per-member 30-day attendance percentage
+- **Live Session Management:** Form to schedule upcoming live group workouts and securely transmit Google Meet/Zoom URLs directly to assigned members' dashboards.
 - **Feedback System:** Submit text feedback + 1–5 star rating per member
 - **Auto-Notification:** Creates notification for member when feedback is submitted
 - **Profile Photo Update:** Direct upload from dashboard
 - **Stats Cards:** Total members, today's attendance, unread messages
 
 #### User Dashboard (`/dashboard/user/`)
-- **Trainer Assignment Section:** Displays assigned trainer (hidden for Basic plan)
-- **Recent Feedback:** Last 5 trainer feedback entries
-- **Quick Actions:** Links to all major features
-- **Profile Photo Upload:** Direct from dashboard
-- **Subscription Status:** Current plan display
+- **Trainer Assignment Section:** Displays assigned trainer.
+- **Recent Feedback:** Last 5 trainer feedback entries.
+- **Live Sessions Access:** View scheduled sessions by trainer and directly join virtual rooms via active meeting links.
+- **Quick Actions:** Links to all major features.
+- **Profile Data & Settings:** Profile photo upload and settings directly accessible from dashboard blocks.
+- **Subscription Status:** Current active subscription tracking.
 
 ### 5.3 Fitness Tracking Module
 
@@ -422,6 +438,23 @@ authenticate(username, password)
 
 **Difficulty Levels:** Beginner, Intermediate, Advanced  
 **File Support:** Workout asset files, video files, video thumbnails
+
+### 5.7 Store & E-commerce Module
+
+#### User Store Experience
+- **Product Catalog:** High-performance equipment, supplements, and apparel browsing with categories.
+- **Cart System:** Intelligent session-based cart for staging items.
+- **Checkout:** Streamlined logistics flow for address collection and order confirmation.
+- **Order History:** Tracking portal for past procurement cycles.
+
+#### Admin Store Management
+- **Catalog Management:** Full CRUD capabilities for products (Price, Stock, Badges).
+- **Order Oversight:** Centralized panel to monitor and update order fulfillment statuses.
+- **Inventory Analytics:** Real-time tracking of low-stock items and revenue per product.
+
+### 5.8 Live Sessions Module
+- **Scheduling:** Trainers schedule virtual group sessions providing date, time, and Google Meet/Zoom links.
+- **Virtual Room:** Members view upcoming sessions and access the direct meeting link when active.
 
 ### 5.6 Communication Module
 
@@ -558,6 +591,14 @@ DATABASES = {
 | 18 | HelpTicket | `fitsync_app_helpticket` | subject, message, is_resolved, admin_response | FK → User |
 | 19 | SubscriptionPlan | `subscriptions_subscriptionplan` | name, price, annual_price, features | — |
 | 20 | UserSubscription | `subscriptions_usersubscription` | start_date, expiry_date, is_active | OneToOne → User; FK → SubscriptionPlan |
+| 21 | EmailOTP | `fitsync_app_emailotp` | email, otp, is_verified | — |
+| 22 | FitnessAssessment | `fitsync_app_fitnessassessment` | age, fitness_goal, activity_level | OneToOne → User |
+| 23 | LiveSession | `fitsync_app_livesession` | trainer_name, session_title, meeting_link | — |
+| 24 | Product | `fitsync_app_product` | name, price, category, stock | — |
+| 25 | Cart / CartItem | `fitsync_app_cart` | quantity | OneToOne → User; FK → Product |
+| 26 | Order / OrderItem | `fitsync_app_order` | total_amount, status, shipping_address | FK → User; FK → Product |
+| 27 | TrainerReview | `fitsync_app_trainerreview` | rating, comment | FK → User (trainer); FK → User (member) |
+| 28 | Badge / UserBadge | `fitsync_app_badge` | code, name, icon, color | FK → User; FK → Badge |
 
 ---
 
@@ -637,17 +678,15 @@ DATABASES = {
 |---|---|---|---|
 | id | BigAutoField | PK, Auto | Primary key |
 | user | OneToOneField | FK → auth_user, CASCADE | Link to Django User |
-| role | CharField(20) | Choices: member/trainer/admin | User role in the system |
-| fitness_goal | CharField(255) | Nullable | User's declared fitness goal |
-| weight_kg | Decimal(5,2) | Nullable | Current body weight |
-| height_cm | Decimal(5,2) | Nullable | Current height |
-| profile_photo | ImageField | upload_to='profile_photos/' | Avatar image |
-| phone_number | CharField(20) | Nullable | Phone with country code |
-| address | TextField | Nullable | Mailing address |
-| bio | TextField | Nullable | Personal bio |
-| specialty | CharField(100) | Nullable | Trainer specialization |
-| price | Decimal(10,2) | Default=50.00 | Monthly trainer price |
-| assigned_trainer | ForeignKey | FK → auth_user, SET_NULL | Assigned personal trainer |
+| role | CharField(20) | Choices: member/trainer/admin | User role (Member/Trainer/Admin) |
+| fitness_goal | CharField(255) | Nullable | Primary objective (Weight Loss, etc.) |
+| weight_kg | Decimal(5,2) | Default=70.0 | Base weight for BMI history engine |
+| height_cm | Decimal(5,2) | Default=170.0 | Base height for BMI history engine |
+| profile_photo | ImageField | upload_to='profile_photos/' | User avatar image |
+| phone_number | CharField(20) | Nullable | Primary contact number |
+| bio / address | TextField | Nullable | Regional and descriptive data |
+| specialty | CharField(100) | Nullable | Trainer area of expertise |
+| assigned_trainer | ForeignKey | FK → auth_user, SET_NULL | Link to personal trainer |
 | created_at | DateTimeField | auto_now_add | Registration timestamp |
 
 ### 9.2 SubscriptionPlan
@@ -664,13 +703,8 @@ DATABASES = {
 
 **Plan Tiers:**
 
-| Plan Name | Display Name | Tier Level |
-|---|---|---|
-| basic | Basic | Entry-level, limited features |
-| premium | Premium | Full features, personal trainers |
-| gold | Premium Gold | Enhanced premium with extras |
-| elite | Elite | All features, priority support |
-| lifetime | Elite Lifetime | One-time payment, permanent access |
+The system has been streamlined to offer only a **Single Mandatory Plan**.
+- **3-Month Plan (₹199)**: Grants full access to all platform features. All other older tiers have been deprecated to simplify the user journey.
 
 ### 9.3 Payment
 
@@ -684,6 +718,18 @@ DATABASES = {
 | payment_date | DateTimeField | auto_now_add | Transaction time |
 
 ---
+
+### 9.4 E-Commerce (Store)
+- **Product:** Manages inventory (name, price, stock, category).
+- **Cart & CartItem:** Transient ledger of user's pre-checkout selections.
+- **Order & OrderItem:** Permanent snapshot of a completed purchase including fulfillment status.
+
+### 9.5 Live Sessions
+- **LiveSession:** Scheduled group workouts managed by trainers containing meeting link URLs.
+
+### 9.6 Gamification (Badges)
+- **Badge:** Defines achievements (e.g., 7-day streak, 100 sessions) tracked dynamically.
+- **UserBadge:** Join table logging when a user unlocked an achievement.
 
 ## 10. User Interface Design
 
@@ -713,9 +759,9 @@ FitSync uses a custom CSS design system with 5 stylesheets:
 | Communication | messages, community, help | 3 |
 | Reports | report_attendance, report_payments, report_members, report_download | 4 |
 | Management | trainer_list, add_trainer, trainer_member_progress, admin_help_tickets | 4 |
-| Settings | profile, settings, video_gallery, video_upload | 4 |
+| Settings | settings, video_gallery, video_upload | 3 |
 | Layout | base.html (master template) | 1 |
-| **Total** | | **53+** |
+| **Total** | | **64+** |
 
 ### 10.3 JavaScript Modules
 
@@ -834,13 +880,9 @@ if not hasattr(request.user, 'userprofile') or request.user.userprofile.role != 
 
 ### 13.2 Feature Gating by Subscription
 
-| Feature | Basic | Premium | Premium Gold | Elite | Lifetime |
-|---|---|---|---|---|---|
-| Core Fitness Tools | ✅ | ✅ | ✅ | ✅ | ✅ |
-| AI Workout Generator | ❌ | ✅ | ✅ | ✅ | ✅ |
-| AI Diet Planner | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Personal Trainer Access | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Trainer Dashboard Visibility | Hidden | ✅ | ✅ | ✅ | ✅ |
+All members must purchase the unified **3-month elite plan (₹199)** upon registration.
+- **Pre-Payment:** Access restricted to membership checkout and basic store browsing.
+- **Post-Payment:** Full, unrestricted access to the Neural Hub, Live Sessions, Trainer Messaging, and Advanced Analytics.
 
 ### 13.3 Strict Role Routing
 
@@ -896,20 +938,92 @@ User Message
 | Training Concepts | Hypertrophy, Strength, Cardio, HIIT, Rest/Sleep, Yoga, Stretching, Mobility |
 | General Fitness | Weight Loss, Muscle Gain, Workout, Exercise, Diet, Nutrition, Motivation, Discipline, Soreness |
 
-### 14.3 AI-Powered Features
+### 14.3 The Neural Hub (AI-Powered Features)
 
-| Feature | Endpoint | Subscription Requirement |
-|---|---|---|
-| AI Chatbot | `/chatbot/`, `/api/chatbot/` | All users (basic mode) |
-| AI Workout Generator | `/ai-workout/` | Premium and above |
-| AI Diet Planner | `/ai-diet/` | Premium and above |
-| AI Hub | `/ai-hub/` | All users (portal) |
+The AI Hub acts as the centralized portal for all high-fidelity algorithmic tools for physiological optimization. Features are categorized into two tiers:
+
+#### Core AI Tools
+- **AI Coach:** Direct interface with your analytical coaching entity. Expert advice on training, nutrition, and recovery.
+- **Protocol Architect:** Synthesize multi-phasic training systems based on your biological vectors and equipment access. (AI Workout Generator)
+- **Metabolic Architect:** Algorithmic fueling protocols tailored to your metabolic state, goals, and dietary framework. (AI Diet Planner)
+
+#### Advanced AI Features
+- **CV Exercise Detection:** Camera-based pose estimation. Counts reps and analyzes form in real-time using MediaPipe AI.
+- **Smart Fitness Score:** AI health rating calculated from your BMI, workouts, calories, hydration, and goals.
+- **AI Meal Scanner:** Upload a food photo. AI detects items, estimates calories, and logs macros to your nutrition tracker.
+- **Habit & Streak Engine:** Streak tracking, achievement badges, level system, and community leaderboard to keep you motivated.
 
 ---
 
-## 15. Subscription & Payment Subsystem
+## 15. Live Sessions Subsystem
 
-### 15.1 Payment Flow
+### 15.1 Real-Time Workflow
+
+```
+Trainer Schedules Session
+      │
+      ▼
+┌─────────────────────────┐
+│ Create LiveSession Rec  │
+│ (Title, Link, DT)       │
+└────────────┬────────────┘
+             │
+             ▼
+┌────────────┴────────────┐
+│ Member Dashboard Sync   │
+│ (Displays Join Button)  │
+└────────────┬────────────┘
+             │
+             ▼
+┌────────────┴────────────┐
+│ live_session_room_view  │
+│ (Secure Redirect)       │
+└─────────────────────────┘
+```
+
+### 15.2 Functional Details
+
+- **Protocol Integration**: Supports any external virtual meeting protocols (Google Meet, Zoom, Jitsi).
+- **Synchronization**: Automatically filters out expired sessions based on the `date` field compared to `timezone.localdate()`.
+- **Security**: Only the scheduling trainer or a platform admin possesses the privileges to delete/cancel an active session.
+
+## 16. Store & E-commerce Subsystem
+
+### 16.1 Transactional Architecture
+
+```
+User Selects Product
+      │
+      ▼
+┌─────────────────────────┐
+│ Cart Engine (Transient) │
+│ (Add/Update Qty)        │
+└────────────┬────────────┘
+             │
+             ▼
+┌────────────┴────────────┐
+│ Checkout Controller     │
+│ (Order Persistence)     │
+└────────────┬────────────┘
+             │
+             ▼
+┌────────────┴────────────┐
+│ Fulfillment Engine      │
+│ (Admin Inventory Sync)  │
+└─────────────────────────┘
+```
+
+### 16.2 Administrative Control Plane
+
+- **Inventory Logic:** Automatic stock decrement upon order confirmation to prevent overselling.
+- **Order Lifecycle:** Transitions from `Confirmed` → `Shipped` → `Delivered` handled via the Admin Store Panel.
+- **Revenue Integration:** Order totals are aggregated into the primary Financial Reporting subsystem.
+
+---
+
+## 17. Subscription & Payment Subsystem
+
+### 17.1 Payment Flow
 
 ```
 Member selects plan
@@ -934,19 +1048,17 @@ payment_view() / trainer_payment_view()
 
 ### 15.2 Subscription Lifecycle
 
-1. **Activation:** Payment success triggers `UserSubscription` creation
-2. **Expiry Calculation:** Based on plan type — monthly (30 days), annual (365 days), or lifetime (36,500 days)
-3. **Feature Gating:** Each view checks `UserSubscription.is_active` and `plan.name`
-4. **Admin Control:** Admins can edit plan pricing, features, and active status from `/subscription/edit/<id>/`
+1. **Activation:** Payment success triggers `UserSubscription` activation via POST-checkout signal.
+2. **Expiry Calculation:** Unified strategy — exactly 90 days (3 months) from activation.
+3. **Feature Gating:** Mandatory check `is_active=True`. Unpaid users are locked at the Membership gate.
+4. **Renewal Flow:** Users can renew within 7 days of expiry to maintain streaks/data.
 
-### 15.3 Membership Dashboard (`/membership/`)
+### 15.3 Membership Checkout & Dashboard (`/membership/`)
 
-Displays:
-- Current plan name, description, and features
-- Validity period with days remaining
-- Next billing amount
-- Payment history table
-- Available plan grid for upgrades
+The platform now enforces a pre-payment gate immediately after OTP verification.
+- **Mandatory Payment Gate:** Users are locked out of all core functionalities (including Dashboards, AI Hub, and Live Sessions) until the unified ₹199 membership is purchased.
+- **Payment History Table:** Chronological ledger of all historical successful and failed payments.
+- **Active Plan Display:** Displays the active timeline (Validity period with exact days remaining until expiry) for the single 3-month plan. Upgrade grids have been removed entirely to align with the single-tier unified strategy.
 
 ---
 
@@ -1124,8 +1236,7 @@ The project includes `seed_db.py` (14,201 bytes) for populating test data:
 | 4 | `/signup/` | signup_view | signup |
 | 5 | `/forgot-password/` | forgot_password_view | forgot_password |
 | 6 | `/logout/` | logout_view | logout |
-| 7 | `/profile/` | profile_view | profile |
-| 8 | `/` | home_view | home |
+| 7 | `/` | home_view | home |
 | 9 | `/admin/` | admin_dashboard_view | admin_dashboard |
 | 10 | `/dashboard/trainer/` | trainer_dashboard_view | trainer_dashboard |
 | 11 | `/dashboard/user/` | user_dashboard_view | user_dashboard |
@@ -1170,6 +1281,13 @@ The project includes `seed_db.py` (14,201 bytes) for populating test data:
 | 50 | `/videos/upload/` | video_upload_view | video_upload |
 | 51 | `/admin/help-tickets/` | admin_help_tickets_view | admin_help_tickets |
 | 52 | `/account/delete/` | delete_account_view | delete_account |
+| 53 | `/live-session/` | live_session_view | live_session |
+| 54 | `/store/` | store_view | store |
+| 55 | `/store/product/<pk>` | product_detail_view | product_detail |
+| 56 | `/cart/` | cart_view | cart |
+| 57 | `/checkout/` | checkout_view | checkout |
+| 58 | `/achievements/` | achievements_view | achievements |
+| 59 | `/verify-otp/` | verify_otp_view | verify_otp |
 
 ---
 

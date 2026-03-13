@@ -1,0 +1,238 @@
+{% extends 'fitsync_app/admin_base.html' %}
+{% load static %}
+
+{% block title %}Trainers — FitSync{% endblock %}
+
+{% block admin_content %}
+<div class="fd-page-header fd-animate">
+    <div class="fd-greeting">
+        <h1>Trainers <span style="font-size: 1.25rem;">💪</span></h1>
+        <p>Your elite coaching team</p>
+    </div>
+    <div class="fd-header-pill">
+        <i class="fa-solid fa-id-badge"></i> Coaches: {{ trainers|length }}
+    </div>
+</div>
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;" class="fd-animate fd-delay-1">
+    <div class="fd-search-bar">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="trainerSearch" placeholder="Search trainers...">
+    </div>
+    <a href="{% url 'add_trainer' %}" class="fd-btn fd-btn-primary">
+        <i class="fa-solid fa-plus"></i> Add Trainer
+    </a>
+</div>
+
+<style>
+    .trainer-grid-fd {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .t-card-fd {
+        background: var(--fd-card);
+        border: 1px solid var(--fd-border);
+        border-radius: var(--fd-radius-lg);
+        padding: 1.75rem;
+        transition: all 0.3s ease;
+        box-shadow: var(--fd-shadow);
+    }
+
+    .t-card-fd:hover {
+        transform: translateY(-4px);
+        border-color: var(--fd-accent);
+        box-shadow: var(--fd-shadow-hover);
+    }
+
+    .t-header-fd {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .t-img-fd {
+        width: 68px;
+        height: 68px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--fd-accent);
+    }
+
+    .t-name-fd {
+        display: block;
+        font-weight: 700;
+        font-size: 1.15rem;
+        color: var(--fd-text);
+    }
+
+    .t-spec-fd {
+        font-size: 0.78rem;
+        color: var(--fd-accent-dark);
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    .t-stats-fd {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+        padding: 0.85rem;
+        background: var(--fd-bg);
+        border-radius: var(--fd-radius-sm);
+    }
+
+    .t-stat-fd { text-align: center; }
+
+    .t-stat-fd .val {
+        display: block;
+        font-weight: 700;
+        color: var(--fd-text);
+        font-size: 1rem;
+    }
+
+    .t-stat-fd .lbl {
+        font-size: 0.65rem;
+        color: var(--fd-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .t-price-fd {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--fd-border);
+    }
+
+    .t-price-input-fd {
+        background: var(--fd-bg);
+        border: 1.5px solid var(--fd-border);
+        color: var(--fd-text);
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+        width: 90px;
+        font-weight: 700;
+        font-family: var(--fd-font);
+        font-size: 0.9rem;
+    }
+
+    .t-price-input-fd:focus {
+        outline: none;
+        border-color: var(--fd-accent);
+    }
+
+    .t-save-fd {
+        background: var(--fd-accent);
+        color: #1a1a1a;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: var(--fd-font);
+        font-size: 0.82rem;
+        transition: all 0.2s;
+    }
+
+    .t-save-fd:hover { background: var(--fd-accent-dark); }
+
+    .t-actions-fd {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.85rem;
+    }
+
+    .t-act-fd {
+        flex: 1;
+        padding: 0.65rem;
+        border-radius: 8px;
+        text-align: center;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.78rem;
+        transition: all 0.2s;
+    }
+
+    .t-view-fd {
+        background: var(--fd-bg);
+        color: var(--fd-text-secondary);
+        border: 1px solid var(--fd-border);
+    }
+
+    .t-view-fd:hover { border-color: var(--fd-accent); color: var(--fd-accent-dark); }
+
+    .t-del-fd {
+        background: rgba(239, 68, 68, 0.06);
+        color: #dc2626;
+        border: 1px solid rgba(239, 68, 68, 0.15);
+    }
+
+    .t-del-fd:hover { background: #ef4444; color: #fff; }
+</style>
+
+<div class="trainer-grid-fd fd-animate fd-delay-2">
+    {% for profile in trainers %}
+    <div class="t-card-fd">
+        <div class="t-header-fd">
+            {% if profile.profile_photo %}
+            <img src="{{ profile.profile_photo.url }}" class="t-img-fd" alt="">
+            {% else %}
+            <img src="https://i.pravatar.cc/150?u={{ profile.user.username }}" class="t-img-fd" alt="">
+            {% endif %}
+            <div>
+                <span class="t-name-fd">{{ profile.user.get_full_name|default:profile.user.username|title }}</span>
+                <span class="t-spec-fd">{{ profile.specialty|default:'Elite Coach' }}</span>
+            </div>
+        </div>
+
+        <div class="t-stats-fd">
+            <div class="t-stat-fd">
+                <span class="val">{{ profile.experience_years|default:"5" }}yr</span>
+                <span class="lbl">Exp</span>
+            </div>
+            <div class="t-stat-fd">
+                <span class="val">{{ profile.client_count|default:"42" }}</span>
+                <span class="lbl">Clients</span>
+            </div>
+            <div class="t-stat-fd">
+                <span class="val">{{ profile.rating|default:"4.9" }}</span>
+                <span class="lbl">Rating</span>
+            </div>
+        </div>
+
+        <form method="POST" action="{% url 'trainer_list' %}" class="t-price-fd">
+            {% csrf_token %}
+            <input type="hidden" name="trainer_id" value="{{ profile.id }}">
+            <span style="color: var(--fd-text-muted); font-weight: 700;">₹</span>
+            <input type="number" name="new_price" value="{{ profile.price|floatformat:0 }}" class="t-price-input-fd">
+            <button type="submit" class="t-save-fd">Save</button>
+        </form>
+
+        <div class="t-actions-fd">
+            <a href="{% url 'workout_list' %}" class="t-act-fd t-view-fd">View Programs</a>
+            <a href="{% url 'delete_trainer' profile.id %}" class="t-act-fd t-del-fd" onclick="return confirm('Remove this trainer?')">Remove</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    const searchInput = document.getElementById('trainerSearch');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            let filter = this.value.toLowerCase();
+            let cards = document.querySelectorAll('.t-card-fd');
+            cards.forEach(card => {
+                let text = card.innerText.toLowerCase();
+                card.style.display = text.includes(filter) ? '' : 'none';
+            });
+        });
+    }
+</script>
+{% endblock %}

@@ -23,6 +23,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('django-admin/', admin.site.urls),
     path('', include('fitsync_app.urls')),
+    path('accounts/', include('allauth.urls')),
     path('favicon.ico', RedirectView.as_view(url='/static/img/favicon.png')),
 ]
 

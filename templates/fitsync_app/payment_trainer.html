@@ -1,169 +1,175 @@
 {% extends 'fitsync_app/base.html' %}
 {% load static %}
 
-{% block title %}Hire Coach | FitSync Elite{% endblock %}
+{% block title %}FitSync — Hire Coach{% endblock %}
 
 {% block header %}{% endblock %}
 {% block footer %}{% endblock %}
 
 {% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
+    /* Force override base template dark-mode */
+    body, body.dark-mode, body.light-mode {
+        --bg-primary: #f3f4f0 !important;
+        --bg-secondary: #ffffff !important;
+        --bg-tertiary: #f3f4f0 !important;
+        --text-primary: #1a1a1a !important;
+        --text-secondary: #6b6b6b !important;
+        --text-muted: #9ca3af !important;
+        --border-color: rgba(0,0,0,0.06) !important;
+    }
+    body > .navbar, body > nav { display: none !important; }
+    body > main { padding: 0 !important; margin: 0 !important; }
+    body > footer { display: none !important; }
+
     :root {
-        --content-bg: var(--bg-primary);
-        --card-bg: var(--bg-secondary);
-        --gold: #4F46E5;
-        --text-main: var(--text-primary);
-        --text-muted: var(--text-muted);
-        --border: var(--border-color);
+        --fd-bg: #f3f4f0;
+        --fd-card: #ffffff;
+        --fd-accent: #b5e550;
+        --fd-accent-dark: #8bc34a;
+        --fd-text: #1a1a1a;
+        --fd-text-secondary: #6b6b6b;
+        --fd-text-muted: #9ca3af;
+        --fd-border: rgba(0, 0, 0, 0.06);
+        --fd-radius-lg: 24px;
+        --fd-radius-sm: 10px;
+        --fd-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+        --fd-font: 'DM Sans', 'Inter', -apple-system, sans-serif;
     }
 
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-        background-color: var(--content-bg);
-        color: var(--text-main);
-        font-family: 'Inter', sans-serif;
+        background-color: var(--fd-bg) !important;
+        color: var(--fd-text) !important;
+        font-family: var(--fd-font) !important;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
         min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        display: flex; align-items: center; justify-content: center;
     }
 
     .payment-container {
         display: flex;
-        background: var(--card-bg);
-        width: 100%;
-        max-width: 1000px;
-        border-radius: 24px;
+        background: var(--fd-card);
+        width: 100%; max-width: 1000px;
+        border-radius: var(--fd-radius-lg);
         overflow: hidden;
-        border: 1px solid var(--border);
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        border: 1px solid var(--fd-border);
+        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
         margin: 2rem;
+        animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(16px); }
+        to   { opacity: 1; transform: translateY(0); }
     }
 
     .summary-section {
-        flex: 1;
-        padding: 3rem;
-        background: rgba(255, 255, 255, 0.02);
-        border-right: 1px solid var(--border);
+        flex: 1; padding: 2.5rem;
+        background: rgba(181, 229, 80, 0.03);
+        border-right: 1px solid var(--fd-border);
     }
 
-    .payment-section {
-        flex: 1;
-        padding: 3rem;
-    }
+    .payment-section { flex: 1; padding: 2.5rem; }
 
     h1 {
-        font-family: 'Inter', serif;
-        color: var(--gold);
-        margin-bottom: 2rem;
-        font-size: 1.8rem;
+        font-family: 'Playfair Display', serif;
+        color: var(--fd-text); margin-bottom: 2rem;
+        font-size: 1.65rem; font-weight: 800;
+        letter-spacing: -0.03em;
     }
 
     .trainer-preview {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-        padding-bottom: 2rem;
-        border-bottom: 1px solid var(--border);
+        display: flex; align-items: center;
+        gap: 1.25rem; margin-bottom: 2rem;
+        padding-bottom: 2rem; border-bottom: 1px solid var(--fd-border);
     }
 
     .trainer-img {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        border: 2px solid var(--gold);
-        object-fit: cover;
+        width: 72px; height: 72px; border-radius: 50%;
+        border: 3px solid var(--fd-accent); object-fit: cover;
     }
 
     .trainer-info h3 {
-        margin: 0;
-        font-size: 1.2rem;
+        margin: 0; font-size: 1.1rem; font-weight: 800;
+        letter-spacing: -0.02em;
     }
 
     .trainer-info p {
-        margin: 0.2rem 0 0;
-        color: var(--text-muted);
-        font-size: 0.9rem;
+        margin: 0.2rem 0 0; color: var(--fd-text-muted);
+        font-size: 0.88rem; font-weight: 500;
     }
 
     .cost-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 1rem;
-        font-size: 1rem;
+        display: flex; justify-content: space-between;
+        margin-bottom: 0.75rem; font-size: 0.95rem;
+        color: var(--fd-text-secondary);
     }
+
+    .cost-row span:last-child { font-weight: 700; color: var(--fd-text); }
 
     .total-row {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 2rem;
-        padding-top: 1rem;
-        border-top: 1px solid var(--border);
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: var(--gold);
+        display: flex; justify-content: space-between;
+        margin-top: 1.5rem; padding-top: 1rem;
+        border-top: 1px solid var(--fd-border);
+        font-size: 1.4rem; font-weight: 800;
+        color: #6d9b1c; letter-spacing: -0.03em;
     }
 
-    .form-group {
-        margin-bottom: 1.5rem;
+    .benefits-list {
+        margin-top: 2rem; font-size: 0.88rem;
+        color: var(--fd-text-secondary); line-height: 2;
     }
 
-    .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-size: 0.9rem;
-        color: var(--text-muted);
+    .benefits-list i {
+        color: #6d9b1c; margin-right: 0.5rem;
     }
 
-    .form-control {
-        width: 100%;
-        padding: 1rem;
-        background: var(--bg-tertiary);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        color: var(--text-primary);
-        font-size: 1rem;
+    .razorpay-portal {
+        padding: 2rem; background: var(--fd-bg);
+        border-radius: var(--fd-radius-lg);
+        border: 2px dashed rgba(181, 229, 80, 0.3);
+        text-align: center;
     }
 
-    .form-control:focus {
-        outline: none;
-        border-color: var(--gold);
+    .razorpay-payment-button {
+        width: 100% !important; height: 64px !important;
+        background: var(--fd-accent) !important;
+        color: #1a1a1a !important;
+        border: none !important; border-radius: 12px !important;
+        font-size: 1rem !important; font-weight: 800 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 2px !important;
+        cursor: pointer !important; transition: 0.2s !important;
+        margin-top: 0.75rem !important;
+        font-family: 'DM Sans', sans-serif !important;
     }
 
-    .card-element {
-        padding: 1rem;
-        background: var(--bg-tertiary);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-    }
-
-    .btn-pay {
-        width: 100%;
-        padding: 1rem;
-        background: var(--gold);
-        color: #000;
-        border: none;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 1.1rem;
-        cursor: pointer;
-        transition: 0.3s;
-        margin-top: 1rem;
-    }
-
-    .btn-pay:hover {
-        opacity: 0.9;
-        transform: translateY(-2px);
+    .razorpay-payment-button:hover {
+        background: var(--fd-accent-dark) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 24px rgba(181, 229, 80, 0.3) !important;
     }
 
     .secure-badge {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        margin-top: 1.5rem;
-        color: var(--text-muted);
-        font-size: 0.8rem;
+        display: flex; align-items: center; justify-content: center;
+        gap: 0.5rem; margin-top: 2rem;
+        color: var(--fd-text-muted); font-size: 0.8rem; font-weight: 600;
+    }
+
+    .card-brands {
+        margin-top: 1.5rem; display: flex;
+        justify-content: center; gap: 2rem;
+        opacity: 0.25; filter: grayscale(1);
+    }
+
+    @media (max-width: 768px) {
+        .payment-container { flex-direction: column; margin: 1rem; }
+        .summary-section { border-right: none; border-bottom: 1px solid var(--fd-border); }
     }
 </style>
 {% endblock %}
@@ -195,18 +201,17 @@
             <span>₹{{ trainer.price }}</span>
         </div>
 
-        <div style="margin-top: 2rem; font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
-            <i class="fa-solid fa-check-circle" style="color: var(--gold);"></i> Personalized Workout Plans<br>
-            <i class="fa-solid fa-check-circle" style="color: var(--gold);"></i> Diet & Nutrition Guidance<br>
-            <i class="fa-solid fa-check-circle" style="color: var(--gold);"></i> 24/7 Chat Support<br>
-            <i class="fa-solid fa-check-circle" style="color: var(--gold);"></i> Form Analysis & Feedback
+        <div class="benefits-list">
+            <div><i class="fa-solid fa-check-circle"></i> Personalized Workout Plans</div>
+            <div><i class="fa-solid fa-check-circle"></i> Diet & Nutrition Guidance</div>
+            <div><i class="fa-solid fa-check-circle"></i> 24/7 Chat Support</div>
+            <div><i class="fa-solid fa-check-circle"></i> Form Analysis & Feedback</div>
         </div>
     </div>
 
     <div class="payment-section">
         <h1>Secure Checkout</h1>
-        <div class="razorpay-portal"
-            style="padding: 2rem; background: rgba(255,255,255,0.03); border-radius: 30px; border: 1px dashed rgba(212,175,55,0.3); text-align: center;">
+        <div class="razorpay-portal">
             <form method="post">
                 {% csrf_token %}
                 <script src="https://checkout.razorpay.com/v1/checkout.js" data-key="rzp_test_SROSnyInFv81S4"
@@ -215,42 +220,16 @@
                     data-description="Hiring {{ trainer.user.get_full_name|default:trainer.user.username|title }}"
                     data-image="https://razorpay.com/assets/razorpay-glyph.svg"
                     data-prefill.name="{{ user.get_full_name }}" data-prefill.email="{{ user.email }}"
-                    data-theme.color="#4F46E5"></script>
+                    data-theme.color="#8bc34a"></script>
                 <input type="hidden" name="razorpay_payment_id" value="PRE_AUTH">
             </form>
-
-            <style>
-                .razorpay-payment-button {
-                    width: 100%;
-                    height: 70px;
-                    background: var(--gold) !important;
-                    color: #000 !important;
-                    border: none !important;
-                    border-radius: 12px !important;
-                    font-size: 1.1rem !important;
-                    font-weight: 700 !important;
-                    text-transform: uppercase !important;
-                    letter-spacing: 2px !important;
-                    cursor: pointer !important;
-                    transition: 0.3s !important;
-                    margin-top: 1rem !important;
-                    font-family: 'Inter', sans-serif !important;
-                }
-
-                .razorpay-payment-button:hover {
-                    opacity: 0.9 !important;
-                    transform: translateY(-2px) !important;
-                    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3) !important;
-                }
-            </style>
         </div>
 
-        <div class="secure-badge" style="margin-top: 3rem;">
+        <div class="secure-badge">
             <i class="fa-solid fa-lock"></i> Secured by Razorpay Encryption
         </div>
 
-        <div
-            style="margin-top: 2rem; display: flex; justify-content: center; gap: 2rem; opacity: 0.3; filter: grayscale(1);">
+        <div class="card-brands">
             <i class="fa-brands fa-cc-visa fa-2x"></i>
             <i class="fa-brands fa-cc-mastercard fa-2x"></i>
             <i class="fa-brands fa-cc-apple-pay fa-2x"></i>

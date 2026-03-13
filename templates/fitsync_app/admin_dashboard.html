@@ -1,864 +1,760 @@
-{% extends 'fitsync_app/base.html' %}
+{% extends 'fitsync_app/admin_base.html' %}
 {% load static %}
 
-{% block title %}Admin Dashboard | Fitsync Pro{% endblock %}
+{% block title %}FitSync — Admin Dashboard{% endblock %}
 
-{% block header %}{% endblock %}
-{% block footer %}{% endblock %}
-
-{% block extra_css %}
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+{% block admin_content %}
+<!-- Page Header -->
+<div class="fd-page-header fd-animate">
+    <div class="fd-greeting">
+        <h1>Good Morning, {{ user.get_full_name|default:user.username|title }} 👋</h1>
+        <p>Let's check your fitness empire today.</p>
+    </div>
+    <div class="fd-header-pill">
+        <i class="fa-solid fa-circle-check" style="color: #22c55e;"></i> Systems Online
+    </div>
+</div>
 
 <style>
-    /* Dark Terminal Theme Variables */
-    :root {
-        --bg-main: #09100e;
-        --bg-panel: #0d1614;
-        --bg-card: #111c18;
-        --bg-sidebar: #09100e;
-        --bg-teal-hover: #14241f;
-
-        --text-pure: #ffffff;
-        --text-primary: #e2e8f0;
-        --text-sec: #8b9a96;
-        --text-muted: #52635e;
-
-        --accent-green: #1D9E75;
-        --accent-teal: #14b8a6;
-        --accent-blue: #3b82f6;
-        --accent-orange: #f59e0b;
-        --accent-purple: #8b5cf6;
-        --accent-red: #ef4444;
-
-        --border-subtle: rgba(255, 255, 255, 0.05);
-        --border-med: rgba(255, 255, 255, 0.1);
-    }
-
-    body {
-        margin: 0;
-        padding: 0;
-        background-color: var(--bg-main);
-        color: var(--text-primary);
-        font-family: 'Inter', sans-serif;
-    }
-
-    /* Layout */
-    .dashboard-layout {
-        display: flex;
-        min-height: 100vh;
-    }
-
-    /* SIDEBAR */
-    .sidebar {
-        width: 260px;
-        background: var(--bg-sidebar);
-        border-right: 1px solid var(--border-subtle);
-        display: flex;
-        flex-direction: column;
-        padding: 1.5rem 0;
-        position: fixed;
-        height: 100vh;
-        z-index: 10;
-        box-sizing: border-box;
-    }
-
-    .sidebar-brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 0 1.5rem 2rem;
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--text-pure);
-        text-decoration: none;
-        border-bottom: 1px solid var(--border-subtle);
-    }
-    .brand-icon {
-        width: 32px;
-        height: 32px;
-        background: var(--accent-green);
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
-        font-size: 0.9rem;
-    }
-
-    .admin-profile {
-        padding: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        border-bottom: 1px solid var(--border-subtle);
-    }
-    .admin-avatar {
-        width: 36px;
-        height: 36px;
-        background: var(--accent-green);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
-        font-weight: 700;
-        font-size: 1rem;
-    }
-    .admin-info {
-        display: flex;
-        flex-direction: column;
-    }
-    .admin-info .name { font-size: 0.95rem; font-weight: 600; color: var(--text-pure); }
-    .admin-info .role { font-size: 0.75rem; color: var(--text-sec); }
-
-    .nav-group {
-        padding: 1rem 0 0;
-    }
-    .nav-label {
-        font-size: 0.65rem;
-        font-weight: 700;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        padding: 0 1.5rem 0.5rem;
-    }
-    .nav-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 0.75rem 1.5rem;
-        color: var(--text-sec);
-        text-decoration: none;
-        font-size: 0.9rem;
-        font-weight: 500;
-        border-left: 2px solid transparent;
-        transition: all 0.2s;
-    }
-    .nav-item:hover {
-        background: rgba(255, 255, 255, 0.02);
-        color: var(--text-primary);
-    }
-    .nav-item.active {
-        color: var(--accent-green);
-        background: rgba(29, 158, 117, 0.05);
-        border-left-color: var(--accent-green);
-    }
-    .nav-item i { width: 16px; font-size: 0.9rem; }
-    
-    .nav-badge {
-        margin-left: auto;
-        background: rgba(29, 158, 117, 0.15);
-        color: var(--accent-green);
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-size: 0.7rem;
-        font-weight: 600;
-    }
-
-    .sidebar-footer {
-        margin-top: auto;
-        padding: 1.5rem;
-        border-top: 1px solid var(--border-subtle);
-    }
-    .logout-btn {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        color: #ef4444;
-        text-decoration: none;
-        font-size: 0.85rem;
-        font-weight: 500;
-        padding: 0.5rem;
-        transition: opacity 0.2s;
-        border: none;
-        background: transparent;
-        cursor: pointer;
-        width: 100%;
-        text-align: left;
-    }
-    .logout-btn:hover { opacity: 0.8; }
-
-    /* MAIN CONTENT */
-    .main-content {
-        flex: 1;
-        margin-left: 260px;
-        background: var(--bg-panel);
-        border-left: 1px solid var(--border-subtle);
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .top-header {
-        height: 70px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 2rem;
-        border-bottom: 1px solid var(--border-subtle);
-    }
-    .breadcrumbs {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: var(--text-pure);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    .breadcrumbs-muted { color: var(--text-muted); font-weight: 400; }
-    
-    .header-actions {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-    .status-badge {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        background: rgba(29, 158, 117, 0.1);
-        border: 1px solid rgba(29, 158, 117, 0.3);
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        color: var(--accent-green);
-        font-weight: 500;
-    }
-    .status-badge .dot {
-        width: 6px; height: 6px; border-radius: 50%; background: var(--accent-green);
-    }
-    .icon-btn {
-        width: 36px; height: 36px;
-        border-radius: 8px;
-        background: var(--bg-card);
-        border: 1px solid var(--border-subtle);
-        color: var(--text-sec);
-        display: flex; align-items: center; justify-content: center;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-    .icon-btn:hover { color: var(--text-pure); border-color: var(--border-med); }
-
-    .dashboard-body {
-        padding: 2rem;
-        display: grid;
-        grid-template-columns: 1fr 340px;
-        gap: 2rem;
-        flex: 1;
-    }
-
-    /* METRIC CARDS */
-    .metrics-container {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-
-    .metrics-row {
+    /* ═══════════════════ STATS ROW ═══════════════════ */
+    .dash-stats-row {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 1rem;
+        gap: 1.25rem;
+        margin-bottom: 2rem;
     }
 
-    .metric-card {
-        background: var(--bg-card);
-        border: 1px solid var(--border-subtle);
-        border-radius: 12px;
-        padding: 1.25rem;
+    .dash-stat {
+        background: var(--fd-card);
+        border-radius: var(--fd-radius);
+        border: 1px solid var(--fd-border);
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: var(--fd-shadow);
+        transition: all 0.3s ease;
         position: relative;
         overflow: hidden;
-        transition: background 0.2s;
     }
-    .metric-card:hover { background: var(--bg-teal-hover); }
-    
-    .metric-bot-bar {
+
+    .dash-stat::before {
+        content: '';
         position: absolute;
-        bottom: 0; left: 1rem; right: 1rem;
-        height: 2px;
-        border-radius: 2px 2px 0 0;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        border-radius: 4px 0 0 4px;
     }
-    .metric-bot-bar.green { background: var(--accent-green); }
 
-    .metric-top {
+    .dash-stat:nth-child(1)::before { background: var(--fd-accent); }
+    .dash-stat:nth-child(2)::before { background: #3b82f6; }
+    .dash-stat:nth-child(3)::before { background: #f59e0b; }
+    .dash-stat:nth-child(4)::before { background: #ef4444; }
+
+    .dash-stat:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--fd-shadow-hover);
+    }
+
+    .dash-stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
         display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 0.5rem;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.15rem;
+        flex-shrink: 0;
     }
-    .metric-icon {
-        width: 32px; height: 32px;
-        border-radius: 8px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 0.9rem;
-    }
-    .metric-icon.green { background: rgba(29, 158, 117, 0.1); color: var(--accent-green); }
-    .metric-icon.blue { background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); }
 
-    .spark-tag {
-        background: rgba(29, 158, 117, 0.15);
-        color: var(--accent-green);
-        padding: 2px 6px;
-        border-radius: 4px;
+    .dash-stat-icon.green  { background: rgba(181, 229, 80, 0.15); color: #6d9b1c; }
+    .dash-stat-icon.blue   { background: rgba(59, 130, 246, 0.12); color: #3b82f6; }
+    .dash-stat-icon.amber  { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
+    .dash-stat-icon.red    { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+    .dash-stat-content .stat-val {
+        display: block;
+        font-size: 1.7rem;
+        font-weight: 800;
+        color: var(--fd-text);
+        line-height: 1.15;
+        letter-spacing: -0.04em;
+        font-feature-settings: 'tnum' 1;
+    }
+
+    .dash-stat-content .stat-lbl {
+        font-size: 0.72rem;
+        color: var(--fd-text-muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        margin-top: 0.15rem;
+    }
+
+    .stat-trend {
+        margin-left: auto;
         font-size: 0.7rem;
-        font-weight: 600;
-        display: flex; align-items: center; gap: 4px;
-    }
-
-    .metric-val {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: var(--text-pure);
-        margin: 0 0 0.25rem 0;
-        line-height: 1.2;
-    }
-    .metric-label {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        font-weight: 600;
-    }
-
-    /* WIDGETS */
-    .widget {
-        background: var(--bg-card);
-        border: 1px solid var(--border-subtle);
-        border-radius: 16px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-    .widget-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-    }
-    .widget-title {
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--text-pure);
+        font-weight: 800;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 0.2rem;
+        padding: 0.25rem 0.6rem;
+        border-radius: 50px;
+        letter-spacing: 0.2px;
     }
-    .live-tag {
-        background: rgba(20, 184, 166, 0.1);
-        color: var(--accent-teal);
-        border: 1px solid rgba(20, 184, 166, 0.2);
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-size: 0.65rem;
-        font-weight: 700;
-        letter-spacing: 0.5px;
+
+    .stat-trend.up   { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
+    .stat-trend.down { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+
+    /* ═══════════════════ CHART SECTION ═══════════════════ */
+    .dash-grid-main {
+        display: grid;
+        grid-template-columns: 1.6fr 1fr;
+        gap: 1.25rem;
+        margin-bottom: 1.25rem;
     }
-    .view-all {
+
+    .chart-container {
+        position: relative;
+        height: 220px;
+        padding: 1rem 0;
+    }
+
+    .chart-canvas {
+        width: 100%;
+        height: 100%;
+    }
+
+    .chart-toggle {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.78rem;
+    }
+
+    .chart-toggle label {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        color: var(--fd-text-muted);
+        cursor: pointer;
+        font-weight: 600;
+        letter-spacing: 0.3px;
         font-size: 0.8rem;
-        color: var(--accent-green);
-        text-decoration: none;
-        font-weight: 500;
     }
 
-    /* Store List */
-    .store-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-    .store-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 1rem;
-        background: var(--bg-main);
-        border-radius: 12px;
-        border: 1px solid transparent;
-        transition: border-color 0.2s;
-    }
-    .store-row:hover { border-color: var(--border-med); }
-    
-    .s-left { display: flex; align-items: center; gap: 12px; }
-    .s-icon {
-        width: 36px; height: 36px;
-        background: var(--bg-card);
-        border: 1px solid var(--border-subtle);
-        border-radius: 8px;
-        display: flex; align-items: center; justify-content: center;
-        color: var(--text-sec);
-        font-size: 0.9rem;
-    }
-    .s-labels .s-title { font-size: 0.8rem; color: var(--text-sec); margin-bottom: 2px; }
-    .s-labels .s-val { font-size: 1.1rem; font-weight: 700; color: var(--text-pure); }
-    
-    .s-right { display: flex; align-items: center; }
-    .mini-chart { display: flex; align-items: flex-end; gap: 3px; height: 20px; }
-    .m-bar { width: 5px; background: var(--accent-green); border-radius: 2px 2px 0 0; }
-    
-    .tag {
-        padding: 4px 8px;
-        border-radius: 6px;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
-    .tag.blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
-    .tag.green { background: rgba(29, 158, 117, 0.15); color: #34d399; }
-    .tag.purple { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
-
-    /* Users Table */
-    .table-wrapper {
-        margin-top: 1rem;
-        width: 100%;
-    }
-    .pro-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    .pro-table th {
-        text-align: left;
-        padding: 0.5rem 1rem 1rem;
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        border-bottom: 1px solid var(--border-subtle);
-    }
-    .pro-table td {
-        padding: 1rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.02);
-        font-size: 0.9rem;
-        color: var(--text-sec);
-        vertical-align: middle;
-    }
-    .user-cell {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        color: var(--text-pure);
-        font-weight: 500;
-    }
-    .user-cir {
-        width: 32px; height: 32px;
+    .chart-toggle .dot {
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        font-weight: 600; font-size: 0.85rem;
-        color: #fff;
     }
 
-    /* RIGHT COLUMN */
-    .right-col {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
+    .chart-toggle .dot.online  { background: var(--fd-accent-dark); }
+    .chart-toggle .dot.offline { background: #d1d5db; }
 
-    .teal-panel {
-        background: rgba(20, 184, 166, 0.03);
-        border: 1px solid rgba(20, 184, 166, 0.15);
-        border-radius: 16px;
-        padding: 1.5rem;
-    }
-    .tp-header {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        margin-bottom: 1.5rem;
-    }
-    .tp-title {
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: var(--text-pure);
+    /* ═══════════════════ PROGRESS SECTION ═══════════════════ */
+    .progress-ring-wrapper {
         display: flex;
         align-items: center;
-        gap: 8px;
-        line-height: 1.4;
+        justify-content: center;
+        padding: 1rem 0;
     }
-    .tp-title i { color: var(--accent-teal); font-size: 0.8rem; }
-    .admin-active {
-        background: rgba(20, 184, 166, 0.15);
-        color: var(--accent-teal);
-        font-size: 0.65rem;
-        font-weight: 700;
-        padding: 4px 8px;
-        border-radius: 4px;
+
+    .progress-ring-container {
+        position: relative;
+        width: 160px;
+        height: 160px;
+    }
+
+    .progress-ring-container svg {
+        transform: rotate(-90deg);
+    }
+
+    .progress-ring-bg {
+        fill: none;
+        stroke: #e8e8e8;
+        stroke-width: 10;
+    }
+
+    .progress-ring-fill {
+        fill: none;
+        stroke: var(--fd-accent);
+        stroke-width: 10;
+        stroke-linecap: round;
+        stroke-dasharray: 408.4;
+        stroke-dashoffset: 408.4;
+        transition: stroke-dashoffset 1.5s ease;
+    }
+
+    .progress-ring-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
         text-align: center;
-        line-height: 1.2;
     }
-    
-    .tp-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.75rem;
-    }
-    .tp-tile {
-        background: var(--bg-main);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 8px;
-        padding: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        text-decoration: none;
-        transition: border-color 0.2s;
-    }
-    .tp-tile:hover {
-        border-color: rgba(255, 255, 255, 0.15);
-    }
-    .tp-dot { width: 6px; height: 6px; border-radius: 50%; }
-    .tp-name { font-size: 0.8rem; font-weight: 500; color: var(--text-primary); line-height: 1.2; }
 
-    .q-actions .widget-title { margin-bottom: 1rem; }
-    .q-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.75rem;
+    .progress-ring-text .pct {
+        display: block;
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--fd-text);
+        line-height: 1.1;
     }
-    .q-btn {
-        background: transparent;
-        border: 1px solid var(--border-med);
-        border-radius: 8px;
-        padding: 1rem;
+
+    .progress-ring-text .pct-label {
+        font-size: 0.7rem;
+        color: var(--fd-text-muted);
+    }
+
+    .progress-details {
+        margin-top: 1.25rem;
         display: flex;
         flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .progress-detail-item {
+        display: flex;
         align-items: center;
-        gap: 8px;
-        text-decoration: none;
-        color: var(--text-primary);
+        gap: 0.75rem;
         font-size: 0.85rem;
+    }
+
+    .progress-detail-item i {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+    }
+
+    .progress-detail-item span {
+        color: var(--fd-text-secondary);
+    }
+
+    .progress-detail-item strong {
+        margin-left: auto;
+        color: var(--fd-text);
+        font-weight: 700;
+    }
+
+    /* ═══════════════════ BOTTOM GRID ═══════════════════ */
+    .dash-grid-bottom {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1.2fr;
+        gap: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .sub-card-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .sub-card-content .sub-plan {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--fd-text);
+        letter-spacing: -0.02em;
+    }
+
+    .sub-card-content .sub-date {
+        font-size: 0.84rem;
+        color: var(--fd-text-muted);
         font-weight: 500;
+        letter-spacing: 0.01em;
+    }
+
+    .payment-card-content .pay-amount {
+        font-size: 1.55rem;
+        font-weight: 800;
+        color: var(--fd-accent-dark);
+        letter-spacing: -0.03em;
+        font-feature-settings: 'tnum' 1;
+    }
+
+    .payment-card-content .pay-method {
+        font-size: 0.84rem;
+        color: var(--fd-text-muted);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 500;
+    }
+
+    /* ═══════════════════ RECENT ACTIVITY ═══════════════════ */
+    .recent-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+    }
+
+    .recent-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.85rem;
+        border-radius: var(--fd-radius-sm);
         transition: background 0.2s;
     }
-    .q-btn:hover { background: rgba(255, 255, 255, 0.03); }
-    .q-btn i { font-size: 1.1rem; color: var(--text-sec); }
 
-    @media (max-width: 1024px) {
-        .dashboard-body { grid-template-columns: 1fr; }
-        .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
-        .main-content { margin-left: 0; }
-        .metrics-row { grid-template-columns: repeat(2, 1fr); }
+    .recent-item:hover { background: rgba(181, 229, 80, 0.05); }
+
+    .recent-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--fd-accent);
+        color: #1a1a1a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+
+    .recent-info { flex: 1; min-width: 0; }
+    .recent-info .r-name {
+        display: block;
+        font-weight: 700;
+        font-size: 0.92rem;
+        color: var(--fd-text);
+        letter-spacing: -0.01em;
+    }
+    .recent-info .r-time {
+        font-size: 0.74rem;
+        color: var(--fd-text-muted);
+        font-weight: 400;
+        letter-spacing: 0.02em;
+    }
+
+    /* ═══════════════════ EXERCISE TILES ═══════════════════ */
+    .exercise-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+
+    .exercise-tile {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.8rem;
+        background: var(--fd-bg);
+        border-radius: var(--fd-radius-sm);
+        border: 1px solid var(--fd-border);
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .exercise-tile:hover {
+        border-color: var(--fd-accent);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .exercise-tile-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .exercise-tile-text .et-name {
+        display: block;
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: var(--fd-text);
+        letter-spacing: -0.01em;
+    }
+    .exercise-tile-text .et-count {
+        font-size: 0.72rem;
+        color: var(--fd-text-muted);
+        font-weight: 500;
+        letter-spacing: 0.02em;
+    }
+
+    /* ═══════════════════ QUICK LINKS ═══════════════════ */
+    .quick-links-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.25rem;
+    }
+
+    .quick-link {
+        background: var(--fd-card);
+        border-radius: var(--fd-radius);
+        border: 1px solid var(--fd-border);
+        padding: 1.5rem;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: var(--fd-shadow);
+    }
+
+    .quick-link:hover {
+        border-color: var(--fd-accent);
+        transform: translateY(-4px);
+        box-shadow: var(--fd-shadow-hover);
+    }
+
+    .quick-link i {
+        font-size: 1.5rem;
+        color: var(--fd-accent-dark);
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+
+    .quick-link span {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--fd-text);
+    }
+
+    /* Upgrade banner */
+    .upgrade-banner {
+        background: linear-gradient(135deg, var(--fd-accent) 0%, #91c929 100%);
+        border-radius: var(--fd-radius);
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 1.25rem;
+    }
+
+    .upgrade-banner-text {
+        font-weight: 800;
+        color: #1a1a1a;
+        font-size: 1rem;
+        letter-spacing: -0.02em;
+    }
+
+    .upgrade-banner-text span {
+        display: block;
+        font-size: 0.82rem;
+        font-weight: 500;
+        opacity: 0.7;
+        margin-top: 0.2rem;
+        letter-spacing: 0;
+    }
+
+    .upgrade-banner-btn {
+        background: #1a1a1a;
+        color: var(--fd-accent);
+        padding: 0.55rem 1.25rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .upgrade-banner-btn:hover {
+        background: #333;
+        transform: scale(1.02);
+    }
+
+    @media (max-width: 1200px) {
+        .dash-stats-row { grid-template-columns: repeat(2, 1fr); }
+        .dash-grid-main { grid-template-columns: 1fr; }
+        .dash-grid-bottom { grid-template-columns: 1fr; }
+        .quick-links-row { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+        .dash-stats-row { grid-template-columns: 1fr; }
+        .exercise-grid { grid-template-columns: 1fr; }
+        .quick-links-row { grid-template-columns: 1fr; }
     }
 </style>
-{% endblock %}
 
-{% block content %}
-<div class="dashboard-layout">
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <a href="{% url 'admin_dashboard' %}" class="sidebar-brand">
-            <div class="brand-icon"><i class="fa-solid fa-heart-pulse"></i></div>
-            Fitsync
-        </a>
-
-        <div class="admin-profile">
-            <div class="admin-avatar">A</div>
-            <div class="admin-info">
-                <span class="name">Admin</span>
-                <span class="role">Super Admin</span>
-            </div>
+<!-- ═══════════════════ STAT CARDS ═══════════════════ -->
+<div class="dash-stats-row fd-animate fd-delay-1">
+    <div class="dash-stat">
+        <div class="dash-stat-icon green"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+        <div class="dash-stat-content">
+            <span class="stat-val">₹{{ total_revenue|default:"14,290" }}</span>
+            <span class="stat-lbl">Total Revenue</span>
         </div>
-
-        <div class="nav-group">
-            <div class="nav-label">Overview</div>
-            <a href="{% url 'admin_dashboard' %}" class="nav-item active">
-                <i class="fa-solid fa-border-all"></i> Dashboard
-            </a>
-            <a href="{% url 'report_members' %}" class="nav-item">
-                <i class="fa-regular fa-user"></i> Users
-                <span class="nav-badge">{{ total_users|default:"0" }}</span>
-            </a>
-            <a href="{% url 'trainer_list' %}" class="nav-item">
-                <i class="fa-solid fa-id-card"></i> Trainers
-                <span class="nav-badge">{{ active_trainers|default:"0" }}</span>
-            </a>
+        <div class="stat-trend up"><i class="fa-solid fa-arrow-up"></i> 12.5%</div>
+    </div>
+    <div class="dash-stat">
+        <div class="dash-stat-icon blue"><i class="fa-solid fa-users"></i></div>
+        <div class="dash-stat-content">
+            <span class="stat-val">{{ total_users|default:"24" }}</span>
+            <span class="stat-lbl">Active Members</span>
         </div>
-
-        <div class="nav-group">
-            <div class="nav-label">Finance</div>
-            <a href="{% url 'subscription_plans' %}" class="nav-item">
-                <i class="fa-solid fa-bag-shopping"></i> Subscriptions
-            </a>
-            <a href="{% url 'report_payments' %}" class="nav-item">
-                <i class="fa-regular fa-credit-card"></i> Payments
-            </a>
+        <div class="stat-trend up"><i class="fa-solid fa-arrow-up"></i> +4</div>
+    </div>
+    <div class="dash-stat">
+        <div class="dash-stat-icon amber"><i class="fa-solid fa-heart-pulse"></i></div>
+        <div class="dash-stat-content">
+            <span class="stat-val">{{ active_trainers|default:"12" }}</span>
+            <span class="stat-lbl">Elite Trainers</span>
         </div>
-
-        <div class="nav-group">
-            <div class="nav-label">Support</div>
-            <a href="{% url 'admin_help_tickets' %}" class="nav-item">
-                <i class="fa-solid fa-circle-exclamation"></i> Help Tickets
-                <span class="nav-badge">5</span>
-            </a>
-            <a href="{% url 'report_members' %}" class="nav-item">
-                <i class="fa-solid fa-desktop"></i> Reports
-            </a>
-            <a href="{% url 'store_management' %}" class="nav-item">
-                <i class="fa-solid fa-cart-shopping"></i> Store Mgmt
-            </a>
+        <div class="stat-trend up"><i class="fa-solid fa-minus"></i> Stable</div>
+    </div>
+    <div class="dash-stat">
+        <div class="dash-stat-icon red"><i class="fa-solid fa-fire-flame-curved"></i></div>
+        <div class="dash-stat-content">
+            <span class="stat-val">8</span>
+            <span class="stat-lbl">Active Plans</span>
         </div>
-
-        <div class="sidebar-footer">
-            <form action="{% url 'logout' %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="logout-btn">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
-                </button>
-            </form>
-        </div>
-    </aside>
-
-    <!-- MAIN CONTENT -->
-    <main class="main-content">
-        <!-- Header -->
-        <header class="top-header">
-            <div class="breadcrumbs">
-                Dashboard <span class="breadcrumbs-muted">/</span> Overview
-            </div>
-            
-            <div class="header-actions">
-                <div class="status-badge">
-                    <div class="dot"></div>
-                    All Systems Operational
-                </div>
-                <button class="icon-btn"><i class="fa-regular fa-bell"></i></button>
-                <button class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
-            </div>
-        </header>
-
-        <div class="dashboard-body">
-            <!-- LEFT COLUMN (Metrics + Store List + Users) -->
-            <div class="metrics-container">
-                
-                <!-- Metrics Row -->
-                <div class="metrics-row">
-                    <!-- Revenue -->
-                    <div class="metric-card">
-                        <div class="metric-top">
-                            <div class="metric-icon green"><i class="fa-solid fa-arrow-trend-up"></i></div>
-                            <div class="spark-tag"><i class="fa-solid fa-arrow-up"></i> 12%</div>
-                        </div>
-                        <h3 class="metric-val">₹{{ total_revenue|default:"12,190" }}</h3>
-                        <div class="metric-label">REVENUE</div>
-                        <div class="metric-bot-bar green"></div>
-                    </div>
-                    
-                    <!-- Members -->
-                    <div class="metric-card">
-                        <div class="metric-top" style="margin-bottom: 2rem;">
-                            <div class="metric-icon green"><i class="fa-solid fa-users"></i></div>
-                        </div>
-                        <h3 class="metric-val">{{ total_users|default:"2" }}</h3>
-                        <div class="metric-label">Registered Members</div>
-                    </div>
-
-                    <!-- Trainers -->
-                    <div class="metric-card">
-                        <div class="metric-top" style="margin-bottom: 2rem;">
-                            <div class="metric-icon blue"><i class="fa-solid fa-id-badge"></i></div>
-                        </div>
-                        <h3 class="metric-val">{{ active_trainers|default:"3" }}</h3>
-                        <div class="metric-label">Pro Trainers</div>
-                    </div>
-
-                    <!-- System Status -->
-                    <div class="metric-card">
-                        <div class="metric-top" style="margin-bottom: 2rem;">
-                            <div class="metric-icon"><i class="fa-solid fa-chart-line"></i></div>
-                        </div>
-                        <h3 class="metric-val" style="display:flex; align-items:center; gap:8px;">Active <div class="dot" style="width:6px; height:6px; background:var(--accent-green); border-radius:50%;"></div></h3>
-                        <div class="metric-label">System Status</div>
-                    </div>
-                </div>
-
-                <!-- Store Analytics List -->
-                <div class="widget">
-                    <div class="widget-header">
-                        <div class="widget-title">
-                            <i class="fa-solid fa-cart-shopping" style="color:var(--accent-green)"></i>
-                            Store Analytics
-                            <span class="live-tag">LIVE</span>
-                        </div>
-                        <a href="{% url 'store_management' %}" class="view-all">View all &rarr;</a>
-                    </div>
-
-                    <div class="store-list">
-                        <!-- Total Products -->
-                        <div class="store-row">
-                            <div class="s-left">
-                                <div class="s-icon"><i class="fa-solid fa-box"></i></div>
-                                <div class="s-labels">
-                                    <div class="s-title">Total Products</div>
-                                    <div class="s-val">{{ store_total_products|default:"8" }}</div>
-                                </div>
-                            </div>
-                            <div class="s-right">
-                                <div class="mini-chart">
-                                    <div class="m-bar" style="height: 40%; opacity: 0.5;"></div>
-                                    <div class="m-bar" style="height: 60%; opacity: 0.7;"></div>
-                                    <div class="m-bar" style="height: 50%; opacity: 0.6;"></div>
-                                    <div class="m-bar" style="height: 100%;"></div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Total Orders -->
-                        <div class="store-row">
-                            <div class="s-left">
-                                <div class="s-icon"><i class="fa-solid fa-cart-plus"></i></div>
-                                <div class="s-labels">
-                                    <div class="s-title">Total Orders</div>
-                                    <div class="s-val">{{ store_total_orders|default:"1" }}</div>
-                                </div>
-                            </div>
-                            <div class="s-right">
-                                <div class="tag blue">New</div>
-                            </div>
-                        </div>
-
-                        <!-- Store Revenue -->
-                        <div class="store-row">
-                            <div class="s-left">
-                                <div class="s-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
-                                <div class="s-labels">
-                                    <div class="s-title">Store Revenue</div>
-                                    <div class="s-val">₹{{ store_total_revenue|default:"699" }}</div>
-                                </div>
-                            </div>
-                            <div class="s-right">
-                                <div class="tag green">+₹{{ store_total_revenue|default:"699" }}</div>
-                            </div>
-                        </div>
-
-                        <!-- Top Product -->
-                        <div class="store-row">
-                            <div class="s-left">
-                                <div class="s-icon"><i class="fa-regular fa-star"></i></div>
-                                <div class="s-labels">
-                                    <div class="s-title">Top Product</div>
-                                    <div class="s-val">{{ store_top_product|default:"Workout Gloves" }}</div>
-                                </div>
-                            </div>
-                            <div class="s-right">
-                                <div class="tag purple">#1</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Users Table -->
-                <div class="widget">
-                    <div class="widget-header">
-                        <div class="widget-title">
-                            Recently Registered Users
-                        </div>
-                        <a href="{% url 'report_members' %}" class="view-all">See all &rarr;</a>
-                    </div>
-                    
-                    <div class="table-wrapper">
-                        <table class="pro-table">
-                            <thead>
-                                <tr>
-                                    <th>MEMBER</th>
-                                    <th>EMAIL</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for profile in recent_users|slice:":3" %}
-                                <tr>
-                                    <td>
-                                        <div class="user-cell">
-                                            <div class="user-cir" style="background: var(--accent-green);">{{ profile.user.username|make_list|first|upper }}</div>
-                                            {{ profile.user.username|title }}
-                                        </div>
-                                    </td>
-                                    <td>{{ profile.user.email }}</td>
-                                </tr>
-                                {% empty %}
-                                <!-- Dummy defaults to match the mockup view if empty DB -->
-                                <tr>
-                                    <td>
-                                        <div class="user-cell">
-                                            <div class="user-cir" style="background: var(--accent-teal);">U</div>
-                                            Unni
-                                        </div>
-                                    </td>
-                                    <td>fitsync@unni.app</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="user-cell">
-                                            <div class="user-cir" style="background: #f97316;">A</div>
-                                            Adithyan
-                                        </div>
-                                    </td>
-                                    <td>adithyan@fit.sync</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- RIGHT COLUMN -->
-            <div class="right-col">
-                
-                <div class="teal-panel">
-                    <div class="tp-header">
-                        <div class="tp-title">
-                            <div><i class="fa-solid fa-shapes"></i></div>
-                            Store<br>Operational<br>Control
-                        </div>
-                        <div class="admin-active">
-                            ADMIN<br>ACTIVE
-                        </div>
-                    </div>
-                    
-                    <div class="tp-grid">
-                        <a href="{% url 'store_management' %}" class="tp-tile">
-                            <div class="tp-dot" style="background: var(--accent-green);"></div>
-                            <div class="tp-name">Manage<br>Stock</div>
-                        </a>
-                        <a href="{% url 'admin_orders' %}" class="tp-tile">
-                            <div class="tp-dot" style="background: var(--accent-blue);"></div>
-                            <div class="tp-name">Delivery<br>Status</div>
-                        </a>
-                        <a href="{% url 'store_management' %}" class="tp-tile">
-                            <div class="tp-dot" style="background: var(--accent-orange);"></div>
-                            <div class="tp-name">Pricing<br>Control</div>
-                        </a>
-                        <a href="{% url 'report_members' %}" class="tp-tile">
-                            <div class="tp-dot" style="background: #ef4444;"></div>
-                            <div class="tp-name">User<br>Reports</div>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="q-actions">
-                    <div class="widget-title">Quick Actions</div>
-                    <div class="q-grid">
-                        <a href="{% url 'add_product' %}" class="q-btn">
-                            <i class="fa-solid fa-plus"></i>
-                            Add<br>Product
-                        </a>
-                        <a href="{% url 'store_management' %}" class="q-btn">
-                            <i class="fa-solid fa-tags"></i>
-                            Update<br>Prices
-                        </a>
-                        <!-- Fill remaining spaces for layout -->
-                        <a href="{% url 'add_trainer' %}" class="q-btn">
-                            <i class="fa-solid fa-user-plus"></i>
-                            Add<br>Trainer
-                        </a>
-                        <a href="{% url 'admin_help_tickets' %}" class="q-btn">
-                            <i class="fa-solid fa-ticket"></i>
-                            View<br>Tickets
-                        </a>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </main>
+        <div class="stat-trend up"><i class="fa-solid fa-arrow-up"></i> Hot</div>
+    </div>
 </div>
+
+<!-- ═══════════════════ WORKOUT CHART ═══════════════════ -->
+<div class="fd-animate fd-delay-2">
+    <div class="fd-card">
+        <div class="fd-card-title">
+            Workout Activity
+            <div class="chart-toggle">
+                <label><span class="dot online"></span> Online</label>
+                <label><span class="dot offline"></span> Offline</label>
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas id="workoutChart" class="chart-canvas"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════ BOTTOM ROW ═══════════════════ -->
+<div class="dash-grid-bottom fd-animate fd-delay-3">
+    <!-- Subscription Card -->
+    <div class="fd-card">
+        <div class="fd-card-title">
+            <span><i class="fa-solid fa-crown" style="color: #f59e0b; margin-right: 0.4rem;"></i> Subscription</span>
+        </div>
+        <div class="sub-card-content">
+            <div class="sub-plan">Standard · Monthly</div>
+            <div class="sub-date">
+                <i class="fa-regular fa-calendar"></i> Active since Dec 2025
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem;">
+                <span class="fd-badge fd-badge-success">Active</span>
+            </div>
+        </div>
+        <div class="upgrade-banner" style="margin-top: 1rem;">
+            <div class="upgrade-banner-text">
+                Upgrade to Pro
+                <span>Monthly · Yearly | Offers</span>
+            </div>
+            <a href="{% url 'admin_subscription' %}" class="upgrade-banner-btn">View</a>
+        </div>
+    </div>
+
+    <!-- Payment Card -->
+    <div class="fd-card">
+        <div class="fd-card-title">
+            <span><i class="fa-solid fa-credit-card" style="color: #3b82f6; margin-right: 0.4rem;"></i> Payment</span>
+            <a href="{% url 'report_payments' %}">History</a>
+        </div>
+        <div class="payment-card-content" style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <div class="pay-amount">₹{{ total_revenue|default:"14,290" }}</div>
+            <div class="sub-date">
+                <i class="fa-regular fa-calendar"></i> March 2026
+            </div>
+            <div class="pay-method">
+                <i class="fa-solid fa-building-columns"></i>
+                Online Payment Gateway
+            </div>
+            <a href="{% url 'report_payments' %}" class="fd-btn fd-btn-outline" style="margin-top: 0.5rem; justify-content: center; font-size: 0.8rem;">
+                <i class="fa-solid fa-arrow-right"></i> View Transactions
+            </a>
+        </div>
+    </div>
+
+    <!-- Offline Exercises / Quick Actions -->
+    <div class="fd-card">
+        <div class="fd-card-title">
+            <span><i class="fa-solid fa-dumbbell" style="color: var(--fd-accent-dark); margin-right: 0.4rem;"></i> Quick Modules</span>
+        </div>
+        <div class="exercise-grid">
+            <a href="{% url 'report_members' %}" class="exercise-tile" style="text-decoration: none;">
+                <div class="exercise-tile-icon" style="background: rgba(181, 229, 80, 0.12); color: #6d9b1c;">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <div class="exercise-tile-text">
+                    <span class="et-name">Members</span>
+                    <span class="et-count">{{ total_users|default:"24" }} active</span>
+                </div>
+            </a>
+            <a href="{% url 'trainer_list' %}" class="exercise-tile" style="text-decoration: none;">
+                <div class="exercise-tile-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+                    <i class="fa-solid fa-user-tie"></i>
+                </div>
+                <div class="exercise-tile-text">
+                    <span class="et-name">Trainers</span>
+                    <span class="et-count">{{ active_trainers|default:"12" }} coaches</span>
+                </div>
+            </a>
+            <a href="{% url 'store_management' %}" class="exercise-tile" style="text-decoration: none;">
+                <div class="exercise-tile-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                </div>
+                <div class="exercise-tile-text">
+                    <span class="et-name">Store</span>
+                    <span class="et-count">Manage catalog</span>
+                </div>
+            </a>
+            <a href="{% url 'admin_help_tickets' %}" class="exercise-tile" style="text-decoration: none;">
+                <div class="exercise-tile-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <div class="exercise-tile-text">
+                    <span class="et-name">Support</span>
+                    <span class="et-count">Help tickets</span>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════ RECENT + QUICK LINKS ═══════════════════ -->
+<div class="dash-grid-main fd-animate fd-delay-4">
+    <!-- Recent Members -->
+    <div class="fd-card">
+        <div class="fd-card-title">
+            Recent Enlistments
+            <a href="{% url 'report_members' %}">View All</a>
+        </div>
+        <div class="recent-list">
+            {% for profile in recent_users|slice:":5" %}
+            <div class="recent-item">
+                <div class="recent-avatar">{{ profile.user.username|make_list|first|upper }}</div>
+                <div class="recent-info">
+                    <span class="r-name">{{ profile.user.username|title }}</span>
+                    <span class="r-time">Joined {{ profile.user.date_joined|timesince }} ago</span>
+                </div>
+            </div>
+            {% empty %}
+            <div class="recent-item">
+                <div class="recent-avatar">A</div>
+                <div class="recent-info">
+                    <span class="r-name">Adithyan K</span>
+                    <span class="r-time">Joined 2 days ago</span>
+                </div>
+            </div>
+            <div class="recent-item">
+                <div class="recent-avatar">U</div>
+                <div class="recent-info">
+                    <span class="r-name">Unni App</span>
+                    <span class="r-time">Joined 5 days ago</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Performance Summary -->
+    <div class="fd-card">
+        <div class="fd-card-title">
+            Performance Index
+        </div>
+        <div style="display: flex; align-items: flex-end; gap: 0.6rem; height: 180px; padding-bottom: 0.75rem;">
+            <div class="perf-bar" style="flex:1; height:35%; background: rgba(181, 229, 80, 0.2); border-radius: 8px; transition: height 1s ease;"></div>
+            <div class="perf-bar" style="flex:1; height:65%; background: rgba(181, 229, 80, 0.35); border-radius: 8px; transition: height 1s ease 0.1s;"></div>
+            <div class="perf-bar" style="flex:1; height:50%; background: rgba(181, 229, 80, 0.5); border-radius: 8px; transition: height 1s ease 0.2s;"></div>
+            <div class="perf-bar" style="flex:1; height:85%; background: var(--fd-accent); border-radius: 8px; transition: height 1s ease 0.3s; box-shadow: 0 2px 12px rgba(181, 229, 80, 0.3);"></div>
+            <div class="perf-bar" style="flex:1; height:70%; background: rgba(181, 229, 80, 0.65); border-radius: 8px; transition: height 1s ease 0.4s;"></div>
+            <div class="perf-bar" style="flex:1; height:45%; background: rgba(181, 229, 80, 0.35); border-radius: 8px; transition: height 1s ease 0.5s;"></div>
+            <div class="perf-bar" style="flex:1; height:60%; background: rgba(181, 229, 80, 0.5); border-radius: 8px; transition: height 1s ease 0.6s;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 0 0.25rem;">
+            <span style="font-size: 0.68rem; color: var(--fd-text-muted);">Mon</span>
+            <span style="font-size: 0.68rem; color: var(--fd-text-muted);">Tue</span>
+            <span style="font-size: 0.68rem; color: var(--fd-text-muted);">Wed</span>
+            <span style="font-size: 0.68rem; color: var(--fd-text-muted);">Thu</span>
+            <span style="font-size: 0.68rem; color: var(--fd-text-muted);">Fri</span>
+            <span style="font-size: 0.68rem; color: var(--fd-text-muted);">Sat</span>
+            <span style="font-size: 0.68rem; color: var(--fd-text-muted);">Sun</span>
+        </div>
+        <p style="color: var(--fd-text-muted); font-size: 0.82rem; text-align: center; margin-top: 1rem;">
+            📈 Weekly engagement is up by <strong style="color: var(--fd-accent-dark);">15%</strong> compared to last cycle.
+        </p>
+    </div>
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ═══════ WORKOUT ACTIVITY CHART ═══════
+    const ctx = document.getElementById('workoutChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Online',
+                    data: [30, 45, 42, 55, 48, 62, 58],
+                    borderColor: '#8bc34a',
+                    backgroundColor: 'rgba(139, 195, 74, 0.08)',
+                    fill: true,
+                    tension: 0.45,
+                    pointRadius: 3,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#8bc34a',
+                    borderWidth: 2.5
+                }, {
+                    label: 'Offline',
+                    data: [20, 30, 28, 35, 32, 40, 38],
+                    borderColor: '#d1d5db',
+                    backgroundColor: 'rgba(209, 213, 219, 0.05)',
+                    fill: true,
+                    tension: 0.45,
+                    pointRadius: 2,
+                    pointHoverRadius: 5,
+                    pointBackgroundColor: '#d1d5db',
+                    borderWidth: 2,
+                    borderDash: [5, 5]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1a1a1a',
+                        titleColor: '#fff',
+                        bodyColor: '#ccc',
+                        padding: 12,
+                        cornerRadius: 10,
+                        titleFont: { weight: '700' }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#9ca3af', font: { size: 11 } }
+                    },
+                    y: {
+                        grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
+                        ticks: { color: '#9ca3af', font: { size: 11 } },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+
+});
+</script>
 {% endblock %}

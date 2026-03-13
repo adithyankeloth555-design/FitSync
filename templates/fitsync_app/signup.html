@@ -1,5 +1,6 @@
 {% extends 'fitsync_app/base.html' %}
 {% load static %}
+{% load socialaccount %}
 
 {% block title %}Sign Up | Fitsync{% endblock %}
 
@@ -507,24 +508,27 @@
     .btn-submit {
         width: 100%;
         padding: 0.9rem;
-        background: #2B2B2B;
-        color: var(--text-white);
-        border: 1px solid var(--input-border);
+        background: var(--fs-brand);
+        color: white;
+        border: 1px solid var(--fs-brand);
         border-radius: 8px;
         font-size: 0.95rem;
-        font-weight: 600;
+        font-weight: 700;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-        transition: all 0.2s;
+        transition: all 0.3s ease;
         font-family: inherit;
+        box-shadow: 0 4px 12px rgba(29, 158, 117, 0.2);
     }
 
     .btn-submit:hover {
-        background: rgba(255, 255, 255, 0.05);
-        border-color: #555;
+        background: var(--fs-brand-dark);
+        border-color: var(--fs-brand-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(29, 158, 117, 0.3);
     }
 
     /* Login Link */
@@ -665,12 +669,18 @@
             </div>
             
             <div class="social-login">
-                <button type="button" class="btn-social">
-                    <i class="fa-brands fa-google" style="color: #4285F4; font-size: 1.1rem;"></i> Google
-                </button>
-                <button type="button" class="btn-social">
-                    <i class="fa-brands fa-apple" style="font-size: 1.2rem;"></i> Apple
-                </button>
+                <form action="{% provider_login_url 'google' %}" method="post" style="flex:1;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-social" style="width:100%; text-decoration:none;">
+                        <i class="fa-brands fa-google" style="color: #4285F4; font-size: 1.1rem;"></i> Google
+                    </button>
+                </form>
+                <form action="{% provider_login_url 'apple' %}" method="post" style="flex:1;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-social" style="width:100%; text-decoration:none;">
+                        <i class="fa-brands fa-apple" style="font-size: 1.2rem;"></i> Apple
+                    </button>
+                </form>
             </div>
             
             <div class="divider">or fill in your details</div>

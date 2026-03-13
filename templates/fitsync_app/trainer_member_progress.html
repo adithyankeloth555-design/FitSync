@@ -1,121 +1,152 @@
 {% extends 'fitsync_app/base.html' %}
 {% load static %}
 
-{% block title %}{{ member.username }} Progress | FitSync Elite{% endblock %}
+{% block title %}FitSync — {{ member.username|title }} Progress{% endblock %}
 
 {% block header %}{% endblock %}
 {% block footer %}{% endblock %}
 
 {% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
+    /* Force override base template dark-mode */
+    body, body.dark-mode, body.light-mode {
+        --bg-primary: #f3f4f0 !important;
+        --bg-secondary: #ffffff !important;
+        --bg-tertiary: #f3f4f0 !important;
+        --text-primary: #1a1a1a !important;
+        --text-secondary: #6b6b6b !important;
+        --text-muted: #9ca3af !important;
+        --border-color: rgba(0,0,0,0.06) !important;
+    }
+    body > .navbar, body > nav { display: none !important; }
+    body > main { padding: 0 !important; margin: 0 !important; }
+    body > footer { display: none !important; }
+
     :root {
-        --sidebar-bg: var(--bg-tertiary);
-        --accent-orange: var(--gold);
-        --content-bg: var(--bg-primary);
-        --text-main: var(--text-primary);
-        --text-muted: var(--text-muted);
-        --white: var(--bg-secondary);
-        --card-shadow: var(--shadow-main);
+        --fd-bg: #f3f4f0;
+        --fd-card: #ffffff;
+        --fd-accent: #b5e550;
+        --fd-accent-dark: #8bc34a;
+        --fd-text: #1a1a1a;
+        --fd-text-secondary: #6b6b6b;
+        --fd-text-muted: #9ca3af;
+        --fd-border: rgba(0, 0, 0, 0.06);
+        --fd-radius-lg: 24px;
+        --fd-radius-sm: 10px;
+        --fd-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.04);
+        --fd-font: 'DM Sans', 'Inter', -apple-system, sans-serif;
     }
 
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-        background-color: var(--content-bg);
-        color: var(--text-main);
-        font-family: 'Inter', sans-serif;
+        background-color: var(--fd-bg) !important;
+        color: var(--fd-text) !important;
+        font-family: var(--fd-font) !important;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+        font-size: 15px; line-height: 1.6;
     }
 
     .main-wrapper {
-        margin: 0 auto;
-        max-width: 1200px;
-        padding: 4rem;
+        max-width: 1100px; margin: 0 auto;
+        padding: 2.5rem 2rem 4rem;
+        animation: fadeInUp 0.5s ease both;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to   { opacity: 1; transform: translateY(0); }
     }
 
     .back-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.8rem;
-        color: var(--text-muted);
-        text-decoration: none;
-        font-weight: 600;
-        margin-bottom: 2rem;
-        transition: 0.3s;
+        display: inline-flex; align-items: center; gap: 0.6rem;
+        padding: 0.6rem 1.3rem; border-radius: 50px;
+        background: var(--fd-card); border: 1px solid var(--fd-border);
+        color: var(--fd-text-secondary); text-decoration: none;
+        font-size: 0.8rem; font-weight: 700;
+        box-shadow: var(--fd-shadow); transition: all 0.2s;
+        margin-bottom: 2rem; letter-spacing: 0.5px;
+        text-transform: uppercase;
     }
+    .back-btn:hover { border-color: var(--fd-accent); color: var(--fd-text); }
 
-    .back-btn:hover {
-        color: var(--accent-orange);
-    }
-
-    .page-header {
-        margin-bottom: 3rem;
-    }
+    .page-header { margin-bottom: 2rem; }
 
     .page-title {
-        font-family: 'Inter', serif;
-        font-size: 2.2rem;
-        color: var(--gold);
-        margin: 0;
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem; font-weight: 800;
+        color: var(--fd-text); letter-spacing: -0.03em;
     }
 
     .member-meta {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        margin-top: 1rem;
+        display: flex; align-items: center;
+        gap: 1.25rem; margin-top: 1rem;
     }
 
     .member-avatar {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        border: 2px solid var(--gold);
+        width: 56px; height: 56px; border-radius: 50%;
+        border: 3px solid var(--fd-accent); object-fit: cover;
+    }
+
+    .member-avatar-placeholder {
+        width: 56px; height: 56px; border-radius: 50%;
+        background: rgba(181, 229, 80, 0.15);
+        border: 3px solid var(--fd-accent);
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 800; color: #6d9b1c; font-size: 1.4rem;
+    }
+
+    .member-name {
+        font-weight: 800; font-size: 1.15rem;
+        color: var(--fd-text); letter-spacing: -0.02em;
+    }
+
+    .member-subtitle {
+        font-size: 0.84rem; color: var(--fd-text-muted); font-weight: 500;
     }
 
     .chart-container {
-        background: var(--white);
-        padding: 2.5rem;
-        border-radius: 24px;
-        border: 1px solid var(--border-color);
-        box-shadow: var(--card-shadow);
-        margin-bottom: 3rem;
+        background: var(--fd-card);
+        padding: 2rem; border-radius: var(--fd-radius-lg);
+        border: 1px solid var(--fd-border);
+        box-shadow: var(--fd-shadow); margin-bottom: 2rem;
     }
 
     .history-card {
-        background: var(--white);
-        border-radius: 24px;
-        border: 1px solid var(--border-color);
-        overflow: hidden;
+        background: var(--fd-card);
+        border-radius: var(--fd-radius-lg);
+        border: 1px solid var(--fd-border);
+        box-shadow: var(--fd-shadow); overflow: hidden;
     }
 
-    .history-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
+    .history-table { width: 100%; border-collapse: collapse; }
 
     .history-table th {
-        background: var(--bg-tertiary);
-        padding: 1.2rem 2rem;
-        text-align: left;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: var(--text-muted);
+        background: rgba(181, 229, 80, 0.05);
+        padding: 1rem 1.5rem; text-align: left;
+        font-size: 0.7rem; font-weight: 800;
+        text-transform: uppercase; letter-spacing: 1.2px;
+        color: var(--fd-text-muted);
+        border-bottom: 1px solid var(--fd-border);
     }
 
     .history-table td {
-        padding: 1.2rem 2rem;
-        border-bottom: 1px solid var(--border-color);
-        font-size: 1rem;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--fd-border);
+        font-size: 0.92rem; color: var(--fd-text);
     }
 
+    .history-table tr:last-child td { border-bottom: none; }
+    .history-table tr:hover td { background: rgba(181, 229, 80, 0.02); }
+
     .bmi-badge {
-        display: inline-block;
-        padding: 0.4rem 1rem;
-        border-radius: 50px;
-        font-weight: 700;
-        font-size: 0.85rem;
-        background: rgba(79, 70, 229, 0.1);
-        color: var(--gold);
-        border: 1px solid var(--gold);
+        display: inline-block; padding: 0.3rem 0.8rem;
+        border-radius: 50px; font-weight: 800; font-size: 0.82rem;
+        background: rgba(181, 229, 80, 0.12); color: #6d9b1c;
+        border: 1px solid rgba(181, 229, 80, 0.3);
     }
 </style>
 {% endblock %}
@@ -123,28 +154,26 @@
 {% block content %}
 <main class="main-wrapper">
     <a href="{% url 'trainer_dashboard' %}" class="back-btn">
-        <i class="fa-solid fa-arrow-left"></i> RETURN TO DASHBOARD
+        <i class="fa-solid fa-arrow-left"></i> Return to Dashboard
     </a>
 
     <header class="page-header">
-        <h1 class="page-title">Biometric Progression Curve</h1>
+        <h1 class="page-title">Biometric Progression</h1>
         <div class="member-meta">
             {% if member.userprofile.profile_photo %}
             <img src="{{ member.userprofile.profile_photo.url }}" class="member-avatar" alt="{{ member.username }}">
             {% else %}
-            <img src="https://i.pravatar.cc/150?u={{ member.username }}" class="member-avatar"
-                alt="{{ member.username }}">
+            <div class="member-avatar-placeholder">{{ member.username|make_list|first|upper }}</div>
             {% endif %}
             <div>
-                <div style="font-weight: 800; font-size: 1.2rem;">{{ member.get_full_name|default:member.username }}
-                </div>
-                <div style="color: var(--text-muted); font-size: 0.9rem;">Athlete Analytics</div>
+                <div class="member-name">{{ member.get_full_name|default:member.username|title }}</div>
+                <div class="member-subtitle">Athlete Analytics</div>
             </div>
         </div>
     </header>
 
     <div class="chart-container">
-        <canvas id="progressionChart" style="max-height: 450px;"></canvas>
+        <canvas id="progressionChart" style="max-height: 400px;"></canvas>
     </div>
 
     <div class="history-card">
@@ -160,14 +189,14 @@
             <tbody>
                 {% for record in history %}
                 <tr>
-                    <td style="font-weight: 600;">{{ record.recorded_at|date:"F d, Y" }}</td>
+                    <td style="font-weight: 700;">{{ record.recorded_at|date:"F d, Y" }}</td>
                     <td>{{ record.weight_kg }} kg</td>
                     <td>{{ record.height_cm }} cm</td>
                     <td><span class="bmi-badge">{{ record.bmi_score }}</span></td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                    <td colspan="4" style="text-align: center; padding: 3rem; color: var(--fd-text-muted);">
                         No biometric data available for this athlete.
                     </td>
                 </tr>
@@ -191,12 +220,12 @@
         const weightData = rawData.map(item => item.weight);
 
         const gradientBMI = ctx.createLinearGradient(0, 0, 0, 400);
-        gradientBMI.addColorStop(0, 'rgba(79, 70, 229, 0.4)');
-        gradientBMI.addColorStop(1, 'rgba(79, 70, 229, 0.0)');
+        gradientBMI.addColorStop(0, 'rgba(139, 195, 74, 0.3)');
+        gradientBMI.addColorStop(1, 'rgba(139, 195, 74, 0.0)');
 
         const gradientWeight = ctx.createLinearGradient(0, 0, 0, 400);
-        gradientWeight.addColorStop(0, 'rgba(16, 185, 129, 0.4)');
-        gradientWeight.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+        gradientWeight.addColorStop(0, 'rgba(59, 130, 246, 0.3)');
+        gradientWeight.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
 
         new Chart(ctx, {
             type: 'line',
@@ -206,59 +235,51 @@
                     {
                         label: 'BMI Score',
                         data: bmiData,
-                        borderColor: '#4F46E5',
+                        borderColor: '#8bc34a',
                         backgroundColor: gradientBMI,
-                        fill: true,
-                        tension: 0.4,
-                        yAxisID: 'y',
+                        fill: true, tension: 0.4, yAxisID: 'y',
+                        pointBackgroundColor: '#8bc34a',
+                        borderWidth: 2.5,
                     },
                     {
                         label: 'Weight (kg)',
                         data: weightData,
-                        borderColor: '#10B981',
+                        borderColor: '#3b82f6',
                         backgroundColor: gradientWeight,
-                        fill: true,
-                        tension: 0.4,
-                        yAxisID: 'y1',
+                        fill: true, tension: 0.4, yAxisID: 'y1',
+                        pointBackgroundColor: '#3b82f6',
+                        borderWidth: 2.5,
                     }
                 ]
             },
             options: {
                 responsive: true,
-                interaction: {
-                    mode: 'index',
-                    intersect: false,
-                },
+                interaction: { mode: 'index', intersect: false },
                 scales: {
                     y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        title: {
-                            display: true,
-                            text: 'BMI',
-                            color: '#4F46E5'
-                        },
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                        type: 'linear', display: true, position: 'left',
+                        title: { display: true, text: 'BMI', color: '#8bc34a', font: { weight: '700' } },
+                        grid: { color: 'rgba(0, 0, 0, 0.04)' },
+                        ticks: { color: '#9ca3af', font: { size: 11 } }
                     },
                     y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        title: {
-                            display: true,
-                            text: 'Weight (kg)',
-                            color: '#10B981'
-                        },
-                        grid: { drawOnChartArea: false }
+                        type: 'linear', display: true, position: 'right',
+                        title: { display: true, text: 'Weight (kg)', color: '#3b82f6', font: { weight: '700' } },
+                        grid: { drawOnChartArea: false },
+                        ticks: { color: '#9ca3af', font: { size: 11 } }
                     },
                     x: {
-                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                        grid: { color: 'rgba(0, 0, 0, 0.03)' },
+                        ticks: { color: '#9ca3af', font: { size: 11 } }
                     }
                 },
                 plugins: {
                     legend: {
-                        labels: { color: '#fff', font: { family: 'Inter', size: 12 } }
+                        labels: { color: '#1a1a1a', font: { family: 'DM Sans', size: 12, weight: '600' } }
+                    },
+                    tooltip: {
+                        backgroundColor: '#1a1a1a', titleColor: '#fff', bodyColor: '#ccc',
+                        padding: 12, cornerRadius: 10
                     }
                 }
             }

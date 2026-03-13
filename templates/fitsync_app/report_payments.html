@@ -1,435 +1,84 @@
-{% extends 'fitsync_app/base.html' %}
+{% extends 'fitsync_app/admin_base.html' %}
 {% load static %}
 
-{% block title %}Financial Overview | FitSync Admin{% endblock %}
+{% block title %}Payments — FitSync{% endblock %}
 
-{% block header %}{% endblock %}
-{% block footer %}{% endblock %}
-
-{% block extra_css %}
-<style>
-    :root {
-        --admin-bg: var(--bg-primary);
-        --sidebar-bg: var(--bg-tertiary);
-        --accent-orange: var(--gold);
-        --text-dark: var(--text-primary);
-        --text-muted: var(--text-muted);
-        --white: var(--bg-secondary);
-    }
-
-    body {
-        background-color: var(--admin-bg);
-        color: var(--text-dark);
-        font-family: 'Inter', sans-serif;
-    }
-
-    .admin-wrapper {
-        display: flex;
-        min-height: 100vh;
-    }
-
-    /* Sidebar Styles */
-    .sidebar {
-        width: 260px;
-        background: var(--sidebar-bg);
-        color: var(--text-primary);
-        display: flex;
-        flex-direction: column;
-        position: fixed;
-        height: 100vh;
-        z-index: 1001; transition: transform 0.3s ease;
-        padding: 0;
-    }
-
-    .sidebar-header {
-        padding: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        margin-bottom: 1rem;
-    }
-
-    .admin-avatar {
-        width: 32px;
-        height: 32px;
-        border-radius: 4px;
-        object-fit: cover;
-    }
-
-    .admin-name {
-        font-weight: 600;
-        font-size: 0.9rem;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: #f3f4f6;
-    }
-
-    .sidebar-menu {
-        padding: 0 0.8rem;
-        list-style: none;
-        flex-grow: 1;
-    }
-
-    .menu-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 0.65rem 1rem;
-        color: #94a3b8;
-        text-decoration: none;
-        font-size: 0.85rem;
-        border-radius: 6px;
-        margin-bottom: 0.25rem;
-        transition: all 0.2s;
-        font-weight: 500;
-    }
-
-    .menu-item:hover {
-        color: var(--text-primary);
-        background: rgba(255, 255, 255, 0.05);
-    }
-
-    .menu-item.active {
-        background: var(--accent-orange);
-        color: var(--text-primary);
-    }
-
-    .menu-item i {
-        font-size: 1rem;
-        width: 18px;
-        text-align: center;
-    }
-
-    .menu-item .chevron {
-        margin-left: auto;
-        font-size: 0.7rem;
-        opacity: 0.5;
-    }
-
-    /* Main Area Styles */
-    .main-area {
-        margin-left: 260px;
-        flex-grow: 1;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .top-bar {
-        background: var(--bg-secondary);
-        padding: 0.6rem 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: var(--shadow-sm);
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .search-input-wrapper {
-        position: relative;
-        width: 350px;
-    }
-
-    .search-input-wrapper i {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #9ca3af;
-        font-size: 0.85rem;
-    }
-
-    .search-input-wrapper input {
-        width: 100%;
-        padding: 0.45rem 1rem 0.45rem 2.5rem;
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        background: var(--bg-tertiary);
-        color: var(--text-primary);
-        font-size: 0.85rem;
-        outline: none;
-    }
-
-    .top-bar-right {
-        display: flex;
-        align-items: center;
-        gap: 1.2rem;
-    }
-
-    .top-bar-right i {
-        color: var(--text-dark);
-        font-size: 1rem;
-        cursor: pointer;
-        opacity: 0.7;
-    }
-
-    .admin-pill {
-        background: var(--accent-orange);
-        color: #000;
-        padding: 0.35rem 1rem;
-        border-radius: 4px;
-        font-weight: 600;
-        font-size: 0.8rem;
-    }
-
-    /* Content Area */
-    .dashboard-content {
-        padding: 1.5rem 2rem;
-    }
-
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        margin-bottom: 2rem;
-    }
-
-    .page-header h1 {
-        font-size: 1.8rem;
-        font-weight: 700;
-        margin: 0;
-        color: var(--text-primary);
-    }
-
-    .revenue-card {
-        background: var(--white);
-        padding: 1rem 1.5rem;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        text-align: right;
-    }
-
-    .revenue-card p {
-        margin: 0;
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        font-weight: 500;
-    }
-
-    .revenue-card h2 {
-        margin: 0;
-        font-size: 1.5rem;
-        color: var(--gold);
-        font-weight: 700;
-    }
-
-    /* Table Styles */
-    .content-card {
-        background: var(--white);
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-    }
-
-    .card-title {
-        padding: 1.25rem 1.5rem;
-        font-size: 1rem;
-        font-weight: 700;
-        border-bottom: 1px solid var(--border-color);
-        color: var(--text-primary);
-    }
-
-    .modern-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .modern-table th {
-        background: var(--bg-secondary);
-        text-align: left;
-        padding: 0.85rem 1.5rem;
-        font-size: 0.75rem;
-        text-transform: capitalize;
-        color: var(--text-muted);
-        font-weight: 600;
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .modern-table td {
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid var(--border-color);
-        vertical-align: middle;
-        font-size: 0.85rem;
-        color: var(--text-primary);
-    }
-
-    .status-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 3px 10px;
-        border-radius: 4px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    /* Mobile Responsive dynamically injected */
-    @media (max-width: 1024px) {
-        .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
-        .sidebar.open { transform: translateX(0); box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
-        .main-content, .main-area, .content-area { margin-left: 0 !important; padding: 1.5rem !important; padding-top: 4.5rem !important; }
-        .page-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
-        .actions-bar { flex-direction: column; width: 100%; gap: 1rem; }
-        .search-wrapper { max-width: 100%; width: 100%; }
-        .premium-table { display: block; overflow-x: auto; white-space: nowrap; }
-    }
-    @media (max-width: 768px) {
-        .main-content, .main-area, .content-area { padding: 1rem !important; padding-top: 4.5rem !important; }
-        .page-title { font-size: 1.8rem; }
-    }
-
-</style>
-{% endblock %}
-
-{% block content %}
-<div class="admin-wrapper">
-    <!-- Sidebar -->
-    
-    <!-- Mobile Hamburger Button -->
-    <button class="hamburger-btn" id="hamburger-btn" aria-label="Toggle Menu">
-        <i class="fa-solid fa-bars"></i>
-    </button>
-
-    <!-- Sidebar Overlay -->
-    <div class="sidebar-overlay" id="sidebar-overlay"></div>
-
-    <aside class="sidebar" id="sidebar" >
-        <div class="sidebar-header">
-            <img src="https://i.pravatar.cc/150?u=admin_sarah" class="admin-avatar" alt="Admin">
-            <span class="admin-name">Admin <i class="fa-solid fa-chevron-down"></i></span>
-        </div>
-
-        <nav class="sidebar-menu">
-            <a href="{% url 'admin_dashboard' %}" class="menu-item">
-                <i class="fa-solid fa-gauge"></i> Dashboard
-            </a>
-            <a href="{% url 'report_members' %}" class="menu-item">
-                <i class="fa-regular fa-user"></i> Users
-            </a>
-            <a href="{% url 'trainer_list' %}" class="menu-item">
-                <i class="fa-solid fa-table-cells"></i> Trainers
-            </a>
-            <a href="{% url 'subscription_plans' %}" class="menu-item">
-                <i class="fa-regular fa-envelope"></i> Subscriptions
-            </a>
-            <a href="{% url 'report_payments' %}" class="menu-item active">
-                <i class="fa-solid fa-money-bill-transfer"></i> Payments
-            </a>
-            <a href="#" class="menu-item">
-                <i class="fa-regular fa-file-lines"></i> Reports <i class="fa-solid fa-chevron-down chevron"></i>
-            </a>
-        </nav>
-    </aside>
-
-    <!-- Main Content -->
-    <div class="main-area">
-        <header class="top-bar">
-            <div class="search-input-wrapper">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" placeholder="Search transactions...">
-            </div>
-
-            <div class="top-bar-right">
-                <i class="fa-solid fa-arrows-rotate"></i>
-                <i class="fa-regular fa-envelope"></i>
-                <i class="fa-solid fa-thumbtack" style="color: #94a3b8; transform: rotate(45deg);"></i>
-                <div class="admin-pill">Admin</div>
-            </div>
-        </header>
-
-        <div class="dashboard-content">
-            <div class="page-header">
-                <div>
-                    <h1 style="font-family: 'Inter', serif; letter-spacing: 1px; color: var(--accent-orange);">
-                        FINANCIAL OVERVIEW</h1>
-                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 5px;">Track system-wide revenue
-                        and transactions</p>
-                </div>
-                <div class="revenue-card">
-                    <p>Monthly Revenue</p>
-                    <h2>₹{{ total_revenue|floatformat:2|default:"0.00" }}</h2>
-                </div>
-            </div>
-
-            <div class="content-card">
-                <div class="card-title">Recent Transactions</div>
-                <table class="modern-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>User</th>
-                            <th>Amount</th>
-                            <th>Date</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% if payment_list %}
-                        {% for payment in payment_list %}
-                        <tr>
-                            <td style="font-family: monospace; font-weight: 600;">#{{ payment.transaction_id }}</td>
-                            <td style="font-weight: 600;">{{ payment.user_name }}</td>
-                            <td style="color: #22c55e; font-weight: 700;">₹{{ payment.amount }}</td>
-                            <td>{{ payment.date }}</td>
-                            <td>
-                                {% if payment.status == 'success' %}
-                                <span class="status-badge">Success</span>
-                                {% elif payment.status == 'pending' %}
-                                <span class="status-badge" style="background: #fef9c3; color: #854d0e;">Pending</span>
-                                {% else %}
-                                <span class="status-badge" style="background: #fee2e2; color: #991b1b;">Failed</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                        {% else %}
-                        <tr>
-                            <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-muted);">
-                                No payment records found.
-                            </td>
-                        </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
-            </div>
-
-            <form action="{% url 'logout' %}" method="post"
-                style="margin-top: 2rem; display: flex; justify-content: center;">
-                {% csrf_token %}
-                <button type="submit"
-                    style="color: #ef4444; background: none; border: 1px solid #fee2e2; padding: 0.5rem 1.5rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600;">
-                    Logout of System
-                </button>
-            </form>
-        </div>
+{% block admin_content %}
+<div class="fd-page-header fd-animate">
+    <div class="fd-greeting">
+        <h1>Payments <span style="font-size: 1.25rem;">💳</span></h1>
+        <p>Track all financial transactions</p>
+    </div>
+    <div class="fd-header-pill">
+        <i class="fa-solid fa-indian-rupee-sign"></i> Revenue: ₹{{ total_revenue|floatformat:0|default:"0" }}
     </div>
 </div>
 
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;" class="fd-animate fd-delay-1">
+    <div class="fd-search-bar">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="paymentSearch" placeholder="Search transactions...">
+    </div>
+    <div class="fd-badge fd-badge-success" style="padding: 0.5rem 1rem; font-size: 0.78rem;">
+        <i class="fa-solid fa-circle-check"></i> Gateway Active
+    </div>
+</div>
+
+<div class="fd-table-card fd-animate fd-delay-2">
+    <table class="fd-table" id="paymentsTable">
+        <thead>
+            <tr>
+                <th>Transaction ID</th>
+                <th>Member</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if payment_list %}
+                {% for payment in payment_list %}
+                <tr>
+                    <td>
+                        <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--fd-accent-dark); font-size: 0.85rem;">#{{ payment.transaction_id }}</span>
+                    </td>
+                    <td><span style="font-weight: 600;">{{ payment.user_name }}</span></td>
+                    <td><span style="font-weight: 800; color: #16a34a;">₹{{ payment.amount }}</span></td>
+                    <td><span style="color: var(--fd-text-muted);">{{ payment.date }}</span></td>
+                    <td>
+                        {% if payment.status == 'success' %}
+                        <span class="fd-badge fd-badge-success">Completed</span>
+                        {% elif payment.status == 'pending' %}
+                        <span class="fd-badge fd-badge-warning">In Transit</span>
+                        {% else %}
+                        <span class="fd-badge fd-badge-danger">Failed</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 4rem; color: var(--fd-text-muted);">
+                        <i class="fa-solid fa-receipt" style="font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.15;"></i>
+                        <p>No transactions recorded yet.</p>
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
 <script>
-    // Sidebar toggle for mobile
-    const hamburgerBtn = document.getElementById('hamburger-btn');
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebar-overlay');
-    
-    if (hamburgerBtn && sidebar && overlay) {
-        const hamburgerIcon = hamburgerBtn.querySelector('i');
-
-        function toggleSidebar() {
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('active');
-            if (sidebar.classList.contains('open')) {
-                hamburgerIcon.classList.replace('fa-bars', 'fa-xmark');
-            } else {
-                hamburgerIcon.classList.replace('fa-xmark', 'fa-bars');
-            }
-        }
-
-        hamburgerBtn.addEventListener('click', toggleSidebar);
-        overlay.addEventListener('click', toggleSidebar);
+    const searchInput = document.getElementById('paymentSearch');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            let filter = this.value.toLowerCase();
+            let rows = document.querySelectorAll('#paymentsTable tbody tr');
+            rows.forEach(row => {
+                let text = row.innerText.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            });
+        });
     }
 </script>
-
 {% endblock %}

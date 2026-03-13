@@ -1,288 +1,102 @@
-{% extends 'fitsync_app/base.html' %}
+{% extends 'fitsync_app/admin_base.html' %}
 {% load static %}
 
-{% block title %}Order Management | FitSync Store{% endblock %}
+{% block title %}Orders — FitSync{% endblock %}
 
-{% block extra_css %}
-<style>
-    :root {
-        --admin-bg: #121212;
-        --card-bg: #1e1e1e;
-        --sidebar-bg: #1e1e1e;
-        --accent: #4F46E5;
-        --text-primary: #ffffff;
-        --text-secondary: #a0aec0;
-    }
-
-    body {
-        background-color: var(--admin-bg);
-        color: var(--text-primary);
-        font-family: 'Inter', sans-serif;
-    }
-
-    .admin-container {
-        display: flex;
-        min-height: 100vh;
-    }
-
-    .sidebar {
-        width: 260px;
-        background: var(--sidebar-bg);
-        color: var(--text-primary);
-        display: flex;
-        flex-direction: column;
-        position: fixed;
-        height: 100vh;
-        z-index: 1001;
-    }
-
-    .main-content {
-        margin-left: 260px;
-        flex-grow: 1;
-        padding: 2rem;
-    }
-
-    .order-card {
-        background: var(--card-bg);
-        border-radius: 12px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        margin-bottom: 1.5rem;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        overflow: hidden;
-    }
-
-    .order-header {
-        padding: 1.25rem 1.5rem;
-        background: rgba(255, 255, 255, 0.02);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .order-body {
-        padding: 1.5rem;
-    }
-
-    .order-footer {
-        padding: 1rem 1.5rem;
-        background: rgba(255, 255, 255, 0.02);
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .badge {
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-    }
-
-    .status-confirmed {
-        background: #fef9c3;
-        color: #854d0e;
-    }
-
-    .status-shipped {
-        background: #dbeafe;
-        color: #1e40af;
-    }
-
-    .status-delivered {
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    .status-cancelled {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
-    .item-row {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        padding: 10px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .item-row:last-child {
-        border-bottom: none;
-    }
-
-    .item-img {
-        width: 50px;
-        height: 50px;
-        border-radius: 8px;
-        object-fit: cover;
-    }
-
-    .address-box {
-        background: rgba(255, 255, 255, 0.05);
-        padding: 1rem;
-        border-radius: 8px;
-        font-size: 0.85rem;
-        margin-top: 1rem;
-        color: var(--text-primary);
-    }
-
-    .status-select {
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        font-size: 0.85rem;
-        background: var(--card-bg);
-        color: var(--text-primary);
-    }
-
-    .btn-update {
-        background: var(--sidebar-bg);
-        color: var(--text-primary);
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 600;
-        font-size: 0.85rem;
-    }
-
-    @media (max-width: 768px) {
-        .admin-container {
-            flex-direction: column;
-        }
-
-        .sidebar {
-            display: none;
-        }
-
-        .main-content {
-            margin-left: 0;
-            padding: 1rem;
-        }
-    }
-</style>
-{% endblock %}
-
-{% block content %}
-<div class="admin-container">
-    <aside class="sidebar">
-        <div
-            style="padding: 1.5rem; font-weight: 800; font-size: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--accent);">
-            <i class="fa-solid fa-truck-fast"></i> Order Control
-        </div>
-        <nav style="padding: 1rem;">
-            <a href="{% url 'store_management' %}"
-                style="display: flex; align-items: center; gap: 12px; padding: 0.8rem 1rem; color: var(--text-secondary); text-decoration: none; border-radius: 8px; font-size: 0.9rem;">
-                <i class="fa-solid fa-arrow-left"></i> Back to Store Admin
-            </a>
-        </nav>
-    </aside>
-
-    <main class="main-content">
-        <div style="margin-bottom: 2rem;">
-            <h1 style="font-size: 1.5rem; font-weight: 800; margin: 0;">Order Processing</h1>
-            <p style="color: var(--text-secondary); margin-top: 5px;">Track and update customer deliveries.</p>
-        </div>
-
-        {% for order in orders %}
-        <div class="order-card">
-            <div class="order-header">
-                <div>
-                    <span style="font-weight: 800; color: var(--text-primary);">Order #{{ order.id }}</span>
-                    <span style="color: var(--text-secondary); margin-left: 10px; font-size: 0.85rem;">{{
-                        order.created_at|date:"M d, Y | h:i A" }}</span>
-                </div>
-                <div class="badge status-{{ order.status }}">
-                    {{ order.get_status_display }}
-                </div>
-            </div>
-
-            <div class="order-body">
-                <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem;">
-                    <div>
-                        <h4
-                            style="font-size: 0.85rem; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 1rem;">
-                            Items Summary</h4>
-                        {% for item in order.items.all %}
-                        <div class="item-row">
-                            {% if item.product.image %}
-                            <img src="{{ item.product.image.url }}" class="item-img">
-                            {% else %}
-                            <div class="item-img"
-                                style="background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: var(--text-secondary);">
-                                <i class="fa-solid fa-box"></i>
-                            </div>
-                            {% endif %}
-                            <div style="flex-grow: 1;">
-                                <div style="font-weight: 600;">{{ item.product_name }}</div>
-                                <div style="font-size: 0.8rem; color: var(--text-secondary);">Qty: {{ item.quantity }} ×
-                                    ₹{{ item.price }}</div>
-                            </div>
-                            <div style="font-weight: 700;">₹{{ item.subtotal }}</div>
-                        </div>
-                        {% endfor %}
-                        <div
-                            style="display: flex; justify-content: space-between; padding-top: 1rem; font-weight: 800; font-size: 1.1rem; border-top: 2px solid rgba(255,255,255,0.05);">
-                            <span>Total Paid</span>
-                            <span style="color: var(--text-primary);">₹{{ order.total_amount }}</span>
-                        </div>
-                    </div>
-
-                    <div>
-                        <h4
-                            style="font-size: 0.85rem; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 1rem;">
-                            Delivery Details</h4>
-                        <div style="font-weight: 700; color: var(--text-primary);">{{
-                            order.full_name|default:order.user.username }}</div>
-                        <div style="font-size: 0.85rem; color: var(--text-secondary);"><i class="fa-solid fa-phone"></i>
-                            {{ order.phone }}</div>
-
-                        <div class="address-box">
-                            <i class="fa-solid fa-location-dot"></i> {{ order.shipping_address }}
-                        </div>
-
-                        {% if order.order_note %}
-                        <div
-                            style="margin-top: 1rem; font-style: italic; font-size: 0.8rem; color: var(--text-secondary);">
-                            "{{ order.order_note }}"
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <div class="order-footer">
-                <div style="color: var(--text-secondary); font-size: 0.8rem;">
-                    Account: <strong>@{{ order.user.username }}</strong>
-                </div>
-                <form action="{% url 'update_order_status' order.pk %}" method="post"
-                    style="display: flex; gap: 10px; align-items: center;">
-                    {% csrf_token %}
-                    <select name="status" class="status-select">
-                        <option value="pending" {% if order.status=='pending' %}selected{% endif %}>Pending</option>
-                        <option value="confirmed" {% if order.status=='confirmed' %}selected{% endif %}>Confirmed
-                        </option>
-                        <option value="shipped" {% if order.status=='shipped' %}selected{% endif %}>Shipped</option>
-                        <option value="delivered" {% if order.status=='delivered' %}selected{% endif %}>Delivered
-                        </option>
-                        <option value="cancelled" {% if order.status=='cancelled' %}selected{% endif %}>Cancelled
-                        </option>
-                    </select>
-                    <button type="submit" class="btn-update">Update Status</button>
-                </form>
-            </div>
-        </div>
-        {% empty %}
-        <div
-            style="text-align: center; padding: 5rem; background: var(--card-bg); border-radius: 12px; border: 2px dashed rgba(255,255,255,0.1);">
-            <i class="fa-solid fa-clock-rotate-left"
-                style="font-size: 3rem; color: rgba(255,255,255,0.2); margin-bottom: 1rem;"></i>
-            <h3 style="color: var(--text-secondary);">No orders found in the system yet.</h3>
-        </div>
-        {% endfor %}
-    </main>
+{% block admin_content %}
+<div class="fd-page-header fd-animate">
+    <div class="fd-greeting">
+        <h1>Orders 📦</h1>
+        <p>Manage store orders</p>
+    </div>
+    <div class="fd-header-pill">
+        <i class="fa-solid fa-truck-fast"></i> Queue: {{ orders|length }}
+    </div>
 </div>
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;" class="fd-animate fd-delay-1">
+    <div class="fd-search-bar">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="orderSearch" placeholder="Search orders...">
+    </div>
+    <a href="{% url 'store_management' %}" class="fd-btn fd-btn-outline">
+        <i class="fa-solid fa-arrow-left"></i> Store
+    </a>
+</div>
+
+<style>
+.order-fd{background:var(--fd-card);border:1px solid var(--fd-border);border-radius:var(--fd-radius-lg);margin-bottom:1.25rem;overflow:hidden;box-shadow:var(--fd-shadow);transition:all .3s}
+.order-fd:hover{border-color:var(--fd-accent);box-shadow:var(--fd-shadow-hover)}
+.order-head-fd{padding:1.25rem 1.75rem;background:rgba(181,229,80,.04);border-bottom:1px solid var(--fd-border);display:flex;justify-content:space-between;align-items:center}
+.order-body-fd{padding:1.75rem}
+.order-foot-fd{padding:1rem 1.75rem;background:rgba(181,229,80,.04);border-top:1px solid var(--fd-border);display:flex;justify-content:space-between;align-items:center}
+.item-row-fd{display:flex;align-items:center;gap:1.25rem;padding-bottom:1rem;margin-bottom:1rem;border-bottom:1px solid rgba(0,0,0,.04)}
+.item-row-fd:last-child{border-bottom:none;margin-bottom:0}
+.item-img-fd{width:56px;height:56px;border-radius:12px;object-fit:cover;border:1px solid var(--fd-border)}
+.status-select-fd{background:var(--fd-bg);border:1.5px solid var(--fd-border);color:var(--fd-text);padding:.5rem .85rem;border-radius:8px;font-size:.82rem;font-weight:600;font-family:var(--fd-font)}
+.status-select-fd:focus{outline:none;border-color:var(--fd-accent)}
+</style>
+
+<div class="fd-animate fd-delay-2">
+{% for order in orders %}
+<div class="order-fd">
+    <div class="order-head-fd">
+        <div>
+            <span style="font-weight:800;color:var(--fd-accent-dark)">ORDER #{{ order.id }}</span>
+            <span style="color:var(--fd-text-muted);margin-left:1rem;font-size:.82rem">{{ order.created_at|date:"M d, Y" }}</span>
+        </div>
+        <span class="fd-badge {% if order.status == 'delivered' %}fd-badge-success{% elif order.status == 'shipped' %}fd-badge-info{% elif order.status == 'cancelled' %}fd-badge-danger{% else %}fd-badge-warning{% endif %}">{{ order.get_status_display }}</span>
+    </div>
+    <div class="order-body-fd">
+        <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:2.5rem">
+            <div>
+                {% for item in order.items.all %}
+                <div class="item-row-fd">
+                    {% if item.product.image %}<img src="{{ item.product.image.url }}" class="item-img-fd">{% else %}<div class="item-img-fd" style="display:flex;align-items:center;justify-content:center;background:var(--fd-bg)"><i class="fa-solid fa-box" style="color:var(--fd-text-muted)"></i></div>{% endif %}
+                    <div style="flex:1"><div style="font-weight:600">{{ item.product_name }}</div><div style="font-size:.78rem;color:var(--fd-text-muted)">{{ item.quantity }} × ₹{{ item.price }}</div></div>
+                    <div style="font-weight:700">₹{{ item.subtotal }}</div>
+                </div>
+                {% endfor %}
+                <div style="display:flex;justify-content:space-between;padding-top:1rem;border-top:2px solid rgba(0,0,0,.04)">
+                    <span style="font-weight:600;color:var(--fd-text-muted)">Total</span>
+                    <span style="font-weight:800;color:#16a34a;font-size:1.15rem">₹{{ order.total_amount }}</span>
+                </div>
+            </div>
+            <div>
+                <div style="font-weight:700;margin-bottom:.35rem">{{ order.full_name|default:order.user.username }}</div>
+                <div style="font-size:.82rem;color:var(--fd-accent-dark);margin-bottom:1rem"><i class="fa-solid fa-phone"></i> {{ order.phone }}</div>
+                <div style="background:var(--fd-bg);padding:1rem;border-radius:var(--fd-radius-sm);border:1px solid var(--fd-border);font-size:.88rem;color:var(--fd-text-secondary);line-height:1.6">
+                    <i class="fa-solid fa-location-dot" style="color:var(--fd-accent-dark)"></i> {{ order.shipping_address }}
+                </div>
+                {% if order.order_note %}<div style="margin-top:1rem;font-style:italic;font-size:.78rem;color:var(--fd-text-muted);padding-left:1rem;border-left:2px solid var(--fd-accent)">"{{ order.order_note }}"</div>{% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="order-foot-fd">
+        <div style="color:var(--fd-text-muted);font-size:.78rem">Buyer: <span style="color:var(--fd-text)">@{{ order.user.username }}</span></div>
+        <form action="{% url 'update_order_status' order.pk %}" method="post" style="display:flex;gap:.75rem;align-items:center">
+            {% csrf_token %}
+            <select name="status" class="status-select-fd">
+                <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="confirmed" {% if order.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>Shipped</option>
+                <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>Delivered</option>
+                <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+            </select>
+            <button type="submit" class="fd-btn fd-btn-primary" style="padding:.5rem 1rem;font-size:.8rem">Update</button>
+        </form>
+    </div>
+</div>
+{% empty %}
+<div style="text-align:center;padding:5rem;color:var(--fd-text-muted)">
+    <i class="fa-solid fa-truck-ramp-box" style="font-size:3rem;opacity:.15;margin-bottom:1rem"></i>
+    <p>No orders found.</p>
+</div>
+{% endfor %}
+</div>
+
+<script>
+const s=document.getElementById('orderSearch');
+if(s){s.addEventListener('keyup',function(){let f=this.value.toLowerCase();document.querySelectorAll('.order-fd').forEach(c=>{c.style.display=c.innerText.toLowerCase().includes(f)?'':'none'})});}
+</script>
 {% endblock %}

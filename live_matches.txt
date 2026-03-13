@@ -1,0 +1,27 @@
+26: TrainerFeedback, ExerciseVideo, EmailOTP, LiveSession, Product, Cart, CartItem,
+461: * Conduct live workout sessions for users
+657: # Get upcoming live sessions
+658: upcoming_sessions = LiveSession.objects.filter(date__gte=timezone.localdate()).order_by('date', 'time')[:3]
+719: 'live_sessions': upcoming_sessions,
+2555: def live_session_view(request):
+2557: Renders the UI for Live Trainer Sessions.
+2572: return redirect('live_session')
+2578: LiveSession.objects.create(
+2586: messages.success(request, f"✅ Live session '{t_title}' scheduled! Members can now join via Google Meet.")
+2587: return redirect('live_session')
+2590: return redirect('live_session')
+2593: upcoming_sessions = LiveSession.objects.filter(
+2597: return render(request, 'fitsync_app/live_session.html', {
+2603: def live_session_room_view(request, session_id):
+2606: Looks up the LiveSession by ID and redirects directly to the stored
+2609: session = get_object_or_404(LiveSession, id=session_id)
+2612: return redirect('live_session')
+2617: def delete_live_session_view(request, session_id):
+2619: Cancel / Delete a live session.
+2620: Allow trainers/admins to cancel a scheduled live session.
+2622: session = get_object_or_404(LiveSession, id=session_id)
+2627: messages.success(request, f"❌ Live session '{title}' has been cancelled.")
+2630: return redirect('live_session')
+2816: """Returns cart item count as JSON for live badge updates."""
+2916: 'description': 'Access the world\'s top 1% of fitness professionals for 1-on-1 coaching, real-time feedback, and live group training sessions.'
+2921: 'description': 'From adjustable dumbbells to yoga alignment mats, we supply professional-grade gear delivered directly to your doorstep.'

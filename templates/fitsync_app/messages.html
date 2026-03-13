@@ -626,7 +626,11 @@
                     </div>
                     {% else %}
                     <div class="msg-avatar" style="background:#60A03D;"> <!-- Distinct color for self -->
+                        {% if user.userprofile.profile_photo %}
+                        <img src="{{ user.userprofile.profile_photo.url }}" alt="Avatar">
+                        {% else %}
                         {{ user.username|make_list|first|upper|default:'Y' }}
+                        {% endif %}
                     </div>
                     {% endif %}
 
@@ -644,7 +648,13 @@
             {% else %}
                 <!-- Hardcoded Mockup Chat if db is empty for this view -->
                 <div class="msg-group received">
-                    <div class="msg-avatar">A</div>
+                    <div class="msg-avatar">
+                        {% if active_user.userprofile.profile_photo %}
+                        <img src="{{ active_user.userprofile.profile_photo.url }}" alt="Avatar">
+                        {% else %}
+                        {{ active_user.username|make_list|first|upper|default:'A' }}
+                        {% endif %}
+                    </div>
                     <div class="msg-content-wrapper">
                         <div class="msg-bubble">Hey! Welcome to FitSync 💪 How can I help you today?</div>
                         <div class="msg-meta">11:20 AM</div>
@@ -652,7 +662,13 @@
                 </div>
                 
                 <div class="msg-group sent">
-                    <div class="msg-avatar" style="background:#558C25;">Y</div>
+                    <div class="msg-avatar" style="background:#558C25;">
+                        {% if user.userprofile.profile_photo %}
+                        <img src="{{ user.userprofile.profile_photo.url }}" alt="Avatar">
+                        {% else %}
+                        {{ user.username|make_list|first|upper|default:'Y' }}
+                        {% endif %}
+                    </div>
                     <div class="msg-content-wrapper">
                         <div class="msg-bubble">I need resistance bands and a yoga mat for home workouts!</div>
                         <div class="msg-meta">11:22 AM · <i class="fa-solid fa-check-double"></i></div>
@@ -660,7 +676,13 @@
                 </div>
                 
                 <div class="msg-group received">
-                    <div class="msg-avatar">A</div>
+                    <div class="msg-avatar">
+                        {% if active_user.userprofile.profile_photo %}
+                        <img src="{{ active_user.userprofile.profile_photo.url }}" alt="Avatar">
+                        {% else %}
+                        {{ active_user.username|make_list|first|upper|default:'A' }}
+                        {% endif %}
+                    </div>
                     <div class="msg-content-wrapper">
                         <div class="msg-bubble">Great choices! Our Resistance Band Set (₹1499) and 6mm Yoga Mat (₹999) are our best sellers 🔥</div>
                         <div class="msg-meta">11:23 AM</div>
