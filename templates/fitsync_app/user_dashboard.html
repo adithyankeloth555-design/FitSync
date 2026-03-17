@@ -378,6 +378,193 @@
       }
     });
   }
+
+  // WhatsApp Onboarding Logic
+  setTimeout(() => {
+    if (!localStorage.getItem('wa_onboard_shown_{{ user.username }}')) {
+      const waOverlay = document.getElementById('wa-modal-overlay');
+      const waStatus = document.getElementById('wa-modal-status');
+      const waLoader = document.getElementById('wa-modal-loader');
+      const waBtn = document.getElementById('wa-modal-btn');
+      const waClose = document.getElementById('wa-modal-close');
+
+      if(waOverlay) {
+          waOverlay.style.display = 'flex';
+          
+          // After 2 seconds, transition from loading to "Open WhatsApp"
+          setTimeout(() => {
+              waStatus.textContent = "Your trainer has securely prepared your custom plan.";
+              waLoader.style.display = 'none';
+              waBtn.style.display = 'inline-flex';
+              document.querySelector('.wa-modal-icon').classList.remove('pulse-animation');
+              
+              // Mark as shown so it doesn't pop up again
+              localStorage.setItem('wa_onboard_shown_{{ user.username }}', 'true');
+          }, 2000);
+
+          waClose.onclick = () => {
+              waOverlay.style.display = 'none';
+              localStorage.setItem('wa_onboard_shown_{{ user.username }}', 'true');
+          };
+      }
+    }
+  }, 1000); // Wait 1 second after page load before showing
 </script>
+
+<!-- WhatsApp Onboarding Modal -->
+<div id="wa-modal-overlay" class="wa-modal-overlay" style="display: none;">
+  <div class="wa-modal">
+    <div class="wa-modal-icon pulse-animation">
+      <i class="fa-brands fa-whatsapp"></i>
+    </div>
+    <h3 class="wa-modal-title">Welcome, {{ user.first_name|default:user.username }}!</h3>
+    <p class="wa-modal-text" id="wa-modal-status">Sending WhatsApp message...</p>
+    
+    <div class="wa-modal-loader" id="wa-modal-loader">
+      <div class="wa-spinner"></div>
+    </div>
+
+    <a href="https://wa.me/919876543210?text=Hi!%20I%20just%20logged%20into%20FitSync%20and%20am%20ready%20for%20my%20plan." target="_blank" class="wa-modal-btn" id="wa-modal-btn" style="display: none;" onclick="document.getElementById('wa-modal-overlay').style.display='none';">
+      Open WhatsApp
+    </a>
+    
+    <button class="wa-modal-close" id="wa-modal-close"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+</div>
+
+<style>
+/* WhatsApp Modal */
+.wa-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  animation: waFadeIn 0.3s forwards;
+}
+
+.wa-modal {
+  background: var(--t-card-bg, #ffffff);
+  border-radius: var(--t-card-radius, 24px);
+  padding: 2.5rem;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+  transform: translateY(20px);
+  animation: waSlideUp 0.4s 0.1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  opacity: 0;
+}
+
+.wa-modal-icon {
+  width: 70px;
+  height: 70px;
+  background: #25D366;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  color: white;
+  font-size: 2.5rem;
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4);
+}
+
+.pulse-animation {
+  animation: waPulse 2s infinite;
+}
+
+.wa-modal-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--t-charcoal, #1a1a1a);
+  margin-bottom: 0.5rem;
+  font-family: var(--t-font-heading, inherit);
+}
+
+.wa-modal-text {
+  font-size: 0.95rem;
+  color: var(--t-text-mid, #6b6b6b);
+  margin-bottom: 1.5rem;
+}
+
+.wa-modal-loader .wa-spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(37, 211, 102, 0.2);
+  border-top-color: #25D366;
+  border-radius: 50%;
+  animation: waSpin 1s linear infinite;
+  margin: 0 auto;
+}
+
+.wa-modal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #25D366;
+  color: #fff;
+  padding: 0.8rem 2rem;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+}
+
+.wa-modal-btn:hover {
+  background: #20BA56;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(37, 211, 102, 0.4);
+}
+
+.wa-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  color: var(--t-text-soft, #9ca3af);
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.wa-modal-close:hover {
+  background: rgba(0,0,0,0.05);
+  color: var(--t-charcoal, #1a1a1a);
+}
+
+@keyframes waFadeIn {
+  to { opacity: 1; }
+}
+
+@keyframes waSlideUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes waPulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4); }
+  70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+}
+
+@keyframes waSpin {
+  to { transform: rotate(360deg); }
+}
+</style>
+
 <script src="{% static 'js/search.js' %}"></script>
 {% endblock %}
