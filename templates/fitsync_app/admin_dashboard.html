@@ -4,737 +4,495 @@
 {% block title %}FitSync — Admin Dashboard{% endblock %}
 
 {% block admin_content %}
-<!-- Page Header -->
-<div class="fd-page-header fd-animate">
-    <div class="fd-greeting">
-        <h1>Good Morning, {{ user.get_full_name|default:user.username|title }} 👋</h1>
-        <p>Let's check your fitness empire today.</p>
-    </div>
-    <div style="display: flex; align-items: center; gap: 0.75rem;">
-        <div class="search-wrapper" id="search-wrapper">
-            <div class="search-bar" id="search-bar-trigger" style="border-color:var(--fd-border); background:var(--fd-card);">
-                <i class="fa-solid fa-search" style="color:var(--fd-text-muted);font-size:13px;"></i>
-                <input type="text" id="dashboard-search" class="search-input" placeholder="Search pages…" autocomplete="off">
-                <kbd class="search-kbd">⌘K</kbd>
-            </div>
-            <div class="search-results" id="search-results"></div>
-        </div>
-        <button class="theme-trigger-btn" id="theme-trigger-btn" title="Change Theme" style="background:var(--fd-card); border:1px solid var(--fd-border); width:40px; height:40px; border-radius:10px; cursor:pointer; color:var(--fd-text-muted); display:flex; align-items:center; justify-content:center;">
-            <i class="fa-solid fa-palette"></i>
-        </button>
-        <div class="fd-header-pill" style="margin-left: 0.5rem;">
-            <i class="fa-solid fa-circle-check" style="color: #22c55e;"></i> Systems Online
-        </div>
-    </div>
-</div>
-
 <style>
-    /* ═══════════════════ STATS ROW ═══════════════════ */
+    /* PINTEREST LAYOUT OVERRIDE */
+    .dash-pinterest-layout {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 1.5rem;
+        height: 100%;
+    }
+
+    /* ═════════ LEFT PANEL (CENTER) ═════════ */
+    .dash-center-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .fd-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--fd-card);
+        border-radius: var(--fd-radius-lg);
+        padding: 1.25rem 1.5rem;
+        box-shadow: var(--fd-shadow);
+        border: 1px solid var(--fd-border);
+    }
+    .fd-greeting h1 {
+        font-family: var(--fd-font-heading, "DM Sans"), sans-serif;
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--fd-text);
+        margin: 0;
+        line-height: 1.2;
+    }
+    .fd-greeting p {
+        font-size: 0.85rem;
+        color: var(--fd-text-secondary);
+        margin: 0.2rem 0 0;
+    }
+
+    /* 4 Stats Grid */
     .dash-stats-row {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 1.25rem;
-        margin-bottom: 2rem;
+        gap: 1rem;
     }
 
     .dash-stat {
         background: var(--fd-card);
-        border-radius: var(--fd-radius);
+        border-radius: var(--fd-radius-lg);
         border: 1px solid var(--fd-border);
-        padding: 1.25rem 1.5rem;
+        padding: 1.25rem;
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 0.85rem;
         box-shadow: var(--fd-shadow);
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
+        transition: transform 0.2s;
     }
+    .dash-stat:hover { transform: translateY(-2px); box-shadow: var(--fd-shadow-hover); }
 
-    .dash-stat::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 4px;
-        height: 100%;
-        border-radius: 4px 0 0 4px;
-    }
-
-    .dash-stat:nth-child(1)::before { background: var(--fd-accent); }
-    .dash-stat:nth-child(2)::before { background: #3b82f6; }
-    .dash-stat:nth-child(3)::before { background: #f59e0b; }
-    .dash-stat:nth-child(4)::before { background: #ef4444; }
-
-    .dash-stat:hover {
-        transform: translateY(-3px);
-        box-shadow: var(--fd-shadow-hover);
-    }
-
-    .dash-stat-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 14px;
+    .dash-stat-content {
         display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.15rem;
-        flex-shrink: 0;
+        flex-direction: column;
     }
-
-    .dash-stat-icon.green  { background: rgba(181, 229, 80, 0.15); color: #6d9b1c; }
-    .dash-stat-icon.blue   { background: rgba(59, 130, 246, 0.12); color: #3b82f6; }
-    .dash-stat-icon.amber  { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
-    .dash-stat-icon.red    { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
-
-    .dash-stat-content .stat-val {
-        display: block;
-        font-size: 1.7rem;
-        font-weight: 800;
-        color: var(--fd-text);
-        line-height: 1.15;
-        letter-spacing: -0.04em;
-        font-feature-settings: 'tnum' 1;
-    }
-
-    .dash-stat-content .stat-lbl {
-        font-size: 0.72rem;
-        color: var(--fd-text-muted);
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.6px;
-        margin-top: 0.15rem;
-    }
-
-    .stat-trend {
-        margin-left: auto;
-        font-size: 0.7rem;
-        font-weight: 800;
-        display: flex;
-        align-items: center;
-        gap: 0.2rem;
-        padding: 0.25rem 0.6rem;
-        border-radius: 50px;
-        letter-spacing: 0.2px;
-    }
-
-    .stat-trend.up   { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
-    .stat-trend.down { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
-
-    /* ═══════════════════ CHART SECTION ═══════════════════ */
-    .dash-grid-main {
-        display: grid;
-        grid-template-columns: 1.6fr 1fr;
-        gap: 1.25rem;
-        margin-bottom: 1.25rem;
-    }
-
-    .chart-container {
-        position: relative;
-        height: 220px;
-        padding: 1rem 0;
-    }
-
-    .chart-canvas {
-        width: 100%;
-        height: 100%;
-    }
-
-    .chart-toggle {
-        display: flex;
-        gap: 1rem;
-        font-size: 0.78rem;
-    }
-
-    .chart-toggle label {
-        display: flex;
-        align-items: center;
-        gap: 0.35rem;
-        color: var(--fd-text-muted);
-        cursor: pointer;
-        font-weight: 600;
-        letter-spacing: 0.3px;
-        font-size: 0.8rem;
-    }
-
-    .chart-toggle .dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-    }
-
-    .chart-toggle .dot.online  { background: var(--fd-accent-dark); }
-    .chart-toggle .dot.offline { background: #d1d5db; }
-
-    /* ═══════════════════ PROGRESS SECTION ═══════════════════ */
-    .progress-ring-wrapper {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 1rem 0;
-    }
-
-    .progress-ring-container {
-        position: relative;
-        width: 160px;
-        height: 160px;
-    }
-
-    .progress-ring-container svg {
-        transform: rotate(-90deg);
-    }
-
-    .progress-ring-bg {
-        fill: none;
-        stroke: #e8e8e8;
-        stroke-width: 10;
-    }
-
-    .progress-ring-fill {
-        fill: none;
-        stroke: var(--fd-accent);
-        stroke-width: 10;
-        stroke-linecap: round;
-        stroke-dasharray: 408.4;
-        stroke-dashoffset: 408.4;
-        transition: stroke-dashoffset 1.5s ease;
-    }
-
-    .progress-ring-text {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        text-align: center;
-    }
-
-    .progress-ring-text .pct {
-        display: block;
-        font-size: 2rem;
+    .stat-val {
+        font-size: 1.4rem;
         font-weight: 800;
         color: var(--fd-text);
         line-height: 1.1;
     }
-
-    .progress-ring-text .pct-label {
-        font-size: 0.7rem;
-        color: var(--fd-text-muted);
-    }
-
-    .progress-details {
-        margin-top: 1.25rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .progress-detail-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        font-size: 0.85rem;
-    }
-
-    .progress-detail-item i {
-        width: 28px;
-        height: 28px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.75rem;
-    }
-
-    .progress-detail-item span {
-        color: var(--fd-text-secondary);
-    }
-
-    .progress-detail-item strong {
-        margin-left: auto;
-        color: var(--fd-text);
-        font-weight: 700;
-    }
-
-    /* ═══════════════════ BOTTOM GRID ═══════════════════ */
-    .dash-grid-bottom {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1.2fr;
-        gap: 1.25rem;
-        margin-bottom: 1.25rem;
-    }
-
-    .sub-card-content {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .sub-card-content .sub-plan {
-        font-size: 1.15rem;
-        font-weight: 800;
-        color: var(--fd-text);
-        letter-spacing: -0.02em;
-    }
-
-    .sub-card-content .sub-date {
-        font-size: 0.84rem;
-        color: var(--fd-text-muted);
-        font-weight: 500;
-        letter-spacing: 0.01em;
-    }
-
-    .payment-card-content .pay-amount {
-        font-size: 1.55rem;
-        font-weight: 800;
-        color: var(--fd-accent-dark);
-        letter-spacing: -0.03em;
-        font-feature-settings: 'tnum' 1;
-    }
-
-    .payment-card-content .pay-method {
-        font-size: 0.84rem;
-        color: var(--fd-text-muted);
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-weight: 500;
-    }
-
-    /* ═══════════════════ RECENT ACTIVITY ═══════════════════ */
-    .recent-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.85rem;
-    }
-
-    .recent-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 0.85rem;
-        border-radius: var(--fd-radius-sm);
-        transition: background 0.2s;
-    }
-
-    .recent-item:hover { background: rgba(181, 229, 80, 0.05); }
-
-    .recent-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: var(--fd-accent);
-        color: #1a1a1a;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 800;
-        font-size: 0.9rem;
-        flex-shrink: 0;
-    }
-
-    .recent-info { flex: 1; min-width: 0; }
-    .recent-info .r-name {
-        display: block;
-        font-weight: 700;
-        font-size: 0.92rem;
-        color: var(--fd-text);
-        letter-spacing: -0.01em;
-    }
-    .recent-info .r-time {
-        font-size: 0.74rem;
-        color: var(--fd-text-muted);
-        font-weight: 400;
-        letter-spacing: 0.02em;
-    }
-
-    /* ═══════════════════ EXERCISE TILES ═══════════════════ */
-    .exercise-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.75rem;
-    }
-
-    .exercise-tile {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.8rem;
-        background: var(--fd-bg);
-        border-radius: var(--fd-radius-sm);
-        border: 1px solid var(--fd-border);
-        transition: all 0.2s ease;
-        cursor: pointer;
-    }
-
-    .exercise-tile:hover {
-        border-color: var(--fd-accent);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    }
-
-    .exercise-tile-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1rem;
-        flex-shrink: 0;
-    }
-
-    .exercise-tile-text .et-name {
-        display: block;
-        font-weight: 700;
-        font-size: 0.85rem;
-        color: var(--fd-text);
-        letter-spacing: -0.01em;
-    }
-    .exercise-tile-text .et-count {
+    .stat-lbl {
         font-size: 0.72rem;
         color: var(--fd-text-muted);
-        font-weight: 500;
-        letter-spacing: 0.02em;
+        font-weight: 600;
+        margin-top: 0.2rem;
+    }
+    .stat-icon {
+        width: 36px; height: 36px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1rem; margin-left: auto;
     }
 
-    /* ═══════════════════ QUICK LINKS ═══════════════════ */
-    .quick-links-row {
+    /* Middle Row (Chart + Progress) */
+    .dash-middle-row {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1.25rem;
+        grid-template-columns: 1.6fr 1fr;
+        gap: 1rem;
     }
 
-    .quick-link {
+    .fd-card {
         background: var(--fd-card);
-        border-radius: var(--fd-radius);
+        border-radius: var(--fd-radius-lg);
         border: 1px solid var(--fd-border);
-        padding: 1.5rem;
-        text-align: center;
-        text-decoration: none;
-        transition: all 0.3s ease;
+        padding: 1.25rem;
         box-shadow: var(--fd-shadow);
     }
 
-    .quick-link:hover {
-        border-color: var(--fd-accent);
-        transform: translateY(-4px);
-        box-shadow: var(--fd-shadow-hover);
-    }
-
-    .quick-link i {
-        font-size: 1.5rem;
-        color: var(--fd-accent-dark);
-        margin-bottom: 0.75rem;
-        display: block;
-    }
-
-    .quick-link span {
-        font-weight: 600;
-        font-size: 0.85rem;
+    .fd-card-title {
+        font-size: 1rem;
+        font-weight: 800;
         color: var(--fd-text);
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
-    /* Upgrade banner */
-    .upgrade-banner {
-        background: linear-gradient(135deg, var(--fd-accent) 0%, #91c929 100%);
-        border-radius: var(--fd-radius);
-        padding: 1.25rem 1.5rem;
+    .chart-container { position: relative; height: 200px; width: 100%; }
+
+    /* Progress specific */
+    .progress-runner {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        margin-top: 1.25rem;
+        justify-content: center;
+        height: 180px;
+        background: url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80') center/cover;
+        border-radius: var(--fd-radius);
+        position: relative;
+        overflow: hidden;
+    }
+    .progress-runner::before {
+        content: ''; position: absolute; inset: 0;
+        background: linear-gradient(to right, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.2) 100%);
+    }
+    .progress-runner-content {
+        position: relative; z-index: 2; width: 100%; padding: 1rem;
+    }
+    .prog-item { margin-bottom: 1rem; }
+    .prog-item h4 { font-size: 1.1rem; font-weight: 800; color: var(--fd-text); margin: 0; }
+    .prog-item p { font-size: 0.7rem; color: var(--fd-text-secondary); margin: 0 0 0.3rem 0; }
+    .prog-bar { height: 4px; background: rgba(0,0,0,0.1); border-radius: 4px; width: 60%; }
+    .prog-fill { height: 100%; background: var(--fd-accent-dark); border-radius: 4px; }
+
+    /* Bottom Row */
+    .dash-bottom-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1.2fr;
+        gap: 1rem;
     }
 
-    .upgrade-banner-text {
-        font-weight: 800;
-        color: #1a1a1a;
-        font-size: 1rem;
-        letter-spacing: -0.02em;
+    .pay-amt { font-size: 1.4rem; font-weight: 800; color: var(--fd-accent-dark); }
+    .btn-upgrade { background: var(--fd-accent); color: #1a1a1a; padding: 0.5rem 1rem; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 0.8rem; }
+    
+    .offline-grid { display: grid; gap: 0.5rem; }
+    .off-item { display: flex; align-items: center; gap: 0.75rem; background: var(--fd-bg); padding: 0.6rem; border-radius: var(--fd-radius-sm); border: 1px solid var(--fd-border); }
+    .off-img { width: 44px; height: 44px; border-radius: 8px; background: #ddd; object-fit: cover; }
+    .off-info h5 { margin:0; font-size:0.8rem; font-weight:700; color:var(--fd-text); }
+    .off-info p { margin:0; font-size:0.65rem; color:var(--fd-text-muted); }
+
+    /* ═════════ RIGHT PANEL ═════════ */
+    .dash-right-panel {
+        background: var(--fd-card);
+        border-radius: var(--fd-radius-lg);
+        border: 1px solid var(--fd-border);
+        box-shadow: var(--fd-shadow);
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
     }
 
-    .upgrade-banner-text span {
-        display: block;
-        font-size: 0.82rem;
-        font-weight: 500;
-        opacity: 0.7;
-        margin-top: 0.2rem;
-        letter-spacing: 0;
-    }
+    /* Profile Widget */
+    .r-profile { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+    .r-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--fd-accent); }
+    .r-info h3 { margin: 0; font-size: 1.1rem; font-weight: 800; color: var(--fd-text); }
+    .r-info p { margin: 0; font-size: 0.75rem; color: var(--fd-text-muted); }
+    
+    .r-stats { display: flex; justify-content: space-between; text-align: center; border-bottom: 1px solid var(--fd-border); padding-bottom: 1.5rem; }
+    .rs-col span { display: block; font-size: 0.7rem; color: var(--fd-text-muted); margin-bottom: 0.2rem; }
+    .rs-col strong { font-size: 0.85rem; font-weight: 700; color: var(--fd-text); }
 
-    .upgrade-banner-btn {
-        background: #1a1a1a;
-        color: var(--fd-accent);
-        padding: 0.55rem 1.25rem;
-        border-radius: 50px;
-        font-weight: 700;
-        font-size: 0.8rem;
-        text-decoration: none;
-        transition: all 0.2s;
-    }
+    /* Calendar / Attendance */
+    .r-cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .r-cal-title { font-weight: 800; font-size: 0.95rem; color: var(--fd-text); }
+    .r-cal-month { font-size: 0.75rem; color: var(--fd-text-muted); font-weight: 600; }
+    
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.4rem; text-align: center; }
+    .cal-day { font-size: 0.65rem; color: var(--fd-text-muted); font-weight: 600; margin-bottom: 0.2rem;}
+    .cal-date { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; color: var(--fd-text); margin: 0 auto; border-radius: 50%; }
+    .cal-date.active { background: var(--fd-accent); color: #1a1a1a; box-shadow: 0 0 10px rgba(181, 229, 80, 0.4); }
+    .cal-date.absent { background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
 
-    .upgrade-banner-btn:hover {
-        background: #333;
-        transform: scale(1.02);
-    }
+    /* Video Activity */
+    .r-video h4 { font-size: 0.95rem; font-weight: 800; margin: 0 0 0.5rem; color: var(--fd-text); }
+    .r-video p { font-size: 0.7rem; color: var(--fd-text-muted); display: flex; justify-content: space-between; margin: 0 0 0.5rem; }
+    .rv-bar { height: 6px; background: var(--fd-bg); border-radius: 4px; border: 1px solid var(--fd-border); }
+    .rv-fill { height: 100%; width: 78%; background: var(--fd-accent); border-radius: 4px; }
+
+    /* Trending */
+    .trending-list { display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem; }
+    .trend-item { min-width: 90px; height: 120px; border-radius: 10px; background: #ddd; position: relative; overflow: hidden; }
+    .trend-item img { width: 100%; height: 100%; object-fit: cover; }
+    .trend-views { position: absolute; bottom: 6px; left: 6px; background: rgba(0,0,0,0.6); color: white; font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
 
     @media (max-width: 1200px) {
-        .dash-stats-row { grid-template-columns: repeat(2, 1fr); }
-        .dash-grid-main { grid-template-columns: 1fr; }
-        .dash-grid-bottom { grid-template-columns: 1fr; }
-        .quick-links-row { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    @media (max-width: 768px) {
-        .dash-stats-row { grid-template-columns: 1fr; }
-        .exercise-grid { grid-template-columns: 1fr; }
-        .quick-links-row { grid-template-columns: 1fr; }
+        .dash-pinterest-layout { grid-template-columns: 1fr; }
     }
 </style>
 
-<!-- ═══════════════════ STAT CARDS ═══════════════════ -->
-<div class="dash-stats-row fd-animate fd-delay-1">
-    <div class="dash-stat">
-        <div class="dash-stat-icon green"><i class="fa-solid fa-indian-rupee-sign"></i></div>
-        <div class="dash-stat-content">
-            <span class="stat-val">₹{{ total_revenue|default:"14,290" }}</span>
-            <span class="stat-lbl">Total Revenue</span>
+<div class="dash-pinterest-layout fd-animate">
+    <!-- LEFT / CENTER PORTION -->
+    <div class="dash-center-panel">
+        
+        <!-- HEADER -->
+        <div class="fd-page-header">
+            <div class="fd-greeting">
+                <h1>Good Morning, {{ user.get_full_name|default:user.username|title }} ⚡</h1>
+                <p>Let's do some serious work today.</p>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <!-- SEARCH -->
+                <div class="search-wrapper" id="search-wrapper">
+                    <div class="search-bar" id="search-bar-trigger" style="border-color:var(--fd-border); background:var(--fd-bg); border-radius: 50px;">
+                        <i class="fa-solid fa-search" style="color:var(--fd-text-muted);font-size:13px;"></i>
+                        <input type="text" id="dashboard-search" class="search-input" placeholder="Search pages…" autocomplete="off">
+                        <kbd class="search-kbd">⌘K</kbd>
+                    </div>
+                    <div class="search-results" id="search-results"></div>
+                </div>
+                <!-- THEME BTN -->
+                <button class="theme-trigger-btn" id="theme-trigger-btn" title="Change Theme" style="background:var(--fd-bg); border:1px solid var(--fd-border); width:40px; height:40px; border-radius:50%; cursor:pointer; color:var(--fd-text-muted); display:flex; align-items:center; justify-content:center;">
+                    <i class="fa-solid fa-palette"></i>
+                </button>
+                <div class="fd-header-pill" style="margin-left: 0.5rem; background: var(--fd-bg); border-radius: 50px; padding: 0.5rem 1rem; border: 1px solid var(--fd-border); display: flex; gap:0.5rem; align-items:center; font-size: 0.8rem; font-weight: 600; cursor: pointer;">
+                    Weekly <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+            </div>
         </div>
-        <div class="stat-trend up"><i class="fa-solid fa-arrow-up"></i> 12.5%</div>
+
+        <!-- STATS -->
+        <div class="dash-stats-row fd-animate fd-delay-1">
+            <div class="dash-stat">
+                <div class="dash-stat-content">
+                    <span class="stat-val">1.2</span>
+                    <span class="stat-lbl">Water liters</span>
+                </div>
+                <div class="stat-icon" style="background: rgba(56,189,248,0.1); color: #38bdf8;"><i class="fa-solid fa-droplet"></i></div>
+            </div>
+            <div class="dash-stat">
+                <div class="dash-stat-content">
+                    <span class="stat-val">2.54</span>
+                    <span class="stat-lbl">Kilo Calories</span>
+                </div>
+                <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: #f59e0b;"><i class="fa-solid fa-fire"></i></div>
+            </div>
+            <div class="dash-stat">
+                <div class="dash-stat-content">
+                    <span class="stat-val">124</span>
+                    <span class="stat-lbl">Beats per min</span>
+                </div>
+                <div class="stat-icon" style="background: rgba(239,68,68,0.1); color: #ef4444;"><i class="fa-solid fa-heart-pulse"></i></div>
+            </div>
+            <div class="dash-stat">
+                <div class="dash-stat-content">
+                    <span class="stat-val">13</span>
+                    <span class="stat-lbl">Hours Sleeping</span>
+                </div>
+                <div class="stat-icon" style="background: rgba(234,179,8,0.1); color: #eab308;"><i class="fa-solid fa-moon"></i></div>
+            </div>
+        </div>
+
+        <!-- MIDDLE: CHART & PROGRESS -->
+        <div class="dash-middle-row fd-animate fd-delay-2">
+            <div class="fd-card">
+                <div class="fd-card-title">
+                    Workout Activity
+                    <div style="font-size: 0.75rem; color: var(--fd-text-muted); font-weight: 600; display:flex; gap: 0.5rem;">
+                        <span><span style="color:var(--fd-accent-dark);">●</span> Online</span>
+                        <span><span style="color:#d1d5db;">●</span> Offline</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="workoutChart" class="chart-canvas"></canvas>
+                </div>
+            </div>
+
+            <div class="fd-card" style="padding: 1rem;">
+                <div class="fd-card-title" style="margin-bottom: 0.5rem; font-size: 0.95rem;">Progress</div>
+                <div class="progress-runner">
+                    <div class="progress-runner-content">
+                        <div class="prog-item">
+                            <h4>56 kms</h4>
+                            <p>Weekly distance</p>
+                            <div class="prog-bar"><div class="prog-fill" style="width: 75%;"></div></div>
+                        </div>
+                        <div class="prog-item">
+                            <h4>236 kms</h4>
+                            <p>Total distance covered</p>
+                            <div class="prog-bar"><div class="prog-fill" style="width: 45%;"></div></div>
+                        </div>
+                        <div class="prog-item">
+                            <h4>16 hrs</h4>
+                            <p>Cardio in PT hrs</p>
+                            <div class="prog-bar"><div class="prog-fill" style="width: 30%;"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM ROW -->
+        <div class="dash-bottom-row fd-animate fd-delay-3">
+            <div class="fd-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+                <div>
+                    <div class="fd-card-title">Subscription</div>
+                    <p style="font-size:0.75rem; color:var(--fd-text-muted); margin:0;">Active Plan</p>
+                    <h3 style="margin:0; font-size:1.1rem; color:var(--fd-text);">Standard - Monthly</h3>
+                </div>
+                <div style="text-align:center; margin-top:1rem;">
+                    <a href="{% url 'admin_subscription' %}" class="btn-upgrade" style="display:block; padding: 0.75rem;">Upgrade to Pro</a>
+                </div>
+            </div>
+
+            <div class="fd-card">
+                <div class="fd-card-title" style="margin-bottom:0.5rem;">Payment</div>
+                <p style="font-size:0.75rem; color:var(--fd-text-muted); margin:0;">Income By:</p>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <strong style="color:var(--fd-text); font-size:0.9rem;">22 December 2026</strong>
+                    <a href="{% url 'report_payments' %}" class="btn-upgrade">Pay Now</a>
+                </div>
+                <div style="margin-top: 1.5rem; border-top: 1px solid var(--fd-border); padding-top: 0.5rem;">
+                    <p style="font-size:0.7rem; color:var(--fd-text-muted); margin:0;">Available Plans</p>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.2rem;">
+                        <strong style="color:var(--fd-text); font-size:0.85rem;">Monthly / Yearly / Others</strong>
+                        <a href="{% url 'admin_subscription' %}" style="background:#1a1a1a; color:white; padding:0.3rem 0.8rem; border-radius:50px; font-size:0.7rem; text-decoration:none; font-weight:700;">View</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fd-card">
+                <div class="fd-card-title" style="margin-bottom:0.75rem;">Offline Exercises</div>
+                <div class="offline-grid">
+                    <div class="off-item">
+                        <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=150&q=80" class="off-img">
+                        <div class="off-info">
+                            <h5>Cardio Exercises</h5>
+                            <p>Boost your energy everyday at home.</p>
+                        </div>
+                    </div>
+                    <div class="off-item">
+                        <img src="https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&w=150&q=80" class="off-img">
+                        <div class="off-info">
+                            <h5>Single-leg stands</h5>
+                            <p>Daily exercise with key events.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
-    <div class="dash-stat">
-        <div class="dash-stat-icon blue"><i class="fa-solid fa-users"></i></div>
-        <div class="dash-stat-content">
-            <span class="stat-val">{{ total_users|default:"24" }}</span>
-            <span class="stat-lbl">Active Members</span>
+
+    <!-- RIGHT PANEL -->
+    <div class="dash-right-panel fd-animate fd-delay-4">
+        <div class="r-profile">
+            {% if user.userprofile.profile_photo %}
+                <img src="{{ user.userprofile.profile_photo.url }}" class="r-avatar">
+            {% else %}
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80" class="r-avatar">
+            {% endif %}
+            <div class="r-info">
+                <h3>{{ user.get_full_name|default:user.username|title }}</h3>
+                <p>24 Years</p>
+            </div>
         </div>
-        <div class="stat-trend up"><i class="fa-solid fa-arrow-up"></i> +4</div>
-    </div>
-    <div class="dash-stat">
-        <div class="dash-stat-icon amber"><i class="fa-solid fa-heart-pulse"></i></div>
-        <div class="dash-stat-content">
-            <span class="stat-val">{{ active_trainers|default:"12" }}</span>
-            <span class="stat-lbl">Elite Trainers</span>
+        
+        <div class="r-stats">
+            <div class="rs-col">
+                <span>Height</span>
+                <strong>5/6 inch</strong>
+            </div>
+            <div class="rs-col">
+                <span>Weight</span>
+                <strong>52 kg</strong>
+            </div>
+            <div class="rs-col">
+                <span>Gender</span>
+                <strong>Female</strong>
+            </div>
         </div>
-        <div class="stat-trend up"><i class="fa-solid fa-minus"></i> Stable</div>
-    </div>
-    <div class="dash-stat">
-        <div class="dash-stat-icon red"><i class="fa-solid fa-fire-flame-curved"></i></div>
-        <div class="dash-stat-content">
-            <span class="stat-val">{{ active_plans|default:"1" }}</span>
-            <span class="stat-lbl">Active Plans</span>
+
+        <!-- Attendance -->
+        <div style="margin-top: 0.5rem;">
+            <div class="r-cal-header">
+                <span class="r-cal-title">Attendance</span>
+                <span class="r-cal-month">June 2026 <i class="fa-solid fa-chevron-down" style="font-size:0.6rem; margin-left:2px;"></i></span>
+            </div>
+            <div class="cal-grid">
+                <div class="cal-day">Sun</div><div class="cal-day">Mon</div><div class="cal-day">Tue</div><div class="cal-day">Wed</div><div class="cal-day">Thu</div><div class="cal-day">Fri</div><div class="cal-day">Sat</div>
+                <!-- Row 1 -->
+                <div></div><div></div><div></div><div><div class="cal-date">1</div></div><div><div class="cal-date">2</div></div><div><div class="cal-date">3</div></div><div><div class="cal-date">4</div></div>
+                <!-- Row 2 -->
+                <div><div class="cal-date">5</div></div>
+                <div><div class="cal-date active">6</div></div>
+                <div><div class="cal-date active">7</div></div>
+                <div><div class="cal-date active">8</div></div>
+                <div><div class="cal-date absent" style="border: 2px solid rgba(239,68,68,0.3);">9</div></div>
+                <div><div class="cal-date">10</div></div>
+                <div><div class="cal-date">11</div></div>
+                <!-- Row 3 -->
+                <div><div class="cal-date">12</div></div>
+                <div><div class="cal-date">13</div></div>
+                <div><div class="cal-date">14</div></div>
+                <div><div class="cal-date">15</div></div>
+                <div><div class="cal-date">16</div></div>
+                <div><div class="cal-date">17</div></div>
+                <div><div class="cal-date">18</div></div>
+                <!-- Row 4 -->
+                <div><div class="cal-date">19</div></div>
+                <div><div class="cal-date">20</div></div>
+                <div><div class="cal-date">21</div></div>
+                <div><div class="cal-date">22</div></div>
+                <div><div class="cal-date">23</div></div>
+                <div><div class="cal-date">24</div></div>
+                <div><div class="cal-date">25</div></div>
+                <!-- Row 5 -->
+                <div><div class="cal-date">26</div></div>
+                <div><div class="cal-date">27</div></div>
+                <div><div class="cal-date">28</div></div>
+                <div><div class="cal-date">29</div></div>
+                <div><div class="cal-date">30</div></div>
+                <div></div><div></div>
+            </div>
         </div>
-        <div class="stat-trend up"><i class="fa-solid fa-arrow-up"></i> Hot</div>
+
+        <!-- Video Activity -->
+        <div class="r-video" style="margin-top: 0.5rem;">
+            <h4>Video Activity</h4>
+            <p>Total hours watched <strong>78%</strong></p>
+            <div class="rv-bar"><div class="rv-fill"></div></div>
+        </div>
+
+        <!-- Trending -->
+        <div style="margin-top: 0.5rem;">
+            <div class="r-cal-header" style="margin-bottom:0.5rem;">
+                <span class="r-cal-title">Most Trending</span>
+                <span class="r-cal-month" style="color:var(--fd-accent-dark); cursor:pointer;">View All</span>
+            </div>
+            <div class="trending-list">
+                <div class="trend-item">
+                    <img src="https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=150&q=80">
+                    <div class="trend-views">12M V</div>
+                </div>
+                <div class="trend-item">
+                    <img src="https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=150&q=80">
+                    <div class="trend-views">8.5M V</div>
+                </div>
+                <div class="trend-item">
+                    <img src="https://images.unsplash.com/photo-1599058945522-28d584b6f4ff?w=150&q=80">
+                    <div class="trend-views">5M V</div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
-<!-- ═══════════════════ WORKOUT CHART ═══════════════════ -->
-<div class="fd-animate fd-delay-2">
-    <div class="fd-card">
-        <div class="fd-card-title">
-            Workout Activity
-            <div class="chart-toggle">
-                <label><span class="dot online"></span> Online</label>
-                <label><span class="dot offline"></span> Offline</label>
-            </div>
-        </div>
-        <div class="chart-container">
-            <canvas id="workoutChart" class="chart-canvas"></canvas>
-        </div>
-    </div>
-</div>
-
-<!-- ═══════════════════ BOTTOM ROW ═══════════════════ -->
-<div class="dash-grid-bottom fd-animate fd-delay-3">
-    <!-- Subscription Plans Card -->
-    <div class="fd-card">
-        <div class="fd-card-title">
-            <span><i class="fa-solid fa-crown" style="color: #f59e0b; margin-right: 0.4rem;"></i> Subscription Plans</span>
-        </div>
-        <div class="sub-card-content">
-            <div class="sub-plan">Platform Plans</div>
-            <div class="sub-date">
-                Manage global membership plans and pricing
-            </div>
-            <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem;">
-                <span class="fd-badge fd-badge-success">{{ active_plans }} Active Plans</span>
-            </div>
-        </div>
-        <div class="upgrade-banner" style="margin-top: 1rem;">
-            <div class="upgrade-banner-text">
-                Manage Plans
-                <span>Add &middot; Edit &middot; Delete</span>
-            </div>
-            <a href="{% url 'admin_subscription' %}" class="upgrade-banner-btn" style="background: var(--night); color: white;">Manage</a>
-        </div>
-    </div>
-
-    <!-- Payment Card -->
-    <div class="fd-card">
-        <div class="fd-card-title">
-            <span><i class="fa-solid fa-credit-card" style="color: #3b82f6; margin-right: 0.4rem;"></i> Payment</span>
-            <a href="{% url 'report_payments' %}">History</a>
-        </div>
-        <div class="payment-card-content" style="display: flex; flex-direction: column; gap: 0.75rem;">
-            <div class="pay-amount">₹{{ total_revenue|default:"14,290" }}</div>
-            <div class="sub-date">
-                <i class="fa-regular fa-calendar"></i> March 2026
-            </div>
-            <div class="pay-method">
-                <i class="fa-solid fa-building-columns"></i>
-                Online Payment Gateway
-            </div>
-            <a href="{% url 'report_payments' %}" class="fd-btn fd-btn-outline" style="margin-top: 0.5rem; justify-content: center; font-size: 0.8rem;">
-                <i class="fa-solid fa-arrow-right"></i> View Transactions
-            </a>
-        </div>
-    </div>
-
-    <!-- Offline Exercises / Quick Actions -->
-    <div class="fd-card">
-        <div class="fd-card-title">
-            <span><i class="fa-solid fa-dumbbell" style="color: var(--fd-accent-dark); margin-right: 0.4rem;"></i> Quick Modules</span>
-        </div>
-        <div class="exercise-grid">
-            <a href="{% url 'report_members' %}" class="exercise-tile" style="text-decoration: none;">
-                <div class="exercise-tile-icon" style="background: rgba(181, 229, 80, 0.12); color: #6d9b1c;">
-                    <i class="fa-solid fa-users"></i>
-                </div>
-                <div class="exercise-tile-text">
-                    <span class="et-name">Members</span>
-                    <span class="et-count">{{ total_users|default:"24" }} active</span>
-                </div>
-            </a>
-            <a href="{% url 'trainer_list' %}" class="exercise-tile" style="text-decoration: none;">
-                <div class="exercise-tile-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
-                    <i class="fa-solid fa-user-tie"></i>
-                </div>
-                <div class="exercise-tile-text">
-                    <span class="et-name">Trainers</span>
-                    <span class="et-count">{{ active_trainers|default:"12" }} coaches</span>
-                </div>
-            </a>
-            <a href="{% url 'store_management' %}" class="exercise-tile" style="text-decoration: none;">
-                <div class="exercise-tile-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
-                    <i class="fa-solid fa-bag-shopping"></i>
-                </div>
-                <div class="exercise-tile-text">
-                    <span class="et-name">Store</span>
-                    <span class="et-count">Manage catalog</span>
-                </div>
-            </a>
-            <a href="{% url 'admin_help_tickets' %}" class="exercise-tile" style="text-decoration: none;">
-                <div class="exercise-tile-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
-                    <i class="fa-solid fa-headset"></i>
-                </div>
-                <div class="exercise-tile-text">
-                    <span class="et-name">Support</span>
-                    <span class="et-count">Help tickets</span>
-                </div>
-            </a>
-        </div>
-    </div>
-</div>
-
-<!-- ═══════════════════ RECENT + QUICK LINKS ═══════════════════ -->
-<div class="dash-grid-main fd-animate fd-delay-4">
-    <!-- Recent Members -->
-    <div class="fd-card">
-        <div class="fd-card-title">
-            Recent Enlistments
-            <a href="{% url 'report_members' %}">View All</a>
-        </div>
-        <div class="recent-list">
-            {% for profile in recent_users|slice:":5" %}
-            <div class="recent-item">
-                <div class="recent-avatar">{{ profile.user.username|make_list|first|upper }}</div>
-                <div class="recent-info">
-                    <span class="r-name">{{ profile.user.username|title }}</span>
-                    <span class="r-time">Joined {{ profile.user.date_joined|timesince }} ago</span>
-                </div>
-            </div>
-            {% empty %}
-            <div class="recent-item">
-                <div class="recent-avatar">A</div>
-                <div class="recent-info">
-                    <span class="r-name">Adithyan K</span>
-                    <span class="r-time">Joined 2 days ago</span>
-                </div>
-            </div>
-            <div class="recent-item">
-                <div class="recent-avatar">U</div>
-                <div class="recent-info">
-                    <span class="r-name">Unni App</span>
-                    <span class="r-time">Joined 5 days ago</span>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-
-    <!-- Performance Summary -->
-    <div class="fd-card">
-        <div class="fd-card-title">
-            Performance Index
-        </div>
-        <div style="display: flex; align-items: flex-end; gap: 0.6rem; height: 180px; padding-bottom: 0.75rem;">
-            <div class="perf-bar" style="flex:1; height:35%; background: rgba(181, 229, 80, 0.2); border-radius: 8px; transition: height 1s ease;"></div>
-            <div class="perf-bar" style="flex:1; height:65%; background: rgba(181, 229, 80, 0.35); border-radius: 8px; transition: height 1s ease 0.1s;"></div>
-            <div class="perf-bar" style="flex:1; height:50%; background: rgba(181, 229, 80, 0.5); border-radius: 8px; transition: height 1s ease 0.2s;"></div>
-            <div class="perf-bar" style="flex:1; height:85%; background: var(--fd-accent); border-radius: 8px; transition: height 1s ease 0.3s; box-shadow: 0 2px 12px rgba(181, 229, 80, 0.3);"></div>
-            <div class="perf-bar" style="flex:1; height:70%; background: rgba(181, 229, 80, 0.65); border-radius: 8px; transition: height 1s ease 0.4s;"></div>
-            <div class="perf-bar" style="flex:1; height:45%; background: rgba(181, 229, 80, 0.35); border-radius: 8px; transition: height 1s ease 0.5s;"></div>
-            <div class="perf-bar" style="flex:1; height:60%; background: rgba(181, 229, 80, 0.5); border-radius: 8px; transition: height 1s ease 0.6s;"></div>
-        </div>
-        <div style="display: flex; justify-content: space-between; padding: 0 0.25rem;">
-            <span style="font-size: 0.68rem; color: var(--fd-text-muted);">Mon</span>
-            <span style="font-size: 0.68rem; color: var(--fd-text-muted);">Tue</span>
-            <span style="font-size: 0.68rem; color: var(--fd-text-muted);">Wed</span>
-            <span style="font-size: 0.68rem; color: var(--fd-text-muted);">Thu</span>
-            <span style="font-size: 0.68rem; color: var(--fd-text-muted);">Fri</span>
-            <span style="font-size: 0.68rem; color: var(--fd-text-muted);">Sat</span>
-            <span style="font-size: 0.68rem; color: var(--fd-text-muted);">Sun</span>
-        </div>
-        <p style="color: var(--fd-text-muted); font-size: 0.82rem; text-align: center; margin-top: 1rem;">
-            📈 Weekly engagement is up by <strong style="color: var(--fd-accent-dark);">15%</strong> compared to last cycle.
-        </p>
-    </div>
-</div>
-
-<!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // ═══════ WORKOUT ACTIVITY CHART ═══════
     const ctx = document.getElementById('workoutChart');
     if (ctx) {
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
                 datasets: [{
                     label: 'Online',
-                    data: [30, 45, 42, 55, 48, 62, 58],
-                    borderColor: '#8bc34a',
-                    backgroundColor: 'rgba(139, 195, 74, 0.08)',
+                    data: [15, 30, 20, 55, 25, 45, 48],
+                    borderColor: '#b5e550',
+                    backgroundColor: 'rgba(181, 229, 80, 0.15)',
                     fill: true,
                     tension: 0.45,
-                    pointRadius: 3,
+                    pointRadius: 4,
                     pointHoverRadius: 6,
-                    pointBackgroundColor: '#8bc34a',
-                    borderWidth: 2.5
+                    pointBackgroundColor: '#b5e550',
+                    borderWidth: 3
                 }, {
                     label: 'Offline',
-                    data: [20, 30, 28, 35, 32, 40, 38],
-                    borderColor: '#d1d5db',
-                    backgroundColor: 'rgba(209, 213, 219, 0.05)',
-                    fill: true,
+                    data: [45, 15, 55, 20, 45, 10, 50],
+                    borderColor: '#1a1a1a',
+                    backgroundColor: 'transparent',
+                    fill: false,
                     tension: 0.45,
-                    pointRadius: 2,
-                    pointHoverRadius: 5,
-                    pointBackgroundColor: '#d1d5db',
+                    pointRadius: 0,
+                    pointHoverRadius: 0,
                     borderWidth: 2,
-                    borderDash: [5, 5]
                 }]
             },
             options: {
@@ -754,20 +512,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 scales: {
                     x: {
-                        grid: { display: false },
-                        ticks: { color: '#9ca3af', font: { size: 11 } }
+                        grid: { display: true, color: 'rgba(0,0,0,0.03)' },
+                        ticks: { color: '#9ca3af', font: { size: 11, weight: '600' } }
                     },
                     y: {
-                        grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
-                        ticks: { color: '#9ca3af', font: { size: 11 } },
-                        beginAtZero: true
+                        grid: { color: 'rgba(0,0,0,0.03)' },
+                        ticks: { 
+                            color: '#9ca3af', 
+                            font: { size: 11, weight: '600' },
+                            callback: function(value) { return value + '%'; }
+                        },
+                        beginAtZero: true,
+                        max: 60
                     }
                 }
             }
         });
     }
-
-
 });
 </script>
 {% endblock %}
