@@ -393,7 +393,7 @@
           
           // After 2 seconds, transition from loading to "Open WhatsApp"
           setTimeout(() => {
-              waStatus.textContent = "Your trainer has securely prepared your custom plan.";
+              waStatus.textContent = "Message successfully prepared.";
               waLoader.style.display = 'none';
               waBtn.style.display = 'inline-flex';
               document.querySelector('.wa-modal-icon').classList.remove('pulse-animation');
@@ -418,15 +418,18 @@
       <i class="fa-brands fa-whatsapp"></i>
     </div>
     <h3 class="wa-modal-title">Welcome, {{ user.first_name|default:user.username }}!</h3>
-    <p class="wa-modal-text" id="wa-modal-status">Sending WhatsApp message...</p>
+    <p class="wa-modal-text" id="wa-modal-status">Securely preparing your welcome message...</p>
     
     <div class="wa-modal-loader" id="wa-modal-loader">
       <div class="wa-spinner"></div>
     </div>
 
-    <a href="https://wa.me/919876543210?text=Hi!%20I%20just%20logged%20into%20FitSync%20and%20am%20ready%20for%20my%20plan." target="_blank" class="wa-modal-btn" id="wa-modal-btn" style="display: none;" onclick="document.getElementById('wa-modal-overlay').style.display='none';">
+    <!-- Generated Link: https://wa.me/PHONE?text=MESSAGE -->
+    {% with welcome_text="Hello "|add:user.first_name|default:user.username|add:" 👋\n\nWelcome to FitSync!\n\nYour account has been successfully created.\nYou can now start your home workout journey 💪\n\nStay consistent and stay healthy!" %}
+    <a href="https://wa.me/{{ user.userprofile.phone_number|cut:' '|cut:'+' }}?text={{ welcome_text|urlencode }}" target="_blank" class="wa-modal-btn" id="wa-modal-btn" style="display: none;" onclick="document.getElementById('wa-modal-overlay').style.display='none';">
       Open WhatsApp
     </a>
+    {% endwith %}
     
     <button class="wa-modal-close" id="wa-modal-close"><i class="fa-solid fa-xmark"></i></button>
   </div>
