@@ -507,7 +507,7 @@
     <div class="dash-stat">
         <div class="dash-stat-icon red"><i class="fa-solid fa-fire-flame-curved"></i></div>
         <div class="dash-stat-content">
-            <span class="stat-val">8</span>
+            <span class="stat-val">{{ active_plans|default:"1" }}</span>
             <span class="stat-lbl">Active Plans</span>
         </div>
         <div class="stat-trend up"><i class="fa-solid fa-arrow-up"></i> Hot</div>
@@ -532,26 +532,26 @@
 
 <!-- ═══════════════════ BOTTOM ROW ═══════════════════ -->
 <div class="dash-grid-bottom fd-animate fd-delay-3">
-    <!-- Subscription Card -->
+    <!-- Subscription Plans Card -->
     <div class="fd-card">
         <div class="fd-card-title">
-            <span><i class="fa-solid fa-crown" style="color: #f59e0b; margin-right: 0.4rem;"></i> Subscription</span>
+            <span><i class="fa-solid fa-crown" style="color: #f59e0b; margin-right: 0.4rem;"></i> Subscription Plans</span>
         </div>
         <div class="sub-card-content">
-            <div class="sub-plan">Standard · Monthly</div>
+            <div class="sub-plan">Platform Plans</div>
             <div class="sub-date">
-                <i class="fa-regular fa-calendar"></i> Active since Dec 2025
+                Manage global membership plans and pricing
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem;">
-                <span class="fd-badge fd-badge-success">Active</span>
+                <span class="fd-badge fd-badge-success">{{ active_plans }} Active Plans</span>
             </div>
         </div>
         <div class="upgrade-banner" style="margin-top: 1rem;">
             <div class="upgrade-banner-text">
-                Upgrade to Pro
-                <span>Monthly · Yearly | Offers</span>
+                Manage Plans
+                <span>Add &middot; Edit &middot; Delete</span>
             </div>
-            <a href="{% url 'admin_subscription' %}" class="upgrade-banner-btn">View</a>
+            <a href="{% url 'admin_subscription' %}" class="upgrade-banner-btn" style="background: var(--night); color: white;">Manage</a>
         </div>
     </div>
 

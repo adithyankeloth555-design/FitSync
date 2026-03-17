@@ -1,0 +1,425 @@
+{% extends 'fitsync_app/user_dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Fitness Guides & Encyclopedia | FitSync Elite{% endblock %}
+
+{% block user_extra_css %}
+<style>
+  /* Page Header */
+  .guides-header {
+    margin-bottom: 2rem;
+    animation: fadeUp 0.5s ease both;
+  }
+  .guides-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--charcoal);
+    margin: 0 0 8px 0;
+  }
+  .guides-subtitle {
+    font-size: 14px;
+    color: var(--text-soft);
+  }
+
+  /* Split Layout */
+  .guides-layout {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  /* Table of Contents (Sidebar) */
+  .toc-sidebar {
+    width: 250px;
+    background: white;
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow-soft);
+    position: sticky;
+    top: 40px;
+    flex-shrink: 0;
+  }
+
+  .toc-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-soft);
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(143,175,143,0.15);
+  }
+
+  .toc-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .toc-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    color: var(--charcoal);
+    font-weight: 500;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .toc-link i { color: var(--sage); font-size: 16px; width: 20px; text-align: center; }
+
+  .toc-link:hover {
+    background: var(--cream);
+  }
+  .toc-link.active {
+    background: var(--sage-pale);
+    color: var(--sage-dark);
+    font-weight: 700;
+    border-color: rgba(143,175,143,0.2);
+  }
+
+  /* Content Area */
+  .guides-content {
+    flex: 1;
+    background: white;
+    border-radius: var(--radius);
+    padding: 40px 48px;
+    box-shadow: var(--shadow-soft);
+    min-height: 600px;
+  }
+
+  .guide-section {
+    display: none;
+    animation: fadeUp 0.4s ease forwards;
+  }
+  .guide-section.active {
+    display: block;
+  }
+
+  .section-hero {
+    margin-bottom: 30px;
+    padding-bottom: 24px;
+    border-bottom: 2px dashed rgba(143,175,143,0.2);
+  }
+
+  .section-icon {
+    width: 60px; height: 60px;
+    border-radius: 16px;
+    background: var(--sage-pale);
+    color: var(--sage);
+    font-size: 24px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .section-hero h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--charcoal);
+    margin: 0 0 10px 0;
+  }
+
+  .section-hero p.intro {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text-mid);
+    margin: 0;
+  }
+
+  /* Book Text Formatting */
+  .book-text {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--charcoal);
+  }
+  .book-text h3 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin: 32px 0 16px 0;
+    color: var(--charcoal);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .book-text h3::before {
+    content: '';
+    width: 6px;
+    height: 18px;
+    background: var(--sage);
+    border-radius: 4px;
+  }
+  .book-text p {
+    margin-bottom: 16px;
+  }
+  .book-text ul, .book-text ol {
+    margin-bottom: 24px;
+    padding-left: 20px;
+  }
+  .book-text li {
+    margin-bottom: 10px;
+    padding-left: 6px;
+  }
+  
+  .pro-tip {
+    background: var(--cream);
+    border-left: 4px solid var(--gold);
+    padding: 16px 20px;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    margin: 24px 0;
+    font-style: italic;
+    color: var(--text-mid);
+    position: relative;
+  }
+  .pro-tip strong {
+    color: var(--charcoal);
+    font-weight: 700;
+    font-style: normal;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  @media (max-width: 900px) {
+    .guides-layout { flex-direction: column; }
+    .toc-sidebar { width: 100%; position: static; }
+    .toc-menu { flex-direction: row; overflow-x: auto; padding-bottom: 10px; }
+    .toc-link { flex-shrink: 0; white-space: nowrap; }
+    .guides-content { padding: 30px 24px; }
+  }
+</style>
+{% endblock %}
+
+{% block user_content %}
+<div class="main-wrapper">
+  
+  <div class="guides-header">
+    <h1 class="guides-title">Fitness Encyclopedia</h1>
+    <p class="guides-subtitle">Your comprehensive manual for mastering intelligent movement and athletic recovery.</p>
+  </div>
+
+  <div class="guides-layout">
+    <!-- TOC -->
+    <aside class="toc-sidebar">
+      <div class="toc-title">Chapters</div>
+      <div class="toc-menu">
+        <a class="toc-link active" onclick="showGuide('homeworkout')">
+          <i class="fa-solid fa-house-chimney"></i> Home Workout
+        </a>
+        <a class="toc-link" onclick="showGuide('cardio')">
+          <i class="fa-solid fa-heart-pulse"></i> Cardio
+        </a>
+        <a class="toc-link" onclick="showGuide('warmup')">
+          <i class="fa-solid fa-fire-flame-curved"></i> Warm-up
+        </a>
+        <a class="toc-link" onclick="showGuide('stretching')">
+          <i class="fa-solid fa-arrows-down-to-line"></i> Stretching
+        </a>
+        <a class="toc-link" onclick="showGuide('mobility')">
+          <i class="fa-solid fa-person-running"></i> Mobility
+        </a>
+        <a class="toc-link" onclick="showGuide('fitness')">
+          <i class="fa-solid fa-dumbbell"></i> General Fitness
+        </a>
+      </div>
+    </aside>
+
+    <!-- CONTENT -->
+    <div class="guides-content">
+      
+      <!-- CHAPTER 1: HOME WORKOUT -->
+      <div id="homeworkout" class="guide-section active">
+        <div class="section-hero">
+          <div class="section-icon"><i class="fa-solid fa-house-chimney"></i></div>
+          <h2>Home Workout</h2>
+          <p class="intro">Building a strong, resilient body doesn't require a commercial gym. By utilizing bodyweight biomechanics, leverage, and time under tension, your living room can become the ultimate training ground.</p>
+        </div>
+        <div class="book-text">
+          <h3>The Anatomy of Bodyweight Mastery</h3>
+          <p>Home workouts rely heavily on calisthenics—a system of exercise consisting of a variety of movements that exercise large muscle groups, such as running, standing, grasping, pushing, etc. Calisthenics build serious functional strength because they require your body to work as a single, cohesive unit.</p>
+          
+          <h3>Core Principles</h3>
+          <ul>
+            <li><strong>Time Under Tension (TUT):</strong> Without heavy iron, the best way to stimulate muscle growth is by slowing down. A pushup done over 5 seconds is astronomically harder than a fast one.</li>
+            <li><strong>Progressive Leverage:</strong> Instead of adding weight, you change the angle. Wall pushups evolve into knee pushups, then standard pushups, then decline pushups.</li>
+            <li><strong>Mind-Muscle Connection:</strong> Focus intently on the muscle you are trying to work. If you are doing bodyweight squats, consciously squeeze the glutes at the top of the movement.</li>
+          </ul>
+
+          <div class="pro-tip">
+            <strong>Coach's Tip: The "Tempo" Rule</strong>
+            Try the 3-1-X-1 tempo: 3 seconds lowering the movement, 1 second hold at the bottom, eXplode up, 1 second squeeze at the top. This guarantees muscle fatigue without heavy weights.
+          </div>
+
+          <h3>Essential Home Movements</h3>
+          <p>You only need pushing, pulling, squatting, and core bracing to hit the entire body:</p>
+          <ul>
+            <li><strong>Push:</strong> Pushups, dips (using sturdy chairs), pike pushups for shoulders.</li>
+            <li><strong>Pull:</strong> Bodyweight rows (using a sturdy table or bedsheet over a door), pull-ups (if you have a bar).</li>
+            <li><strong>Legs:</strong> Bulgarian split squats, pistol squats, walking lunges, glute bridges.</li>
+            <li><strong>Core:</strong> Hollow body holds, planks, reverse crunches.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- CHAPTER 2: CARDIO -->
+      <div id="cardio" class="guide-section">
+        <div class="section-hero">
+          <div class="section-icon" style="background:#FDF0DC; color:#F59E0B;"><i class="fa-solid fa-heart-pulse"></i></div>
+          <h2>Cardiovascular Conditioning</h2>
+          <p class="intro">Cardio isn’t just about burning calories; it’s about upgrading the engine of your body. An efficient heart pumps more oxygen with less effort, directly improving your athletic performance and longevity.</p>
+        </div>
+        <div class="book-text">
+          <h3>The Two Engines: Aerobic & Anaerobic</h3>
+          <p>To train cardio perfectly, you must balance the two primary energy systems:</p>
+          <ul>
+            <li><strong>Zone 2 (Aerobic Base):</strong> This is low-intensity, steady-state cardio (LISS). Think light jogging, cycling, or brisk walking where you can still hold a conversation. This builds cellular mitochondria and trains your body to burn fat for fuel.</li>
+            <li><strong>Zone 5 (Anaerobic / HIIT):</strong> High-Intensity Interval Training pushes your heart rate to its absolute limits for short bursts. Sprinting, assault bike, or heavy kettlebell swings. This burns glycogen and rapidly increases your VO2 Max.</li>
+          </ul>
+
+          <h3>The 80/20 Rule</h3>
+          <p>Many elite athletes follow the 80/20 polarized training model. 80% of your cardio should be "easy" (Zone 2), and 20% should be grueling and intense (Zone 5). The mistake most people make is doing 100% of their cardio in the "moderate" zone—too hard to build recovery, but too easy to force athletic adaptation.</p>
+
+          <div class="pro-tip">
+            <strong>Heart Rate Zones</strong>
+            Subtract your age from 220 to find your approximate Max Heart Rate. Zone 2 is roughly 60-70% of that max number.
+          </div>
+        </div>
+      </div>
+
+      <!-- CHAPTER 3: WARM-UP -->
+      <div id="warmup" class="guide-section">
+        <div class="section-hero">
+          <div class="section-icon" style="background:var(--blush-light); color:#B87060;"><i class="fa-solid fa-fire-flame-curved"></i></div>
+          <h2>The Warm-up Phase</h2>
+          <p class="intro">Never skip the primer. A proper warm-up elevates tissue temperature, lubricates joints with synovial fluid, and activates your central nervous system for the work ahead.</p>
+        </div>
+        <div class="book-text">
+          <h3>The RAMP Protocol</h3>
+          <p>Discard the old concept of touching your toes and holding it for 30 seconds before a workout. Static stretching before lifting can actually decrease power output. Instead, use RAMP:</p>
+          <ul>
+            <li><strong>Raise:</strong> Elevate heart rate, core temperature, and blood flow. (3-5 mins of jumping jacks, light rowing, or jogging).</li>
+            <li><strong>Activate:</strong> Wake up the specific muscles you are about to use. If it's a leg day, do banded glute walks or monster walks.</li>
+            <li><strong>Mobilize:</strong> Take the joints through their full range of motion. Arm circles, hip rotations, leg swings.</li>
+            <li><strong>Potentiate:</strong> Slowly ramp up the intensity. If your first exercise is a 200lb squat, do an empty bar set, then 135lbs, then 185lbs.</li>
+          </ul>
+
+          <div class="pro-tip">
+            <strong>The 5-Minute Rule</strong>
+            If you are short on time, cut your workout short—never cut the warm-up. Injury prevention is the highest priority in fitness.
+          </div>
+        </div>
+      </div>
+
+      <!-- CHAPTER 4: STRETCHING -->
+      <div id="stretching" class="guide-section">
+        <div class="section-hero">
+          <div class="section-icon" style="background:#EBF3F8; color:#6090A8;"><i class="fa-solid fa-arrows-down-to-line"></i></div>
+          <h2>Static Stretching</h2>
+          <p class="intro">The art of elongating muscle tissue to reduce resting tension, improve posture, and recover from intense athletic output.</p>
+        </div>
+        <div class="book-text">
+          <h3>The Post-Workout Elixir</h3>
+          <p>Static stretching—holding a stretch at the point of mild discomfort for 30–60 seconds—is most effective <em>after</em> your workout. When muscles are warm, they are pliable like warm taffy, making it the perfect time to reset them to their natural resting length.</p>
+          
+          <h3>Why We Stretch</h3>
+          <ul>
+            <li><strong>Fascial Release:</strong> The connective tissue around your muscles (fascia) gets tight and bound up after heavy lifting. Stretching breaks up these micro-adhesions.</li>
+            <li><strong>Parasympathetic Shift:</strong> Deep, rhythmic breathing during post-workout stretching signals your brain that the "fight or flight" (workout) is over, shifting you into "rest and digest" (recovery).</li>
+            <li><strong>Postural Correction:</strong> Modern desk life shortens the hip flexors and rounds the shoulders. Targeted stretching physically pulls the skeleton back into alignment.</li>
+          </ul>
+
+          <div class="pro-tip">
+            <strong>Breathe Into The Stretch</strong>
+            Your muscles have tension receptors (Golgi tendon organs). If you bounce or hold your breath, they tighten up defensively. Long, slow exhales physically command the muscle to relax and lengthen.
+          </div>
+        </div>
+      </div>
+
+      <!-- CHAPTER 5: MOBILITY -->
+      <div id="mobility" class="guide-section">
+        <div class="section-hero">
+          <div class="section-icon" style="background:var(--sage-pale); color:var(--sage-dark);"><i class="fa-solid fa-person-running"></i></div>
+          <h2>Joint Mobility</h2>
+          <p class="intro">Flexibility is how far a muscle can stretch passively. Mobility is how well you can dynamically control a joint through its full range of motion.</p>
+        </div>
+        <div class="book-text">
+          <h3>The Joint-by-Joint Approach</h3>
+          <p>The human body is built as an alternating stack of stability and mobility requirements:</p>
+          <ul>
+            <li><strong>Ankles:</strong> Need mobility. If stiff, the knee takes the damage.</li>
+            <li><strong>Knees:</strong> Need stability. They should only hinge like a door.</li>
+            <li><strong>Hips:</strong> Need massive mobility. Stiff hips cause lower back pain.</li>
+            <li><strong>Lumbar Spine (Lower Back):</strong> Needs stability. Protect the core.</li>
+            <li><strong>Thoracic Spine (Mid Back):</strong> Needs mobility. Required for overhead reaching and twisting.</li>
+          </ul>
+
+          <h3>Mobility vs. Flexibility</h3>
+          <p>Imagine doing the splits. If a partner pushes your legs down to the floor, you are <em>flexible</em>. If you can use your own leg muscles to hover your legs straight out in the splits with no gravity assisting you, you are <em>mobile</em>. Mobility implies strength at the absolute extreme ranges of motion.</p>
+
+          <div class="pro-tip">
+            <strong>The 90/90 Stretch</strong>
+            The ultimate hip mobility test. Sitting on the floor with both knees bent at 90-degree angles (one internal, one external). Work on this daily to unlock tight hips.
+          </div>
+        </div>
+      </div>
+
+      <!-- CHAPTER 6: FITNESS -->
+      <div id="fitness" class="guide-section">
+        <div class="section-hero">
+          <div class="section-icon" style="background:rgba(20,20,20,0.05); color:#1a1a1a;"><i class="fa-solid fa-dumbbell"></i></div>
+          <h2>General Fitness & Consistency</h2>
+          <p class="intro">Fitness is not a 12-week challenge; it is a lifelong pursuit of physiological excellence. It encompasses sleep, hydration, mental resilience, and physical capability.</p>
+        </div>
+        <div class="book-text">
+          <h3>The Triad of Physical Readiness</h3>
+          <p>True fitness exists at the intersection of three pillars:</p>
+          <ol>
+            <li><strong>Stimulus (Training):</strong> The workout is simply the match that lights the fire. You are applying a calculated stress to the body to force adaptation.</li>
+            <li><strong>Fuel (Nutrition):</strong> You cannot out-train a bad diet. Proteins repair the muscle fiber, carbohydrates refill the glycogen tanks, and fats support hormonal health like testosterone production.</li>
+            <li><strong>Recovery (Sleep):</strong> You don't build muscle in the gym; you tear it down. You build muscle in your bed. Sleep is the ultimate performance-enhancing drug, governing cortisol, growth hormone, and central nervous system repair.</li>
+          </ol>
+
+          <h3>The Law of Progressive Overload</h3>
+          <p>The body is lazy. It will only change if it is given a reason to. To get fitter, you must continuously challenge the body with slightly more than it is used to. Add 5 pounds to the bar, do one more repetition, rest 10 seconds less, or run one block further.</p>
+
+          <div class="pro-tip">
+            <strong>Action Precedes Motivation</strong>
+            Do not wait until you "feel" like working out. Discipline is executing the plan regardless of emotional state. Show up, start the warm-up, and let the momentum carry you.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block user_extra_js %}
+<script>
+  function showGuide(id) {
+    // Hide all
+    document.querySelectorAll('.guide-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.toc-link').forEach(el => el.classList.remove('active'));
+    
+    // Show selected
+    document.getElementById(id).classList.add('active');
+    
+    // Highlight link
+    const links = document.querySelectorAll('.toc-link');
+    for (let link of links) {
+      if (link.getAttribute('onclick') === `showGuide('${id}')`) {
+        link.classList.add('active');
+        break;
+      }
+    }
+  }
+</script>
+{% endblock %}

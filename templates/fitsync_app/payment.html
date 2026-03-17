@@ -487,6 +487,40 @@
                 </style>
             </div>
 
+            {% if payment_settings and payment_settings.qr_code %}
+            <div style="margin-top: 1.5rem; text-align: center;">
+                <p style="color: rgba(255,255,255,0.4); font-size: 0.8rem; margin-bottom: 1rem; text-transform: uppercase;">or use direct scanner</p>
+                <button type="button" onclick="document.getElementById('qrModal').classList.add('active')" class="btn-quantum-pay" style="height: 60px; font-size: 1rem; background: rgba(79, 70, 229, 0.1); color: var(--elite-gold); border: 1px solid var(--elite-gold); box-shadow: none;">
+                    <i class="fa-solid fa-qrcode"></i> Scan to Pay
+                </button>
+            </div>
+
+            <!-- QR Scanner Modal -->
+            <div class="qr-modal" id="qrModal">
+                <i class="fa-solid fa-xmark close-modal" onclick="document.getElementById('qrModal').classList.remove('active')"></i>
+                <div class="modal-content">
+                    <h3 style="font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 0.5rem;">Direct Terminal</h3>
+                    <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-bottom: 2rem;">Scan with any UPI app to authorize deployment.</p>
+                    
+                    <div class="qr-code-box">
+                        <img src="{{ payment_settings.qr_code.url }}" alt="UPI QR" style="width: 250px; height: 250px; object-fit: contain;">
+                        <div class="qr-scanner-line"></div>
+                    </div>
+                    
+                    <p style="color: var(--elite-gold); font-weight: 900; letter-spacing: 3px; font-size: 1.6rem; margin-top: 1.5rem;">₹{{ display_price|floatformat:0 }}</p>
+                    
+                    <!-- Form to simulate successful payment after QR scan (for demo/flow completion) -->
+                    <form action="{% url 'payment' %}?plan={{ plan.name }}&billing={{ billing_cycle }}" method="POST" style="margin-top: 2.5rem;">
+                        {% csrf_token %}
+                        <input type="hidden" name="razorpay_payment_id" value="QR-SCAN-AUTH">
+                        <button type="submit" class="btn-quantum-pay" style="height: 50px; font-size: 0.9rem; background: #16a34a; color: white;">
+                            <i class="fa-solid fa-check-double"></i> I Have Paid
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
             <div style="margin-top: 4rem; display: flex; justify-content: center; gap: 3rem; opacity: 0.2;">
                 <i class="fa-brands fa-cc-visa fa-2x"></i>
                 <i class="fa-brands fa-cc-mastercard fa-2x"></i>

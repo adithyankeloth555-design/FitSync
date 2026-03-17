@@ -575,10 +575,112 @@ class UserBadge(models.Model):
         return f"{self.user.username} – {self.badge.name}"
 
 # Signal to auto-create UserProfile for allauth/OAuth signups
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+from django.db.models.signals import post_save # type: ignore
+from django.dispatch import receiver # type: ignore
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.get_or_create(user=instance, defaults={'role': 'member'})
+
+# Signal to send security email on ANY login (Manual or Google/Apple OAuth)
+from django.contrib.auth.signals import user_logged_in # type: ignore
+from django.core.mail import send_mail # type: ignore
+from django.conf import settings # type: ignore
+import urllib.request
+import json
+import threading
+
+@receiver(user_logged_in)
+def send_login_email(sender, user, request, **kwargs):
+    if not user.email:
+        return
+
+    # Capture request data NOW (before the request object goes out of scope)
+    login_time = timezone.now().strftime("%d %B %Y – %I:%M %p")
+    user_name = f"{user.first_name} {user.last_name}".strip() or user.username
+    user_agent = request.META.get('HTTP_USER_AGENT', '').lower() if request else ''
+    email_to = user.email
+
+    ip = ''
+    if request:
+        ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', ''))
+        if ip:
+            ip = ip.split(',')[0].strip()
+
+    def _send():
+        try:
+            # Dynamic device determination
+            if 'android' in user_agent and 'mobile' in user_agent:
+                device = "Android Mobile"
+            elif 'android' in user_agent:
+                device = "Android Tablet"
+            elif 'iphone' in user_agent:
+                device = "iPhone"
+            elif 'ipad' in user_agent:
+                device = "iPad"
+            elif 'macintosh' in user_agent or 'mac os x' in user_agent:
+                device = "Mac Desktop"
+            elif 'windows' in user_agent:
+                device = "Windows Desktop"
+            elif 'linux' in user_agent:
+                device = "Linux Desktop"
+            elif 'mobile' in user_agent:
+                device = "Mobile Device"
+            else:
+                device = "Desktop / Laptop"
+
+            # Dynamic Location mapping via IP
+            location = "Local Network (India)"
+            if ip and ip not in ('127.0.0.1', 'localhost', '::1'):
+                try:
+                    req = urllib.request.Request(f'http://ip-api.com/json/{ip}')
+                    with urllib.request.urlopen(req, timeout=2) as response:
+                        data = json.loads(response.read().decode())
+                        if data.get('status') == 'success':
+                            loc_parts = [data.get('regionName'), data.get('country')]
+                            location = ", ".join([p for p in loc_parts if p])
+                        else:
+                            location = "Local Database Network"
+                except Exception:
+                    location = "Unknown Network"
+
+            subject = 'Security Alert: New Login to Your FitSync Account'
+            message = f"""Your FitSync account was successfully logged in.
+
+Login Details:
+
+User: {user_name}
+Login Time: {login_time}
+Device: {device}
+Location: {location}
+
+If this was you, no further action is required.
+
+If you did not log in to your account, please change your password immediately and contact the FitSync support team.
+
+Your fitness journey matters to us. We are committed to keeping your account secure.
+
+Best Regards,
+FitSync Security Team"""
+
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [email_to],
+                fail_silently=True
+            )
+        except Exception as e:
+            print(f"Login email fail: {e}")
+
+    # Fire and forget — login response returns instantly
+    threading.Thread(target=_send, daemon=True).start()
+
+# Payment Settings for Admin QR Upload
+class PaymentSettings(models.Model):
+    qr_code = models.ImageField(upload_to='payment_qr/', null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    
+    def __str__(self):
+        return "System UPI QR Code"

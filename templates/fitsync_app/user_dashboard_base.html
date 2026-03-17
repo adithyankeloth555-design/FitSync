@@ -5,7 +5,8 @@
 {% block footer %}{% endblock %}
 
 {% block extra_css %}
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600&family=DM+Sans:wght@300;400;500;600;700;800&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Space+Mono:wght@400;700&family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/themes.css' %}">
 <style>
 
   :root {
@@ -1468,6 +1469,9 @@ a { text-decoration: none; color: inherit; }
     <a class="nav-item" href="{% url 'workout_list' %}">
       <div class="icon"><i class="fa-solid fa-dumbbell"></i></div> Workouts
     </a>
+    <a class="nav-item" href="{% url 'fitness_guides' %}">
+      <div class="icon"><i class="fa-solid fa-book-open"></i></div> Fitness Guides
+    </a>
     <a class="nav-item" href="{% url 'video_gallery' %}">
       <div class="icon"><i class="fa-solid fa-play"></i></div> Workout Videos
     </a>
@@ -1512,6 +1516,9 @@ a { text-decoration: none; color: inherit; }
     <div class="nav-label">Account</div>
     <a class="nav-item" href="{% url 'membership' %}">
       <div class="icon"><i class="fa-solid fa-crown"></i></div> Membership
+    </a>
+    <a class="nav-item" href="#" id="theme-trigger-sidebar" onclick="event.preventDefault(); openThemePanel();">
+      <div class="icon"><i class="fa-solid fa-palette"></i></div> Appearance <span class="appearance-dot"></span>
     </a>
     <a class="nav-item" href="{% url 'settings' %}">
       <div class="icon"><i class="fa-solid fa-gear"></i></div> Settings
@@ -1565,5 +1572,6 @@ a { text-decoration: none; color: inherit; }
     });
   });
 </script>
+<script src="{% static 'js/themes.js' %}"></script>
 {% block user_extra_js %}{% endblock %}
 {% endblock %}

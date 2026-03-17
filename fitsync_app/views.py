@@ -25,7 +25,7 @@ from .models import (
     NutritionLog, Message, CommunityPost, CommunityComment, Notification, WaterLog,
     TrainerFeedback, ExerciseVideo, EmailOTP, LiveSession, Product, Cart, CartItem,
     Order, OrderItem, Meal, HelpTicket, FitnessAssessment,
-    TrainerReview, Badge, UserBadge
+    TrainerReview, Badge, UserBadge, PaymentSettings
 ) # pyre-ignore[21]
 from .forms import (
     DietPlanForm, WorkoutProgramForm, BMIHistoryForm, AttendanceForm, MealForm,
@@ -47,47 +47,6 @@ def login_view(request):
         if user is not None:
             login(request, user)
             messages.success(request, f"Welcome back, {u}!")
-            
-            # Send Login Notification Email
-            try:
-                login_time = timezone.now().strftime("%d %B %Y – %I:%M %p")
-                user_name = f"{user.first_name} {user.last_name}".strip() or user.username
-                user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
-                
-                device = "Desktop / Laptop"
-                if 'mobile' in user_agent or 'android' in user_agent or 'iphone' in user_agent:
-                    device = "Mobile Device"
-                
-                subject = 'Security Alert: New Login to Your FitSync Account'
-                message = f"""Hello,
-
-Your FitSync account was successfully logged in.
-
-Login Details:
-
-User: {user_name}
-Login Time: {login_time}
-Device: {device}
-Location: India (Based on IP)
-
-If this was you, no further action is required.
-
-If you did not log in to your account, please change your password immediately and contact the FitSync support team.
-
-Your fitness journey matters to us. We are committed to keeping your account secure.
-
-Best Regards,
-FitSync Security Team
-"""
-                send_mail(
-                    subject,
-                    message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [user.email],
-                    fail_silently=True
-                )
-            except Exception as e:
-                print(f"Login email failed: {e}")
 
             # Role-based redirect
             try:
@@ -96,10 +55,11 @@ FitSync Security Team
                     return redirect('admin_dashboard')
                 elif role == 'trainer':
                     return redirect('trainer_dashboard')
+                else:  # 'member' or any other role
+                    return redirect('user_dashboard')
             except UserProfile.DoesNotExist:
-                pass
-                
-            return redirect('user_dashboard')
+                # No profile yet — treat as regular member
+                return redirect('user_dashboard')
         else:
             messages.error(request, "Invalid username or password.")
     return render(request, 'fitsync_app/login.html')
@@ -119,8 +79,8 @@ def signup_view(request):
         ph = request.POST.get('phone_number')
         full_phone = f"{cc} {ph}".strip()
 
-        if len(p) < 8 or len(p) > 12:
-            messages.error(request, "Password must be between 8 and 12 characters.")
+        if len(p) < 8 or len(p) > 50:
+            messages.error(request, "Password must be between 8 and 50 characters.")
             return render(request, 'fitsync_app/signup.html')
             
         email_regex = r'^[a-z0-9._%+-]+@gmail\.com$'
@@ -147,9 +107,7 @@ def signup_view(request):
 
         # Send Email
         subject = f'Welcome to FitSync, {fn}! Your 6-digit Verification Code'
-        message = f"""Hello,
-
-We received a request to verify your account on FitSync – Your Ultimate Fitness Companion
+        message = f"""We received a request to verify your account on FitSync – Your Ultimate Fitness Companion
 
 Your One-Time Password (OTP) is:
 
@@ -168,22 +126,26 @@ FitSync – Your Ultimate Fitness Companion
         email_from = settings.DEFAULT_FROM_EMAIL
         recipient_list = [e]
         
-        try:
-            send_mail(subject, message, email_from, recipient_list)
-            # Store full registration data in session
-            request.session['signup_data'] = {
-                'first_name': fn,
-                'last_name': ln,
-                'username': u,
-                'email': e,
-                'password': p,
-                'phone_number': full_phone
-            }
-            messages.success(request, f"OTP sent to {e}. Please verify to continue.")
-            return redirect('verify_otp')
-        except Exception as ex:
-            messages.error(request, f"Error sending email: {str(ex)}")
-            return render(request, 'fitsync_app/signup.html')
+        # Send email in background thread for instant redirect
+        import threading
+        def _send_otp():
+            try:
+                send_mail(subject, message, email_from, recipient_list)
+            except Exception as ex:
+                print(f"OTP email error: {ex}")
+        threading.Thread(target=_send_otp, daemon=True).start()
+        
+        # Store full registration data in session
+        request.session['signup_data'] = {
+            'first_name': fn,
+            'last_name': ln,
+            'username': u,
+            'email': e,
+            'password': p,
+            'phone_number': full_phone
+        }
+        messages.success(request, f"OTP sent to {e}. Please verify to continue.")
+        return redirect('verify_otp')
 
     return render(request, 'fitsync_app/signup.html')
 
@@ -212,11 +174,10 @@ def verify_otp_view(request):
                 first_name=signup_data['first_name'],
                 last_name=signup_data['last_name']
             )
-            UserProfile.objects.create(
-                user=user, 
-                role='member', 
-                phone_number=signup_data['phone_number']
-            )
+            profile, _ = UserProfile.objects.get_or_create(user=user)
+            profile.role = 'member'
+            profile.phone_number = signup_data['phone_number']
+            profile.save()
             
             # Cleanup
             otp_obj.delete()
@@ -236,6 +197,40 @@ def forgot_password_view(request):
 
     step = request.session.get('reset_step', 1)
     email = request.session.get('reset_email', '')
+
+    if request.method == 'GET' and step == 2 and request.GET.get('action') == 'resend':
+        user = User.objects.filter(email=email).first()
+        if user:
+            otp = ''.join(random.choices(string.digits, k=6))
+            EmailOTP.objects.filter(email=email).delete()
+            EmailOTP.objects.create(email=email, otp=otp)
+
+            subject = 'FitSync Security: Password Reset Request (Resend)'
+            message = f"""Hello {user.first_name or user.username},
+
+We received a request to resend your verification code for your FitSync account.
+
+Your 6-digit verification code is:
+
+🔐 OTP Code: {otp}
+
+This code is valid for 10 minutes. 
+
+Security Tip: If you did not request this, please ensure your account is secure.
+
+Stay strong.
+FitSync Security Team
+"""
+            import threading
+            def _send_forgot_resend():
+                try:
+                    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
+                except Exception as ex:
+                    print(f"Relay error: {ex}")
+            threading.Thread(target=_send_forgot_resend, daemon=True).start()
+            messages.success(request, "A new verification code has been dispatched.")
+        
+        return redirect('forgot_password')
 
     if request.method == 'POST':
         if step == 1:
@@ -267,11 +262,13 @@ Stay strong.
 FitSync Security Team
 """
                 email_from = settings.DEFAULT_FROM_EMAIL
-                try:
-                    send_mail(subject, message, email_from, [email])
-                except Exception as ex:
-                    messages.error(request, f"Relay error: {str(ex)}")
-                    # Continue to avoid leaking if error only happens for real/fake emails
+                import threading
+                def _send_forgot():
+                    try:
+                        send_mail(subject, message, email_from, [email])
+                    except Exception as ex:
+                        print(f"Relay error: {ex}")
+                threading.Thread(target=_send_forgot, daemon=True).start()
             
             # Mask email for Step 2 display: u*****@gmail.com
             if '@' in email:
@@ -406,6 +403,9 @@ def admin_dashboard_view(request):
     # Recent users for the table (Exclude admins and trainers)
     recent_users = UserProfile.objects.filter(role='member').select_related('user').order_by('-user__date_joined')[:5]
     
+    # Active Subscription Plans count
+    active_plans = SubscriptionPlan.objects.filter(is_active=True).count()
+    
     return render(request, 'fitsync_app/admin_dashboard.html', {
         'total_users': total_users,
         'active_trainers': active_trainers,
@@ -415,7 +415,8 @@ def admin_dashboard_view(request):
         'store_total_products': store_total_products,
         'store_total_orders': store_total_orders,
         'store_total_revenue': store_total_revenue,
-        'store_top_product': store_top_product
+        'store_top_product': store_top_product,
+        'active_plans': active_plans,
     })
 
 @login_required
@@ -440,20 +441,18 @@ def add_trainer_view(request):
             user.save()
             
             photo = request.FILES.get('profile_photo')
-            UserProfile.objects.create(
-                user=user, 
-                role='trainer', 
-                specialty=sp, 
-                price=float(pr),
-                profile_photo=photo
-            )
+            profile, _ = UserProfile.objects.get_or_create(user=user)
+            profile.role = 'trainer'
+            profile.specialty = sp
+            profile.price = float(pr)
+            if photo:
+                profile.profile_photo = photo
+            profile.save()
             
             # Send welcome email
             try:
                 subject = 'Welcome to FitSync Fitness Management System'
-                message = f"""Dear {trainer_name},
-
-Welcome to FitSync 
+                message = f"""Welcome to FitSync 
 Your trainer account has been successfully created by the FitSync Admin. You can now log in to the FitSync Trainer Portal and start managing your workout sessions and members.
 
 Here are your account details:
@@ -471,7 +470,7 @@ Trainer Responsibilities:
 * Track user performance and progress
 * Communicate with users during training sessions
 
-Login Link: http://{request.get_host()}/login/
+Login Link: http://fitsync.com/trainer-login
 
 If you have any questions, please contact the FitSync Admin team.
 
@@ -479,13 +478,19 @@ Best Regards,
 FitSync Admin Team
 FitSync – Your Ultimate Fitness Companion
 """
-                send_mail(
-                    subject,
-                    message,
-                    settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'admin@fitsync.com',
-                    [e],
-                    fail_silently=True,
-                )
+                import threading
+                def _send_welcome():
+                    try:
+                        send_mail(
+                            subject,
+                            message,
+                            settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'admin@fitsync.com',
+                            [e],
+                            fail_silently=True,
+                        )
+                    except Exception as err:
+                        print(f"Error: {err}")
+                threading.Thread(target=_send_welcome, daemon=True).start()
             except Exception as email_err:
                 print(f"Failed to send email: {email_err}")
 
@@ -510,17 +515,16 @@ def delete_trainer_view(request, trainer_id):
 
 
 @login_required
-@login_required
 def trainer_dashboard_view(request):
-    # Strict Role Routing
-    if hasattr(request.user, 'userprofile'):
-        if request.user.userprofile.role == 'admin':
-            return redirect('admin_dashboard')
-        elif request.user.userprofile.role == 'member':
-            return redirect('user_dashboard')
-            
-    # Check if user is trainer
-    if not hasattr(request.user, 'userprofile') or request.user.userprofile.role != 'trainer':
+    # Strict Role Routing — only trainers may access this view
+    if not hasattr(request.user, 'userprofile'):
+        return redirect('user_dashboard')
+    role = request.user.userprofile.role
+    if role == 'admin':
+        return redirect('admin_dashboard')
+    elif role == 'member':
+        return redirect('user_dashboard')
+    elif role != 'trainer':
         return redirect('user_dashboard')
     
     # Handle feedback submission or profile photo update
@@ -620,10 +624,14 @@ def trainer_dashboard_view(request):
 def user_dashboard_view(request):
     # Strict Role Routing: Trainers/Admins should not see user dashboard
     if hasattr(request.user, 'userprofile'):
-        if request.user.userprofile.role == 'trainer':
+        role = request.user.userprofile.role
+        if role == 'trainer':
             return redirect('trainer_dashboard')
-        elif request.user.userprofile.role == 'admin':
+        elif role == 'admin':
             return redirect('admin_dashboard')
+    else:
+        # No profile — create a default member profile
+        UserProfile.objects.create(user=request.user, role='member')
 
     user_profile = request.user.userprofile
 
@@ -1657,11 +1665,14 @@ def payment_view(request):
         plan_display = selected_plan.get_name_display().upper() if selected_plan else "MEMBERSHIP"
         return redirect(f"{reverse('payment_success')}?type=membership&tid={razorpay_id}&plan={plan_display}")
     
+    payment_settings = PaymentSettings.objects.first()
+
     return render(request, 'fitsync_app/payment.html', {
         'plan': selected_plan, 
         'display_price': display_price,
         'billing_cycle': billing_cycle,
-        'amount_paise': int(display_price * 100)
+        'amount_paise': int(display_price * 100),
+        'payment_settings': payment_settings
     })
 
 @login_required
@@ -2234,6 +2245,22 @@ def report_payments_view(request):
         messages.error(request, "Access denied.")
         return redirect('user_dashboard')
         
+    payment_settings, created = PaymentSettings.objects.get_or_create(id=1)
+
+    if request.method == 'POST':
+        if 'qr_scanner' in request.FILES:
+            payment_settings.qr_code = request.FILES['qr_scanner']
+            payment_settings.save()
+            messages.success(request, "Payment Scanner QR updated successfully.")
+            return redirect('report_payments')
+            
+        elif 'remove_qr' in request.POST:
+            if payment_settings.qr_code:
+                payment_settings.qr_code.delete()
+                payment_settings.save()
+            messages.success(request, "Payment Scanner removed.")
+            return redirect('report_payments')
+
     payments = Payment.objects.all().order_by('-payment_date')
     total_revenue = payments.aggregate(Sum('amount'))['amount__sum'] or 0
     
@@ -2250,7 +2277,8 @@ def report_payments_view(request):
     
     return render(request, 'fitsync_app/report_payments.html', {
         'payment_list': payment_list,
-        'total_revenue': total_revenue
+        'total_revenue': total_revenue,
+        'payment_settings': payment_settings
     })
 
 @login_required
@@ -3388,3 +3416,8 @@ def export_progress_pdf(request):
 
     doc.build(story)
     return response
+
+@login_required
+def fitness_guides_view(request):
+    """View to render the detailed fitness library/encyclopedia page."""
+    return render(request, 'fitsync_app/fitness_guides.html')

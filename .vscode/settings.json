@@ -1,9 +1,7 @@
 {
-    "python.defaultInterpreterPath": "C:/Users/adith/AppData/Local/Programs/Python/Python39/python.exe",
-    "python.pythonPath": "C:/Users/adith/AppData/Local/Programs/Python/Python39/python.exe",
+    "python.defaultInterpreterPath": "${workspaceFolder}/venv/Scripts/python.exe",
     "python.analysis.extraPaths": [
-        ".",
-        "C:/Users/adith/AppData/Local/Programs/Python/Python39/Lib/site-packages"
+        "${workspaceFolder}"
     ],
     "python.analysis.diagnosticSeverityOverrides": {
         "reportMissingImports": "none",

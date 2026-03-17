@@ -24,6 +24,53 @@
     </div>
 </div>
 
+<!-- Admin Upload Payment Scanner -->
+<div class="fd-table-card fd-animate fd-delay-1" style="margin-bottom: 2rem; padding: 1.5rem;">
+    <h3 style="margin-top: 0; margin-bottom: 1rem; font-family: 'Playfair Display', serif; display: flex; align-items: center; gap: 0.5rem; color: var(--fd-text-base);">
+        <i class="fa-solid fa-qrcode" style="color: var(--fd-accent);"></i> Payment Scanner Configuration
+    </h3>
+    <div style="display: flex; gap: 2rem; align-items: center;">
+        {% if payment_settings and payment_settings.qr_code %}
+            <div style="padding: 1rem; background: var(--fd-bg-subtle); border-radius: 12px; border: 1px solid var(--fd-border); text-align: center;">
+                <img src="{{ payment_settings.qr_code.url }}" alt="UPI QR Code" style="width: 120px; height: 120px; object-fit: contain; border-radius: 8px;">
+            </div>
+            <div style="flex: 1;">
+                <p style="margin-top: 0; color: var(--fd-text-muted); font-size: 0.9rem;">
+                    <strong>Active Scanner:</strong> This QR code is currently visible to users on the payment portal.
+                </p>
+                <form method="post" onsubmit="return confirm('Remove active QR Scanner?');">
+                    {% csrf_token %}
+                    <button type="submit" name="remove_qr" class="fd-btn fd-btn-outline" style="color: #ef4444; border-color: #fca5a5; background: #fef2f2;">
+                        <i class="fa-solid fa-trash"></i> Remove Scanner
+                    </button>
+                </form>
+            </div>
+        {% else %}
+            <div style="flex: 1; padding: 2rem; background: var(--fd-bg-subtle); border: 2px dashed var(--fd-border); border-radius: 12px; text-align: center;">
+                <form method="post" enctype="multipart/form-data" style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                    {% csrf_token %}
+                    <div>
+                        <input type="file" name="qr_scanner" accept="image/*" required id="qrUploadInput" style="display: none;">
+                        <label for="qrUploadInput" class="fd-btn fd-btn-outline" style="cursor: pointer;">
+                            <i class="fa-solid fa-upload"></i> Browse QR Image
+                        </label>
+                        <span id="qrFileName" style="margin-left: 1rem; font-size: 0.85rem; color: var(--fd-text-muted);">No file chosen</span>
+                    </div>
+                    <button type="submit" class="fd-btn fd-btn-primary" style="background: var(--fd-accent); color: white;">
+                        <i class="fa-solid fa-floppy-disk"></i> Upload Scanner
+                    </button>
+                </form>
+            </div>
+            <script>
+                document.getElementById('qrUploadInput').addEventListener('change', function(e) {
+                    const fileName = e.target.files[0] ? e.target.files[0].name : "No file chosen";
+                    document.getElementById('qrFileName').textContent = fileName;
+                });
+            </script>
+        {% endif %}
+    </div>
+</div>
+
 <div class="fd-table-card fd-animate fd-delay-2">
     <table class="fd-table" id="paymentsTable">
         <thead>

@@ -658,27 +658,12 @@
                 <h2 class="form-title">Create your account</h2>
                 <p class="form-subtitle">Join thousands already training smarter with Fitsync</p>
             </div>
-            
-            <div class="step-indicator">
-                <div class="step-bars">
-                    <div class="step-bar active"></div>
-                    <div class="step-bar active"></div>
-                    <div class="step-bar"></div>
-                </div>
-                <span class="step-text">Step 2 of 3</span>
-            </div>
-            
-            <div class="social-login">
-                <form action="{% provider_login_url 'google' %}" method="post" style="flex:1;">
+
+            <div class="social-login" style="grid-template-columns: 1fr;">
+                <form action="{% provider_login_url 'google' %}" method="post">
                     {% csrf_token %}
                     <button type="submit" class="btn-social" style="width:100%; text-decoration:none;">
-                        <i class="fa-brands fa-google" style="color: #4285F4; font-size: 1.1rem;"></i> Google
-                    </button>
-                </form>
-                <form action="{% provider_login_url 'apple' %}" method="post" style="flex:1;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn-social" style="width:100%; text-decoration:none;">
-                        <i class="fa-brands fa-apple" style="font-size: 1.2rem;"></i> Apple
+                        <i class="fa-brands fa-google" style="color: #4285F4; font-size: 1.1rem;"></i> Continue with Google
                     </button>
                 </form>
             </div>
@@ -691,22 +676,22 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">First Name</label>
-                        <input type="text" name="first_name" class="form-control" placeholder="Alex" required>
+                        <input type="text" name="first_name" class="form-control" placeholder="" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Last Name</label>
-                        <input type="text" name="last_name" class="form-control" placeholder="Jordan" required>
+                        <input type="text" name="last_name" class="form-control" placeholder="" required>
                     </div>
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label">Username</label>
-                    <input type="text" name="username" class="form-control" placeholder="@alexjordan" required>
+                    <input type="text" name="username" class="form-control" placeholder="" required>
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label">Email</label>
-                    <input type="email" name="email" class="form-control" placeholder="alex@example.com" required
+                    <input type="email" name="email" class="form-control" placeholder="abcd@gmail.com" required
                         pattern="[a-z0-9._%+-]+@gmail\.com$" title="Please use a valid @gmail.com address">
                 </div>
                 
@@ -718,23 +703,23 @@
                         <option value="+44">+44</option>
                         <option value="+61">+61</option>
                     </select>
-                    <input type="tel" name="phone_number" class="form-control" placeholder="98765 43210" required>
+                    <input type="tel" name="phone_number" class="form-control" placeholder="" required>
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Password</label>
                         <div class="password-wrapper">
-                            <input type="password" name="password" id="password" class="form-control" placeholder="Min. 8 chars"
-                                required autocomplete="new-password" minlength="8" maxlength="12">
+                            <input type="password" name="password" id="password" class="form-control" placeholder="Min. 8 characters"
+                                required autocomplete="new-password" minlength="8">
                             <i class="fa-solid fa-eye-slash toggle-password" onclick="togglePassword('password', this)"></i>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Confirm Password</label>
                         <div class="password-wrapper">
-                            <input type="password" name="confirm_password" id="confirm_password" class="form-control"
-                                placeholder="Repeat password" required autocomplete="new-password" minlength="8" maxlength="12">
+                            <input type="password" name="confirm_password" id="confirm_password" class="form-control" placeholder="Repeat password"
+                                required autocomplete="new-password" minlength="8">
                             <i class="fa-solid fa-eye-slash toggle-password" onclick="togglePassword('confirm_password', this)"></i>
                         </div>
                     </div>

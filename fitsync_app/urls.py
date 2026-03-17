@@ -10,6 +10,8 @@ urlpatterns = [
     path('trainer/login/', views.login_view, name='trainer_login'),
     path('admin/login/', views.login_view, name='admin_login'),
     path('admin_login.html', RedirectView.as_view(url='/login/')), # Handle direct filename access
+    path('trainer-login', RedirectView.as_view(url='/login/')), # Added specifically for trainer emails
+    path('trainer-login/', RedirectView.as_view(url='/login/')),
     path('signup/', views.signup_view, name='signup'),
     path('verify-otp/', views.verify_otp_view, name='verify_otp'),
     path('forgot-password/', views.forgot_password_view, name='forgot_password'),
@@ -140,6 +142,9 @@ urlpatterns = [
 
     # ── Feature: Achievements & Badges ───────────────────────────────────────
     path('achievements/', views.achievements_view, name='achievements'),
+
+    # ── Feature: Fitness Guides ──────────────────────────────────────────────
+    path('fitness-guides/', views.fitness_guides_view, name='fitness_guides'),
 
     # ── Feature: Export Progress ─────────────────────────────────────────────
     path('progress/export/csv/', views.export_progress_csv, name='export_progress_csv'),

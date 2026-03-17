@@ -17,15 +17,22 @@
       </script>
     </div>
     <div class="topbar-right">
-      <div class="search-bar">
-        <i class="fa-solid fa-search" style="color:var(--stone-light)"></i>
-        Search anything…
+      <div class="search-wrapper" id="search-wrapper">
+        <div class="search-bar" id="search-bar-trigger">
+          <i class="fa-solid fa-search" style="color:var(--t-text-soft, var(--stone-light));font-size:13px;"></i>
+          <input type="text" id="dashboard-search" class="search-input" placeholder="Search pages, features…" autocomplete="off">
+          <kbd class="search-kbd">⌘K</kbd>
+        </div>
+        <div class="search-results" id="search-results"></div>
       </div>
+      <button class="theme-trigger-btn" id="theme-trigger-btn" title="Change Theme">
+        <i class="fa-solid fa-palette"></i>
+      </button>
       <a href="{% url 'messages' %}" class="icon-btn" style="text-decoration:none;">
         <i class="fa-regular fa-bell"></i>
         {% if notifications %}<span class="notif-dot"></span>{% endif %}
       </a>
-      <div class="icon-btn"><i class="fa-solid fa-expand"></i></div>
+      <div class="icon-btn" id="fullscreen-btn" title="Toggle Fullscreen"><i class="fa-solid fa-expand"></i></div>
     </div>
   </div>
 
@@ -166,14 +173,6 @@
           </div>
       {% endif %}
 
-      <div class="goal-item">
-        <div class="goal-check done"><i class="fa-solid fa-check"></i></div>
-        <div class="goal-info">
-          <div class="goal-title done">Register your account</div>
-          <div class="goal-progress"><div class="goal-fill" style="width:100%"></div></div>
-        </div>
-        <div class="goal-days" style="color:var(--sage)">✓ Done</div>
-      </div>
 
       <div class="goal-item" style="border-bottom:none; padding-bottom:0;">
         <div class="goal-check {% if water_today >= 2000 %}done{% endif %}">{% if water_today >= 2000 %}<i class="fa-solid fa-check"></i>{% endif %}</div>
@@ -354,5 +353,31 @@
         cupsEl.appendChild(cup);
       }
   }
+
+  // Fullscreen logic
+  const fullscreenBtn = document.getElementById('fullscreen-btn');
+  if(fullscreenBtn) {
+    fullscreenBtn.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch((err) => {
+          console.error(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    });
+
+    // Listen for fullscreen changes (e.g., when user presses Esc) to update icon
+    document.addEventListener('fullscreenchange', () => {
+      if (document.fullscreenElement) {
+        fullscreenBtn.innerHTML = '<i class="fa-solid fa-compress"></i>';
+        fullscreenBtn.title = 'Exit Fullscreen';
+      } else {
+        fullscreenBtn.innerHTML = '<i class="fa-solid fa-expand"></i>';
+        fullscreenBtn.title = 'Toggle Fullscreen';
+      }
+    });
+  }
 </script>
+<script src="{% static 'js/search.js' %}"></script>
 {% endblock %}

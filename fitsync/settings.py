@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.apple',
 ]
 
 MIDDLEWARE = [
@@ -75,6 +74,28 @@ AUTHENTICATION_BACKENDS = [
 # Provide fallback login URL mappings explicitly
 LOGIN_REDIRECT_URL = 'home'
 ACCOUNT_LOGOUT_REDIRECT_URL = 'login'
+# Social Account simplified settings
+SOCIALACCOUNT_QUERY_EMAIL = True
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_EMAIL_REQUIRED = False
+SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
+SOCIALACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        }
+    },
+}
+
+# Fix for session/cookie issues on Windows local development
+SESSION_COOKIE_SAMESITE = 'Lax'
+SOCIALACCOUNT_STORE_TOKENS = True
+SOCIALACCOUNT_ADAPTER = 'allauth.socialaccount.adapter.DefaultSocialAccountAdapter'
 
 ROOT_URLCONF = 'fitsync.urls'
 
@@ -175,6 +196,22 @@ USE_I18N = True
 
 USE_TZ = True
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'allauth': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    },
+}
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
@@ -202,13 +239,15 @@ LOGIN_URL = 'login'
 # AI Settings
 GEMINI_API_KEY = "YOUR_API_KEY_HERE"  # Set your Gemini API key here
 
-# Email Settings (Gmail SMTP)
+# Email Settings (Gmail SMTP via SSL - more reliable on Windows)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'fitsync007@gmail.com'  # REPLACE WITH YOUR GMAIL
-EMAIL_HOST_PASSWORD = 'colx dafy fqvs vijn'  # REPLACE WITH YOUR GMAIL APP PASSWORD
+EMAIL_PORT = 465
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+EMAIL_TIMEOUT = 30
+EMAIL_HOST_USER = 'fitsync007@gmail.com'
+EMAIL_HOST_PASSWORD = 'colx dafy fqvs vijn'
 DEFAULT_FROM_EMAIL = 'FitSync <fitsync007@gmail.com>'
 
 if os.environ.get('VERCEL'):
