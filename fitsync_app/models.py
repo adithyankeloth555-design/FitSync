@@ -687,7 +687,7 @@ def send_login_whatsapp_alert(sender, user, request, **kwargs):
             user_name = f"{user.first_name} {user.last_name}".strip() or user.username
             login_time = timezone.now().strftime("%I:%M %p, %d %b")
             
-            message = f"FitSync Security Alert 🛡️\n\nHello {user_name},\n\nA new login was detected for your account at {login_time}.\n\nIf this was not you, please reset your password immediately."
+            message = f"FitSync Security Alert\n\nHello {user_name},\n\nA new login was detected for your account at {login_time}.\n\nIf this was not you, please reset your password immediately."
             
             send_whatsapp_async(phone, message)
     except Exception as e:
