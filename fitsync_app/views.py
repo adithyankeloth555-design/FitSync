@@ -27,7 +27,6 @@ from .models import (
     Order, OrderItem, Meal, HelpTicket, FitnessAssessment,
     TrainerReview, Badge, UserBadge, PaymentSettings
 ) # pyre-ignore[21]
-from .utils import send_whatsapp_async
 from .forms import (
     DietPlanForm, WorkoutProgramForm, BMIHistoryForm, AttendanceForm, MealForm,
     GoalForm, NutritionLogForm, MessageForm, CommunityPostForm, ExerciseVideoForm,
@@ -191,17 +190,11 @@ def verify_otp_view(request):
             profile.phone_number = signup_data['phone_number']
             profile.save()
 
-            # --- WHATSAPP WELCOME MESSAGE ---
-            # Triggered on successful registration completion
-            first_name = user.first_name if user.first_name else user.username
-            welcome_msg = f"Hello {first_name}\n\nWelcome to FitSync!\n\nYour account has been successfully created.\nYou can now start your home workout journey.\n\nStay consistent and stay healthy!"
-            send_whatsapp_async(profile.phone_number, welcome_msg)
-
             # System Notification for the Dashboard
             Notification.objects.create(
                 user=user,
                 title="Account Setup Complete",
-                message="Your account is ready! We've sent a welcome message to your WhatsApp number."
+                message="Your account is ready! Welcome to the FitSync community."
             )
             
             # Cleanup
