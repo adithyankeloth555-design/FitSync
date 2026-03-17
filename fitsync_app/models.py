@@ -590,6 +590,7 @@ from django.conf import settings # type: ignore
 import urllib.request
 import json
 import threading
+from .utils import send_whatsapp_async
 
 @receiver(user_logged_in)
 def send_login_email(sender, user, request, **kwargs):
@@ -676,6 +677,21 @@ FitSync Security Team"""
 
     # Fire and forget — login response returns instantly
     threading.Thread(target=_send, daemon=True).start()
+
+@receiver(user_logged_in)
+def send_login_whatsapp_alert(sender, user, request, **kwargs):
+    """Sends a WhatsApp/SMS alert on successful login."""
+    try:
+        if hasattr(user, 'userprofile') and user.userprofile.phone_number:
+            phone = user.userprofile.phone_number
+            user_name = f"{user.first_name} {user.last_name}".strip() or user.username
+            login_time = timezone.now().strftime("%I:%M %p, %d %b")
+            
+            message = f"FitSync Security Alert 🛡️\n\nHello {user_name},\n\nA new login was detected for your account at {login_time}.\n\nIf this was not you, please reset your password immediately."
+            
+            send_whatsapp_async(phone, message)
+    except Exception as e:
+        print(f"WA Login Alert Error: {e}")
 
 # Payment Settings for Admin QR Upload
 class PaymentSettings(models.Model):
