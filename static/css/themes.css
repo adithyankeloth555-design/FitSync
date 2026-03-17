@@ -248,38 +248,221 @@
   --t-card-bg: #FFFFFF;
   --t-card-radius: 28px;
   --t-card-shadow: 0 8px 32px rgba(139,92,246,0.06);
-  --t-card-shadow-hover: 0 12px 48px rgba(139,92,246,0.12);
+  --t-card-shadow-hover: 0 12px 40px rgba(139,92,246,0.12);
   --t-card-border: none;
   --t-accent: #8B5CF6;
   --t-accent-light: #A78BFA;
-  --t-accent-pale: #F5F3FF;
-  --t-accent-gradient: linear-gradient(135deg, #8B5CF6, #7C3AED);
-  --t-accent-glow: rgba(139,92,246,0.3);
+  --t-accent-pale: rgba(139,92,246,0.06);
+  --t-accent-gradient: linear-gradient(135deg, #8B5CF6, #6D28D9);
+  --t-accent-glow: rgba(139,92,246,0.25);
   --t-secondary: #C4B5FD;
-  --t-secondary-light: #EDE9FE;
+  --t-secondary-light: rgba(196,181,253,0.3);
   --t-charcoal: #1E1530;
-  --t-text-mid: #3D3054;
+  --t-text-mid: #4A3A68;
   --t-text-soft: #6E5D88;
-  --t-blush: #C4B5FD;
-  --t-blush-light: #EDE9FE;
-  --t-sky: #A78BFA;
+  --t-blush: #A78BFA;
+  --t-blush-light: rgba(167,139,250,0.15);
+  --t-sky: #DDD6FE;
   --t-banner-bg: linear-gradient(135deg, #7C3AED, #5B21B6, #4C1D95);
   --t-banner-text: #FFFFFF;
   --t-bar-1: linear-gradient(180deg, #A78BFA, #8B5CF6);
-  --t-bar-2: linear-gradient(180deg, #C4B5FD, #A78BFA);
-  --t-logo-bg: linear-gradient(135deg, #8B5CF6, #7C3AED);
-  --t-btn-radius: 50px;
-  --t-input-bg: #F5F3FF;
-  --t-input-border: rgba(139,92,246,0.15);
-  --t-trainer-card-bg: linear-gradient(145deg, #F5F3FF, #EDE9FE);
+  --t-bar-2: linear-gradient(180deg, #DDD6FE, #C4B5FD);
+  --t-logo-bg: linear-gradient(135deg, #8B5CF6, #6D28D9);
+  --t-btn-radius: 40px;
+  --t-input-bg: #F8F5FF;
+  --t-input-border: rgba(139,92,246,0.2);
+  --t-trainer-card-bg: linear-gradient(145deg, #F9F7FF, #F1EEFF);
   --t-heading-weight: 500;
   --t-heading-style: italic;
   --t-heading-transform: none;
-  --t-heading-spacing: 0.2px;
+  --t-heading-spacing: 0px;
   --t-body-weight: 400;
   --t-pill-radius: 50px;
 }
 
+/* ───────────────────────────────────────────────────────────
+   🌅 SUNSET — Libre Baskerville, Warm Amber, Editorial Feel
+   ─────────────────────────────────────────────────────────── */
+[data-theme="sunset"] {
+  --t-font-heading: 'Libre Baskerville', serif;
+  --t-font-body: 'DM Sans', sans-serif;
+  --t-bg: #FFF7ED;
+  --t-sidebar-bg: #FFEDD5;
+  --t-sidebar-border: rgba(234,88,12,0.15);
+  --t-sidebar-text: #7C2D12;
+  --t-sidebar-active-bg: linear-gradient(135deg, rgba(234,88,12,0.15), rgba(234,88,12,0.05));
+  --t-card-bg: #FFFFFF;
+  --t-card-radius: 16px;
+  --t-card-shadow: 0 8px 32px rgba(234,88,12,0.15);
+  --t-card-shadow-hover: 0 12px 40px rgba(234,88,12,0.25);
+  --t-card-border: none;
+  --t-accent: #EA580C;
+  --t-accent-light: #F97316;
+  --t-accent-pale: rgba(234,88,12,0.1);
+  --t-accent-gradient: linear-gradient(135deg, #EA580C, #C2410C);
+  --t-accent-glow: rgba(234,88,12,0.3);
+  --t-secondary: #F59E0B;
+  --t-secondary-light: rgba(245,158,11,0.2);
+  --t-charcoal: #431407;
+  --t-text-mid: #7C2D12;
+  --t-text-soft: #9A3412;
+  --t-blush: #FB923C;
+  --t-blush-light: rgba(251,146,60,0.15);
+  --t-sky: #FDBA74;
+  --t-banner-bg: linear-gradient(135deg, #EA580C, #9A3412);
+  --t-banner-text: #FFFFFF;
+  --t-bar-1: linear-gradient(180deg, #F97316, #EA580C);
+  --t-bar-2: linear-gradient(180deg, #FCD34D, #F59E0B);
+  --t-logo-bg: linear-gradient(135deg, #EA580C, #C2410C);
+  --t-btn-radius: 12px;
+  --t-input-bg: #FFF7ED;
+  --t-input-border: rgba(234,88,12,0.2);
+  --t-trainer-card-bg: linear-gradient(145deg, #FFF7ED, #FFEDD5);
+  --t-heading-weight: 700;
+  --t-heading-style: normal;
+  --t-heading-transform: none;
+  --t-heading-spacing: 0px;
+  --t-body-weight: 500;
+  --t-pill-radius: 20px;
+}
+
+/* ───────────────────────────────────────────────────────────
+   🖤 NOIR — Vintage, Off-White, Libre Italic, Offset Shadows
+   ─────────────────────────────────────────────────────────── */
+[data-theme="noir"] {
+  --t-font-heading: 'Libre Baskerville', serif;
+  --t-font-body: 'Inter', sans-serif;
+  --t-bg: #F8F9FA;
+  --t-sidebar-bg: #FFFFFF;
+  --t-sidebar-border: rgba(0,0,0,0.1);
+  --t-sidebar-text: #495057;
+  --t-sidebar-active-bg: rgba(0,0,0,0.05);
+  --t-card-bg: #FFFFFF;
+  --t-card-radius: 2px;
+  --t-card-shadow: 2px 2px 0px #212529;
+  --t-card-shadow-hover: 4px 4px 0px #E03131;
+  --t-card-border: 1px solid #DEE2E6;
+  --t-accent: #E03131;
+  --t-accent-light: #FF6B6B;
+  --t-accent-pale: rgba(224,49,49,0.05);
+  --t-accent-gradient: linear-gradient(135deg, #E03131, #C92A2A);
+  --t-accent-glow: rgba(224,49,49,0.2);
+  --t-secondary: #343A40;
+  --t-secondary-light: rgba(52,58,64,0.1);
+  --t-charcoal: #212529;
+  --t-text-mid: #495057;
+  --t-text-soft: #868E96;
+  --t-blush: #FF8787;
+  --t-blush-light: rgba(255,135,135,0.15);
+  --t-sky: #FFA8A8;
+  --t-banner-bg: linear-gradient(135deg, #212529, #121415);
+  --t-banner-text: #F8F9FA;
+  --t-bar-1: linear-gradient(180deg, #FF6B6B, #E03131);
+  --t-bar-2: linear-gradient(180deg, #868E96, #343A40);
+  --t-logo-bg: linear-gradient(135deg, #E03131, #C92A2A);
+  --t-btn-radius: 2px;
+  --t-input-bg: #F8F9FA;
+  --t-input-border: #CED4DA;
+  --t-trainer-card-bg: #FFFFFF;
+  --t-heading-weight: 400;
+  --t-heading-style: italic;
+  --t-heading-transform: uppercase;
+  --t-heading-spacing: 1px;
+  --t-body-weight: 500;
+  --t-pill-radius: 2px;
+}
+
+/* ───────────────────────────────────────────────────────────
+   🌲 FOREST — Syne Bold, Deep Black, Green Accent
+   ─────────────────────────────────────────────────────────── */
+[data-theme="forest"] {
+  --t-font-heading: 'Syne', sans-serif;
+  --t-font-body: 'Inter', sans-serif;
+  --t-bg: #0A110D;
+  --t-sidebar-bg: #0E1A14;
+  --t-sidebar-border: rgba(16,185,129,0.2);
+  --t-sidebar-text: #6EE7B7;
+  --t-sidebar-active-bg: rgba(16,185,129,0.1);
+  --t-card-bg: #12221A;
+  --t-card-radius: 12px;
+  --t-card-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  --t-card-shadow-hover: 0 15px 40px rgba(0,0,0,0.7), 0 0 15px rgba(16,185,129,0.2);
+  --t-card-border: 1px solid rgba(16,185,129,0.2);
+  --t-accent: #10B981;
+  --t-accent-light: #34D399;
+  --t-accent-pale: rgba(16,185,129,0.1);
+  --t-accent-gradient: linear-gradient(135deg, #10B981, #059669);
+  --t-accent-glow: rgba(16,185,129,0.3);
+  --t-secondary: #059669;
+  --t-secondary-light: rgba(5,150,105,0.2);
+  --t-charcoal: #ECFDF5;
+  --t-text-mid: #A7F3D0;
+  --t-text-soft: #6EE7B7;
+  --t-blush: #34D399;
+  --t-blush-light: rgba(52,211,153,0.15);
+  --t-sky: #6EE7B7;
+  --t-banner-bg: linear-gradient(135deg, #065F46, #064E3B);
+  --t-banner-text: #FFFFFF;
+  --t-bar-1: linear-gradient(180deg, #34D399, #10B981);
+  --t-bar-2: linear-gradient(180deg, #6EE7B7, #059669);
+  --t-logo-bg: linear-gradient(135deg, #10B981, #059669);
+  --t-btn-radius: 8px;
+  --t-input-bg: #0E1A14;
+  --t-input-border: rgba(16,185,129,0.3);
+  --t-trainer-card-bg: linear-gradient(145deg, #12221A, #0A110D);
+  --t-heading-weight: 800;
+  --t-heading-style: normal;
+  --t-heading-transform: none;
+  --t-heading-spacing: 0px;
+  --t-body-weight: 500;
+  --t-pill-radius: 12px;
+}
+
+/* ───────────────────────────────────────────────────────────
+   🍂 TERRACOTTA — Fraunces Italic, Sandy Warm, Earthy Italian
+   ─────────────────────────────────────────────────────────── */
+[data-theme="terracotta"] {
+  --t-font-heading: 'Fraunces', serif;
+  --t-font-body: 'DM Sans', sans-serif;
+  --t-bg: #F5ECE3;
+  --t-sidebar-bg: #FAF4EF;
+  --t-sidebar-border: rgba(184,136,108,0.2);
+  --t-sidebar-text: #7D624B;
+  --t-sidebar-active-bg: rgba(184,136,108,0.1);
+  --t-card-bg: #FFFFFF;
+  --t-card-radius: 20px;
+  --t-card-shadow: 0 8px 30px rgba(184,136,108,0.15);
+  --t-card-shadow-hover: 0 12px 40px rgba(184,136,108,0.25);
+  --t-card-border: none;
+  --t-accent: #B8886C;
+  --t-accent-light: #D1A38A;
+  --t-accent-pale: rgba(184,136,108,0.1);
+  --t-accent-gradient: linear-gradient(135deg, #B8886C, #9B6D53);
+  --t-accent-glow: rgba(184,136,108,0.3);
+  --t-secondary: #9B6D53;
+  --t-secondary-light: rgba(155,109,83,0.2);
+  --t-charcoal: #3E2A1A;
+  --t-text-mid: #5A4634;
+  --t-text-soft: #7D624B;
+  --t-blush: #D1A38A;
+  --t-blush-light: rgba(209,163,138,0.15);
+  --t-sky: #E3BEA6;
+  --t-banner-bg: linear-gradient(135deg, #A87056, #804F3B);
+  --t-banner-text: #FFFFFF;
+  --t-bar-1: linear-gradient(180deg, #D1A38A, #B8886C);
+  --t-bar-2: linear-gradient(180deg, #E3BEA6, #9B6D53);
+  --t-logo-bg: linear-gradient(135deg, #B8886C, #9B6D53);
+  --t-btn-radius: 50px;
+  --t-input-bg: #FAF4EF;
+  --t-input-border: rgba(184,136,108,0.3);
+  --t-trainer-card-bg: linear-gradient(145deg, #FFFFFF, #FAF4EF);
+  --t-heading-weight: 500;
+  --t-heading-style: italic;
+  --t-heading-transform: none;
+  --t-heading-spacing: 0px;
+  --t-body-weight: 400;
+  --t-pill-radius: 50px;
+}
 
 /* ═══════════════════════════════════════════════════════════
    THEME-AWARE OVERRIDES — Full structural changes
