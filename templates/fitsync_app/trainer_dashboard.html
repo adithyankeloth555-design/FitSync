@@ -7,8 +7,9 @@
 {% block footer %}{% endblock %}
 
 {% block extra_css %}
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Bebas+Neue&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/themes.css' %}">
 
 <style>
     /* Force override base template dark-mode */
@@ -577,6 +578,10 @@
                 <i class="fa-regular fa-comment"></i>
                 <span class="fd-nav-label">Messages</span>
             </a>
+            <a href="javascript:void(0)" class="fd-nav-item" onclick="if(window.openThemePanel) window.openThemePanel();">
+                <i class="fa-solid fa-palette"></i>
+                <span class="fd-nav-label" style="display:flex;align-items:center;width:100%;">Appearance <div class="appearance-dot"></div></span>
+            </a>
         </nav>
 
         <div class="fd-sidebar-footer">
@@ -612,15 +617,24 @@
                 <h1>Welcome, {{ user.get_full_name|default:user.username|title }} 💪</h1>
                 <p>Monitor and optimize your athletes' performance.</p>
             </div>
-            <div class="fd-header-actions">
+            <div class="fd-header-actions" style="align-items: center;">
+                <div class="search-wrapper" id="search-wrapper" style="margin-right:0.5rem;">
+                    <div class="search-bar" id="search-bar-trigger" style="border-color:var(--fd-border); background:var(--fd-card);">
+                        <i class="fa-solid fa-search" style="color:var(--fd-text-muted);font-size:13px;"></i>
+                        <input type="text" id="dashboard-search" class="search-input" placeholder="Search pages…" autocomplete="off">
+                        <kbd class="search-kbd">⌘K</kbd>
+                    </div>
+                    <div class="search-results" id="search-results"></div>
+                </div>
+                <button class="theme-trigger-btn" id="theme-trigger-btn" title="Change Theme" style="background:var(--fd-card); border:1px solid var(--fd-border); width:40px; height:40px; border-radius:10px; cursor:pointer; color:var(--fd-text-muted); display:flex; align-items:center; justify-content:center;">
+                    <i class="fa-solid fa-palette"></i>
+                </button>
+
                 <a href="{% url 'live_session' %}" class="fd-header-btn primary">
                     <i class="fa-solid fa-video"></i> Live Session
                 </a>
                 <a href="{% url 'workout_list' %}" class="fd-header-btn">
                     <i class="fa-solid fa-plus"></i> Workout
-                </a>
-                <a href="{% url 'diet_list' %}" class="fd-header-btn">
-                    <i class="fa-solid fa-plus"></i> Diet Plan
                 </a>
             </div>
         </div>
@@ -769,4 +783,6 @@
         </div>
     </main>
 </div>
+<script src="{% static 'js/themes.js' %}"></script>
+<script src="{% static 'js/search.js' %}"></script>
 {% endblock %}

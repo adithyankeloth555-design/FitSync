@@ -1155,3 +1155,40 @@
   .search-wrapper.focused .search-bar { width: 220px; }
   .search-kbd { display: none; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   ADMIN & TRAINER OVERRIDES (BRIDGING --t-* to --fd-*)
+   ═══════════════════════════════════════════════════════════ */
+[data-theme] {
+  --fd-bg: var(--t-bg) !important;
+  --fd-sidebar: var(--t-sidebar-bg) !important;
+  --fd-card: var(--t-card-bg) !important;
+  --fd-accent: var(--t-accent) !important;
+  --fd-accent-dark: var(--t-accent-light) !important;
+  --fd-accent-glow: var(--t-accent-glow) !important;
+  --fd-text: var(--t-charcoal) !important;
+  --fd-text-secondary: var(--t-text-mid) !important;
+  --fd-text-muted: var(--t-text-soft) !important;
+  --fd-border: var(--t-sidebar-border) !important;
+  --fd-border-hover: var(--t-accent-pale) !important;
+  --fd-radius: var(--t-card-radius) !important;
+  --fd-radius-sm: calc(var(--t-card-radius) * 0.7) !important;
+  --fd-radius-lg: var(--t-card-radius) !important;
+  --fd-shadow: var(--t-card-shadow) !important;
+  --fd-shadow-hover: var(--t-card-shadow-hover) !important;
+  --fd-font: var(--t-font-body) !important;
+}
+
+[data-theme] .fd-greeting h1 {
+  font-family: var(--t-font-heading) !important;
+  font-weight: var(--t-heading-weight) !important;
+  font-style: var(--t-heading-style) !important;
+  text-transform: var(--t-heading-transform) !important;
+  letter-spacing: var(--t-heading-spacing) !important;
+}
+
+[data-theme] .fd-sidebar-brand { font-family: var(--t-font-heading) !important; }
+[data-theme] .fd-card-title, [data-theme] .section-title, [data-theme] .stat-val, [data-theme] .pay-amount { 
+  font-family: var(--t-font-heading) !important; 
+}
+[data-theme] .fd-nav-item.active { background: var(--t-sidebar-active-bg) !important; }

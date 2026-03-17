@@ -5,7 +5,8 @@
 {% block footer %}{% endblock %}
 
 {% block extra_css %}
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/themes.css' %}">
 <style>
     :root {
         --fd-bg: #f3f4f0;
@@ -719,6 +720,10 @@
                 <i class="fa-solid fa-life-ring"></i>
                 <span class="fd-nav-label">Support</span>
             </a>
+            <a href="javascript:void(0)" class="fd-nav-item" onclick="if(window.openThemePanel) window.openThemePanel();">
+                <i class="fa-solid fa-palette"></i>
+                <span class="fd-nav-label" style="display:flex;align-items:center;width:100%;">Appearance <div class="appearance-dot"></div></span>
+            </a>
         </nav>
 
         <!-- Footer -->
@@ -777,5 +782,7 @@
         }
     });
 </script>
+<script src="{% static 'js/themes.js' %}"></script>
+<script src="{% static 'js/search.js' %}"></script>
 {% block admin_extra_js %}{% endblock %}
 {% endblock %}
