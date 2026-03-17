@@ -134,13 +134,14 @@
     .fd-nav-item {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        padding: 0.75rem;
-        color: #9ca3af;
+        gap: 1.15rem;
+        padding: 0.85rem 1rem;
+        color: var(--fd-text-secondary, #6b7280);
         text-decoration: none;
         border-radius: var(--fd-radius-sm);
-        font-weight: 500;
-        font-size: 0.9rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        letter-spacing: 0.01em;
         transition: all 0.2s ease;
         white-space: nowrap;
         position: relative;
@@ -150,7 +151,8 @@
         width: 22px;
         min-width: 22px;
         text-align: center;
-        font-size: 1.05rem;
+        font-size: 1.1rem;
+        opacity: 0.8;
         flex-shrink: 0;
     }
 
@@ -164,8 +166,8 @@
     }
 
     .fd-nav-item:hover {
-        background: rgba(255, 255, 255, 0.05);
-        color: #ffffff;
+        background: rgba(0, 0, 0, 0.05);
+        color: var(--fd-text);
     }
 
     .fd-nav-item.active {
@@ -222,9 +224,9 @@
 
     .fd-sidebar-username {
         display: block;
-        font-weight: 700;
-        font-size: 0.85rem;
-        color: #ffffff;
+        font-weight: 800;
+        font-size: 0.9rem;
+        color: var(--fd-text);
         line-height: 1.2;
     }
 
