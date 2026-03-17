@@ -103,7 +103,7 @@
     }
 
     .fd-card-title {
-        font-size: 1rem;
+        font-size: 1.05rem;
         font-weight: 800;
         color: var(--fd-text);
         margin-bottom: 1rem;
@@ -115,27 +115,10 @@
     .chart-container { position: relative; height: 200px; width: 100%; }
 
     /* Progress specific */
-    .progress-runner {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 180px;
-        background: url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80') center/cover;
-        border-radius: var(--fd-radius);
-        position: relative;
-        overflow: hidden;
-    }
-    .progress-runner::before {
-        content: ''; position: absolute; inset: 0;
-        background: linear-gradient(to right, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.2) 100%);
-    }
-    .progress-runner-content {
-        position: relative; z-index: 2; width: 100%; padding: 1rem;
-    }
-    .prog-item { margin-bottom: 1rem; }
-    .prog-item h4 { font-size: 1.1rem; font-weight: 800; color: var(--fd-text); margin: 0; }
-    .prog-item p { font-size: 0.7rem; color: var(--fd-text-secondary); margin: 0 0 0.3rem 0; }
-    .prog-bar { height: 4px; background: rgba(0,0,0,0.1); border-radius: 4px; width: 60%; }
+    .prog-item { margin-bottom: 1.2rem; }
+    .prog-item h4 { font-size: 1.15rem; font-weight: 800; color: var(--fd-text); margin: 0; line-height: 1.1; }
+    .prog-item p { font-size: 0.75rem; color: var(--fd-text-secondary); margin: 0 0 0.4rem 0; font-weight: 500;}
+    .prog-bar { height: 5px; background: rgba(0,0,0,0.06); border-radius: 4px; width: 60%; }
     .prog-fill { height: 100%; background: var(--fd-accent-dark); border-radius: 4px; }
 
     /* Bottom Row */
@@ -216,21 +199,24 @@
             </div>
             
             <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div class="fd-header-pill" style="margin-right: 0.5rem; background: #1a1a1a; color: #fff; border-radius: 50px; padding: 0.55rem 1.2rem; display: flex; gap:0.5rem; align-items:center; font-size: 0.8rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    Weekly <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem; color: #9ca3af;"></i>
+                </div>
                 <!-- SEARCH -->
-                <div class="search-wrapper" id="search-wrapper">
-                    <div class="search-bar" id="search-bar-trigger" style="border-color:var(--fd-border); background:var(--fd-bg); border-radius: 50px;">
-                        <i class="fa-solid fa-search" style="color:var(--fd-text-muted);font-size:13px;"></i>
-                        <input type="text" id="dashboard-search" class="search-input" placeholder="Search pages…" autocomplete="off">
-                        <kbd class="search-kbd">⌘K</kbd>
+                <div class="search-wrapper" id="search-wrapper" style="width: auto;">
+                    <div class="search-bar" id="search-bar-trigger" style="border:none; background:var(--fd-card); border-radius: 50%; width: 42px; height: 42px; padding: 0; justify-content: center; cursor: pointer; display: flex; box-shadow: var(--fd-shadow);">
+                        <i class="fa-solid fa-search" style="color:var(--fd-text);font-size:14px; margin:0;"></i>
+                        <input type="text" id="dashboard-search" class="search-input" placeholder="Search..." autocomplete="off" style="display: none;">
+                        <kbd class="search-kbd" style="display: none;">⌘K</kbd>
                     </div>
                     <div class="search-results" id="search-results"></div>
                 </div>
                 <!-- THEME BTN -->
-                <button class="theme-trigger-btn" id="theme-trigger-btn" title="Change Theme" style="background:var(--fd-bg); border:1px solid var(--fd-border); width:40px; height:40px; border-radius:50%; cursor:pointer; color:var(--fd-text-muted); display:flex; align-items:center; justify-content:center;">
-                    <i class="fa-solid fa-palette"></i>
+                <button class="theme-trigger-btn" id="theme-trigger-btn" title="Change Theme" style="background:var(--fd-card); border:none; width:42px; height:42px; border-radius:50%; cursor:pointer; color:var(--fd-text); display:flex; align-items:center; justify-content:center; box-shadow: var(--fd-shadow);">
+                    <i class="fa-solid fa-palette" style="font-size: 14px;"></i>
                 </button>
-                <div class="fd-header-pill" style="margin-left: 0.5rem; background: var(--fd-bg); border-radius: 50px; padding: 0.5rem 1rem; border: 1px solid var(--fd-border); display: flex; gap:0.5rem; align-items:center; font-size: 0.8rem; font-weight: 600; cursor: pointer;">
-                    Weekly <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem;"></i>
+                <div style="width: 42px; height: 42px; border-radius: 50%; background: var(--fd-card); box-shadow: var(--fd-shadow); display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                    <i class="fa-regular fa-bell" style="font-size: 14px; color: var(--fd-text);"></i>
                 </div>
             </div>
         </div>
@@ -282,55 +268,74 @@
                 </div>
             </div>
 
-            <div class="fd-card" style="padding: 1rem;">
-                <div class="fd-card-title" style="margin-bottom: 0.5rem; font-size: 0.95rem;">Progress</div>
-                <div class="progress-runner">
-                    <div class="progress-runner-content">
-                        <div class="prog-item">
-                            <h4>56 kms</h4>
-                            <p>Weekly distance</p>
-                            <div class="prog-bar"><div class="prog-fill" style="width: 75%;"></div></div>
-                        </div>
-                        <div class="prog-item">
-                            <h4>236 kms</h4>
-                            <p>Total distance covered</p>
-                            <div class="prog-bar"><div class="prog-fill" style="width: 45%;"></div></div>
-                        </div>
-                        <div class="prog-item">
-                            <h4>16 hrs</h4>
-                            <p>Cardio in PT hrs</p>
-                            <div class="prog-bar"><div class="prog-fill" style="width: 30%;"></div></div>
-                        </div>
+            <div class="fd-card" style="padding: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <!-- left part -->
+                <div style="flex: 1;">
+                    <div class="fd-card-title" style="margin-bottom: 1.25rem;">Progress</div>
+                    
+                    <div class="prog-item">
+                        <h4>56 kms</h4>
+                        <p>Weekly distance</p>
+                        <div class="prog-bar"><div class="prog-fill" style="width: 75%;"></div></div>
                     </div>
+                    <div class="prog-item">
+                        <h4>236 kms</h4>
+                        <p>Total distance covered</p>
+                        <div class="prog-bar"><div class="prog-fill" style="width: 45%;"></div></div>
+                    </div>
+                    <div class="prog-item" style="margin-bottom:0;">
+                        <h4>16 hrs</h4>
+                        <p>Cardio in PT hrs</p>
+                        <div class="prog-bar"><div class="prog-fill" style="width: 30%;"></div></div>
+                    </div>
+                </div>
+                
+                <!-- right part: green circle with runner -->
+                <div style="width: 130px; height: 130px; background: var(--fd-accent); border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center; margin-right: 0.5rem;">
+                    <img src="https://cdni.iconscout.com/illustration/premium/thumb/female-athlete-running-4351980-3622080.png" style="width: 140%; position: absolute; bottom: -5px; pointer-events: none;" alt="Runner">
                 </div>
             </div>
         </div>
 
         <!-- BOTTOM ROW -->
         <div class="dash-bottom-row fd-animate fd-delay-3">
-            <div class="fd-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+            <div class="fd-card" style="display:flex; flex-direction:column; justify-content:space-between; position: relative;">
                 <div>
                     <div class="fd-card-title">Subscription</div>
                     <p style="font-size:0.75rem; color:var(--fd-text-muted); margin:0;">Active Plan</p>
                     <h3 style="margin:0; font-size:1.1rem; color:var(--fd-text);">Standard - Monthly</h3>
                 </div>
-                <div style="text-align:center; margin-top:1rem;">
+                <!-- Small illustration overlay -->
+                <img src="https://cdni.iconscout.com/illustration/premium/thumb/meditating-man-3444464-2895656.png" style="width: 110px; position: absolute; bottom: 40px; right: 0; opacity: 0.7;">
+                <div style="text-align:center; margin-top:1rem; position: relative; z-index: 2;">
                     <a href="{% url 'admin_subscription' %}" class="btn-upgrade" style="display:block; padding: 0.75rem;">Upgrade to Pro</a>
                 </div>
             </div>
 
             <div class="fd-card">
-                <div class="fd-card-title" style="margin-bottom:0.5rem;">Payment</div>
-                <p style="font-size:0.75rem; color:var(--fd-text-muted); margin:0;">Income By:</p>
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <strong style="color:var(--fd-text); font-size:0.9rem;">22 December 2026</strong>
+                <div class="fd-card-title" style="margin-bottom:0.75rem;">Payment</div>
+                
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.75rem;">
+                    <div>
+                        <p style="font-size:0.75rem; color:var(--fd-text-muted); margin:0;">Income By:</p>
+                        <strong style="color:var(--fd-text); font-size:0.9rem;">22 December 2026</strong>
+                    </div>
                     <a href="{% url 'report_payments' %}" class="btn-upgrade">Pay Now</a>
                 </div>
-                <div style="margin-top: 1.5rem; border-top: 1px solid var(--fd-border); padding-top: 0.5rem;">
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
+                    <div>
+                        <p style="font-size:0.75rem; color:var(--fd-text-muted); margin:0;">Default Payment Method</p>
+                        <strong style="color:var(--fd-text); font-size:0.85rem;">Credit Card 0019</strong>
+                    </div>
+                    <a href="#" style="background:#1a1a1a; color:white; padding:0.4rem 0.8rem; border-radius:30px; font-size:0.7rem; text-decoration:none; font-weight:700;">Change</a>
+                </div>
+
+                <div style="border-top: 1px solid var(--fd-border); padding-top: 0.75rem;">
                     <p style="font-size:0.7rem; color:var(--fd-text-muted); margin:0;">Available Plans</p>
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.2rem;">
                         <strong style="color:var(--fd-text); font-size:0.85rem;">Monthly / Yearly / Others</strong>
-                        <a href="{% url 'admin_subscription' %}" style="background:#1a1a1a; color:white; padding:0.3rem 0.8rem; border-radius:50px; font-size:0.7rem; text-decoration:none; font-weight:700;">View</a>
+                        <a href="{% url 'admin_subscription' %}" style="background:#1a1a1a; color:white; padding:0.3rem 0.8rem; border-radius:30px; font-size:0.7rem; text-decoration:none; font-weight:700;">View</a>
                     </div>
                 </div>
             </div>
