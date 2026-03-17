@@ -168,13 +168,24 @@ def verify_otp_view(request):
                 return redirect('signup')
             
             # SUCCESS: Create User with ALL details
-            user = User.objects.create_user(
-                username=signup_data['username'],
-                email=signup_data['email'],
-                password=signup_data['password'],
-                first_name=signup_data['first_name'],
-                last_name=signup_data['last_name']
-            )
+            try:
+                user = User.objects.create_user(
+                    username=signup_data['username'],
+                    email=signup_data['email'],
+                    password=signup_data['password'],
+                    first_name=signup_data['first_name'],
+                    last_name=signup_data['last_name']
+                )
+            except Exception:
+                # If the user was already created (e.g. from the previous crash)
+                user = User.objects.get(username=signup_data['username'])
+                # Update details just in case
+                user.email = signup_data['email']
+                user.first_name = signup_data['first_name']
+                user.last_name = signup_data['last_name']
+                user.set_password(signup_data['password'])
+                user.save()
+
             profile, _ = UserProfile.objects.get_or_create(user=user)
             profile.role = 'member'
             profile.phone_number = signup_data['phone_number']
